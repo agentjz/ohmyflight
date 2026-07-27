@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { resolveFromRoot } from "../../helpers/paths";
@@ -379,6 +380,359 @@ assert len(matched) == 1
 assert pending == []
 assert matched[0].status == "异常"
 assert matched[0].remark == "下一步保存出错"
+`);
+  });
+});
+
+describe("lock entry helper smartapp.py quota router", () => {
+  it("publishes the standalone smart helper from the tool page", () => {
+    const html = readFileSync(
+      resolveFromRoot("public/tool/app/lock-entry-helper/index.html"),
+      "utf8"
+    );
+
+    expect(html).toContain('href="smartapp.py"');
+    expect(html).toContain("智能路由助手 smartapp.py");
+  });
+
+  it("reads the target-year available days from split portal quota tables", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+headers = ["休假类型", "年份", "休假天数", "锁班天数", "解锁天数", "可休天数"]
+rows = [
+    ["健康疗养", "2026", "20", "6", "0", "14"],
+    ["健康疗养", "2023", "20", "6", "0", "14"],
+]
+parsed = module.parse_quota_rows(headers, rows)
+
+assert parsed[0] == {
+    "休假类型": "健康疗养",
+    "年份": "2026",
+    "休假天数": "20",
+    "锁班天数": "6",
+    "解锁天数": "0",
+    "可休天数": "14",
+}, parsed
+assert module.available_days_for_year(parsed, 2026) == 14
+`);
+  });
+
+  it("passes Playwright wait arguments by keyword during employee recognition", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+class FakeLocator:
+    def __init__(self, value=""):
+        self.value = value
+    def click(self):
+        pass
+    def fill(self, value):
+        self.value = value
+    def type(self, value, delay=None):
+        self.value = value
+    def input_value(self):
+        return self.value
+
+class FakePage:
+    def __init__(self):
+        self.employee = FakeLocator()
+        self.wait_arg = None
+    def locator(self, selector):
+        if selector == "#showIdshowNonproductionTaskImportPage":
+            return self.employee
+        if selector == "#nonproductionTaskImportStaffNumId":
+            return FakeLocator("123456")
+        if selector == "#nameInfo":
+            return FakeLocator("测试甲")
+        raise AssertionError(selector)
+    def evaluate(self, expression):
+        pass
+    def wait_for_function(self, expression, *, arg=None, timeout=None):
+        self.wait_arg = arg
+
+page = FakePage()
+name = module.fill_employee(page, "123456", "测试甲")
+
+assert name == "测试甲", name
+assert page.wait_arg == {"employeeId": "123456", "name": "测试甲"}, page.wait_arg
+`);
+  });
+
+  it("keeps non-routed leave types unchanged, including cross-year ranges", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+record = module.parse_single_record("282119 陈坤淋 PARENT_LVE 2026-12-31 2027-01-02")
+segments, error = module.route_record(record, {})
+
+assert error == "", error
+assert [(item["请假类型"], item["开始日期"], item["结束日期"], item["计划天数"]) for item in segments] == [
+    ("PARENT_LVE", "2026-12-31", "2027-01-02", 3),
+], segments
+`);
+  });
+
+  it("uses the requested public leave first and routes the remaining date to recuperation", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+record = {
+    "员工号": "123456",
+    "姓名": "测试甲",
+    "请假类型": "ALV_FD",
+    "开始日期": "2026-08-09",
+    "结束日期": "2026-08-10",
+}
+segments, error = module.route_record(record, {"ALV_FD": 1, "RECU_LVE": 14})
+
+assert error == "", error
+assert [(item["请假类型"], item["开始日期"], item["结束日期"], item["计划天数"]) for item in segments] == [
+    ("ALV_FD", "2026-08-09", "2026-08-09", 1),
+    ("RECU_LVE", "2026-08-10", "2026-08-10", 1),
+], segments
+`);
+  });
+
+  it("routes a recuperation overflow to a public-leave tail segment", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+record = {
+    "员工号": "123456",
+    "姓名": "测试甲",
+    "请假类型": "RECU_LVE",
+    "开始日期": "2026-08-01",
+    "结束日期": "2026-08-16",
+}
+segments, error = module.route_record(record, {"RECU_LVE": 14, "ALV_FD": 2})
+
+assert error == "", error
+assert [(item["请假类型"], item["开始日期"], item["结束日期"], item["计划天数"]) for item in segments] == [
+    ("RECU_LVE", "2026-08-01", "2026-08-14", 14),
+    ("ALV_FD", "2026-08-15", "2026-08-16", 2),
+], segments
+`);
+  });
+
+  it("routes the full range to the alternate type when requested quota is zero", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+record = {
+    "员工号": "123456",
+    "姓名": "测试甲",
+    "请假类型": "ALV_FD",
+    "开始日期": "2026-08-09",
+    "结束日期": "2026-08-10",
+}
+segments, error = module.route_record(record, {"ALV_FD": 0, "RECU_LVE": 14})
+
+assert error == "", error
+assert [(item["请假类型"], item["开始日期"], item["结束日期"], item["计划天数"]) for item in segments] == [
+    ("RECU_LVE", "2026-08-09", "2026-08-10", 2),
+], segments
+`);
+  });
+
+  it("does not create partial segments when combined quota is insufficient", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+record = {
+    "员工号": "123456",
+    "姓名": "测试甲",
+    "请假类型": "ALV_FD",
+    "开始日期": "2026-08-01",
+    "结束日期": "2026-08-17",
+}
+segments, error = module.route_record(record, {"ALV_FD": 1, "RECU_LVE": 14})
+
+assert segments == [], segments
+assert "合计15天" in error, error
+assert "需要17天" in error, error
+`);
+  });
+
+  it("rejects cross-year records before quota routing", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+record = {
+    "员工号": "123456",
+    "姓名": "测试甲",
+    "请假类型": "RECU_LVE",
+    "开始日期": "2026-12-31",
+    "结束日期": "2027-01-01",
+}
+segments, error = module.route_record(record, {"RECU_LVE": 14, "ALV_FD": 1})
+
+assert segments == [], segments
+assert "跨自然年" in error, error
+`);
+  });
+
+  it("keeps original and routed segment fields in the smart result workbook", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+from openpyxl import load_workbook
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+record = {
+    "员工号": "123456",
+    "姓名": "测试甲",
+    "请假类型": "ALV_FD",
+    "开始日期": "2026-08-09",
+    "结束日期": "2026-08-10",
+}
+segments, error = module.route_record(record, {"ALV_FD": 1, "RECU_LVE": 14})
+assert error == "", error
+
+output_file = module.create_result_excel("smart_test")
+try:
+    module.append_result_excel(
+        output_file,
+        1,
+        1,
+        record,
+        segments[0],
+        {"ALV_FD": 1, "RECU_LVE": 14},
+        "成功",
+        {
+            "锁班结果": "待审批",
+            "员工号": "123456",
+            "姓名": "测试甲",
+            "开始日期": "2026-08-09 08:59:00",
+            "结束日期": "2026-08-09 19:59:00",
+            "锁班类型": "飞行员公休（订座）",
+        },
+        "",
+    )
+    workbook = load_workbook(output_file)
+    sheet = workbook.active
+    headers = [cell.value for cell in sheet[1]]
+    row = [cell.value for cell in sheet[2]]
+    workbook.close()
+finally:
+    Path(output_file).unlink(missing_ok=True)
+
+assert headers == module.RESULT_HEADERS, headers
+assert row[0:2] == [1, 1], row
+assert row[4:7] == ["飞行员公休（订座）", "2026-08-09", "2026-08-10"], row
+assert row[7:11] == ["飞行员公休（订座）", "2026-08-09", "2026-08-09", 1], row
+assert row[11:13] == [1, 14], row
+assert row[13] == "成功", row
+`);
+  });
+
+  it("reads smart Excel input by headers and normalizes business dates", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+import tempfile
+from datetime import datetime
+from pathlib import Path
+from openpyxl import Workbook
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+workbook = Workbook()
+sheet = workbook.active
+sheet.append(["姓名", "结束日期", "工号", "开始日期", "请假类型"])
+sheet.append(["测试甲", "2026/8/10", 123456, datetime(2026, 8, 9), "飞行员公休（订座）"])
+with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as file:
+    temp_path = file.name
+workbook.save(temp_path)
+workbook.close()
+
+try:
+    records, errors = module.parse_excel_file(temp_path)
+finally:
+    Path(temp_path).unlink(missing_ok=True)
+
+assert errors == [], errors
+assert records == [{
+    "员工号": "123456",
+    "姓名": "测试甲",
+    "请假类型": "ALV_FD",
+    "开始日期": "2026-08-09",
+    "结束日期": "2026-08-10",
+}], records
 `);
   });
 });

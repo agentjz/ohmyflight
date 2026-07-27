@@ -25,11 +25,12 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title border-bottom pb-2 mb-3">工具介绍</h5>
-                <p>这是一个 Python 脚本工具，用于自动化填写飞行门户的非生产任务录入表单，支持批量录入锁班信息。</p>
-                <p class="mt-2">支持批量/手动模式、白名单过滤、可选统一备注、冲突检测等功能。</p>
+                <p>这是一个 Python 脚本工具，用于自动化填写飞行门户的非生产任务录入表单，支持常规录入、智能路由和实验性并发。</p>
+                <p class="mt-2">三个 APP 均支持白名单、可选统一备注和结果归档；智能路由助手支持全部锁班类型，其中健康疗养与飞行员公休会按额度自动分配。</p>
                 <div class="alert alert-info mt-3 mb-0">
                     <strong>当前版本说明：</strong>
                     <ul class="mb-0 mt-2">
+                        <li><strong>smartapp.py</strong> - 智能路由助手：普通类型原样录入；健康疗养与飞行员公休额度合计足够时自动拆分日期并逐段提交</li>
                         <li><strong>app.py</strong> - 原始助手：稳定单页流程，支持批量、手动、Excel 导入三种模式，实时写入结果 Excel</li>
                         <li><strong>superapp.py</strong> - 并发助手：实验性并发录入，默认 20 个页面并发处理，适合大量数据提速</li>
                         <li>启动时可选填写统一备注，输入 <code>OK</code> 确认后复用于本次全部记录</li>
@@ -43,20 +44,27 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title border-bottom pb-2 mb-3">下载</h5>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="border rounded p-3 h-100">
-                            <h6 class="fw-bold">原始助手 app.py</h6>
-                            <p class="text-muted small mb-3">稳定单页流程，适合少量或常规锁班录入。</p>
-                            <a href="app.py" download class="btn btn-outline-secondary">下载 app.py</a>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item px-0 py-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                        <div>
+                            <h6 class="fw-bold mb-1">智能路由助手 smartapp.py</h6>
+                            <p class="text-muted small mb-0">支持全部锁班类型；健康疗养与飞行员公休会先完成额度预检，并在单一类型不足时拆分连续日期。</p>
                         </div>
+                        <a href="smartapp.py" download class="btn btn-primary flex-shrink-0">下载 smartapp.py</a>
                     </div>
-                    <div class="col-md-6">
-                        <div class="border rounded p-3 h-100">
-                            <h6 class="fw-bold">并发助手 superapp.py</h6>
-                            <p class="text-muted small mb-3">并发录入版本，默认 20 个页面同时处理，适合批量提速。</p>
-                            <a href="superapp.py" download class="btn btn-outline-secondary">下载 superapp.py</a>
+                    <div class="list-group-item px-0 py-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                        <div>
+                            <h6 class="fw-bold mb-1">原始助手 app.py</h6>
+                            <p class="text-muted small mb-0">稳定单页流程，按输入类型原样录入，适合常规锁班。</p>
                         </div>
+                        <a href="app.py" download class="btn btn-outline-secondary flex-shrink-0">下载 app.py</a>
+                    </div>
+                    <div class="list-group-item px-0 py-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                        <div>
+                            <h6 class="fw-bold mb-1">并发助手 superapp.py</h6>
+                            <p class="text-muted small mb-0">实验性并发录入，默认 20 个页面同时处理，适合大量数据提速。</p>
+                        </div>
+                        <a href="superapp.py" download class="btn btn-outline-secondary flex-shrink-0">下载 superapp.py</a>
                     </div>
                 </div>
             </div>
