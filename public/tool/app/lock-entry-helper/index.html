@@ -26,16 +26,16 @@
             <div class="card-body">
                 <h5 class="card-title border-bottom pb-2 mb-3">工具介绍</h5>
                 <p>这是一个 Python 脚本工具，用于自动化填写飞行门户的非生产任务录入表单，支持常规录入、智能路由和实验性并发。</p>
-                <p class="mt-2">三个 APP 均支持白名单、可选统一备注和结果归档；智能路由助手支持全部锁班类型，其中健康疗养与飞行员公休会按额度自动分配。</p>
+                <p class="mt-2">三个 APP 均支持白名单、可选统一备注和结果归档；智能路由助手支持全部锁班类型，其中健康疗养与飞行员公休会按额度自动分配，并可处理唯一旧锁班造成的日期冲突。</p>
                 <div class="alert alert-info mt-3 mb-0">
                     <strong>当前版本说明：</strong>
                     <ul class="mb-0 mt-2">
-                        <li><strong>smartapp.py</strong> - 智能路由助手：普通类型原样录入；健康疗养与飞行员公休额度合计足够时自动拆分日期并逐段提交</li>
+                        <li><strong>smartapp.py</strong> - 智能路由助手：普通类型原样录入；健康疗养与飞行员公休按额度拆分；日期冲突时可解锁唯一旧记录并重提一次</li>
                         <li><strong>app.py</strong> - 原始助手：稳定单页流程，支持批量、手动、Excel 导入三种模式，实时写入结果 Excel</li>
                         <li><strong>superapp.py</strong> - 并发助手：实验性并发录入，默认 20 个页面并发处理，适合大量数据提速</li>
                         <li>启动时可选填写统一备注，输入 <code>OK</code> 确认后复用于本次全部记录</li>
                         <li>并发助手会新建结果 Excel，每处理一条实时写入一条结果</li>
-                        <li>遇到冲突或错误时会自动跳过；冲突原因会写入结果 Excel 的备注和冲突列</li>
+                        <li>智能助手会尝试回退唯一旧锁班；无法回退或重提仍失败时记录原因并继续下一条</li>
                     </ul>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                     <div class="list-group-item px-0 py-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
                         <div>
                             <h6 class="fw-bold mb-1">智能路由助手 smartapp.py</h6>
-                            <p class="text-muted small mb-0">支持全部锁班类型；健康疗养与飞行员公休会先完成额度预检，并在单一类型不足时拆分连续日期。</p>
+                            <p class="text-muted small mb-0">支持全部锁班类型；健康疗养与飞行员公休按额度拆分连续日期；可选启用冲突旧锁班自动解锁和单次重提。</p>
                         </div>
                         <a href="smartapp.py" download class="btn btn-primary flex-shrink-0">下载 smartapp.py</a>
                     </div>

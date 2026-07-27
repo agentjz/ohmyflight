@@ -494,6 +494,132 @@ assert error == "", error
 assert [(item["请假类型"], item["开始日期"], item["结束日期"], item["计划天数"]) for item in segments] == [
     ("PARENT_LVE", "2026-12-31", "2027-01-02", 3),
 ], segments
+
+annual_record = module.parse_single_record("123456 测试甲 ALV 2026-09-01 2026-09-01")
+annual_segments, annual_error = module.route_record(annual_record, {})
+assert annual_error == "", annual_error
+assert annual_segments[0]["请假类型"] == "ALV", annual_segments
+`);
+  });
+
+  it("allows configured non-routed leave types to be selected on the portal form", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+class FakePage:
+    def __init__(self):
+        self.evaluate_arg = None
+        self.wait_arg = None
+    def evaluate(self, expression, arg):
+        self.evaluate_arg = arg
+    def wait_for_function(self, expression, *, arg=None, timeout=None):
+        self.wait_arg = arg
+
+page = FakePage()
+module.select_leave_type(page, "BS_STUDY")
+
+assert page.evaluate_arg == "BS_STUDY", page.evaluate_arg
+assert page.wait_arg == "BS_STUDY", page.wait_arg
+`);
+  });
+
+  it("selects an unlock candidate only by employee, locked status and overlapping dates", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+record = {
+    "员工号": "123456",
+    "姓名": "测试甲",
+    "请假类型": "ALV",
+    "开始日期": "2026-09-02",
+    "结束日期": "2026-09-02",
+}
+rows = [
+    {
+        "序号": "9001",
+        "状态": "已锁",
+        "员工号": "123456",
+        "开始日期": "2026-09-01 08:59:00",
+        "结束日期": "2026-09-03 19:59:00",
+        "锁班类型": "BS_STUDY",
+        "锁班名称": "业务学习(占值勤期类别)",
+        "锁班原因": "原业务学习备注",
+        "录入人": "100001",
+        "录入时间": "2026-07-27 14:54:41",
+    },
+    {
+        "序号": "9002",
+        "状态": "已解锁",
+        "员工号": "123456",
+        "开始日期": "2026-09-02 08:59:00",
+        "结束日期": "2026-09-02 19:59:00",
+    },
+    {
+        "序号": "9003",
+        "状态": "已锁",
+        "员工号": "654321",
+        "开始日期": "2026-09-02 08:59:00",
+        "结束日期": "2026-09-02 19:59:00",
+    },
+]
+
+candidate, error = module.choose_unlock_candidate(rows, record)
+assert error == "", error
+assert candidate["序号"] == "9001", candidate
+
+duplicate = dict(rows[0], 序号="9004")
+candidate, error = module.choose_unlock_candidate(rows + [duplicate], record)
+assert candidate is None, candidate
+assert "2条" in error, error
+
+candidate, error = module.choose_unlock_candidate(rows[1:], record)
+assert candidate is None, candidate
+assert "未找到" in error, error
+`);
+  });
+
+  it("formats a complete Excel note for the unlocked old record", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+old_row = {
+    "序号": "9001",
+    "锁班类型": "BS_STUDY",
+    "锁班名称": "业务学习(占值勤期类别)",
+    "开始日期": "2026-09-01 08:59:00",
+    "结束日期": "2026-09-03 19:59:00",
+    "锁班原因": "一段很长的原始锁班原因，用来证明门户备注会按最大长度截断但关键身份不会丢失",
+}
+note = module.format_unlocked_record_excel_note(old_row)
+
+assert "锁班名称业务学习(占值勤期类别)" in note, note
+assert "锁班原因一段很长的原始锁班原因" in note, note
+assert "开始日期2026-09-01 08:59:00" in note, note
+assert "结束日期2026-09-03 19:59:00" in note, note
 `);
   });
 
@@ -678,6 +804,23 @@ try:
             "锁班类型": "飞行员公休（订座）",
         },
         "",
+        attempt=2,
+        recovery="已解锁旧记录并重提一次",
+        unlocked_row={
+            "序号": "9001",
+            "状态": "已锁",
+            "员工号": "123456",
+            "姓名": "测试甲",
+            "开始日期": "2026-09-01 08:59:00",
+            "结束日期": "2026-09-03 19:59:00",
+            "锁班天数": "3",
+            "锁班类型": "BS_STUDY",
+            "锁班名称": "业务学习(占值勤期类别)",
+            "锁班原因": "原业务学习备注",
+            "录入人": "100001",
+            "录入时间": "2026-07-27 14:54:41",
+        },
+        excel_note="已解锁：锁班名称业务学习；锁班原因原业务学习备注；开始日期2026-09-01；结束日期2026-09-03",
     )
     workbook = load_workbook(output_file)
     sheet = workbook.active
@@ -693,6 +836,45 @@ assert row[4:7] == ["飞行员公休（订座）", "2026-08-09", "2026-08-10"], 
 assert row[7:11] == ["飞行员公休（订座）", "2026-08-09", "2026-08-09", 1], row
 assert row[11:13] == [1, 14], row
 assert row[13] == "成功", row
+by_header = dict(zip(headers, row))
+assert by_header["尝试次数"] == 2, by_header
+assert by_header["冲突回退"] == "已解锁旧记录并重提一次", by_header
+assert by_header["解锁序号"] == "9001", by_header
+assert by_header["解锁类型"] == "BS_STUDY", by_header
+assert by_header["解锁原因"] == "原业务学习备注", by_header
+assert by_header["备注"] == "已解锁：锁班名称业务学习；锁班原因原业务学习备注；开始日期2026-09-01；结束日期2026-09-03", by_header
+`);
+  });
+
+  it("continues with the next record after a recoverable record failure", () => {
+    runPythonCheck(String.raw`
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path("public/tool/app/lock-entry-helper/smartapp.py")
+spec = importlib.util.spec_from_file_location("smartapp", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["smartapp"] = module
+spec.loader.exec_module(module)
+
+records = [
+    {"员工号": "123456", "姓名": "测试甲", "请假类型": "ALV", "开始日期": "2026-09-01", "结束日期": "2026-09-01"},
+    {"员工号": "654321", "姓名": "测试乙", "请假类型": "GRD", "开始日期": "2026-09-02", "结束日期": "2026-09-02"},
+]
+calls = []
+
+def fake_process(page, record, sequence, result_file, common_reason, conflict_recovery):
+    calls.append((sequence, record["员工号"], conflict_recovery))
+    return (False, "首条冲突回退失败") if sequence == 1 else (True, "")
+
+module.process_smart_record = fake_process
+module.beep_error = lambda: None
+failed = module.process_record_list(None, records, None, None, True)
+
+assert calls == [(1, "123456", True), (2, "654321", True)], calls
+assert len(failed) == 1, failed
+assert failed[0][0]["员工号"] == "123456", failed
 `);
   });
 

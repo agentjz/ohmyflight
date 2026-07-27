@@ -30,6 +30,7 @@ def beep_error():
 
 # 所有原始锁班类型均可录入，仅两类休假参与智能路由。
 LEAVE_TYPE_MAP = {
+    "ALV-年假（公休假）": "ALV",
     "ALV_FD-飞行员公休（订座）": "ALV_FD",
     "RECU_LVE-健康疗养": "RECU_LVE",
     "RECU_LVE_R-康复疗养": "RECU_LVE_R",
@@ -122,6 +123,20 @@ RESULT_HEADERS = [
     "日期匹配",
     "类型匹配",
     "处理时间",
+    "尝试次数",
+    "冲突回退",
+    "解锁序号",
+    "解锁状态",
+    "解锁员工号",
+    "解锁姓名",
+    "解锁开始日期",
+    "解锁结束日期",
+    "解锁天数",
+    "解锁类型",
+    "解锁名称",
+    "解锁原因",
+    "解锁录入人",
+    "解锁录入时间",
 ]
 
 QUOTA_REQUIRED_HEADERS = [
@@ -140,6 +155,21 @@ EXCEL_HEADER_ALIASES = {
     "开始日期": ("开始日期",),
     "结束日期": ("结束日期",),
 }
+
+LOCK_QUERY_REQUIRED_HEADERS = [
+    "序号",
+    "状态",
+    "员工号",
+    "姓名",
+    "开始日期",
+    "结束日期",
+    "锁班天数",
+    "锁班类型",
+    "锁班名称",
+    "锁班原因",
+    "录入人",
+    "录入时间",
+]
 
 def parse_leave_type(text: str) -> str:
     """解析锁班类型，支持代码或中文名"""
@@ -178,6 +208,75 @@ def normalize_employee_id(value) -> str:
     if isinstance(value, float) and value.is_integer():
         return str(int(value))
     return str(value).strip()
+
+
+def parse_portal_business_date(value: str) -> date:
+    """从门户日期或日期时间文本读取业务日期。"""
+    text = normalize_text(value)
+    match = re.match(r"^(\d{4}-\d{2}-\d{2})(?:\s|$)", text)
+    if not match:
+        raise ValueError(f"门户日期格式异常 [{text}]")
+    return datetime.strptime(match.group(1), "%Y-%m-%d").date()
+
+
+def date_ranges_overlap(
+    first_start: str,
+    first_end: str,
+    second_start: str,
+    second_end: str,
+) -> bool:
+    """按包含首尾的自然日区间判断两条锁班是否重叠。"""
+    first_start_date = parse_portal_business_date(first_start)
+    first_end_date = parse_portal_business_date(first_end)
+    second_start_date = parse_portal_business_date(second_start)
+    second_end_date = parse_portal_business_date(second_end)
+    if first_end_date < first_start_date or second_end_date < second_start_date:
+        raise ValueError("锁班结束日期早于开始日期")
+    return first_start_date <= second_end_date and second_start_date <= first_end_date
+
+
+def choose_unlock_candidate(rows: list, record: dict) -> tuple:
+    """只接受员工号、已锁状态和日期区间共同唯一命中的旧记录。"""
+    employee_id = normalize_employee_id(record.get("员工号"))
+    try:
+        parse_portal_business_date(record.get("开始日期", ""))
+        parse_portal_business_date(record.get("结束日期", ""))
+    except ValueError as error:
+        return None, f"冲突记录日期异常: {error}"
+
+    candidates = []
+    for row in rows:
+        if normalize_employee_id(row.get("员工号")) != employee_id:
+            continue
+        if normalize_text(row.get("状态")) != "已锁":
+            continue
+        try:
+            overlaps = date_ranges_overlap(
+                row.get("开始日期", ""),
+                row.get("结束日期", ""),
+                record.get("开始日期", ""),
+                record.get("结束日期", ""),
+            )
+        except ValueError as error:
+            return None, f"已锁候选日期异常: {error}"
+        if overlaps:
+            candidates.append(row)
+
+    if not candidates:
+        return None, "未找到员工号一致、状态已锁且日期重叠的旧锁班"
+    if len(candidates) != 1:
+        return None, f"找到{len(candidates)}条日期重叠的已锁记录，无法唯一定位"
+    return candidates[0], ""
+
+
+def format_unlocked_record_excel_note(row: dict) -> str:
+    """生成结果 Excel 使用的旧锁班摘要。"""
+    return (
+        f"已解锁：锁班名称{normalize_text(row.get('锁班名称'))}；"
+        f"锁班原因{normalize_text(row.get('锁班原因'))}；"
+        f"开始日期{normalize_text(row.get('开始日期'))}；"
+        f"结束日期{normalize_text(row.get('结束日期'))}"
+    )
 
 
 def format_business_date(value) -> str:
@@ -590,10 +689,10 @@ def fill_employee(page, emp_id, expected_name=None):
 
 
 def select_leave_type(page, leave_type):
-    if leave_type not in SMART_LEAVE_TYPES:
-        raise ValueError(f"智能路由不支持锁班类型 [{leave_type}]")
+    if leave_type not in LEAVE_CODE_TO_NAME:
+        raise ValueError(f"不支持锁班类型 [{leave_type}]")
     page.evaluate("""(leaveType) => {
-        const select = document.querySelector('#lockType');
+        const select = document.querySelector('#showNonproductionTaskImportPage #lockType');
         if (select) {
             select.focus();
             select.value = leaveType;
@@ -605,7 +704,7 @@ def select_leave_type(page, leave_type):
         }
     }""", leave_type)
     page.wait_for_function(
-        "leaveType => document.querySelector('#lockType')?.value === leaveType",
+        "leaveType => document.querySelector('#showNonproductionTaskImportPage #lockType')?.value === leaveType",
         arg=leave_type,
         timeout=5000,
     )
@@ -679,6 +778,269 @@ def table_rows(page, selector: str, headers: list) -> list:
         row_map["_text"] = " | ".join(value for value in values if value)
         rows.append(row_map)
     return rows
+
+
+def lock_query_row_from_locator(row, headers: list) -> dict:
+    cells = row.locator("td")
+    if cells.count() != len(headers):
+        text = normalize_text(row.inner_text(timeout=1000))
+        if "没有相关信息" in text:
+            return {"_text": text}
+        raise RuntimeError(
+            f"锁班查询表数据列数异常: 表头{len(headers)}列，数据{cells.count()}列"
+        )
+    values = []
+    for cell_index in range(cells.count()):
+        cell = cells.nth(cell_index)
+        title = normalize_text(cell.get_attribute("title") or "")
+        text = normalize_text(cell.inner_text(timeout=1000))
+        values.append(title or text)
+    result = {headers[index]: value for index, value in enumerate(values)}
+    result["_text"] = " | ".join(value for value in values if value)
+    return result
+
+
+def read_lock_query_page_rows(page) -> list:
+    table = page.locator("#showNonproductionTaskResultPage table")
+    table.wait_for(state="visible", timeout=15000)
+    header_cells = table.locator("thead th")
+    headers = []
+    for index in range(header_cells.count()):
+        text = normalize_text(header_cells.nth(index).inner_text(timeout=1000))
+        headers.append(text or ("选择" if index == 0 else f"列{index + 1}"))
+    missing = [header for header in LOCK_QUERY_REQUIRED_HEADERS if header not in headers]
+    if missing:
+        raise RuntimeError(f"锁班查询表缺少表头: {', '.join(missing)}")
+
+    page_input = page.locator("#showLockListResultPageDiv #userPage")
+    page_number = int(page_input.input_value()) if page_input.count() else 1
+    rows = []
+    row_locators = table.locator("tbody.list tr")
+    for row_index in range(row_locators.count()):
+        row = lock_query_row_from_locator(row_locators.nth(row_index), headers)
+        if "没有相关信息" in row.get("_text", ""):
+            continue
+        row["_page_number"] = page_number
+        rows.append(row)
+    return rows
+
+
+def lock_query_total_pages(page) -> int:
+    links = page.locator("#showLockListResultPageDiv .footer a")
+    for index in range(links.count()):
+        link = links.nth(index)
+        if normalize_text(link.inner_text(timeout=1000)) != "最后一页":
+            continue
+        href = link.get_attribute("href") or ""
+        match = re.search(r",\s*['\"]?(\d+)['\"]?\);?$", href)
+        if not match:
+            raise RuntimeError(f"无法识别锁班查询总页数 [{href}]")
+        return int(match.group(1))
+    return 1
+
+
+def go_to_lock_query_page(page, page_number: int) -> None:
+    current = page.locator("#showLockListResultPageDiv #userPage")
+    if current.count() and current.input_value() == str(page_number):
+        return
+    with page.expect_response(
+        lambda response: "/newieb/nonproductionTask/showLockListPage" in response.url,
+        timeout=15000,
+    ):
+        page.evaluate(
+            """pageNumber => window.goPageTwo(
+                'showNonproductionTaskLockPage1',
+                'queryFormId',
+                'showLockListResultPageDiv',
+                String(pageNumber)
+            )""",
+            page_number,
+        )
+    page.wait_for_function(
+        "pageNumber => document.querySelector('#showLockListResultPageDiv #userPage')?.value === String(pageNumber)",
+        arg=page_number,
+        timeout=15000,
+    )
+
+
+def read_all_lock_query_rows(page) -> list:
+    go_to_lock_query_page(page, 1)
+    total_pages = lock_query_total_pages(page)
+    rows = []
+    for page_number in range(1, total_pages + 1):
+        go_to_lock_query_page(page, page_number)
+        rows.extend(read_lock_query_page_rows(page))
+    return rows
+
+
+def run_locked_record_query(page, employee_id: str) -> list:
+    query_page = page.locator("#showNonproductionTaskLockPage1")
+    query_page.wait_for(state="visible", timeout=15000)
+    employee = query_page.locator("#showIdNonproductionTaskLock")
+    employee.click()
+    employee.fill("")
+    employee.type(employee_id, delay=20)
+    page.wait_for_function(
+        "employeeId => document.querySelector('#staffnumNonproductionTaskLock')?.value === employeeId",
+        arg=employee_id,
+        timeout=15000,
+    )
+    query_page.locator("#lockStatus").select_option("1")
+    query_page.locator("#lockStartTimeQuery").fill("")
+    query_page.locator("#lockEndTimeQuery").fill("")
+    with page.expect_response(
+        lambda response: "/newieb/nonproductionTask/showLockListPage" in response.url,
+        timeout=15000,
+    ):
+        query_page.get_by_role("button", name="查询", exact=True).click()
+    page.locator("#showNonproductionTaskResultPage table").wait_for(state="visible", timeout=15000)
+    return read_all_lock_query_rows(page)
+
+
+def open_lock_query_from_conflict(page, record: dict) -> list:
+    page.get_by_role("button", name="锁班查询", exact=True).click()
+    page.locator("#showNonproductionTaskLockPage1").wait_for(state="visible", timeout=15000)
+    return run_locked_record_query(page, record["员工号"])
+
+
+def same_query_record(left: dict, right: dict) -> bool:
+    identity_fields = (
+        "员工号",
+        "状态",
+        "开始日期",
+        "结束日期",
+        "锁班类型",
+        "锁班名称",
+        "锁班原因",
+        "录入人",
+        "录入时间",
+    )
+    return all(normalize_text(left.get(field)) == normalize_text(right.get(field)) for field in identity_fields)
+
+
+def find_unlock_row_locator(page, candidate: dict):
+    go_to_lock_query_page(page, int(candidate.get("_page_number", 1)))
+    table = page.locator("#showNonproductionTaskResultPage table")
+    header_cells = table.locator("thead th")
+    headers = []
+    for index in range(header_cells.count()):
+        text = normalize_text(header_cells.nth(index).inner_text(timeout=1000))
+        headers.append(text or ("选择" if index == 0 else f"列{index + 1}"))
+
+    matches = []
+    row_locators = table.locator("tbody.list tr")
+    for row_index in range(row_locators.count()):
+        row_locator = row_locators.nth(row_index)
+        row = lock_query_row_from_locator(row_locator, headers)
+        if same_query_record(row, candidate):
+            matches.append(row_locator)
+    if len(matches) != 1:
+        raise RuntimeError(f"解锁前同行复选框定位到{len(matches)}行，已停止")
+    return matches[0]
+
+
+def format_unlock_action_reason(candidate: dict, record: dict) -> str:
+    old_start = parse_portal_business_date(candidate.get("开始日期", "")).strftime("%Y-%m-%d")
+    old_end = parse_portal_business_date(candidate.get("结束日期", "")).strftime("%Y-%m-%d")
+    return (
+        f"自动冲突回退：解锁{candidate.get('序号', '')} "
+        f"{candidate.get('锁班类型', '')} {old_start}~{old_end}，"
+        f"重提{record.get('请假类型', '')} {record.get('开始日期', '')}~{record.get('结束日期', '')}"
+    )[:200]
+
+
+def unlock_query_candidate(page, candidate: dict, record: dict) -> str:
+    row_locator = find_unlock_row_locator(page, candidate)
+    checkbox = row_locator.locator("input.lockTaskListIds")
+    if checkbox.count() != 1 or checkbox.is_disabled():
+        raise RuntimeError("唯一候选行的复选框不可用，已停止")
+    checkbox.check()
+    page.locator("#showNonproductionTaskResultPage #importBtn").get_by_role(
+        "button", name="解锁", exact=True
+    ).click()
+
+    remark = page.locator("#remark")
+    remark.wait_for(state="visible", timeout=10000)
+    remark_dialog = remark.locator(
+        "xpath=ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' ui-dialog ')][1]"
+    )
+    operator_prefix = normalize_text(remark.input_value())
+    action_reason = format_unlock_action_reason(candidate, record)
+    remark.fill((operator_prefix + action_reason)[:200])
+    print(c_info("已填写解锁原因，确认解锁"))
+    remark_dialog.get_by_role("button", name="确定", exact=True).click()
+
+    remark.wait_for(state="hidden", timeout=10000)
+    page.locator(".ui-dialog:visible").last.wait_for(state="visible", timeout=15000)
+    visible_dialogs = page.locator(".ui-dialog:visible")
+    result_dialog = visible_dialogs.nth(visible_dialogs.count() - 1)
+    result_message = normalize_text(result_dialog.inner_text())
+    print(c_info(f"解锁结果: {result_message}"))
+    result_dialog.get_by_role("button", name="确定", exact=True).click()
+    if "成功" not in result_message:
+        raise RuntimeError(f"门户未确认解锁成功: {result_message}")
+    return result_message
+
+
+def return_to_import_from_query(page) -> None:
+    if page.locator("#showIdshowNonproductionTaskImportPage").is_visible():
+        return
+    page.locator("#showNonproductionTaskResultPage #importBtn").get_by_role(
+        "button", name="录入", exact=True
+    ).click()
+    page.locator("#showIdshowNonproductionTaskImportPage").wait_for(state="visible", timeout=15000)
+
+
+def dismiss_lock_query_dialogs(page) -> None:
+    remark = page.locator("#remark")
+    if remark.count() and remark.is_visible():
+        dialog = remark.locator(
+            "xpath=ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' ui-dialog ')][1]"
+        )
+        cancel = dialog.get_by_role("button", name="取消", exact=True)
+        if cancel.is_visible():
+            cancel.click()
+    for _ in range(3):
+        dialogs = page.locator(".ui-dialog:visible")
+        if dialogs.count() == 0:
+            break
+        dialog = dialogs.nth(dialogs.count() - 1)
+        confirm = dialog.get_by_role("button", name="确定", exact=True)
+        cancel = dialog.get_by_role("button", name="取消", exact=True)
+        if confirm.count() and confirm.is_visible():
+            confirm.click()
+        elif cancel.count() and cancel.is_visible():
+            cancel.click()
+        else:
+            break
+
+
+def recover_conflicting_lock(page, record: dict, before_unlock=None) -> tuple:
+    candidate = None
+    try:
+        rows = open_lock_query_from_conflict(page, record)
+        candidate, error = choose_unlock_candidate(rows, record)
+        if error:
+            try:
+                return_to_import_from_query(page)
+            except Exception:
+                pass
+            return False, candidate, error
+        if before_unlock:
+            before_unlock(candidate)
+        unlock_message = unlock_query_candidate(page, candidate, record)
+        remaining_rows = run_locked_record_query(page, record["员工号"])
+        if any(same_query_record(row, candidate) for row in remaining_rows):
+            return False, candidate, "门户提示成功，但旧记录仍处于已锁查询结果"
+        return_to_import_from_query(page)
+        return True, candidate, unlock_message
+    except Exception as error:
+        try:
+            dismiss_lock_query_dialogs(page)
+            return_to_import_from_query(page)
+        except Exception:
+            pass
+        return False, candidate, str(error)
 
 
 def raw_table_rows(page, selector: str) -> list:
@@ -958,12 +1320,18 @@ def format_record(r):
 
 
 def go_back_to_form(page):
-    """从结果页返回表单页"""
+    """从提交结果页或锁班查询页返回录入表单。"""
+    if page.locator("#showIdshowNonproductionTaskImportPage").is_visible():
+        return
     try:
-        page.get_by_role("button", name="继续录入").click()
+        continue_button = page.get_by_role("button", name="继续录入", exact=True)
+        if continue_button.is_visible():
+            continue_button.click()
+        else:
+            return_to_import_from_query(page)
         page.locator("#showIdshowNonproductionTaskImportPage").wait_for()
     except Exception:
-        pass  # 如果已经在表单页就忽略
+        pass
 
 
 def print_failed_records(failed_records):
@@ -1015,11 +1383,16 @@ def append_result_excel(
     status: str,
     row: dict = None,
     remark: str = "",
+    attempt: int = 1,
+    recovery: str = "",
+    unlocked_row: dict = None,
+    excel_note: str = "",
 ):
     if not output_file:
         return
     row = row or {}
     segment = segment or {}
+    unlocked_row = unlocked_row or {}
     result_employee_id = row.get("员工号", "")
     result_name = row.get("姓名", "")
     result_start = row.get("开始日期", "")
@@ -1037,7 +1410,7 @@ def append_result_excel(
     ) if has_result else None
     type_match = leave_types_match(actual_type, result_type) if has_result else None
     conflict = remark if status == "冲突" else ""
-    note = "" if status == "成功" else remark
+    note = excel_note or ("" if status == "成功" else remark)
 
     def match_text(value):
         if value is None:
@@ -1073,6 +1446,20 @@ def append_result_excel(
         match_text(date_match),
         match_text(type_match),
         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        attempt,
+        recovery,
+        unlocked_row.get("序号", ""),
+        unlocked_row.get("状态", ""),
+        unlocked_row.get("员工号", ""),
+        unlocked_row.get("姓名", ""),
+        unlocked_row.get("开始日期", ""),
+        unlocked_row.get("结束日期", ""),
+        unlocked_row.get("锁班天数", ""),
+        unlocked_row.get("锁班类型", ""),
+        unlocked_row.get("锁班名称", ""),
+        unlocked_row.get("锁班原因", ""),
+        unlocked_row.get("录入人", ""),
+        unlocked_row.get("录入时间", ""),
     ])
     wb.save(output_file)
     wb.close()
@@ -1110,7 +1497,14 @@ def print_route_plan(record: dict, quotas: dict, segments: list):
         ))
 
 
-def process_smart_record(page, record, original_sequence, output_file, common_reason) -> tuple:
+def process_smart_record(
+    page,
+    record,
+    original_sequence,
+    output_file,
+    common_reason,
+    conflict_recovery=False,
+) -> tuple:
     try:
         segments, quotas, route_error = preflight_route(page, record)
     except Exception as error:
@@ -1129,6 +1523,10 @@ def process_smart_record(page, record, original_sequence, output_file, common_re
 
     print_route_plan(record, quotas, segments)
     for segment_index, segment in enumerate(segments, start=1):
+        attempt = 1
+        unlocked_row = {}
+        recovery_note = ""
+        excel_note = ""
         print(c_info(
             f"提交片段{segment_index}/{len(segments)}: "
             f"{leave_type_name(segment['请假类型'])} "
@@ -1156,9 +1554,96 @@ def process_smart_record(page, record, original_sequence, output_file, common_re
                 status,
                 result_row,
                 remark,
+                attempt=attempt,
             )
+            if status == "冲突" and conflict_recovery:
+                print(c_warn("当前片段发生冲突，正在查询唯一重叠的已锁记录"))
+
+                def persist_candidate(candidate):
+                    append_result_excel(
+                        output_file,
+                        original_sequence,
+                        segment_index,
+                        record,
+                        segment,
+                        quotas,
+                        "准备解锁",
+                        result_row,
+                        remark,
+                        attempt=attempt,
+                        recovery="已唯一定位旧记录，解锁前已落盘",
+                        unlocked_row=candidate,
+                    )
+
+                recovered, unlocked_row, recovery_note = recover_conflicting_lock(
+                    page,
+                    segment,
+                    before_unlock=persist_candidate,
+                )
+                unlocked_row = unlocked_row or {}
+                if not recovered:
+                    reason = f"冲突回退失败: {recovery_note}"
+                    append_result_excel(
+                        output_file,
+                        original_sequence,
+                        segment_index,
+                        record,
+                        segment,
+                        quotas,
+                        "冲突回退失败",
+                        result_row,
+                        f"{remark}; {reason}",
+                        attempt=attempt,
+                        recovery=reason,
+                        unlocked_row=unlocked_row,
+                    )
+                    go_back_to_form(page)
+                    append_unexecuted_segments(
+                        output_file,
+                        original_sequence,
+                        record,
+                        segments,
+                        quotas,
+                        segment_index,
+                        f"前序片段未成功: {reason}",
+                    )
+                    return False, reason
+
+                attempt = 2
+                excel_note = format_unlocked_record_excel_note(unlocked_row)
+                print(c_info(f"旧记录已解锁，重提片段{segment_index}"))
+                fill_form(
+                    page,
+                    segment["员工号"],
+                    segment["请假类型"],
+                    segment["开始日期"],
+                    segment["结束日期"],
+                    common_reason,
+                    segment.get("姓名"),
+                )
+                read_page_lock_days(page, segment["计划天数"])
+                status, result_row, remark = submit_and_read_result(page, segment)
+                append_result_excel(
+                    output_file,
+                    original_sequence,
+                    segment_index,
+                    record,
+                    segment,
+                    quotas,
+                    status,
+                    result_row,
+                    remark,
+                    attempt=attempt,
+                    recovery=f"{recovery_note}; 已重提一次",
+                    unlocked_row=unlocked_row,
+                    excel_note=excel_note,
+                )
             if status != "成功":
-                reason = remark or status
+                reason = (
+                    f"解锁旧记录后重提仍未成功: {remark or status}"
+                    if attempt == 2
+                    else remark or status
+                )
                 go_back_to_form(page)
                 append_unexecuted_segments(
                     output_file,
@@ -1183,6 +1668,10 @@ def process_smart_record(page, record, original_sequence, output_file, common_re
                 "异常",
                 {},
                 reason,
+                attempt=attempt,
+                recovery=recovery_note,
+                unlocked_row=unlocked_row,
+                excel_note=excel_note,
             )
             go_back_to_form(page)
             append_unexecuted_segments(
@@ -1198,7 +1687,7 @@ def process_smart_record(page, record, original_sequence, output_file, common_re
     return True, ""
 
 
-def batch_mode(page, whitelist, common_reason):
+def batch_mode(page, whitelist, common_reason, conflict_recovery):
     """批量粘贴模式。"""
     while True:
         print(f"{c_info('[智能路由批量]')} {whitelist_status(whitelist)} | {reason_status(common_reason)}")
@@ -1222,7 +1711,9 @@ def batch_mode(page, whitelist, common_reason):
         if confirm != 'y':
             continue
         result_file = create_result_excel("智能路由锁班批量")
-        failed_records = process_record_list(page, records, result_file, common_reason)
+        failed_records = process_record_list(
+            page, records, result_file, common_reason, conflict_recovery
+        )
         print(c_ok("批量处理完成"))
         if result_file:
             print(c_ok(f"结果Excel: {result_file}"))
@@ -1230,7 +1721,7 @@ def batch_mode(page, whitelist, common_reason):
         return
 
 
-def manual_mode(page, whitelist, common_reason):
+def manual_mode(page, whitelist, common_reason, conflict_recovery):
     """手动单条模式。"""
     result_file = None
     sequence = 0
@@ -1257,14 +1748,14 @@ def manual_mode(page, whitelist, common_reason):
             result_file = create_result_excel("智能路由锁班手动")
         sequence += 1
         success, reason = process_smart_record(
-            page, record, sequence, result_file, common_reason
+            page, record, sequence, result_file, common_reason, conflict_recovery
         )
         if not success:
             beep_error()
             print(c_err(reason))
 
 
-def excel_mode(page, whitelist, common_reason):
+def excel_mode(page, whitelist, common_reason, conflict_recovery):
     """Excel导入模式"""
     if not HAS_OPENPYXL:
         print(c_err("未安装openpyxl库，请运行: pip install openpyxl"))
@@ -1305,7 +1796,9 @@ def excel_mode(page, whitelist, common_reason):
         if confirm != 'y':
             continue
         result_file = create_result_excel("智能路由锁班Excel")
-        failed_records = process_record_list(page, records, result_file, common_reason)
+        failed_records = process_record_list(
+            page, records, result_file, common_reason, conflict_recovery
+        )
         print(c_ok("Excel导入完成"))
         if result_file:
             print(c_ok(f"结果Excel: {result_file}"))
@@ -1313,12 +1806,17 @@ def excel_mode(page, whitelist, common_reason):
         return
 
 
-def process_record_list(page, records, result_file, common_reason):
+def process_record_list(page, records, result_file, common_reason, conflict_recovery=False):
     failed_records = []
     for sequence, record in enumerate(records, start=1):
         print(f"{c_info(f'[{sequence}/{len(records)}]')} 预检: {format_record(record)}")
         success, reason = process_smart_record(
-            page, record, sequence, result_file, common_reason
+            page,
+            record,
+            sequence,
+            result_file,
+            common_reason,
+            conflict_recovery,
         )
         if not success:
             beep_error()
@@ -1352,6 +1850,14 @@ def main():
         common_reason = set_common_reason()
     else:
         print(c_ok("本次不填写备注"))
+    recovery_answer = input(c_hint(
+        "是否启用冲突自动解锁并重提? 仅唯一匹配已锁记录时执行(y/n): "
+    )).strip().lower()
+    conflict_recovery = recovery_answer == 'y'
+    if conflict_recovery:
+        print(c_warn("已启用冲突回退：命中唯一已锁记录时会解锁旧整行并重提一次"))
+    else:
+        print(c_ok("本次不自动解锁冲突记录"))
     pw = sync_playwright().start()
     browser = pw.chromium.launch(headless=False, executable_path=browser_path)
     context = browser.new_context()
@@ -1395,11 +1901,11 @@ def main():
         print(f"{whitelist_status(whitelist)} | {reason_status(common_reason)} | {c_hint('1批量 2手动 3Excel导入 w设白名单 c清白名单 q退出')}")
         cmd = input(c_hint("选择: ")).strip().lower()
         if cmd == '1':
-            batch_mode(page, whitelist, common_reason)
+            batch_mode(page, whitelist, common_reason, conflict_recovery)
         elif cmd == '2':
-            manual_mode(page, whitelist, common_reason)
+            manual_mode(page, whitelist, common_reason, conflict_recovery)
         elif cmd == '3':
-            excel_mode(page, whitelist, common_reason)
+            excel_mode(page, whitelist, common_reason, conflict_recovery)
         elif cmd == 'w':
             new_wl = set_whitelist()
             if new_wl is not None:
