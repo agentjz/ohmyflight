@@ -47,6 +47,16 @@ describe("jobskill subsite", () => {
     });
   });
 
+  it("publishes the current qualification code table", () => {
+    const markdown = fs.readFileSync(resolveFromDist("jobskill", "skills", "03", "SKILL.md"), "utf8");
+    const tableLines = markdown.split(/\r?\n/).filter((line) => line.startsWith("| "));
+
+    expect(tableLines[0]).toBe("| 资格代码* | 资格类型* | 资格描述* | 资格中文描述* | 机型要求* | 岗位要求* | 技术等级要求* | 飞行乘务标识* | 开始时间* | 结束时间* |");
+    expect(tableLines.slice(2)).toHaveLength(284);
+    expect(tableLines).toContain("| AK | OT | AK | A库 | Y | N | N | Y | 2026-04-09 00:00 | 2999-12-31 23:59 |");
+    expect(tableLines).toContain("| XHA1 | OT | XUN HANG A1 | 非操纵副驾驶 | Y | N | N |  | 2006-03-01 00:00 | 2099-12-31 23:59 |");
+  });
+
   it("ships every locally referenced Markdown image", () => {
     let imageCount = 0;
     loadPublishedItems().forEach(([, relativePath]) => {
