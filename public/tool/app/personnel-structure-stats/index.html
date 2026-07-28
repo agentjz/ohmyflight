@@ -25,6 +25,19 @@
             font-size: 18px;
             line-height: 1.25;
         }
+        .result-card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 6px 14px;
+            color: var(--omf-text-muted);
+            font-size: 12px;
+            text-align: right;
+        }
+        .closure-state { font-weight: 700; }
+        .closure-state.is-closed { color: var(--omf-success-text); }
+        .closure-state.is-open { color: var(--omf-danger-text); }
         .status { margin-top: 8px; padding: 6px 10px; border-radius: 4px; font-size: 12px; display: none; }
         .status-success { background: var(--omf-success-bg); color: var(--omf-success-text); display: block; }
         .status-error { background: var(--omf-danger-bg); color: var(--omf-danger-text); display: block; }
@@ -77,6 +90,8 @@
         .result-table td:nth-child(3) { text-align: right; white-space: nowrap; }
         .result-table td:nth-child(2) { font-weight: 600; }
         .result-table td:nth-child(4) { color: var(--omf-text-muted); }
+        .result-table .subset-row td { background: var(--omf-surface-soft); }
+        .result-table .subset-row td:first-child { font-weight: 600; }
         .result-table-shell { margin-top: 0; overflow-x: auto; }
         .result-table-shell .table > :not(caption) > * > * { background-color: transparent; }
         .result-table-shell .table thead th { background-color: var(--omf-surface-soft); }
@@ -87,6 +102,10 @@
             line-height: 1.7;
             margin: 0;
             padding-left: 18px;
+        }
+        @media (max-width: 767.98px) {
+            .result-card-head { align-items: flex-start; flex-direction: column; }
+            .result-card-meta { justify-content: flex-start; text-align: left; }
         }
     </style>
 </head>

@@ -7,18 +7,26 @@ type PersonnelStatItem = {
     denominator: number;
     percent: string;
     rule: string;
+    isSubset: boolean;
+};
+
+type PersonnelStatClosure = {
+    total: number;
+    denominator: number;
+    closed: boolean;
 };
 
 type PersonnelStatSection = {
     title: string;
     denominatorLabel: string;
     items: PersonnelStatItem[];
+    closure: PersonnelStatClosure;
 };
 
 type PersonnelStructureResult = {
-    totalPeople: number;
-    registeredCrewCount: number;
-    groundCount: number;
+    structureCrewCount: number;
+    captainOrAboveCount: number;
+    firstOfficerCount: number;
     sections: PersonnelStatSection[];
     warnings: string[];
     unrecognized: {
@@ -156,7 +164,7 @@ function handleAnalyze() {
         currentResult = result;
         renderResult(result);
         elements.exportBtn.disabled = false;
-        showStatus(`统计完成：${result.totalPeople} 人`, "success");
+        showStatus(`统计完成：${result.structureCrewCount} 人，8 张表全部闭环`, "success");
     } catch (error) {
         currentResult = null;
         elements.exportBtn.disabled = true;
@@ -168,16 +176,16 @@ function handleAnalyze() {
 function renderResult(result: PersonnelStructureResult) {
     elements.summary.innerHTML = `
         <div class="summary-item">
-            <span class="summary-label">总人数</span>
-            <strong class="summary-value">${result.totalPeople}</strong>
+            <span class="summary-label">结构统计人员</span>
+            <strong class="summary-value">${result.structureCrewCount}</strong>
         </div>
         <div class="summary-item">
-            <span class="summary-label">已注册空勤</span>
-            <strong class="summary-value">${result.registeredCrewCount}</strong>
+            <span class="summary-label">机长含以上</span>
+            <strong class="summary-value">${result.captainOrAboveCount}</strong>
         </div>
         <div class="summary-item">
-            <span class="summary-label">地面/其他</span>
-            <strong class="summary-value">${result.groundCount}</strong>
+            <span class="summary-label">副驾驶</span>
+            <strong class="summary-value">${result.firstOfficerCount}</strong>
         </div>
     `;
 
@@ -186,7 +194,13 @@ function renderResult(result: PersonnelStructureResult) {
             <div class="card-body">
                 <div class="result-card-head">
                     <h5 class="card-title mb-0">${escapeHtml(section.title)}</h5>
-                    <span class="text-muted small">${escapeHtml(section.denominatorLabel)}</span>
+                    <div class="result-card-meta">
+                        <span>母数 ${escapeHtml(section.denominatorLabel)}</span>
+                        <span>构成合计 ${section.closure.total} 人</span>
+                        <strong class="closure-state ${section.closure.closed ? "is-closed" : "is-open"}">
+                            ${section.closure.closed ? "已闭环" : "待核对"}
+                        </strong>
+                    </div>
                 </div>
                 <div class="table-responsive result-table-shell">
                     <table class="table table-hover align-middle result-table mb-0">
@@ -200,8 +214,8 @@ function renderResult(result: PersonnelStructureResult) {
                         </thead>
                         <tbody>
                             ${section.items.map((item) => `
-                                <tr>
-                                    <td>${escapeHtml(item.label)}</td>
+                                <tr class="${item.isSubset ? "subset-row" : ""}">
+                                    <td>${item.isSubset ? "其中：" : ""}${escapeHtml(item.label)}</td>
                                     <td>${item.count}</td>
                                     <td>${escapeHtml(item.percent)}</td>
                                     <td>${escapeHtml(item.rule)}</td>
@@ -232,13 +246,33 @@ function renderResult(result: PersonnelStructureResult) {
 }
 
 function buildResultRows(result: PersonnelStructureResult): unknown[][] {
-    const rows: unknown[][] = [["表格", "项目", "人数", "母数", "占比", "口径"]];
+    const rows: unknown[][] = [["表格", "项目", "统计关系", "人数", "母数", "占比", "口径"]];
     result.sections.forEach((section) => {
         section.items.forEach((item) => {
-            rows.push([section.title, item.label, item.count, item.denominator, item.percent, item.rule]);
+            rows.push([
+                section.title,
+                item.label,
+                item.isSubset ? "其中项" : "构成项",
+                item.count,
+                item.denominator,
+                item.percent,
+                item.rule
+            ]);
         });
     });
     return rows;
+}
+
+function buildClosureRows(result: PersonnelStructureResult): unknown[][] {
+    return [
+        ["表格", "构成合计", "闭环母数", "状态"],
+        ...result.sections.map((section) => [
+            section.title,
+            section.closure.total,
+            section.closure.denominator,
+            section.closure.closed ? "已闭环" : "待核对"
+        ])
+    ];
 }
 
 function buildRuleRows(result: PersonnelStructureResult): unknown[][] {
@@ -246,18 +280,20 @@ function buildRuleRows(result: PersonnelStructureResult): unknown[][] {
         ["规则", "说明"],
         ["输入", "上传任意 xlsx/xls，按表头识别字段，不绑定文件名、sheet 名或列位置。"],
         ["必要表头", getLogicApi().REQUIRED_HEADERS.join("、")],
-        ["已注册空勤", "飞行教员、非划转机长、非划转副驾驶。"],
-        ["在训机长", "划转机长。"],
-        ["转机型副驾驶", "划转副驾驶。"],
+        ["结构统计人员", "教员、普通机长、转机型机长、普通副驾驶、转机型副驾驶。"],
+        ["转机型机长", "技术信息为划转机长；航线资格和报务不包含转机型。"],
+        ["转机型副驾驶", "技术信息为划转副驾驶；级别包含转机型，报务不包含转机型。"],
+        ["检查员", "其中项，不参加机长技术等级构成求和。"],
+        ["闭环", "每张表的构成项人数合计等于闭环母数；其中项不重复计入。"],
         ["单飞资格", "RAMA/REUO/RWAS 分别代表北美、欧洲、西亚单飞资格。"],
         ["报务资格", "EAMA/EEUO/EWAS 分别代表北美、欧洲、西亚英语通信资格。"],
         ["航线机长", "B类及以上、没有 RAMA/REUO/RWAS 单飞资格、且不是 Z类机长。"],
         ["左座带飞", "Z类机长。"],
         ["本地居住", "原单位以总队开头，或原单位为 777返聘。"],
         ["导出时间", new Date().toLocaleString("zh-CN")],
-        ["总人数", result.totalPeople],
-        ["已注册空勤", result.registeredCrewCount],
-        ["地面/其他", result.groundCount]
+        ["结构统计人员", result.structureCrewCount],
+        ["机长含以上", result.captainOrAboveCount],
+        ["副驾驶", result.firstOfficerCount]
     ];
 }
 
@@ -278,12 +314,15 @@ function handleExport() {
 
     const output = XLSX.utils.book_new();
     const resultSheet = XLSX.utils.aoa_to_sheet(buildResultRows(currentResult));
+    const closureSheet = XLSX.utils.aoa_to_sheet(buildClosureRows(currentResult));
     const ruleSheet = XLSX.utils.aoa_to_sheet(buildRuleRows(currentResult));
     const unrecognizedSheet = XLSX.utils.aoa_to_sheet(buildUnrecognizedRows(currentResult));
-    applySheetWidth(resultSheet, [24, 18, 10, 10, 10, 58]);
+    applySheetWidth(resultSheet, [24, 18, 12, 10, 10, 10, 58]);
+    applySheetWidth(closureSheet, [28, 12, 12, 12]);
     applySheetWidth(ruleSheet, [20, 80]);
     applySheetWidth(unrecognizedSheet, [22, 42]);
     XLSX.utils.book_append_sheet(output, resultSheet, "统计结果");
+    XLSX.utils.book_append_sheet(output, closureSheet, "闭环核对");
     XLSX.utils.book_append_sheet(output, ruleSheet, "规则说明");
     XLSX.utils.book_append_sheet(output, unrecognizedSheet, "未识别数据");
     XLSX.writeFile(output, `${sourceFileName}_人员结构统计_${timestamp()}.xlsx`);
