@@ -176,85 +176,14 @@ body {
 
 .adjustment-controls {
     display: grid;
-    grid-template-columns: minmax(150px, 1fr) auto auto auto;
+    grid-template-columns: minmax(150px, 1fr) auto;
     gap: 8px;
-    align-items: end;
+    align-items: center;
 }
 
 .adjustment-controls > div > span {
     color: var(--omf-text-muted);
     font-size: 12px;
-}
-
-.exchange-tray {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 190px;
-    gap: 10px;
-    margin-top: 12px;
-}
-
-.exchange-group {
-    min-width: 0;
-    min-height: 92px;
-    padding: 10px;
-    border: 1px solid var(--omf-border);
-    border-radius: 6px;
-    background: var(--omf-surface-soft);
-}
-
-.exchange-group-heading,
-.exchange-action {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.exchange-group-heading h3 {
-    margin: 0;
-    font-size: 13px;
-    letter-spacing: 0;
-}
-
-.exchange-group-content {
-    margin-top: 8px;
-}
-
-.exchange-group-meta,
-.exchange-action span {
-    color: var(--omf-text-muted);
-    font-size: 12px;
-}
-
-.exchange-name-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    max-height: 78px;
-    margin-top: 6px;
-    overflow: auto;
-}
-
-.exchange-name-list span {
-    padding: 3px 6px;
-    border: 1px solid var(--omf-border);
-    border-radius: 4px;
-    background: var(--omf-surface);
-    font-size: 11px;
-}
-
-.exchange-action {
-    flex-direction: column;
-    justify-content: center;
-    padding: 10px;
-    border: 1px solid var(--omf-border);
-    border-radius: 6px;
-    background: var(--omf-surface-soft);
-    text-align: center;
-}
-
-.exchange-action .btn {
-    width: 100%;
 }
 
 .move-selection-summary {
@@ -418,7 +347,7 @@ body {
 
 .people-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(164px, 1fr));
     gap: 6px;
 }
 
@@ -427,7 +356,7 @@ body {
     grid-template-columns: 18px minmax(0, 1fr);
     gap: 7px;
     align-items: center;
-    min-height: 43px;
+    min-height: 58px;
     margin: 0;
     padding: 5px 7px;
     border: 1px solid var(--omf-border);
@@ -463,12 +392,12 @@ body {
 .person-copy strong,
 .person-copy small {
     display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .person-copy strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 12px;
     line-height: 1.25;
 }
@@ -477,6 +406,14 @@ body {
     margin-top: 2px;
     color: var(--omf-text-muted);
     font-size: 10px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.person-copy .person-technical {
+    margin-top: 1px;
+    color: var(--omf-text);
+    font-size: 11px;
 }
 
 .empty-group,
@@ -510,10 +447,7 @@ body {
     .top-actions { grid-column: 1 / -1; justify-content: stretch; }
     .top-actions .btn { flex: 1; }
     .chart-heading { display: grid; }
-    .adjustment-controls { grid-template-columns: 1fr 1fr; }
-    .adjustment-controls > div { grid-column: 1 / -1; }
-    .exchange-tray { grid-template-columns: 1fr 1fr; }
-    .exchange-action { grid-column: 1 / -1; }
+    .adjustment-controls { grid-template-columns: 1fr auto; }
     .period-card-header { grid-template-columns: 1fr auto; }
     .period-counts { grid-column: 1 / -1; }
     .period-status { grid-column: 2; grid-row: 1; }
@@ -535,6 +469,4 @@ body {
     .people-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .person-copy strong { font-size: 11px; }
     .change-content > div { grid-template-columns: 1fr; }
-    .exchange-tray { grid-template-columns: 1fr; }
-    .exchange-action { grid-column: auto; }
 }

@@ -15,7 +15,8 @@
                 <input class="form-check-input person-checkbox" type="checkbox" value="${context.escapeHtml(person.employeeId)}">
                 <span class="person-copy">
                     <strong>${context.escapeHtml(person.name)}</strong>
-                    <small>${context.escapeHtml(category)}</small>
+                    <small class="person-category">${context.escapeHtml(category)}</small>
+                    <small class="person-technical">${context.escapeHtml(person.technicalInfo)}</small>
                 </span>
             </label>
         `;
@@ -176,55 +177,6 @@
             : '<span class="empty-log">暂无人工调整</span>';
     }
 
-    function exchangeGroupDetails(context: SeasonalLearningAppContext, employeeIds: string[]): {
-        people: SeasonalLearningPerson[];
-        period: number | null;
-    } {
-        const peopleById = new Map(context.state.people.map((person) => [person.employeeId, person]));
-        const people = employeeIds.flatMap((employeeId) => {
-            const person = peopleById.get(employeeId);
-            return person ? [person] : [];
-        });
-        const periods = new Set(people.map((person) => person.period));
-        return { people, period: periods.size === 1 ? people[0]?.period ?? null : null };
-    }
-
-    function renderExchangeGroup(
-        context: SeasonalLearningAppContext,
-        elementId: string,
-        employeeIds: string[]
-    ): { count: number; period: number | null } {
-        const details = exchangeGroupDetails(context, employeeIds);
-        context.getElement<HTMLDivElement>(elementId).innerHTML = details.people.length
-            ? `
-                <div class="exchange-group-meta">${context.escapeHtml(context.logic.formatPeriod(details.period))} · ${details.people.length} 人</div>
-                <div class="exchange-name-list">${details.people.map((person) => `<span>${context.escapeHtml(person.name)}</span>`).join("")}</div>
-            `
-            : '<span class="empty-log">尚未加入人员</span>';
-        return { count: details.people.length, period: details.period };
-    }
-
-    function renderExchangeTray(context: SeasonalLearningAppContext): void {
-        const groupA = renderExchangeGroup(context, "exchangeGroupAContent", context.state.exchangeGroupA);
-        const groupB = renderExchangeGroup(context, "exchangeGroupBContent", context.state.exchangeGroupB);
-        const ready = groupA.count > 0
-            && groupA.count === groupB.count
-            && groupA.period !== null
-            && groupB.period !== null
-            && groupA.period !== groupB.period;
-        const status = !groupA.count || !groupB.count
-            ? "请分别设置两个交换组"
-            : groupA.count !== groupB.count
-                ? `人数不一致：A 组 ${groupA.count} 人，B 组 ${groupB.count} 人`
-                : groupA.period === groupB.period
-                    ? "两个交换组必须来自不同期次"
-                    : `可交换：${groupA.count} 人 ↔ ${groupB.count} 人`;
-        context.getElement<HTMLSpanElement>("exchangeStatus").textContent = status;
-        context.getElement<HTMLButtonElement>("executeSwapButton").disabled = !context.state.scheduleReady || !ready;
-        context.getElement<HTMLButtonElement>("clearExchangeAButton").disabled = groupA.count === 0;
-        context.getElement<HTMLButtonElement>("clearExchangeBButton").disabled = groupB.count === 0;
-    }
-
     function renderSelectionCount(context: SeasonalLearningAppContext): void {
         const count = document.querySelectorAll<HTMLInputElement>(".person-checkbox:checked").length;
         context.getElement<HTMLSpanElement>("selectionCount").textContent = String(count);
@@ -239,8 +191,6 @@
         balanceButton.textContent = context.state.scheduleReady ? "均衡检查" : "均衡负载";
         context.getElement<HTMLInputElement>("periodCount").disabled = context.state.scheduleReady;
         context.getElement<HTMLButtonElement>("moveButton").disabled = !context.state.scheduleReady;
-        context.getElement<HTMLButtonElement>("addExchangeAButton").disabled = !context.state.scheduleReady;
-        context.getElement<HTMLButtonElement>("addExchangeBButton").disabled = !context.state.scheduleReady;
         if (!context.state.initialized) {
             renderDateControls(context);
             return;
@@ -252,7 +202,6 @@
         renderPeriodCards(context);
         renderChanges(context);
         renderLog(context);
-        renderExchangeTray(context);
         renderSelectionCount(context);
     }
 
@@ -260,7 +209,6 @@
         renderAll,
         renderDateControls,
         renderChart,
-        renderSelectionCount,
-        renderExchangeTray
+        renderSelectionCount
     };
 })();

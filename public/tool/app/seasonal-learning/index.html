@@ -61,30 +61,8 @@
                     <span>已选择 <b id="selectionCount">0</b> 人</span>
                 </div>
                 <button id="moveButton" class="btn btn-primary btn-sm" type="button">移动</button>
-                <button id="addExchangeAButton" class="btn btn-outline-secondary btn-sm" type="button">加入交换组 A</button>
-                <button id="addExchangeBButton" class="btn btn-outline-secondary btn-sm" type="button">加入交换组 B</button>
             </div>
-            <div id="actionStatus" class="status-line status-muted">选择人员后可移动或加入交换组</div>
-            <div id="exchangeTray" class="exchange-tray">
-                <section class="exchange-group" aria-labelledby="exchangeAHeading">
-                    <div class="exchange-group-heading">
-                        <h3 id="exchangeAHeading">交换组 A</h3>
-                        <button id="clearExchangeAButton" class="btn btn-outline-secondary btn-sm" type="button">清空 A</button>
-                    </div>
-                    <div id="exchangeGroupAContent" class="exchange-group-content"></div>
-                </section>
-                <section class="exchange-group" aria-labelledby="exchangeBHeading">
-                    <div class="exchange-group-heading">
-                        <h3 id="exchangeBHeading">交换组 B</h3>
-                        <button id="clearExchangeBButton" class="btn btn-outline-secondary btn-sm" type="button">清空 B</button>
-                    </div>
-                    <div id="exchangeGroupBContent" class="exchange-group-content"></div>
-                </section>
-                <div class="exchange-action">
-                    <span id="exchangeStatus">两个交换组尚未设置</span>
-                    <button id="executeSwapButton" class="btn btn-primary btn-sm" type="button" disabled>执行交换</button>
-                </div>
-            </div>
+            <div id="actionStatus" class="status-line status-muted">选择人员后可移动</div>
         </section>
 
         <section id="changeSection" class="change-section" hidden aria-labelledby="changeHeading">

@@ -64,7 +64,7 @@ interface SeasonalLearningPeriodSummary {
 interface SeasonalLearningAdjustmentEvent {
     employeeId: string;
     name: string;
-    type: "move" | "swap";
+    type: "move";
     text: string;
 }
 
@@ -102,11 +102,6 @@ interface SeasonalLearningLogicApi extends SeasonalLearningDataApi {
         targetPeriod: number,
         periodCount: number
     ): SeasonalLearningOperationResult;
-    swapGroups(
-        people: SeasonalLearningPerson[],
-        leftEmployeeIds: string[],
-        rightEmployeeIds: string[]
-    ): SeasonalLearningOperationResult;
 }
 
 interface SeasonalLearningExportApi {
@@ -130,8 +125,6 @@ interface SeasonalLearningAppState {
     addedEmployeeIds: string[];
     removedPeople: SeasonalLearningRemovedPerson[];
     adjustmentLog: string[];
-    exchangeGroupA: string[];
-    exchangeGroupB: string[];
     pendingMoveIds: string[];
     chart: any;
 }
@@ -155,7 +148,6 @@ interface SeasonalLearningViewApi {
     renderDateControls(context: SeasonalLearningAppContext): void;
     renderChart(context: SeasonalLearningAppContext): void;
     renderSelectionCount(context: SeasonalLearningAppContext): void;
-    renderExchangeTray(context: SeasonalLearningAppContext): void;
 }
 
 interface SeasonalLearningAppNamespace {

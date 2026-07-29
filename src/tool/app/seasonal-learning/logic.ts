@@ -174,56 +174,11 @@
         return { people: output, events };
     }
 
-    function swapGroups(
-        people: SeasonalLearningPerson[],
-        leftEmployeeIds: string[],
-        rightEmployeeIds: string[]
-    ): SeasonalLearningOperationResult {
-        const leftIds = uniqueIds(leftEmployeeIds);
-        const rightIds = uniqueIds(rightEmployeeIds);
-        if (!leftIds.length || !rightIds.length) throw new Error("请先设置两个交换组。");
-        if (leftIds.length !== rightIds.length) throw new Error("两个交换组的人数必须相同。");
-        if (leftIds.some((id) => rightIds.includes(id))) throw new Error("同一人员不能同时出现在两个交换组。");
-
-        const peopleById = new Map(people.map((person) => [person.employeeId, person]));
-        const leftPeople = leftIds.map((id) => peopleById.get(id));
-        const rightPeople = rightIds.map((id) => peopleById.get(id));
-        if (leftPeople.some((person) => !person) || rightPeople.some((person) => !person)) {
-            throw new Error("交换组中存在已不在当前名单的人员。");
-        }
-        const leftPeriods = new Set(leftPeople.map((person) => person?.period));
-        const rightPeriods = new Set(rightPeople.map((person) => person?.period));
-        if (leftPeriods.size !== 1 || rightPeriods.size !== 1 || leftPeriods.has(null) || rightPeriods.has(null)) {
-            throw new Error("每个交换组的人员必须来自同一期次。");
-        }
-        const leftPeriod = leftPeople[0]?.period as number;
-        const rightPeriod = rightPeople[0]?.period as number;
-        if (leftPeriod === rightPeriod) throw new Error("两个交换组必须来自不同期次。");
-
-        const leftSet = new Set(leftIds);
-        const rightSet = new Set(rightIds);
-        const events: SeasonalLearningAdjustmentEvent[] = [];
-        const output = people.map((person) => {
-            if (!leftSet.has(person.employeeId) && !rightSet.has(person.employeeId)) return clonePerson(person);
-            const target = leftSet.has(person.employeeId) ? rightPeriod : leftPeriod;
-            const note = `交换：${Data.formatPeriod(person.period)} ↔ ${Data.formatPeriod(target)}`;
-            events.push({ employeeId: person.employeeId, name: person.name, type: "swap", text: `${person.name}：${note}` });
-            return {
-                ...person,
-                period: target,
-                adjusted: true,
-                adjustmentNotes: [...person.adjustmentNotes, note]
-            };
-        });
-        return { people: output, events };
-    }
-
     window.SeasonalLearningLogic = {
         ...Data,
         buildInitialSchedule,
         checkBalance,
         buildPeriodSummaries,
-        movePeople,
-        swapGroups
+        movePeople
     };
 })();

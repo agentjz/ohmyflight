@@ -54,8 +54,6 @@
             context.state.addedEmployeeIds = result.addedEmployeeIds;
             context.state.removedPeople = result.removedPeople;
             context.state.adjustmentLog = result.mode === "actual" ? importedAdjustmentLog(result.people) : oldLog;
-            context.state.exchangeGroupA = [];
-            context.state.exchangeGroupB = [];
             context.state.pendingMoveIds = [];
             context.getElement<HTMLInputElement>("periodCount").value = String(result.periodCount);
             renderTargetOptions(context);
@@ -67,7 +65,7 @@
                     : `已更新总名单：新增 ${result.addedEmployeeIds.length} 人，删除 ${result.removedPeople.length} 人。`;
             context.setStatus(message, result.addedEmployeeIds.length || result.removedPeople.length ? "warning" : "success");
             context.setActionMessage(
-                result.scheduleReady ? "选择人员后可移动或加入交换组；调整不会触发自动重排。" : "均衡负载后可调整人员。",
+                result.scheduleReady ? "选择人员后可移动；调整不会触发自动重排。" : "均衡负载后可移动人员。",
                 "muted"
             );
             namespace.View?.renderAll(context);
@@ -140,50 +138,6 @@
         }
     }
 
-    type ExchangeGroupKey = "exchangeGroupA" | "exchangeGroupB";
-
-    function addSelectedToExchangeGroup(context: SeasonalLearningAppContext, key: ExchangeGroupKey): void {
-        try {
-            if (!context.state.scheduleReady) throw new Error("请先点击“均衡负载”生成初版。");
-            const selectedIds = selectedEmployeeIds();
-            if (!selectedIds.length) throw new Error("请至少选择一人。");
-            const otherKey: ExchangeGroupKey = key === "exchangeGroupA" ? "exchangeGroupB" : "exchangeGroupA";
-            if (selectedIds.some((employeeId) => context.state[otherKey].includes(employeeId))) {
-                throw new Error("同一人员不能同时加入两个交换组。");
-            }
-            const combined = [...new Set([...context.state[key], ...selectedIds])];
-            const combinedSet = new Set(combined);
-            const selectedPeople = context.state.people.filter((person) => combinedSet.has(person.employeeId));
-            const periods = new Set(selectedPeople.map((person) => person.period));
-            if (periods.has(null) || periods.size !== 1) throw new Error("同一交换组的人员必须来自同一期次。");
-            context.state[key] = combined;
-            context.setActionMessage(`已加入交换组 ${key === "exchangeGroupA" ? "A" : "B"}：${combined.length} 人。`, "success");
-            namespace.View?.renderAll(context);
-        } catch (error) {
-            context.setActionMessage(error instanceof Error ? error.message : String(error), "danger");
-        }
-    }
-
-    function clearExchangeGroup(context: SeasonalLearningAppContext, key: ExchangeGroupKey): void {
-        context.state[key] = [];
-        namespace.View?.renderExchangeTray(context);
-    }
-
-    function executeSwap(context: SeasonalLearningAppContext): void {
-        try {
-            const operation = context.logic.swapGroups(
-                context.state.people,
-                context.state.exchangeGroupA,
-                context.state.exchangeGroupB
-            );
-            context.state.exchangeGroupA = [];
-            context.state.exchangeGroupB = [];
-            applyOperation(context, operation);
-        } catch (error) {
-            context.setActionMessage(error instanceof Error ? error.message : String(error), "danger");
-        }
-    }
-
     function renderTargetOptions(context: SeasonalLearningAppContext): void {
         context.getElement<HTMLSelectElement>("moveTargetPeriod").innerHTML = [
             '<option value="">请选择目标期次</option>',
@@ -253,11 +207,6 @@
         });
         context.getElement<HTMLButtonElement>("moveButton").addEventListener("click", () => openMoveModal(context));
         context.getElement<HTMLButtonElement>("confirmMoveButton").addEventListener("click", () => confirmMove(context));
-        context.getElement<HTMLButtonElement>("addExchangeAButton").addEventListener("click", () => addSelectedToExchangeGroup(context, "exchangeGroupA"));
-        context.getElement<HTMLButtonElement>("addExchangeBButton").addEventListener("click", () => addSelectedToExchangeGroup(context, "exchangeGroupB"));
-        context.getElement<HTMLButtonElement>("clearExchangeAButton").addEventListener("click", () => clearExchangeGroup(context, "exchangeGroupA"));
-        context.getElement<HTMLButtonElement>("clearExchangeBButton").addEventListener("click", () => clearExchangeGroup(context, "exchangeGroupB"));
-        context.getElement<HTMLButtonElement>("executeSwapButton").addEventListener("click", () => executeSwap(context));
         context.getElement<HTMLButtonElement>("balanceButton").addEventListener("click", () => balanceOrCheck(context));
         context.getElement<HTMLButtonElement>("exportButton").addEventListener("click", () => exportWorkbook(context));
         window.addEventListener("resize", () => context.state.chart?.resize());

@@ -115,30 +115,18 @@ describe("seasonal learning logic", () => {
     expect(scheduled.map((person: any) => person.period)).toEqual(before);
   });
 
-  it("moves one or more people and swaps equal-sized groups from different periods", () => {
+  it("moves one or more people to the selected period", () => {
     const scheduled = logic.buildInitialSchedule(
       logic.readRosterRows(rosterRows({ leader: 2, captain: 2, firstOfficer: 2 })),
       2
     );
-    const first = scheduled[0];
-    const second = scheduled.find((person: any) => person.period !== first.period);
-    const third = scheduled.find((person: any) => person.employeeId !== first.employeeId && person.employeeId !== second.employeeId);
+    const selected = scheduled.filter((person: any) => person.period === 1).slice(0, 2);
 
-    const moved = logic.movePeople(scheduled, [first.employeeId, third.employeeId], 2, 2);
-    expect(moved.people.find((person: any) => person.employeeId === first.employeeId).period).toBe(2);
-    expect(moved.people.find((person: any) => person.employeeId === first.employeeId).adjusted).toBe(true);
+    const moved = logic.movePeople(scheduled, selected.map((person: any) => person.employeeId), 2, 2);
+    expect(selected.every((person: any) => moved.people.find((item: any) => item.employeeId === person.employeeId).period === 2)).toBe(true);
+    expect(moved.events).toHaveLength(2);
+    expect(moved.people.find((person: any) => person.employeeId === selected[0].employeeId).adjusted).toBe(true);
     expect(moved.events[0].text).toContain("移动：");
-
-    const groupA = scheduled.filter((person: any) => person.period === 1).slice(0, 3);
-    const groupB = scheduled.filter((person: any) => person.period === 2).slice(0, 3);
-    const swapped = logic.swapGroups(
-      scheduled,
-      groupA.map((person: any) => person.employeeId),
-      groupB.map((person: any) => person.employeeId)
-    );
-    expect(groupA.every((person: any) => swapped.people.find((item: any) => item.employeeId === person.employeeId).period === 2)).toBe(true);
-    expect(groupB.every((person: any) => swapped.people.find((item: any) => item.employeeId === person.employeeId).period === 1)).toBe(true);
-    expect(swapped.events.map((event: any) => event.text).join(" ")).toContain("交换：");
   });
 
   it("restores actual assignments first and otherwise preserves the current schedule on re-import", () => {

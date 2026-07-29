@@ -15,8 +15,6 @@
             addedEmployeeIds: [],
             removedPeople: [],
             adjustmentLog: [],
-            exchangeGroupA: [],
-            exchangeGroupB: [],
             pendingMoveIds: [],
             chart: null
         };
