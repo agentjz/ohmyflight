@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
+import * as XLSX from "xlsx-js-style";
 
 import { loadBrowserScripts } from "../../helpers/browser-context";
 
@@ -45,16 +46,69 @@ describe("crew-match-name-id logic", () => {
     expect(() => logic.parseRosterRows(rows)).toThrow("花名册表头必须包含：员工号、姓名、分部");
   });
 
-  it("builds export rows with stable Excel columns", () => {
+  it("builds export rows in display order with custom columns mapped by employee id", () => {
     const rows = logic.buildExportRows([
       { id: "123456", name: "张三", department: "一分部", techInfo: "777:飞行教员C", techLevel: "C" },
       { id: "654321", name: "李四", department: "二分部", techInfo: "777:A2类副驾驶", techLevel: "A2" }
+    ], [
+      {
+        header: "申请",
+        valuesByEmployeeId: {
+          "123456": "EEUO",
+          "654321": "EAMA"
+        }
+      },
+      {
+        header: "备注",
+        valuesByEmployeeId: {
+          "654321": "待核对"
+        }
+      }
     ]);
 
     expect(rows).toEqual([
-      ["姓名", "员工号", "分部", "技术信息", "技术等级"],
-      ["张三", "123456", "一分部", "777:飞行教员C", "C"],
-      ["李四", "654321", "二分部", "777:A2类副驾驶", "A2"]
+      ["员工号", "姓名", "分部", "技术信息", "申请", "备注"],
+      ["123456", "张三", "一分部", "777:飞行教员C", "EEUO", ""],
+      ["654321", "李四", "二分部", "777:A2类副驾驶", "EAMA", "待核对"]
     ]);
+  });
+
+  it("includes tech level only when export options request it", () => {
+    const rows = logic.buildExportRows([
+      { id: "123456", name: "张三", department: "一分部", techInfo: "777:飞行教员C", techLevel: "C" }
+    ], [], { includeTechLevel: true });
+
+    expect(rows).toEqual([
+      ["员工号", "姓名", "分部", "技术信息", "技术等级"],
+      ["123456", "张三", "一分部", "777:飞行教员C", "C"]
+    ]);
+  });
+
+  it("normalizes an independent image title and falls back when it is empty", () => {
+    expect(logic.resolveImageTitle("")).toBe("人员名单");
+    expect(logic.resolveImageTitle(" 资质 ")).toBe("资质");
+    expect(logic.resolveImageTitle("申请")).toBe("申请");
+  });
+
+  it("builds a styled workbook with custom columns", () => {
+    const exportContext = loadBrowserScripts([
+      "tool/app/crew-match-name-id/logic.js",
+      "tool/app/crew-match-name-id/export.js"
+    ], { XLSX });
+    const workbook = (exportContext.CrewMatchNameIdExporter as any).buildExcelWorkbook([
+      { id: "123456", name: "张三", department: "一分部", techInfo: "777:飞行教员C", techLevel: "C" }
+    ], [{ header: "申请", valuesByEmployeeId: { "123456": "EEUO" } }]);
+    const sheet = workbook.Sheets["匹配结果"];
+
+    expect(workbook.SheetNames).toEqual(["匹配结果"]);
+    expect(sheet.A1.v).toBe("员工号");
+    expect(sheet.E1.v).toBe("申请");
+    expect(sheet.A2.v).toBe("123456");
+    expect(sheet.E2.v).toBe("EEUO");
+    expect(sheet.A1.s.alignment).toMatchObject({ horizontal: "center", vertical: "center", wrapText: true });
+    expect(sheet.A1.s.fill.fgColor.rgb).toBe("E8EFEA");
+    expect(sheet.A2.s.border.top.style).toBe("thin");
+    expect(sheet["!cols"]).toHaveLength(5);
+    expect(sheet["!rows"][0].hpt).toBe(28);
   });
 });

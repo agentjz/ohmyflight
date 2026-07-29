@@ -6,10 +6,24 @@ type CrewRosterEntry = {
     techLevel: string;
 };
 
+type CrewExportColumn = {
+    header: string;
+    valuesByEmployeeId: Record<string, string>;
+};
+
+type CrewExportOptions = {
+    includeTechLevel?: boolean;
+};
+
 type CrewMatchNameIdLogicApi = {
     parseRosterRows: (rows: unknown[][]) => CrewRosterEntry[];
     extractTechLevel: (techInfo: unknown) => string;
-    buildExportRows: (entries: CrewRosterEntry[]) => string[][];
+    buildExportRows: (
+        entries: CrewRosterEntry[],
+        customColumns?: CrewExportColumn[],
+        options?: CrewExportOptions
+    ) => string[][];
+    resolveImageTitle: (value: unknown) => string;
 };
 
 function normalizeText(value: unknown): string {
@@ -104,22 +118,41 @@ function parseRosterRows(rows: unknown[][]): CrewRosterEntry[] {
     return parsed;
 }
 
-function buildExportRows(entries: CrewRosterEntry[]): string[][] {
-    const rows = entries.map((entry) => [
-        entry.name,
-        entry.id,
-        entry.department,
-        entry.techInfo,
-        entry.techLevel
-    ]);
+function buildExportRows(
+    entries: CrewRosterEntry[],
+    customColumns: CrewExportColumn[] = [],
+    options: CrewExportOptions = {}
+): string[][] {
+    const headers = ["员工号", "姓名", "分部", "技术信息"];
+    if (options.includeTechLevel) headers.push("技术等级");
+    headers.push(...customColumns.map((column) => normalizeText(column.header)));
 
-    return [["姓名", "员工号", "分部", "技术信息", "技术等级"], ...rows];
+    const rows = entries.map((entry) => {
+        const fixedValues = [
+            entry.id,
+            entry.name,
+            entry.department,
+            entry.techInfo
+        ];
+        if (options.includeTechLevel) fixedValues.push(entry.techLevel);
+        return [
+            ...fixedValues,
+            ...customColumns.map((column) => column.valuesByEmployeeId[entry.id] ?? "")
+        ];
+    });
+
+    return [headers, ...rows];
+}
+
+function resolveImageTitle(value: unknown): string {
+    return normalizeText(value) || "人员名单";
 }
 
 const CrewMatchNameIdLogic: CrewMatchNameIdLogicApi = {
     parseRosterRows,
     extractTechLevel,
-    buildExportRows
+    buildExportRows,
+    resolveImageTitle
 };
 
 const runtime = globalThis as typeof globalThis & {

@@ -8,18 +8,46 @@
     <link rel="stylesheet" href="../../../libs/bootstrap.min.css">
     <style>
         body { background: transparent; padding: 20px; }
-        .table-header { display: flex; justify-content: flex-start; align-items: center; background: #f8f9fa; padding: 8px 12px; border: 1px solid #dee2e6; border-radius: 6px 6px 0 0; border-bottom: none; gap: 12px; }
-        .table-header span { font-weight: 600; font-size: 14px; }
-        .table-container { border: 1px solid #dee2e6; border-radius: 0 0 6px 6px; max-height: 300px; overflow-y: auto; }
-        .table-container table { width: 100%; border-collapse: collapse; }
-        .table-container td { padding: 8px 12px; border-bottom: 1px solid #dee2e6; font-size: 14px; }
-        .table-container tr:last-child td { border-bottom: none; }
-        .table-container tr.selected { background: #e7f1ff; }
-        .table-container td:first-child { width: 30px; }
+        .result-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .result-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        .result-toolbar-group { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .image-title-control { display: flex; align-items: center; gap: 7px; }
+        .image-title-control label { color: var(--omf-text-muted); font-size: 13px; white-space: nowrap; }
+        .image-title-input { width: 150px; text-align: center; letter-spacing: 0; }
+        .table-container { border: 1px solid var(--omf-border); border-radius: 6px; max-height: 430px; overflow: auto; }
+        .result-table { width: 100%; min-width: 900px; table-layout: fixed; border-collapse: separate; border-spacing: 0; margin: 0; }
+        .result-table th,
+        .result-table td { padding: 10px 12px; border-right: 1px solid var(--omf-border); border-bottom: 1px solid var(--omf-border); font-size: 14px; text-align: center; vertical-align: middle; white-space: normal; overflow-wrap: anywhere; }
+        .result-table th { position: sticky; top: 0; z-index: 2; font-weight: 700; }
+        .result-table th:last-child,
+        .result-table td:last-child { border-right: none; }
+        .result-table tbody tr:last-child td { border-bottom: none; }
+        .result-table tbody tr.selected td { background: var(--omf-info-bg); }
+        .result-table .col-select { width: 48px; }
+        .result-table .col-id { width: 112px; }
+        .result-table .col-name { width: 144px; }
+        .result-table .col-department { width: 126px; }
+        .result-table .col-tech-info { width: 220px; }
+        .result-table .col-tech-level { width: 110px; }
+        .result-table .col-custom { width: 170px; }
+        .custom-header-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 28px; align-items: center; gap: 4px; }
+        .custom-header-input,
+        .custom-value-input { width: 100%; min-width: 0; color: var(--omf-text); background: var(--omf-surface); border: 1px solid transparent; border-radius: 4px; text-align: center; letter-spacing: 0; }
+        .custom-header-input { height: 32px; padding: 4px 6px; font-weight: 700; }
+        .custom-value-input { min-height: 34px; padding: 6px 8px; }
+        .custom-header-input:hover,
+        .custom-value-input:hover { border-color: var(--omf-border); }
+        .custom-header-input:focus,
+        .custom-value-input:focus { border-color: var(--omf-focus); outline: 2px solid color-mix(in srgb, var(--omf-focus) 22%, transparent); }
+        .remove-column-btn { width: 28px; height: 28px; padding: 0; border: 0; border-radius: 4px; color: var(--omf-text-muted); background: transparent; font-size: 20px; line-height: 1; }
+        .remove-column-btn:hover { color: var(--omf-danger-text); background: var(--omf-danger-bg); }
         .no-result { text-align: center; padding: 40px 20px; color: #6c757d; font-size: 14px; }
         #fileStatus { padding: 8px 12px; border-radius: 6px; font-size: 12px; display: none; }
         @media (max-width: 768px) {
-            .row { flex-direction: column; }
+            body { padding: 12px; }
+            .result-heading,
+            .result-toolbar { align-items: stretch; flex-direction: column; }
+            .result-toolbar-group { width: 100%; }
         }
     </style>
     <link rel="stylesheet" href="../../../theme.css">
@@ -61,57 +89,48 @@
             
         <div class="card mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center gap-3 border-bottom pb-2 mb-3">
+                <div class="result-heading border-bottom pb-2 mb-3">
                     <h5 class="card-title mb-0">匹配结果</h5>
-                    <div class="d-flex flex-wrap justify-content-end gap-2">
-                        <button id="copyNameBtn" class="btn btn-outline-secondary">复制姓名列</button>
+                    <span id="countInfo" class="text-muted small">匹配到 0 个员工</span>
+                </div>
+                <div class="result-toolbar mb-3">
+                    <div class="result-toolbar-group">
                         <button id="copyIdBtn" class="btn btn-outline-secondary">复制员工号列</button>
-                        <button id="copyDepartmentBtn" class="btn btn-outline-secondary">复制分部列</button>
-                        <button id="copyTechInfoBtn" class="btn btn-outline-secondary">复制技术信息列</button>
-                        <button id="copyTechLevelBtn" class="btn btn-outline-secondary">复制技术等级列</button>
+                        <button id="copyNameBtn" class="btn btn-outline-secondary">复制姓名列</button>
+                    </div>
+                    <div class="result-toolbar-group">
+                        <button id="addColumnBtn" class="btn btn-outline-secondary">新增列</button>
+                        <div class="form-check mb-0">
+                            <input id="includeTechLevelInput" class="form-check-input" type="checkbox">
+                            <label class="form-check-label" for="includeTechLevelInput">导出技术等级</label>
+                        </div>
+                        <div class="image-title-control">
+                            <label for="imageTitleInput">图片标题</label>
+                            <input id="imageTitleInput" class="form-control image-title-input" type="text" value="人员名单">
+                        </div>
                         <button id="exportExcelBtn" class="btn btn-secondary">导出Excel</button>
+                        <button id="exportImageBtn" class="btn btn-secondary">导出图片</button>
                     </div>
                 </div>
                 <div id="resultArea">
-                    <div class="table-header">
-                        <span style="width:30px"><input type="checkbox" id="selectAll" title="全选"></span>
-                        <span style="flex:1">姓名</span>
-                        <span style="flex:1">员工号</span>
-                        <span style="flex:1">分部</span>
-                        <span style="flex:1">技术信息</span>
-                        <span style="flex:1">技术等级</span>
-                    </div>
                     <div class="table-container">
-                        <table>
+                        <table id="resultTable" class="result-table">
+                            <thead id="resultHead"></thead>
                             <tbody id="resultBody">
                                 <tr><td colspan="6" class="no-result">匹配结果将显示在这里...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <div class="d-flex justify-content-between mt-2 text-muted small">
-                    <span id="countInfo">匹配到 0 个员工</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mt-4">
-            <div class="card-body">
-                <h5 class="card-title border-bottom pb-2 mb-3">使用说明</h5>
-                <p>从混杂着机组姓名的文本中提取姓名并匹配员工号。</p>
-                <ol class="text-muted">
-                    <li>导入员工花名册Excel，必须包含“员工号”“姓名”“分部”列，支持“技术信息”列</li>
-                    <li>将文本粘贴到输入框</li>
-                    <li>点击"查询匹配"</li>
-                    <li>技术等级列会自动从技术信息提取（如 C / E / A1 / A2）</li>
-                    <li>点击复制按钮或导出Excel（有选中的只处理选中的，没选中则处理全部）</li>
-                </ol>
             </div>
         </div>
     </div>
 
-<script src="../../../libs/xlsx.full.min.js"></script>
+<script src="../../../libs/xlsx-js-style.min.js"></script>
+<script src="../../../libs/html2canvas.min.js"></script>
 <script src="logic.js"></script>
+<script src="table-editor.js"></script>
+<script src="export.js"></script>
 <script src="main.js"></script>
 </body>
 </html>
