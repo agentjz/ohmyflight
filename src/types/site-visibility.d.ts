@@ -8,7 +8,6 @@ interface SiteVisibilityConfig {
     contributors: boolean;
   };
   tools: Record<string, boolean>;
-  workflows: Record<string, boolean>;
 }
 
 interface Window {

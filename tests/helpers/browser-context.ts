@@ -8,7 +8,6 @@ type BrowserSandbox = Record<string, unknown> & {
   window?: BrowserSandbox;
   globalThis?: BrowserSandbox;
   __tools?: ToolItem[];
-  __workflows?: WorkflowItem[];
   __siteVisibility?: SiteVisibilityConfig;
   __skills?: SkillItem[];
   __manuals?: ManualItem[];
@@ -163,12 +162,6 @@ export function loadToolsData() {
   const context = createBrowserContext();
   runBrowserScript("tool/tools-data.js", context, "globalThis.__tools = tools;");
   return context.__tools;
-}
-
-export function loadWorkflowsData() {
-  const context = createBrowserContext();
-  runBrowserScript("tool/workflows-data.js", context, "globalThis.__workflows = workflows;");
-  return context.__workflows;
 }
 
 export function loadSiteVisibility(): SiteVisibilityConfig {

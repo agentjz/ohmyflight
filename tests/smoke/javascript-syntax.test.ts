@@ -23,7 +23,6 @@ describe("all tool JavaScript files", () => {
 
   const scriptFiles = [
     resolveFromDist("tool", "tools-data.js"),
-    resolveFromDist("tool", "workflows-data.js"),
     resolveFromDist("tool", "tools-render.js"),
     resolveFromDist("tool", "developer.js"),
     resolveFromDist("tool", "manuals.js"),

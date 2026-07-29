@@ -2,7 +2,7 @@ import fs from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { loadManualsData, loadSiteVisibility, loadSkillsData, loadToolsData, loadWorkflowsData } from "../helpers/browser-context";
+import { loadManualsData, loadSiteVisibility, loadSkillsData, loadToolsData } from "../helpers/browser-context";
 import { resolveFromDist, resolveFromRoot } from "../helpers/paths";
 
 describe("tool index data", () => {
@@ -29,48 +29,23 @@ describe("tool index data", () => {
     expect(wipNames).toEqual([]);
   });
 
-  it("publishes the default homepage workflows from existing tool entries", () => {
-    const tools = loadToolsData() || [];
-    const workflows = loadWorkflowsData() || [];
-    const toolEntries = new Set(tools.map((tool) => tool.entry));
+  it("publishes four category views and defaults to all tools", () => {
     const homepage = fs.readFileSync(resolveFromRoot("public", "tool", "index.html"), "utf8");
+    const categories = [...homepage.matchAll(/data-category="([a-z]+)"/g)].map((match) => match[1]);
 
-    expect(workflows).toEqual([
-      {
-        id: "lock-entry",
-        name: "锁班",
-        entries: ["text-joiner", "crew-match-name-id", "lock-entry-helper", "training-workbench"]
-      },
-      { id: "manual-review", name: "手册", entries: ["pdf-stamp", "proof-king", "audit-king"] },
-      {
-        id: "qualification-operations",
-        name: "资质运行",
-        entries: [
-          "hotel-bill-check",
-          "focus-crew",
-          "crew-flight-stats",
-          "flight-stats-helper",
-          "qualification-query-helper"
-        ]
-      }
-    ]);
-    workflows.flatMap((workflow) => workflow.entries).forEach((entry) => {
-      expect(toolEntries.has(entry), `workflow references missing tool: ${entry}`).toBe(true);
-    });
-    expect(new Set(workflows.map((workflow) => workflow.id)).size).toBe(workflows.length);
-    expect(homepage).toContain('data-default-category="workflow"');
-    expect(homepage).toContain('data-category="workflow"');
+    expect(categories).toEqual(["all", "heavy", "light", "automation"]);
+    expect(homepage).toContain('data-default-category="all"');
+    expect(homepage).not.toContain("workflows-data.js");
+    expect(homepage).not.toContain('data-category="workflow"');
   });
 
   it("centralizes every public visibility switch", () => {
     const tools = loadToolsData() || [];
-    const workflows = loadWorkflowsData() || [];
     const visibility = loadSiteVisibility();
 
     expect(Object.keys(visibility.tools).sort()).toEqual(tools.map((tool) => tool.entry).sort());
-    expect(Object.keys(visibility.workflows).sort()).toEqual(workflows.map((workflow) => workflow.id).sort());
     expect(Object.values(visibility.tools).every((value) => typeof value === "boolean")).toBe(true);
-    expect(Object.values(visibility.workflows).every((value) => typeof value === "boolean")).toBe(true);
+    expect(visibility).not.toHaveProperty("workflows");
     expect(visibility.homepage).toMatchObject({
       patternGate: expect.any(Boolean),
       announcement: expect.any(Boolean),
@@ -79,8 +54,18 @@ describe("tool index data", () => {
     expect(visibility.sponsorPage).toMatchObject({ contributors: expect.any(Boolean) });
   });
 
-  it("ships the done status image used by the tool index", () => {
+  it("uses the mascot only in the header and renders plain text tool cards", () => {
+    const homepage = fs.readFileSync(resolveFromRoot("public", "tool", "index.html"), "utf8");
+    const renderer = fs.readFileSync(resolveFromRoot("src", "tool", "tools-render.ts"), "utf8");
+
     expect(fs.existsSync(resolveFromDist("tool", "assets", "status-done.png"))).toBe(true);
+    expect(homepage.match(/status-done\.png/g)).toHaveLength(1);
+    expect(homepage).not.toContain("imperialOverlay");
+    expect(renderer).not.toContain("status-done.png");
+    expect(renderer).not.toContain("edge-particle");
+    expect(renderer).not.toContain('class="tool-kind"');
+    expect(renderer).not.toContain("workflow");
+    expect(renderer).toContain('class="tool-card"');
   });
 
   it("publishes the current repository skills", () => {

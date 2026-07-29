@@ -35,7 +35,6 @@ interface HomePatternGateLogic {
 
 interface Window {
   tools: ToolItem[];
-  workflows: WorkflowItem[];
   announcement: SiteAnnouncement;
   skills: SkillItem[];
   HomePatternGateLogic: HomePatternGateLogic;
@@ -51,7 +50,6 @@ interface Window {
 }
 
 declare var tools: ToolItem[];
-declare var workflows: WorkflowItem[];
 declare var announcement: SiteAnnouncement;
 declare var skills: SkillItem[];
 
