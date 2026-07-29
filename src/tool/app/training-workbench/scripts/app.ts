@@ -46,6 +46,7 @@
 
     controls.initializeDefaultDates();
     projects.renderEmptyState();
+    runtime.trainingCalendar.initialize();
     runtime.simulationSchedule.render();
   }
 })();

@@ -30,4 +30,13 @@
     .hero-subtitle {
         font-size: 13px;
     }
+
+    .calendar-reminder-band,
+    .calendar-reminder-item {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-reminder-item {
+        gap: 3px;
+    }
 }

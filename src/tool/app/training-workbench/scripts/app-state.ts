@@ -19,6 +19,8 @@
     annualTrainingStats: null,
     annualTrainingStatsView: null,
     crmAnnualResult: null,
+    trainingCalendarResult: null,
+    trainingCalendarMonthKey: "",
     updateSelectedProjects: []
   };
 })();

@@ -27,8 +27,7 @@
         <section class="section">
             <div class="section-head">
                 <div>
-                    <h2 class="section-title">排班总览</h2>
-                    <p class="section-intro">默认评估今天到下月底，先看已过期、必须排、推荐排、已排未覆盖和异常；已排未录入、已录入待更新、正常可在状态下拉中查看。</p>
+                    <h2 class="section-title">导入总培训表</h2>
                 </div>
             </div>
             <div class="field">
@@ -43,6 +42,38 @@
                 <div class="empty-block">导入文件后，这里会显示 Excel 健康检查结果。</div>
             </div>
             <div class="status-line" id="statusLine">请先导入总培训表文件。</div>
+        </section>
+
+        <section class="section training-calendar-section" aria-labelledby="trainingCalendarTitle">
+            <div class="section-head training-calendar-head">
+                <div>
+                    <h2 class="section-title" id="trainingCalendarTitle">月度培训日历</h2>
+                    <p class="section-intro" id="trainingCalendarMonthLabel"></p>
+                </div>
+                <div class="calendar-navigation" aria-label="月份导航">
+                    <input class="calendar-month-input" id="trainingCalendarMonthInput" type="month" aria-label="选择月份">
+                    <button class="action-button action-button-compact" id="trainingCalendarTodayButton" type="button">今天</button>
+                </div>
+            </div>
+            <div class="calendar-reminder-band">
+                <div class="calendar-reminder-title">
+                    <strong>签到表提醒</strong>
+                    <span>未来 7 天</span>
+                </div>
+                <div class="calendar-reminder-list" id="trainingCalendarReminderList"></div>
+            </div>
+            <div class="training-calendar-scroll">
+                <div class="training-calendar-grid" id="trainingCalendarGrid"></div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">排班总览</h2>
+                    <p class="section-intro">默认评估今天到下月底，先看已过期、必须排、推荐排、已排未覆盖和异常；已排未录入、已录入待更新、正常可在状态下拉中查看。</p>
+                </div>
+            </div>
             <div class="form-grid form-grid-4">
                 <div class="field">
                     <label for="workbenchStartDateInput">评估开始日期</label>
@@ -487,6 +518,8 @@
     <script src="./scripts/training-ignore-list.js"></script>
     <script src="./scripts/training-record-policy.js"></script>
     <script src="./scripts/scanner.js"></script>
+    <script src="./scripts/training-calendar-exclusions.js"></script>
+    <script src="./scripts/training-calendar.js"></script>
     <script src="./scripts/rule-engine.js"></script>
     <script src="./scripts/workbench-status.js"></script>
     <script src="./scripts/simulation-schedule.js"></script>
@@ -504,6 +537,7 @@
     <script src="./scripts/app-copy.js"></script>
     <script src="./scripts/app-state.js"></script>
     <script src="./scripts/app-elements.js"></script>
+    <script src="./scripts/app-training-calendar.js"></script>
     <script src="./scripts/app-charts.js"></script>
     <script src="./scripts/app-result-table.js"></script>
     <script src="./scripts/app-summary-view.js"></script>

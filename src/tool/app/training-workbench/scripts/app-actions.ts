@@ -27,6 +27,7 @@
       state.workbook = null;
       state.analysis = null;
       state.workbookHealth = null;
+      runtime.trainingCalendar.clear();
       projects.renderEmptyState();
       renderers.renderWorkbookHealth();
       controls.setStatus(COPY.defaultStatus);
@@ -52,6 +53,7 @@
       if (runtime.simulationSchedule) runtime.simulationSchedule.clearRecords();
       state.crmAnnualResult = null;
       elements.workbenchSearchInput.value = "";
+      runtime.trainingCalendar.rebuild();
 
       renderers.renderWorkbookOverview();
       renderers.renderWorkbookHealth();
@@ -78,6 +80,7 @@
       state.workbookHealth = null;
       state.workbenchView = null;
       state.workbenchSelection = null;
+      runtime.trainingCalendar.clear();
       if (runtime.simulationSchedule) runtime.simulationSchedule.clearRecords();
       state.crmAnnualResult = null;
       projects.renderEmptyState();

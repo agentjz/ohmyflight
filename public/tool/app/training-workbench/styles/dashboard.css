@@ -12,6 +12,200 @@
     margin-top: 12px;
 }
 
+.training-calendar-head {
+    align-items: center;
+}
+
+.calendar-navigation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calendar-month-input {
+    min-height: 38px;
+    padding: 7px 10px;
+    border: 1px solid var(--omf-border);
+    border-radius: 6px;
+    background: var(--omf-surface);
+    color: var(--omf-text);
+    font: inherit;
+}
+
+.calendar-reminder-band {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    background: var(--st-warning-soft);
+}
+
+.calendar-reminder-title {
+    display: grid;
+    align-content: start;
+    gap: 3px;
+}
+
+.calendar-reminder-title strong {
+    color: var(--st-warning);
+    font-size: 14px;
+}
+
+.calendar-reminder-title span,
+.calendar-reminder-empty {
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.calendar-reminder-list {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+}
+
+.calendar-reminder-item {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+    color: var(--omf-text);
+    font-size: 13px;
+}
+
+.calendar-reminder-item time,
+.calendar-reminder-item > span {
+    white-space: nowrap;
+}
+
+.calendar-reminder-item > div {
+    display: grid;
+    min-width: 0;
+}
+
+.calendar-reminder-item small {
+    overflow: hidden;
+    color: var(--omf-text-muted);
+    font-size: 11px;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.calendar-reminder-item > span {
+    color: var(--st-warning);
+    font-weight: 700;
+}
+
+.training-calendar-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--omf-border);
+}
+
+.training-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(118px, 1fr));
+    min-width: 826px;
+    background: var(--omf-border);
+    gap: 1px;
+}
+
+.calendar-weekday {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    background: var(--omf-surface-soft);
+    color: var(--omf-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.calendar-day {
+    min-width: 0;
+    min-height: 132px;
+    padding: 7px;
+    background: var(--omf-surface);
+}
+
+.calendar-day > time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    margin: 0 0 5px auto;
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.calendar-day.is-outside {
+    background: var(--omf-surface-soft);
+}
+
+.calendar-day.is-outside > time,
+.calendar-day.is-outside .calendar-event {
+    opacity: 0.5;
+}
+
+.calendar-day.is-today > time {
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--st-on-primary);
+    font-weight: 700;
+}
+
+.calendar-day-events {
+    display: grid;
+    gap: 5px;
+    max-height: 90px;
+    overflow-y: auto;
+}
+
+.calendar-event {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    padding: 5px 6px;
+    background: var(--omf-surface-soft);
+    color: var(--omf-text);
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.calendar-event strong,
+.calendar-event small {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.calendar-event strong {
+    font-size: 11px;
+}
+
+.calendar-event-range,
+.calendar-event-attendees {
+    color: var(--omf-text-muted);
+    font-size: 10px;
+}
+
+.calendar-event-crm {
+    background: var(--st-info-soft);
+}
+
+.calendar-event-emergency {
+    background: var(--st-primary-soft);
+}
+
+.calendar-event-dangerous-goods {
+    background: var(--st-warning-soft);
+}
+
+.calendar-event-security {
+    background: var(--st-success-soft);
+}
+
 .workbook-health-panel {
     display: grid;
     gap: 12px;

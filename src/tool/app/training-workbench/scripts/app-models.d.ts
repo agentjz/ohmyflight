@@ -39,6 +39,30 @@ interface TrainingToolAnalysis {
   projectMap: Map<string, TrainingToolProjectAnalysis>;
 }
 
+interface TrainingCalendarSession {
+  id: string;
+  projectName: string;
+  sourceProjects: string[];
+  startDate: string;
+  endDate: string;
+  attendeeNames: string[];
+}
+
+interface TrainingCalendarDayEvent extends TrainingCalendarSession {
+  date: string;
+}
+
+interface TrainingCalendarReminder extends TrainingCalendarSession {
+  daysUntil: number;
+  message: string;
+}
+
+interface TrainingCalendarResult {
+  sessions: TrainingCalendarSession[];
+  dayEvents: TrainingCalendarDayEvent[];
+  reminders: TrainingCalendarReminder[];
+}
+
 interface TrainingToolAppCopy {
   defaultExportButton: string;
   defaultOverview: string;
@@ -68,6 +92,8 @@ interface TrainingToolAppState {
   annualTrainingStats: any;
   annualTrainingStatsView: any;
   crmAnnualResult: any;
+  trainingCalendarResult: TrainingCalendarResult | null;
+  trainingCalendarMonthKey: string;
   updateSelectedProjects: string[];
 }
 
@@ -81,6 +107,11 @@ interface TrainingToolAppElements {
   workbookOverview: HTMLElement;
   workbookHealthPanel: HTMLElement;
   statusLine: HTMLElement;
+  trainingCalendarMonthLabel: HTMLElement;
+  trainingCalendarMonthInput: HTMLInputElement;
+  trainingCalendarTodayButton: HTMLButtonElement;
+  trainingCalendarReminderList: HTMLElement;
+  trainingCalendarGrid: HTMLElement;
   updateValiditySheetSelect: HTMLSelectElement;
   updateProjectGroup: HTMLElement;
   updateProjectSelectAll: HTMLInputElement;
@@ -162,6 +193,7 @@ interface TrainingToolAppRuntime {
   resultTable: any;
   summaryView: any;
   simulationSchedule: any;
+  trainingCalendar: any;
 }
 
 interface Window {
