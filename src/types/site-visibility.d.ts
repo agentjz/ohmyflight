@@ -7,7 +7,6 @@ interface SiteVisibilityConfig {
   sponsorPage: {
     contributors: boolean;
   };
-  tools: Record<string, boolean>;
 }
 
 interface Window {

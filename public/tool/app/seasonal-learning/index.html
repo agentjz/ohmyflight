@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>换季学习</title>
+    <script src="../../../theme.js"></script>
+    <link rel="stylesheet" href="../../../libs/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../theme.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="page-shell">
+    <header class="app-header">
+        <a href="../../../index.html" class="back-link">返回</a>
+        <div>
+            <h1>换季学习</h1>
+            <span id="fileStatus" class="status-line status-muted">尚未导入工作簿</span>
+        </div>
+    </header>
+
+    <section class="control-band" aria-label="导入与导出">
+        <label class="file-field">
+            <span>换季工作簿</span>
+            <input id="workbookFile" class="form-control form-control-sm" type="file" accept=".xls,.xlsx">
+        </label>
+        <label class="period-field">
+            <span>期数</span>
+            <input id="periodCount" class="form-control form-control-sm" type="number" min="1" max="30" value="6">
+        </label>
+        <div class="top-actions">
+            <button id="balanceButton" class="btn btn-outline-secondary btn-sm" type="button" disabled>均衡负载</button>
+            <button id="exportButton" class="btn btn-primary btn-sm" type="button" disabled>导出 Excel</button>
+        </div>
+    </section>
+
+    <section class="date-band" aria-labelledby="dateHeading">
+        <div class="section-heading">
+            <h2 id="dateHeading">每期日期</h2>
+        </div>
+        <div id="dateControls" class="date-controls"></div>
+    </section>
+
+    <section id="workspace" hidden>
+        <div id="summaryStrip" class="summary-strip" aria-label="人员摘要"></div>
+
+        <section class="chart-band" aria-labelledby="chartHeading">
+            <div class="section-heading chart-heading">
+                <div>
+                    <h2 id="chartHeading">各期人数</h2>
+                    <span>三类人员堆叠与总人数</span>
+                </div>
+            </div>
+            <div id="distributionChart" class="distribution-chart"></div>
+        </section>
+
+        <section class="adjustment-band" aria-labelledby="adjustmentHeading">
+            <div class="adjustment-controls">
+                <div>
+                    <h2 id="adjustmentHeading">在线调整</h2>
+                    <span>已选择 <b id="selectionCount">0</b> 人</span>
+                </div>
+                <button id="moveButton" class="btn btn-primary btn-sm" type="button">移动</button>
+                <button id="addExchangeAButton" class="btn btn-outline-secondary btn-sm" type="button">加入交换组 A</button>
+                <button id="addExchangeBButton" class="btn btn-outline-secondary btn-sm" type="button">加入交换组 B</button>
+            </div>
+            <div id="actionStatus" class="status-line status-muted">选择人员后可移动或加入交换组</div>
+            <div id="exchangeTray" class="exchange-tray">
+                <section class="exchange-group" aria-labelledby="exchangeAHeading">
+                    <div class="exchange-group-heading">
+                        <h3 id="exchangeAHeading">交换组 A</h3>
+                        <button id="clearExchangeAButton" class="btn btn-outline-secondary btn-sm" type="button">清空 A</button>
+                    </div>
+                    <div id="exchangeGroupAContent" class="exchange-group-content"></div>
+                </section>
+                <section class="exchange-group" aria-labelledby="exchangeBHeading">
+                    <div class="exchange-group-heading">
+                        <h3 id="exchangeBHeading">交换组 B</h3>
+                        <button id="clearExchangeBButton" class="btn btn-outline-secondary btn-sm" type="button">清空 B</button>
+                    </div>
+                    <div id="exchangeGroupBContent" class="exchange-group-content"></div>
+                </section>
+                <div class="exchange-action">
+                    <span id="exchangeStatus">两个交换组尚未设置</span>
+                    <button id="executeSwapButton" class="btn btn-primary btn-sm" type="button" disabled>执行交换</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="changeSection" class="change-section" hidden aria-labelledby="changeHeading">
+            <h2 id="changeHeading">名单变更</h2>
+            <div id="changeContent" class="change-content"></div>
+        </section>
+
+        <section id="pendingSection" class="pending-section" hidden aria-labelledby="pendingHeading">
+            <div class="section-heading">
+                <h2 id="pendingHeading">待分配 <span id="pendingCount">0</span></h2>
+            </div>
+            <div id="pendingPeople" class="people-grid"></div>
+        </section>
+
+        <section class="period-section" aria-labelledby="periodHeading">
+            <div class="section-heading">
+                <h2 id="periodHeading">期次名单</h2>
+            </div>
+            <div id="periodCards" class="period-grid"></div>
+        </section>
+
+        <section class="log-section" aria-labelledby="logHeading">
+            <div class="section-heading">
+                <h2 id="logHeading">调整记录</h2>
+            </div>
+            <div id="adjustmentLog" class="adjustment-log"></div>
+        </section>
+    </section>
+</main>
+
+<div class="modal fade" id="moveModal" tabindex="-1" aria-labelledby="moveModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-6" id="moveModalTitle">移动人员</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <div id="moveSelectionSummary" class="move-selection-summary"></div>
+                <label class="move-target-field" for="moveTargetPeriod">
+                    <span>移动到</span>
+                    <select id="moveTargetPeriod" class="form-select"></select>
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button id="confirmMoveButton" type="button" class="btn btn-primary">确认移动</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../../../libs/bootstrap.bundle.min.js"></script>
+<script src="../../../libs/xlsx-js-style.min.js"></script>
+<script src="../../../libs/echarts.min.js"></script>
+<script src="data.js"></script>
+<script src="logic.js"></script>
+<script src="export.js"></script>
+<script src="app-context.js"></script>
+<script src="view.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

@@ -1,6 +1,4 @@
-const allToolRows: ToolItem[] = Array.isArray(tools)
-    ? tools.filter((item) => siteVisibility.tools[item.entry] === true)
-    : [];
+const allToolRows: ToolItem[] = Array.isArray(tools) ? tools : [];
 const categoryLabels: Record<ToolCategory, string> = {
     heavy: "重型",
     light: "轻型",

@@ -1,0 +1,540 @@
+:root {
+    --season-leader: #2563eb;
+    --season-captain: #0f766e;
+    --season-first-officer: #b45309;
+    --season-adjusted: #fff2f2;
+    --season-selection-bg: #fff3cd;
+    --season-selection-border: #c69200;
+    --season-selection-text: #4d3900;
+}
+
+:root[data-theme="dark"] {
+    --season-leader: #7aa7ff;
+    --season-captain: #5dd0be;
+    --season-first-officer: #f0ad5a;
+    --season-adjusted: #4b1f24;
+    --season-selection-bg: #4a3b0c;
+    --season-selection-border: #f2c94c;
+    --season-selection-text: #fff1a8;
+}
+
+body {
+    margin: 0;
+    padding: 18px;
+    background: transparent;
+}
+
+.page-shell {
+    width: min(1560px, 100%);
+    margin: 0 auto;
+    color: var(--omf-text);
+}
+
+.app-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    padding: 0 16px;
+}
+
+.app-header > div {
+    width: 100%;
+    text-align: center;
+}
+
+.app-header h1 {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.3;
+    letter-spacing: 0;
+}
+
+.back-link {
+    position: absolute;
+    z-index: 1;
+    left: 16px;
+    text-decoration: none;
+}
+
+.status-line {
+    display: block;
+    min-height: 20px;
+    margin-top: 3px;
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.status-success { color: var(--omf-success-text) !important; }
+.status-warning { color: var(--omf-warning-text) !important; }
+.status-danger { color: var(--omf-danger-text) !important; }
+
+.control-band {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) 92px auto;
+    gap: 14px;
+    align-items: end;
+    padding: 16px;
+    background: var(--omf-surface);
+}
+
+.file-field,
+.period-field,
+.date-field {
+    display: grid;
+    gap: 5px;
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.top-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.date-band,
+.chart-band,
+.adjustment-band,
+.change-section,
+.pending-section,
+.period-section,
+.log-section {
+    padding: 16px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.section-heading h2,
+.adjustment-controls h2,
+.change-section h2 {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.35;
+    letter-spacing: 0;
+}
+
+.date-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.summary-strip {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    background: var(--omf-surface-soft);
+    gap: 1px;
+}
+
+.summary-item {
+    min-width: 0;
+    padding: 13px 16px;
+    background: var(--omf-surface);
+}
+
+.summary-item span,
+.summary-item strong {
+    display: block;
+}
+
+.summary-item span {
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.summary-item strong {
+    margin-top: 2px;
+    font-size: 22px;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+
+.chart-heading {
+    align-items: flex-start;
+}
+
+.chart-heading > div:first-child > span {
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.distribution-chart {
+    width: 100%;
+    height: 300px;
+}
+
+.adjustment-band {
+    background: var(--omf-surface);
+}
+
+.adjustment-controls {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) auto auto auto;
+    gap: 8px;
+    align-items: end;
+}
+
+.adjustment-controls > div > span {
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.exchange-tray {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 190px;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.exchange-group {
+    min-width: 0;
+    min-height: 92px;
+    padding: 10px;
+    border: 1px solid var(--omf-border);
+    border-radius: 6px;
+    background: var(--omf-surface-soft);
+}
+
+.exchange-group-heading,
+.exchange-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.exchange-group-heading h3 {
+    margin: 0;
+    font-size: 13px;
+    letter-spacing: 0;
+}
+
+.exchange-group-content {
+    margin-top: 8px;
+}
+
+.exchange-group-meta,
+.exchange-action span {
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.exchange-name-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-height: 78px;
+    margin-top: 6px;
+    overflow: auto;
+}
+
+.exchange-name-list span {
+    padding: 3px 6px;
+    border: 1px solid var(--omf-border);
+    border-radius: 4px;
+    background: var(--omf-surface);
+    font-size: 11px;
+}
+
+.exchange-action {
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px;
+    border: 1px solid var(--omf-border);
+    border-radius: 6px;
+    background: var(--omf-surface-soft);
+    text-align: center;
+}
+
+.exchange-action .btn {
+    width: 100%;
+}
+
+.move-selection-summary {
+    max-height: 120px;
+    padding: 10px;
+    overflow: auto;
+    border: 1px solid var(--omf-border);
+    border-radius: 6px;
+    background: var(--omf-surface-soft);
+    color: var(--omf-text-muted);
+    font-size: 13px;
+}
+
+.move-selection-summary.is-error {
+    border-color: var(--omf-danger-text);
+    background: var(--omf-danger-bg);
+    color: var(--omf-danger-text);
+}
+
+.move-target-field {
+    display: grid;
+    gap: 6px;
+    margin-top: 14px;
+    color: var(--omf-text-muted);
+    font-size: 13px;
+}
+
+.change-section,
+.pending-section {
+    background: var(--omf-warning-bg);
+}
+
+.change-content {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.change-content > div {
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr);
+    gap: 10px;
+    font-size: 13px;
+}
+
+.change-content span {
+    overflow-wrap: anywhere;
+}
+
+.period-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.period-card {
+    overflow: hidden;
+    border: 1px solid var(--omf-border);
+    border-radius: 6px;
+    background: var(--omf-surface);
+}
+
+.period-card.has-issue {
+    border-color: color-mix(in srgb, var(--omf-warning-text) 55%, var(--omf-border));
+}
+
+.period-card-header {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    min-height: 62px;
+    padding: 10px 14px;
+    background: var(--omf-surface-soft);
+}
+
+.period-title h3 {
+    margin: 0;
+    font-size: 16px;
+    letter-spacing: 0;
+}
+
+.period-title span {
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.period-counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    min-width: 0;
+}
+
+.period-counts span {
+    white-space: nowrap;
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.period-counts b {
+    margin-right: 3px;
+    color: var(--omf-text);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+}
+
+.period-counts .count-leader b { color: var(--season-leader); }
+.period-counts .count-captain b { color: var(--season-captain); }
+.period-counts .count-first-officer b { color: var(--season-first-officer); }
+
+.period-status {
+    justify-self: end;
+    padding: 4px 8px;
+    border: 1px solid var(--omf-border);
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.has-issue .period-status {
+    border-color: var(--omf-warning-text);
+    color: var(--omf-warning-text);
+}
+
+.roster-columns {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding: 12px;
+}
+
+.roster-group {
+    min-width: 0;
+    padding: 0;
+}
+
+.group-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 9px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    background: var(--omf-surface-soft);
+}
+
+.group-heading h4 {
+    margin: 0;
+    font-size: 13px;
+    letter-spacing: 0;
+}
+
+.group-heading span {
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.roster-group.category-leader .group-heading h4 { color: var(--season-leader); }
+.roster-group.category-captain .group-heading h4 { color: var(--season-captain); }
+.roster-group.category-firstOfficer .group-heading h4 { color: var(--season-first-officer); }
+
+.people-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 6px;
+}
+
+.person-choice {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 7px;
+    align-items: center;
+    min-height: 43px;
+    margin: 0;
+    padding: 5px 7px;
+    border: 1px solid var(--omf-border);
+    border-radius: 5px;
+    background: var(--omf-surface);
+    cursor: pointer;
+}
+
+.person-choice:hover {
+    background: var(--omf-surface-soft);
+}
+
+.person-choice:has(.person-checkbox:checked) {
+    border-color: var(--season-selection-border);
+    background: var(--season-selection-bg);
+    color: var(--season-selection-text);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--season-selection-border) 30%, transparent);
+}
+
+.person-choice:has(.person-checkbox:checked) .person-copy small {
+    color: var(--season-selection-text) !important;
+}
+
+.person-checkbox:checked {
+    border-color: var(--season-selection-border) !important;
+    background-color: var(--season-selection-border) !important;
+}
+
+.person-copy {
+    min-width: 0;
+}
+
+.person-copy strong,
+.person-copy small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.person-copy strong {
+    font-size: 12px;
+    line-height: 1.25;
+}
+
+.person-copy small {
+    margin-top: 2px;
+    color: var(--omf-text-muted);
+    font-size: 10px;
+}
+
+.empty-group,
+.empty-log {
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.adjustment-log {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 6px 12px;
+}
+
+.adjustment-log > div {
+    padding: 7px 9px;
+    border: 1px solid var(--omf-border);
+    border-radius: 4px;
+    background: var(--omf-surface-soft);
+    font-size: 12px;
+}
+
+@media (max-width: 1000px) {
+    .summary-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .roster-columns { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+    body { padding: 10px; }
+    .control-band { grid-template-columns: 1fr 82px; }
+    .top-actions { grid-column: 1 / -1; justify-content: stretch; }
+    .top-actions .btn { flex: 1; }
+    .chart-heading { display: grid; }
+    .adjustment-controls { grid-template-columns: 1fr 1fr; }
+    .adjustment-controls > div { grid-column: 1 / -1; }
+    .exchange-tray { grid-template-columns: 1fr 1fr; }
+    .exchange-action { grid-column: 1 / -1; }
+    .period-card-header { grid-template-columns: 1fr auto; }
+    .period-counts { grid-column: 1 / -1; }
+    .period-status { grid-column: 2; grid-row: 1; }
+}
+
+@media (max-width: 480px) {
+    .app-header { padding-left: 10px; padding-right: 10px; }
+    .back-link { left: 10px; }
+    .app-header h1 { font-size: 17px; }
+    .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .date-band,
+    .chart-band,
+    .adjustment-band,
+    .change-section,
+    .pending-section,
+    .period-section,
+    .log-section { padding: 12px 10px; }
+    .distribution-chart { height: 260px; }
+    .people-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .person-copy strong { font-size: 11px; }
+    .change-content > div { grid-template-columns: 1fr; }
+    .exchange-tray { grid-template-columns: 1fr; }
+    .exchange-action { grid-column: auto; }
+}

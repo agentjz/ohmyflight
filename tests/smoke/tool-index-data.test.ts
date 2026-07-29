@@ -17,6 +17,11 @@ describe("tool index data", () => {
       expect(tool.status === "done" || tool.status === "wip").toBe(true);
       expect(["heavy", "light", "automation"]).toContain(tool.category);
     });
+    expect(tools).toContainEqual(expect.objectContaining({
+      entry: "seasonal-learning",
+      category: "heavy",
+      status: "done"
+    }));
   });
 
   it("has no work-in-progress tools", () => {
@@ -39,13 +44,9 @@ describe("tool index data", () => {
     expect(homepage).not.toContain('data-category="workflow"');
   });
 
-  it("centralizes every public visibility switch", () => {
-    const tools = loadToolsData() || [];
+  it("keeps only non-tool page switches in site visibility", () => {
     const visibility = loadSiteVisibility();
 
-    expect(Object.keys(visibility.tools).sort()).toEqual(tools.map((tool) => tool.entry).sort());
-    expect(Object.values(visibility.tools).every((value) => typeof value === "boolean")).toBe(true);
-    expect(visibility).not.toHaveProperty("workflows");
     expect(visibility.homepage).toMatchObject({
       patternGate: expect.any(Boolean),
       announcement: expect.any(Boolean),
