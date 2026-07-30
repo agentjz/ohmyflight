@@ -143,6 +143,14 @@ body {
     font-size: 13px;
 }
 
+.balance-rule-option .form-check-input {
+    appearance: auto !important;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--season-selection-border);
+}
+
 .balance-rule-option.is-fixed {
     color: var(--omf-text-muted);
     cursor: default;
