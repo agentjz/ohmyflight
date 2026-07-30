@@ -1,5 +1,6 @@
 (function () {
     const namespace = window.SeasonalLearningApp;
+    const BalanceFilter = window.SeasonalLearningBalanceFilter;
     const categoryKeys: SeasonalLearningCategory[] = ["leader", "captain", "firstOfficer"];
 
     function peopleByCategory(people: SeasonalLearningPerson[], category: SeasonalLearningCategory): SeasonalLearningPerson[] {
@@ -80,12 +81,13 @@
     function renderSummary(context: SeasonalLearningAppContext): void {
         const people = context.state.people;
         const report = context.logic.checkBalance(people, context.state.periodCount);
+        const operationalPeople = people.filter((person) => !BalanceFilter.shouldIgnoreOperational(person));
         const summary = [
             { key: "total", label: "总人数", value: people.length },
-            { key: "leader", label: "带队机长", value: people.filter((person) => person.category === "leader").length },
-            { key: "captain", label: "机长", value: people.filter((person) => person.category === "captain").length },
-            { key: "first-officer", label: "副驾驶", value: people.filter((person) => person.category === "firstOfficer").length },
-            { key: "us-line-leader", label: "美线带队", value: people.filter((person) => person.isUsLineLeader).length },
+            { key: "leader", label: "带队机长", value: operationalPeople.filter((person) => person.category === "leader").length },
+            { key: "captain", label: "机长", value: operationalPeople.filter((person) => person.category === "captain").length },
+            { key: "first-officer", label: "副驾驶", value: operationalPeople.filter((person) => person.category === "firstOfficer").length },
+            { key: "us-line-leader", label: "美线带队", value: operationalPeople.filter((person) => person.isUsLineLeader).length },
             { key: "pending", label: "待分配", value: report.pendingCount },
             { key: "adjusted", label: "人工调整", value: people.filter((person) => person.adjusted).length }
         ];

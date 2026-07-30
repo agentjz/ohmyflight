@@ -192,11 +192,12 @@
                 throw new Error(`换季实际第${rowNumber}行日期无法解析。`);
             }
             const noteText = noteIndex === undefined ? "" : normalizeText(row[noteIndex]);
+            const period = date ? parsePeriod(cell(row, headers, "期数"), rowNumber) : null;
             records.push({
                 employeeId,
                 name: normalizeText(cell(row, headers, "姓名")),
                 department: normalizeText(cell(row, headers, "分部")),
-                period: parsePeriod(cell(row, headers, "期数"), rowNumber),
+                period,
                 date,
                 adjustmentNotes: noteText ? noteText.split(/[；;]/).map((note) => note.trim()).filter(Boolean) : []
             });
@@ -226,21 +227,25 @@
     ): SeasonalLearningImportResult {
         const roster = readRosterRows(totalRows, options);
         const actual = readActualRows(actualRows, options);
-        const hasActualSchedule = actual.some((record) => record.period !== null);
+        const hasActualRoster = actual.length > 0;
 
-        if (hasActualSchedule) {
+        if (hasActualRoster) {
             const actualById = new Map(actual.map((record) => [record.employeeId, record]));
-            const maximumPeriod = Math.max(0, ...actual.map((record) => record.period || 0));
+            const effectivePeriod = (record: ActualRecord): number | null => (
+                record.date && record.period ? record.period : null
+            );
+            const maximumPeriod = Math.max(0, ...actual.map((record) => effectivePeriod(record) || 0));
             const periodCount = Math.max(validatePeriodCount(requestedPeriodCount), maximumPeriod);
             const periodDates = emptyPeriodDates(periodCount);
 
             actual.forEach((record) => {
-                if (!record.period || !record.date) return;
-                const current = periodDates[record.period];
+                const period = effectivePeriod(record);
+                if (!period) return;
+                const current = periodDates[period];
                 if (current && current !== record.date) {
-                    throw new Error(`换季实际第${record.period}期存在多个培训日期。`);
+                    throw new Error(`换季实际第${period}期存在多个培训日期。`);
                 }
-                periodDates[record.period] = record.date;
+                periodDates[period] = record.date;
             });
 
             const people = roster.map((person) => {
@@ -248,7 +253,7 @@
                 return record
                     ? {
                         ...person,
-                        period: record.period,
+                        period: effectivePeriod(record),
                         adjusted: record.adjustmentNotes.length > 0,
                         adjustmentNotes: [...record.adjustmentNotes]
                     }

@@ -71,8 +71,23 @@ describe("seasonal learning workbook health", () => {
     expect(messages.some((message: string) => message.includes("员工号 100001 重复出现"))).toBe(true);
     expect(messages.some((message: string) => message.includes("实际名单缺少 1 人"))).toBe(true);
     expect(messages.some((message: string) => message.includes("实际名单多出 1 人"))).toBe(true);
-    expect(messages.some((message: string) => message.includes("有 1 人未填写期数"))).toBe(true);
+    expect(messages.some((message: string) => message.includes("有 1 人日期或期数不完整"))).toBe(true);
     expect(messages.some((message: string) => message.includes("有 1 人身份不一致"))).toBe(true);
+  });
+
+  it("reports an actual row with a blank date as pending even when its period remains", () => {
+    const actualRow = row(1, "100001", "甲", 1, "公司领导");
+    actualRow[8] = "";
+    const result = health.buildWorkbookHealth([
+      HEADERS,
+      row(1, "100001", "甲", "", "公司领导")
+    ], [HEADERS, actualRow]);
+
+    expect(result.items.some((item: any) => (
+      item.area === "实际排期"
+      && item.message.includes("1 人")
+      && item.message.includes("待分配")
+    ))).toBe(true);
   });
 
   it("treats an empty actual sheet as a pending schedule", () => {

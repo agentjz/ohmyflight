@@ -31,6 +31,7 @@ describe("seasonal learning export", () => {
   beforeAll(() => {
     const context = loadBrowserScripts([
       "tool/app/seasonal-learning/data.js",
+      "tool/app/seasonal-learning/balance-filter.js",
       "tool/app/seasonal-learning/allocation.js",
       "tool/app/seasonal-learning/logic.js",
       "tool/app/seasonal-learning/export.js"

@@ -50,6 +50,7 @@ interface SeasonalLearningDimensionReport {
 interface SeasonalLearningBalanceReport {
     balanced: boolean;
     pendingCount: number;
+    operationalPendingCount: number;
     dimensions: Record<"total" | "usLineLeader" | SeasonalLearningCategory, SeasonalLearningDimensionReport>;
 }
 
@@ -86,6 +87,22 @@ interface SeasonalLearningAllocationApi {
         people: SeasonalLearningPerson[],
         periodCount: number
     ): SeasonalLearningAllocationQuotas;
+}
+
+interface SeasonalLearningBalanceFilterEntry {
+    values: string[];
+    reason: string;
+}
+
+type SeasonalLearningBalanceFilterDictionary = Partial<Record<
+    keyof SeasonalLearningPerson,
+    SeasonalLearningBalanceFilterEntry
+>>;
+
+interface SeasonalLearningBalanceFilterApi {
+    BALANCE_FILTERS: SeasonalLearningBalanceFilterDictionary;
+    shouldIgnoreOperational(person: SeasonalLearningPerson): boolean;
+    getOperationalIgnoreReason(person: SeasonalLearningPerson): string;
 }
 
 type SeasonalLearningHealthLevel = "error" | "warning" | "info";
@@ -209,6 +226,7 @@ interface Window {
     XLSX: typeof import("xlsx-js-style");
     echarts?: any;
     SeasonalLearningData: SeasonalLearningDataApi;
+    SeasonalLearningBalanceFilter: SeasonalLearningBalanceFilterApi;
     SeasonalLearningAllocation: SeasonalLearningAllocationApi;
     SeasonalLearningLogic: SeasonalLearningLogicApi;
     SeasonalLearningExport: SeasonalLearningExportApi;

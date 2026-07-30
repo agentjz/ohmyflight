@@ -1,6 +1,7 @@
 (function () {
     const Data = window.SeasonalLearningData;
     const Allocation = window.SeasonalLearningAllocation;
+    const BalanceFilter = window.SeasonalLearningBalanceFilter;
     const CATEGORY_ORDER: SeasonalLearningCategory[] = ["leader", "captain", "firstOfficer"];
 
     function clonePerson(person: SeasonalLearningPerson): SeasonalLearningPerson {
@@ -33,13 +34,35 @@
         }
     }
 
+    function assignOperationallyIgnored(
+        people: SeasonalLearningPerson[],
+        balancedPeople: SeasonalLearningPerson[],
+        periodCount: number
+    ): void {
+        const totals = Array(periodCount).fill(0) as number[];
+        balancedPeople.forEach((person) => {
+            if (person.period) totals[person.period - 1] += 1;
+        });
+        people
+            .sort((left, right) => left.originalOrder - right.originalOrder)
+            .forEach((person) => {
+                const minimum = Math.min(...totals);
+                const periodIndex = totals.indexOf(minimum);
+                person.period = periodIndex + 1;
+                person.adjusted = false;
+                person.adjustmentNotes = [];
+                totals[periodIndex] += 1;
+            });
+    }
+
     function buildInitialSchedule(people: SeasonalLearningPerson[], periodCount: number): SeasonalLearningPerson[] {
         validatePeriodCount(periodCount);
         const output = people.map(clonePerson);
-        const quotas = Allocation.buildBalancedQuotas(output, periodCount);
+        const operationalPeople = output.filter((person) => !BalanceFilter.shouldIgnoreOperational(person));
+        const quotas = Allocation.buildBalancedQuotas(operationalPeople, periodCount);
 
         CATEGORY_ORDER.forEach((category) => {
-            const group = output
+            const group = operationalPeople
                 .filter((person) => person.category === category)
                 .sort((left, right) => left.originalOrder - right.originalOrder);
             const marked = group.filter((person) => person.isUsLineLeader);
@@ -51,6 +74,11 @@
                 false
             );
         });
+        assignOperationallyIgnored(
+            output.filter((person) => BalanceFilter.shouldIgnoreOperational(person)),
+            operationalPeople,
+            periodCount
+        );
         return output;
     }
 
@@ -76,6 +104,8 @@
         validatePeriodCount(periodCount);
         const assigned = people.filter((person) => person.period !== null);
         const pendingCount = people.length - assigned.length;
+        const operationalPeople = people.filter((person) => !BalanceFilter.shouldIgnoreOperational(person));
+        const operationalPendingCount = operationalPeople.filter((person) => person.period === null).length;
         const totalCounts = Array(periodCount).fill(0) as number[];
         const categoryCounts: Record<SeasonalLearningCategory, number[]> = {
             leader: Array(periodCount).fill(0),
@@ -87,20 +117,23 @@
         assigned.forEach((person) => {
             if (!person.period || person.period > periodCount) return;
             totalCounts[person.period - 1] += 1;
-            categoryCounts[person.category][person.period - 1] += 1;
-            if (person.isUsLineLeader) usLineLeaderCounts[person.period - 1] += 1;
+            if (!BalanceFilter.shouldIgnoreOperational(person)) {
+                categoryCounts[person.category][person.period - 1] += 1;
+                if (person.isUsLineLeader) usLineLeaderCounts[person.period - 1] += 1;
+            }
         });
 
         const dimensions = {
-            total: dimensionReport(totalCounts, people.length, 5),
-            leader: dimensionReport(categoryCounts.leader, people.filter((person) => person.category === "leader").length, 1),
-            captain: dimensionReport(categoryCounts.captain, people.filter((person) => person.category === "captain").length, 1),
-            firstOfficer: dimensionReport(categoryCounts.firstOfficer, people.filter((person) => person.category === "firstOfficer").length, 1),
-            usLineLeader: dimensionReport(usLineLeaderCounts, people.filter((person) => person.isUsLineLeader).length, 1)
+            total: dimensionReport(totalCounts, assigned.length, 5),
+            leader: dimensionReport(categoryCounts.leader, operationalPeople.filter((person) => person.category === "leader").length, 1),
+            captain: dimensionReport(categoryCounts.captain, operationalPeople.filter((person) => person.category === "captain").length, 1),
+            firstOfficer: dimensionReport(categoryCounts.firstOfficer, operationalPeople.filter((person) => person.category === "firstOfficer").length, 1),
+            usLineLeader: dimensionReport(usLineLeaderCounts, operationalPeople.filter((person) => person.isUsLineLeader).length, 1)
         };
         return {
-            balanced: pendingCount === 0 && Object.values(dimensions).every((dimension) => dimension.balanced),
+            balanced: operationalPendingCount === 0 && Object.values(dimensions).every((dimension) => dimension.balanced),
             pendingCount,
+            operationalPendingCount,
             dimensions
         };
     }

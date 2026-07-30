@@ -43,6 +43,7 @@ describe("seasonal learning logic", () => {
   beforeAll(() => {
     const context = loadBrowserScripts([
       "tool/app/seasonal-learning/data.js",
+      "tool/app/seasonal-learning/balance-filter.js",
       "tool/app/seasonal-learning/allocation.js",
       "tool/app/seasonal-learning/logic.js"
     ]);
@@ -122,6 +123,24 @@ describe("seasonal learning logic", () => {
     expect(report.dimensions.usLineLeader.counts).toEqual([2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
   });
 
+  it("excludes only company leaders from operational quotas while balancing them in total headcount", () => {
+    const rows = rosterRows({ leader: 4, captain: 2, firstOfficer: 2, usLineLeader: 4 });
+    rows[1][10] = "领导";
+    rows[2][10] = "公司领导";
+    rows[3][10] = "公司领导";
+
+    const scheduled = logic.buildInitialSchedule(logic.readRosterRows(rows), 2);
+    const report = logic.checkBalance(scheduled, 2);
+    const companyLeaders = scheduled.filter((person: any) => person.identity === "公司领导");
+
+    expect(report.balanced).toBe(true);
+    expect(report.dimensions.total.counts).toEqual([4, 4]);
+    expect(report.dimensions.leader.counts).toEqual([1, 1]);
+    expect(report.dimensions.usLineLeader.counts).toEqual([1, 1]);
+    expect(companyLeaders.map((person: any) => person.period).sort()).toEqual([1, 2]);
+    expect(scheduled.find((person: any) => person.identity === "领导").period).not.toBeNull();
+  });
+
   it("uses a five-person tolerance for total counts and checks categories without changing assignments", () => {
     const scheduled = logic.buildInitialSchedule(
       logic.readRosterRows(rosterRows({ leader: 6, captain: 6, firstOfficer: 6 })),
@@ -196,5 +215,36 @@ describe("seasonal learning logic", () => {
     expect(merged.addedEmployeeIds).toEqual(["100004"]);
     expect(merged.removedPeople.map((person: any) => person.employeeId)).toEqual(["100002"]);
     expect(merged.periodDates).toEqual({ 1: "2026-09-01", 2: "2026-09-02" });
+  });
+
+  it("treats actual rows without dates as pending even when a period remains", () => {
+    const total = rosterRows({ leader: 1, captain: 1, firstOfficer: 1 });
+    const actual = [
+      HEADERS,
+      [1, "100001", "人员1", "一分部", "777:飞行教员A", 1, 0, "换季学习", "", 1, "公司领导"],
+      [2, "100002", "人员2", "二分部", "777:C类机长", 0, 0, "换季学习", "2026-09-16", 2, ""]
+    ];
+
+    const restored = logic.buildImportResult(total, actual, 6, null);
+
+    expect(restored.mode).toBe("actual");
+    expect(restored.scheduleReady).toBe(true);
+    expect(restored.people.map((person: any) => person.period)).toEqual([null, 2, null]);
+    expect(restored.periodDates).toMatchObject({ 1: "", 2: "2026-09-16" });
+    expect(restored.addedEmployeeIds).toEqual(["100003"]);
+  });
+
+  it("keeps an actual roster authoritative when every actual date is blank", () => {
+    const total = rosterRows({ leader: 1, captain: 0, firstOfficer: 0 });
+    const actual = [
+      HEADERS,
+      [1, "100001", "人员1", "一分部", "777:飞行教员A", 1, 0, "换季学习", "", 1, "公司领导"]
+    ];
+
+    const restored = logic.buildImportResult(total, actual, 6, null);
+
+    expect(restored.mode).toBe("actual");
+    expect(restored.scheduleReady).toBe(true);
+    expect(restored.people[0].period).toBeNull();
   });
 });

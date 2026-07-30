@@ -62,10 +62,12 @@
             context.getElement<HTMLInputElement>("periodCount").value = String(result.periodCount);
             renderTargetOptions(context);
 
+            const pendingCount = result.people.filter((person) => person.period === null).length;
+            const restoredCount = result.people.length - pendingCount;
             const message = result.mode === "pending"
                 ? `已导入 ${result.people.length} 人，点击“均衡负载”生成初版。`
                 : result.mode === "actual"
-                    ? `已从换季实际恢复 ${result.people.length} 人的安排。`
+                    ? `已从换季实际恢复 ${restoredCount} 人，${pendingCount} 人待分配。`
                     : `已更新总名单：新增 ${result.addedEmployeeIds.length} 人，删除 ${result.removedPeople.length} 人。`;
             const needsAttention = result.addedEmployeeIds.length
                 || result.removedPeople.length
@@ -179,8 +181,13 @@
         }
 
         const report = context.logic.checkBalance(context.state.people, context.state.periodCount);
+        const pendingText = report.operationalPendingCount
+            ? `另有 ${report.operationalPendingCount} 名运行人员待分配。`
+            : "";
         context.setActionMessage(
-            report.balanced ? "当前分布在允许范围内，人员期次未改动。" : "存在超过容差的期次差异，人员期次未改动。",
+            report.balanced
+                ? `当前分布在允许范围内，人员期次未改动。${pendingText}`
+                : `存在超过容差的期次差异，人员期次未改动。${pendingText}`,
             report.balanced ? "success" : "warning"
         );
     }

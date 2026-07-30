@@ -5,6 +5,7 @@
 
     interface HealthRecord extends SeasonalLearningHealthPerson {
         periodText: string;
+        dateText: string;
     }
 
     interface SheetScan {
@@ -73,6 +74,7 @@
                 name,
                 identity: normalizeText(cell(row, headers, "身份")),
                 periodText: requirePeriod ? normalizeText(cell(row, headers, "期数")) : "",
+                dateText: requirePeriod ? normalizeText(cell(row, headers, "日期")) : "",
                 rowNumber
             });
         });
@@ -164,11 +166,11 @@
             addItem(result, "info", "名单对应", "总名单与实际名单员工号完全一致。");
         }
 
-        const unassigned = actualPeople.filter((person) => !person.periodText);
+        const unassigned = actualPeople.filter((person) => !person.periodText || !person.dateText);
         if (unassigned.length) {
-            addItem(result, "warning", "实际排期", `有 ${unassigned.length} 人未填写期数。`, unassigned.map(personText).join("；"));
+            addItem(result, "warning", "实际排期", `有 ${unassigned.length} 人日期或期数不完整，导入后进入待分配。`, unassigned.map(personText).join("；"));
         } else {
-            addItem(result, "info", "实际排期", "实际名单全部填写了期数。");
+            addItem(result, "info", "实际排期", "实际名单全部填写了日期和期数。");
         }
 
         const identityMismatches = totalPeople.flatMap((person) => {
