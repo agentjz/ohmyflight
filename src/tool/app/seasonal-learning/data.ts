@@ -1,5 +1,5 @@
 (function () {
-    const REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数"];
+    const REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
 
     function normalizeText(value: unknown): string {
         return String(value ?? "").trim();
@@ -141,6 +141,7 @@
                 name,
                 department: normalizeText(cell(row, headers, "分部")),
                 technicalInfo,
+                identity: normalizeText(cell(row, headers, "身份")),
                 isLeader,
                 trainingType: normalizeText(cell(row, headers, "培训类型")),
                 sourceDate,

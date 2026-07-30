@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { loadBrowserScripts } from "../../helpers/browser-context";
 
-const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数"];
+const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
 
 function rosterRows(groups: { leader: number; captain: number; firstOfficer: number }): unknown[][] {
   const rows: unknown[][] = [HEADERS];
@@ -18,6 +18,7 @@ function rosterRows(groups: { leader: number; captain: number; firstOfficer: num
         technicalInfo,
         isLeader,
         "换季学习",
+        "",
         "",
         ""
       ]);
@@ -56,10 +57,10 @@ describe("seasonal learning logic", () => {
   it("classifies leaders first and treats non-leading instructors as captains", () => {
     const rows = [
       HEADERS,
-      [1, 100001, "带队", "一分部", "777:D类副驾驶", 1, "换季学习", "", ""],
-      [2, 100002, "教员", "二分部", "777:飞行教员B", 0, "换季学习", "", ""],
-      [3, 100003, "机长", "三分部", "划转机长", 0, "换季学习", "", ""],
-      [4, 100004, "副驾驶", "四分部", "划转副驾驶", 0, "换季学习", "2026-09-28", ""]
+      [1, 100001, "带队", "一分部", "777:D类副驾驶", 1, "换季学习", "", "", "临时观察员"],
+      [2, 100002, "教员", "二分部", "777:飞行教员B", 0, "换季学习", "", "", ""],
+      [3, 100003, "机长", "三分部", "划转机长", 0, "换季学习", "", "", ""],
+      [4, 100004, "副驾驶", "四分部", "划转副驾驶", 0, "换季学习", "2026-09-28", "", ""]
     ];
 
     const people = logic.readRosterRows(rows);
@@ -71,18 +72,19 @@ describe("seasonal learning logic", () => {
     ]);
     expect(people[3].sourceDate).toBe("2026-09-28");
     expect(people[0].employeeId).toBe("100001");
+    expect(people[0].identity).toBe("临时观察员");
   });
 
   it("rejects duplicate employee IDs and unrecognized technical information", () => {
     expect(() => logic.readRosterRows([
       HEADERS,
-      [1, "100001", "甲", "一分部", "777:C类机长", 0, "换季学习", "", ""],
-      [2, 100001, "乙", "二分部", "777:C类副驾驶", 0, "换季学习", "", ""]
+      [1, "100001", "甲", "一分部", "777:C类机长", 0, "换季学习", "", "", ""],
+      [2, 100001, "乙", "二分部", "777:C类副驾驶", 0, "换季学习", "", "", ""]
     ])).toThrow("员工号重复");
 
     expect(() => logic.readRosterRows([
       HEADERS,
-      [1, "100001", "甲", "一分部", "未识别等级", 0, "换季学习", "", ""]
+      [1, "100001", "甲", "一分部", "未识别等级", 0, "换季学习", "", "", ""]
     ])).toThrow("无法归类");
   });
 
@@ -131,16 +133,18 @@ describe("seasonal learning logic", () => {
 
   it("restores actual assignments first and otherwise preserves the current schedule on re-import", () => {
     const total = rosterRows({ leader: 1, captain: 1, firstOfficer: 1 });
+    total[1][9] = "临时观察员";
     const actual = [
       [...HEADERS, "调整说明"],
-      [1, "100001", "人员1", "一分部", "777:飞行教员A", 1, "换季学习", "2026-10-08", "第3期", "移动：第1期 → 第3期"],
-      [2, "100002", "人员2", "二分部", "777:C类机长", 0, "换季学习", "2026-10-09", 4, ""]
+      [1, "100001", "人员1", "一分部", "777:飞行教员A", 1, "换季学习", "2026-10-08", "第3期", "临时观察员", "移动：第1期 → 第3期"],
+      [2, "100002", "人员2", "二分部", "777:C类机长", 0, "换季学习", "2026-10-09", 4, "", ""]
     ];
     const restored = logic.buildImportResult(total, actual, 6, null);
 
     expect(restored.mode).toBe("actual");
     expect(restored.people.map((person: any) => person.period)).toEqual([3, 4, null]);
     expect(restored.people[0].adjusted).toBe(true);
+    expect(restored.people[0].identity).toBe("临时观察员");
     expect(restored.periodDates).toMatchObject({ 3: "2026-10-08", 4: "2026-10-09" });
     expect(restored.addedEmployeeIds).toEqual(["100003"]);
 
@@ -151,9 +155,9 @@ describe("seasonal learning logic", () => {
     const baselinePeople = logic.buildInitialSchedule(pending.people, 2);
     const updatedTotal = [
       HEADERS,
-      total[1],
+      [...total[1].slice(0, 9), "更新身份"],
       total[3],
-      [4, "100004", "新增人员", "四分部", "777:B类副驾驶", 0, "换季学习", "", ""]
+      [4, "100004", "新增人员", "四分部", "777:B类副驾驶", 0, "换季学习", "", "", ""]
     ];
     const merged = logic.buildImportResult(updatedTotal, [HEADERS], 2, {
       people: baselinePeople,
@@ -167,6 +171,7 @@ describe("seasonal learning logic", () => {
       baselinePeople.find((person: any) => person.employeeId === "100001").period
     );
     expect(merged.scheduleReady).toBe(true);
+    expect(merged.people.find((person: any) => person.employeeId === "100001").identity).toBe("更新身份");
     expect(merged.people.find((person: any) => person.employeeId === "100004").period).toBeNull();
     expect(merged.addedEmployeeIds).toEqual(["100004"]);
     expect(merged.removedPeople.map((person: any) => person.employeeId)).toEqual(["100002"]);

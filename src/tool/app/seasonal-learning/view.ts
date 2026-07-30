@@ -8,13 +8,30 @@
             .sort((left, right) => left.originalOrder - right.originalOrder);
     }
 
+    function identityHue(identity: string): number {
+        let hash = 2166136261;
+        for (const character of identity) {
+            hash ^= character.codePointAt(0) || 0;
+            hash = Math.imul(hash, 16777619);
+        }
+        return Math.abs(hash) % 360;
+    }
+
+    function renderIdentity(context: SeasonalLearningAppContext, identity: string): string {
+        if (!identity) return "";
+        return `<span class="identity-marker" style="--identity-hue:${identityHue(identity)}deg">${context.escapeHtml(identity)}</span>`;
+    }
+
     function renderPerson(context: SeasonalLearningAppContext, person: SeasonalLearningPerson): string {
         const category = context.logic.categoryLabel(person.category);
         return `
             <label class="person-choice category-${person.category}">
                 <input class="form-check-input person-checkbox" type="checkbox" value="${context.escapeHtml(person.employeeId)}">
                 <span class="person-copy">
-                    <strong>${context.escapeHtml(person.name)}</strong>
+                    <span class="person-name-row">
+                        <strong>${context.escapeHtml(person.name)}</strong>
+                        ${renderIdentity(context, person.identity)}
+                    </span>
                     <small class="person-category">${context.escapeHtml(category)}</small>
                     <small class="person-technical">${context.escapeHtml(person.technicalInfo)}</small>
                 </span>
@@ -59,19 +76,23 @@
         const people = context.state.people;
         const report = context.logic.checkBalance(people, context.state.periodCount);
         const summary = [
-            ["总人数", people.length],
-            ["带队机长", people.filter((person) => person.category === "leader").length],
-            ["机长", people.filter((person) => person.category === "captain").length],
-            ["副驾驶", people.filter((person) => person.category === "firstOfficer").length],
-            ["待分配", report.pendingCount],
-            ["人工调整", people.filter((person) => person.adjusted).length]
+            { key: "total", label: "总人数", value: people.length },
+            { key: "leader", label: "带队机长", value: people.filter((person) => person.category === "leader").length },
+            { key: "captain", label: "机长", value: people.filter((person) => person.category === "captain").length },
+            { key: "first-officer", label: "副驾驶", value: people.filter((person) => person.category === "firstOfficer").length },
+            { key: "pending", label: "待分配", value: report.pendingCount },
+            { key: "adjusted", label: "人工调整", value: people.filter((person) => person.adjusted).length }
         ];
-        context.getElement<HTMLDivElement>("summaryStrip").innerHTML = summary.map(([label, value]) => `
-            <div class="summary-item">
-                <span>${context.escapeHtml(label)}</span>
-                <strong>${context.escapeHtml(value)}</strong>
+        context.getElement<HTMLDivElement>("summaryStrip").innerHTML = summary.map((item) => `
+            <div class="summary-item summary-${item.key}">
+                <span>${context.escapeHtml(item.label)}</span>
+                <strong>${context.escapeHtml(item.value)}</strong>
             </div>
         `).join("");
+    }
+
+    function cssColor(name: string, fallback: string): string {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
     }
 
     function renderChart(context: SeasonalLearningAppContext): void {
@@ -86,13 +107,25 @@
             context.state.periodCount
         );
         context.state.chart = context.state.chart || window.echarts.init(element);
-        const textColor = getComputedStyle(document.documentElement).getPropertyValue("--omf-text").trim() || "#1f2328";
-        const mutedColor = getComputedStyle(document.documentElement).getPropertyValue("--omf-text-muted").trim() || "#656d76";
-        const borderColor = getComputedStyle(document.documentElement).getPropertyValue("--omf-border").trim() || "#d0d7de";
+        const textColor = cssColor("--omf-text", "#1f2328");
+        const mutedColor = cssColor("--omf-text-muted", "#656d76");
+        const borderColor = cssColor("--omf-border", "#d0d7de");
+        const surfaceColor = cssColor("--omf-surface", "#ffffff");
         context.state.chart.setOption({
             animationDuration: 280,
-            color: ["#2563eb", "#0f766e", "#b45309", "#c026d3"],
-            tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+            color: [
+                cssColor("--season-leader-chart", "#a8c4e5"),
+                cssColor("--season-captain-chart", "#a6d2c8"),
+                cssColor("--season-first-officer-chart", "#e8c796"),
+                cssColor("--season-total-chart", "#9c91ae")
+            ],
+            tooltip: {
+                trigger: "axis",
+                axisPointer: { type: "shadow" },
+                backgroundColor: surfaceColor,
+                borderColor,
+                textStyle: { color: textColor }
+            },
             legend: { top: 0, textStyle: { color: textColor } },
             grid: { top: 46, left: 46, right: 34, bottom: 38 },
             xAxis: {
@@ -136,19 +169,22 @@
             const people = context.state.people.filter((person) => person.period === summary.period);
             const status = summary.issues.length ? `需检查：${summary.issues.join("、")}` : "均衡";
             return `
-                <article class="period-card ${summary.issues.length ? "has-issue" : ""}">
+                <article class="period-card ${summary.issues.length ? "has-issue" : ""}" data-person-scope="period-${summary.period}">
                     <header class="period-card-header">
                         <div class="period-title">
                             <h3>第${summary.period}期</h3>
                             <span>${context.escapeHtml(summary.date || "日期未填写")}</span>
                         </div>
                         <div class="period-counts">
-                            <span><b>${summary.total}</b> 总人数</span>
+                            <span class="count-total"><b>${summary.total}</b> 总人数</span>
                             <span class="count-leader"><b>${summary.leader}</b> 带队机长</span>
                             <span class="count-captain"><b>${summary.captain}</b> 机长</span>
                             <span class="count-first-officer"><b>${summary.firstOfficer}</b> 副驾驶</span>
                         </div>
-                        <span class="period-status">${context.escapeHtml(status)}</span>
+                        <div class="period-actions">
+                            <span class="period-status">${context.escapeHtml(status)}</span>
+                            <button class="btn btn-outline-secondary btn-sm move-scope-button" type="button" data-move-scope="period-${summary.period}" disabled>移动所选</button>
+                        </div>
                     </header>
                     <div class="roster-columns">
                         ${categoryKeys.map((category) => renderGroup(context, people, category)).join("")}
@@ -177,9 +213,79 @@
             : '<span class="empty-log">暂无人工调整</span>';
     }
 
-    function renderSelectionCount(context: SeasonalLearningAppContext): void {
-        const count = document.querySelectorAll<HTMLInputElement>(".person-checkbox:checked").length;
-        context.getElement<HTMLSpanElement>("selectionCount").textContent = String(count);
+    function renderPersonNames(context: SeasonalLearningAppContext, people: SeasonalLearningHealthPerson[]): string {
+        return people.length
+            ? people.map((person) => `<span>${context.escapeHtml(person.name || person.employeeId)}</span>`).join("")
+            : '<span class="empty-log">无</span>';
+    }
+
+    function renderIdentityGroups(context: SeasonalLearningAppContext, people: SeasonalLearningHealthPerson[]): string {
+        const grouped = new Map<string, SeasonalLearningHealthPerson[]>();
+        people.forEach((person) => {
+            const group = grouped.get(person.identity) || [];
+            group.push(person);
+            grouped.set(person.identity, group);
+        });
+        return [...grouped.entries()].map(([identity, group]) => `
+            <div class="identity-audit-group">
+                <div class="identity-audit-heading">
+                    ${renderIdentity(context, identity)}
+                    <span>${group.length} 人</span>
+                </div>
+                <div class="health-name-list">${renderPersonNames(context, group)}</div>
+            </div>
+        `).join("");
+    }
+
+    function renderHealth(context: SeasonalLearningAppContext): void {
+        const section = context.getElement<HTMLElement>("healthSection");
+        const health = context.state.health;
+        section.hidden = !health;
+        if (!health) return;
+
+        context.getElement<HTMLDivElement>("healthSummary").innerHTML = `
+            <span class="health-pill health-error">严重 ${health.summary.error}</span>
+            <span class="health-pill health-warning">警告 ${health.summary.warning}</span>
+            <span class="health-pill health-info">提示 ${health.summary.info}</span>
+        `;
+        context.getElement<HTMLDivElement>("healthContent").innerHTML = `
+            <div class="health-metrics">
+                <span><b>${health.totalCount}</b> 总名单</span>
+                <span><b>${health.actualCount}</b> 实际名单</span>
+                <span><b>${health.totalTagged.length}</b> 有身份</span>
+                <span><b>${health.totalUntagged.length}</b> 未标身份</span>
+            </div>
+            <div class="health-list">
+                ${health.items.map((item) => `
+                    <div class="health-item health-item-${item.level}">
+                        <span class="health-level">${item.level === "error" ? "严重" : item.level === "warning" ? "警告" : "提示"}</span>
+                        <span class="health-area">${context.escapeHtml(item.area)}</span>
+                        <span class="health-message">${context.escapeHtml(item.message)}</span>
+                        ${item.detail ? `<span class="health-detail">${context.escapeHtml(item.detail)}</span>` : ""}
+                    </div>
+                `).join("")}
+            </div>
+            <div class="identity-audit">
+                <details open>
+                    <summary>总名单带身份人员 ${health.totalTagged.length}</summary>
+                    ${renderIdentityGroups(context, health.totalTagged)}
+                </details>
+                <details>
+                    <summary>总名单未标身份人员 ${health.totalUntagged.length}</summary>
+                    <div class="health-name-list">${renderPersonNames(context, health.totalUntagged)}</div>
+                </details>
+            </div>
+        `;
+    }
+
+    function updateMoveButtons(context: SeasonalLearningAppContext): void {
+        document.querySelectorAll<HTMLButtonElement>(".move-scope-button").forEach((button) => {
+            const scope = button.dataset.moveScope;
+            const container = scope ? document.querySelector<HTMLElement>(`[data-person-scope="${scope}"]`) : null;
+            const count = container?.querySelectorAll<HTMLInputElement>(".person-checkbox:checked").length || 0;
+            button.disabled = !context.state.scheduleReady || count === 0;
+            button.textContent = count ? `移动所选 ${count}` : "移动所选";
+        });
     }
 
     function renderAll(context: SeasonalLearningAppContext): void {
@@ -190,7 +296,7 @@
         balanceButton.disabled = !context.state.initialized;
         balanceButton.textContent = context.state.scheduleReady ? "均衡检查" : "均衡负载";
         context.getElement<HTMLInputElement>("periodCount").disabled = context.state.scheduleReady;
-        context.getElement<HTMLButtonElement>("moveButton").disabled = !context.state.scheduleReady;
+        renderHealth(context);
         if (!context.state.initialized) {
             renderDateControls(context);
             return;
@@ -202,13 +308,14 @@
         renderPeriodCards(context);
         renderChanges(context);
         renderLog(context);
-        renderSelectionCount(context);
+        updateMoveButtons(context);
     }
 
     namespace.View = {
         renderAll,
         renderDateControls,
         renderChart,
-        renderSelectionCount
+        renderHealth,
+        updateMoveButtons
     };
 })();

@@ -22,12 +22,16 @@
         if (!file) return;
 
         context.setStatus("正在读取换季名单…");
+        context.state.health = null;
+        namespace.View?.renderHealth(context);
         try {
             const stateBeforeImport = previousState(context);
             const datesBeforeImport = { ...context.state.periodDates };
             const workbook = await context.readWorkbook(file);
             const totalRows = context.sheetRows(workbook, "换季总名单");
             const actualRows = context.sheetRows(workbook, "换季实际");
+            context.state.health = context.health.buildWorkbookHealth(totalRows, actualRows);
+            namespace.View?.renderHealth(context);
             const requestedPeriodCount = Number(context.getElement<HTMLInputElement>("periodCount").value);
             const result = context.logic.buildImportResult(
                 totalRows,
@@ -63,11 +67,11 @@
                 : result.mode === "actual"
                     ? `已从换季实际恢复 ${result.people.length} 人的安排。`
                     : `已更新总名单：新增 ${result.addedEmployeeIds.length} 人，删除 ${result.removedPeople.length} 人。`;
-            context.setStatus(message, result.addedEmployeeIds.length || result.removedPeople.length ? "warning" : "success");
-            context.setActionMessage(
-                result.scheduleReady ? "选择人员后可移动；调整不会触发自动重排。" : "均衡负载后可移动人员。",
-                "muted"
-            );
+            const needsAttention = result.addedEmployeeIds.length
+                || result.removedPeople.length
+                || (context.state.health?.summary.warning || 0) > 0;
+            context.setStatus(message, needsAttention ? "warning" : "success");
+            context.setActionMessage("");
             namespace.View?.renderAll(context);
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
@@ -77,8 +81,10 @@
         }
     }
 
-    function selectedEmployeeIds(): string[] {
-        return Array.from(document.querySelectorAll<HTMLInputElement>(".person-checkbox:checked")).map((input) => input.value);
+    function selectedEmployeeIds(scope: string): string[] {
+        const container = document.querySelector<HTMLElement>(`[data-person-scope="${scope}"]`);
+        if (!container) return [];
+        return Array.from(container.querySelectorAll<HTMLInputElement>(".person-checkbox:checked")).map((input) => input.value);
     }
 
     function applyOperation(context: SeasonalLearningAppContext, operation: SeasonalLearningOperationResult): void {
@@ -101,10 +107,10 @@
         return modalApi.getOrCreateInstance(context.getElement<HTMLElement>("moveModal"));
     }
 
-    function openMoveModal(context: SeasonalLearningAppContext): void {
+    function openMoveModal(context: SeasonalLearningAppContext, scope: string): void {
         try {
             if (!context.state.scheduleReady) throw new Error("请先点击“均衡负载”生成初版。");
-            const employeeIds = selectedEmployeeIds();
+            const employeeIds = selectedEmployeeIds(scope);
             if (!employeeIds.length) throw new Error("请至少选择一人。");
             const selected = new Set(employeeIds);
             const names = context.state.people.filter((person) => selected.has(person.employeeId)).map((person) => person.name);
@@ -202,10 +208,17 @@
         context.getElement<HTMLElement>("workspace").addEventListener("change", (event) => {
             const input = event.target;
             if (input instanceof HTMLInputElement && input.classList.contains("person-checkbox")) {
-                namespace.View?.renderSelectionCount(context);
+                namespace.View?.updateMoveButtons(context);
             }
         });
-        context.getElement<HTMLButtonElement>("moveButton").addEventListener("click", () => openMoveModal(context));
+        context.getElement<HTMLElement>("workspace").addEventListener("click", (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLElement)) return;
+            const button = target.closest<HTMLButtonElement>(".move-scope-button");
+            const scope = button?.dataset.moveScope;
+            if (!button || !scope) return;
+            openMoveModal(context, scope);
+        });
         context.getElement<HTMLButtonElement>("confirmMoveButton").addEventListener("click", () => confirmMove(context));
         context.getElement<HTMLButtonElement>("balanceButton").addEventListener("click", () => balanceOrCheck(context));
         context.getElement<HTMLButtonElement>("exportButton").addEventListener("click", () => exportWorkbook(context));

@@ -3,15 +3,15 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { loadBrowserScripts } from "../../helpers/browser-context";
 
-const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数"];
+const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
 
 function workbookFixture() {
   const workbook = XLSX.utils.book_new();
   const actual = XLSX.utils.aoa_to_sheet([HEADERS]);
   const total = XLSX.utils.aoa_to_sheet([
     HEADERS,
-    [1, 100001, "甲", "一分部", "777:C类机长", 0, "换季学习", "", ""],
-    [2, 100002, "乙", "二分部", "777:C类副驾驶", 0, "换季学习", "", ""]
+    [1, 100001, "甲", "一分部", "777:C类机长", 0, "换季学习", "", "", "临时观察员"],
+    [2, 100002, "乙", "二分部", "777:C类副驾驶", 0, "换季学习", "", "", ""]
   ]);
   const everyone = XLSX.utils.aoa_to_sheet([
     ["员工号", "姓名", "分部", "技术信息", "REUO"],
@@ -60,18 +60,20 @@ describe("seasonal learning export", () => {
 
     expect(output).not.toBe(source);
     expect(output.SheetNames).toEqual(["换季实际", "换季总名单", "所有人"]);
-    expect(actual.J1.v).toBe("调整说明");
+    expect(actual.J1.v).toBe("身份");
+    expect(actual.K1.v).toBe("调整说明");
     expect(actual.C2.v).toBe("乙");
     expect(actual.I2.v).toBe(1);
     expect(actual.C3.v).toBe("甲");
     expect(actual.I3.v).toBe(2);
-    expect(actual.J3.v).toBe("移动：第1期 → 第2期");
+    expect(actual.J3.v).toBe("临时观察员");
+    expect(actual.K3.v).toBe("移动：第1期 → 第2期");
     expect(actual.A3.s.fill.fgColor.rgb).toBe("FFF2F2");
-    expect(actual.J3.s.font.color.rgb).toBe("000000");
+    expect(actual.K3.s.font.color.rgb).toBe("000000");
     expect(actual.H2.t).toBe("d");
     expect(actual.H2.z).toBe("yyyy-mm-dd");
     expect(JSON.stringify(source.Sheets["换季总名单"])).toBe(sourceTotalJson);
     expect(JSON.stringify(source.Sheets["所有人"])).toBe(sourceEveryoneJson);
-    expect(source.Sheets["换季实际"].J1).toBeUndefined();
+    expect(source.Sheets["换季实际"].K1).toBeUndefined();
   });
 });

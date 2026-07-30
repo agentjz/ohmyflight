@@ -1,7 +1,7 @@
 (function () {
     const ACTUAL_SHEET = "换季实际";
     const TOTAL_SHEET = "换季总名单";
-    const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "调整说明"];
+    const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份", "调整说明"];
     const DATE_FORMAT = "yyyy-mm-dd";
 
     function cloneValue<T>(value: T): T {
@@ -44,9 +44,8 @@
         person: SeasonalLearningPerson | null,
         columnIndex: number
     ): Record<string, unknown> {
-        const sourceColumn = Math.min(columnIndex, 8);
-        const actualAddress = window.XLSX.utils.encode_cell({ r: person ? 1 : 0, c: sourceColumn });
-        const totalAddress = window.XLSX.utils.encode_cell({ r: person ? person.sourceRow - 1 : 0, c: sourceColumn });
+        const actualAddress = window.XLSX.utils.encode_cell({ r: person ? 1 : 0, c: columnIndex });
+        const totalAddress = window.XLSX.utils.encode_cell({ r: person ? person.sourceRow - 1 : 0, c: Math.min(columnIndex, 9) });
         const actualCell = actualSheet[actualAddress] as { s?: Record<string, unknown> } | undefined;
         const totalCell = totalSheet[totalAddress] as { s?: Record<string, unknown> } | undefined;
         return cloneValue(actualCell?.s || totalCell?.s || {});
@@ -123,6 +122,7 @@
                 person.trainingType,
                 date || "",
                 person.period ?? "",
+                person.identity,
                 person.adjustmentNotes.join("；")
             ];
 

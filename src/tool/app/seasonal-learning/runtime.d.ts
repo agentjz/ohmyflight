@@ -8,6 +8,7 @@ interface SeasonalLearningPerson {
     name: string;
     department: string;
     technicalInfo: string;
+    identity: string;
     isLeader: boolean;
     trainingType: string;
     sourceDate: string;
@@ -73,6 +74,33 @@ interface SeasonalLearningOperationResult {
     events: SeasonalLearningAdjustmentEvent[];
 }
 
+type SeasonalLearningHealthLevel = "error" | "warning" | "info";
+
+interface SeasonalLearningHealthPerson {
+    employeeId: string;
+    name: string;
+    identity: string;
+    rowNumber: number;
+}
+
+interface SeasonalLearningHealthItem {
+    level: SeasonalLearningHealthLevel;
+    area: string;
+    message: string;
+    detail: string;
+}
+
+interface SeasonalLearningHealthResult {
+    summary: Record<SeasonalLearningHealthLevel, number>;
+    items: SeasonalLearningHealthItem[];
+    totalCount: number;
+    actualCount: number;
+    totalTagged: SeasonalLearningHealthPerson[];
+    totalUntagged: SeasonalLearningHealthPerson[];
+    actualTagged: SeasonalLearningHealthPerson[];
+    actualUntagged: SeasonalLearningHealthPerson[];
+}
+
 interface SeasonalLearningDataApi {
     parseBusinessDate(value: unknown, options?: { date1904?: boolean }): string;
     normalizeEmployeeId(value: unknown): string;
@@ -113,6 +141,10 @@ interface SeasonalLearningExportApi {
     buildOutputFileName(sourceFileName: string): string;
 }
 
+interface SeasonalLearningHealthApi {
+    buildWorkbookHealth(totalRows: unknown[][], actualRows: unknown[][]): SeasonalLearningHealthResult;
+}
+
 interface SeasonalLearningAppState {
     sourceWorkbook: import("xlsx-js-style").WorkBook | null;
     sourceFileName: string;
@@ -126,6 +158,7 @@ interface SeasonalLearningAppState {
     removedPeople: SeasonalLearningRemovedPerson[];
     adjustmentLog: string[];
     pendingMoveIds: string[];
+    health: SeasonalLearningHealthResult | null;
     chart: any;
 }
 
@@ -133,6 +166,7 @@ interface SeasonalLearningAppContext {
     runtime: Window;
     logic: SeasonalLearningLogicApi;
     exporter: SeasonalLearningExportApi;
+    health: SeasonalLearningHealthApi;
     state: SeasonalLearningAppState;
     getElement<T extends HTMLElement>(id: string): T;
     escapeHtml(value: unknown): string;
@@ -147,7 +181,8 @@ interface SeasonalLearningViewApi {
     renderAll(context: SeasonalLearningAppContext): void;
     renderDateControls(context: SeasonalLearningAppContext): void;
     renderChart(context: SeasonalLearningAppContext): void;
-    renderSelectionCount(context: SeasonalLearningAppContext): void;
+    renderHealth(context: SeasonalLearningAppContext): void;
+    updateMoveButtons(context: SeasonalLearningAppContext): void;
 }
 
 interface SeasonalLearningAppNamespace {
@@ -162,5 +197,6 @@ interface Window {
     SeasonalLearningData: SeasonalLearningDataApi;
     SeasonalLearningLogic: SeasonalLearningLogicApi;
     SeasonalLearningExport: SeasonalLearningExportApi;
+    SeasonalLearningHealth: SeasonalLearningHealthApi;
     SeasonalLearningApp: SeasonalLearningAppNamespace;
 }

@@ -1,7 +1,12 @@
 :root {
-    --season-leader: #2563eb;
-    --season-captain: #0f766e;
-    --season-first-officer: #b45309;
+    --season-leader-chart: #a8c4e5;
+    --season-captain-chart: #a6d2c8;
+    --season-first-officer-chart: #e8c796;
+    --season-total-chart: #9c91ae;
+    --season-leader-soft: #eef5fc;
+    --season-captain-soft: #edf8f5;
+    --season-first-officer-soft: #fcf6e9;
+    --season-total-soft: #f2f0f5;
     --season-adjusted: #fff2f2;
     --season-selection-bg: #fff3cd;
     --season-selection-border: #c69200;
@@ -9,9 +14,14 @@
 }
 
 :root[data-theme="dark"] {
-    --season-leader: #7aa7ff;
-    --season-captain: #5dd0be;
-    --season-first-officer: #f0ad5a;
+    --season-leader-chart: #7189a6;
+    --season-captain-chart: #6f968f;
+    --season-first-officer-chart: #a28b63;
+    --season-total-chart: #8d849a;
+    --season-leader-soft: #263342;
+    --season-captain-soft: #243a36;
+    --season-first-officer-soft: #3b3426;
+    --season-total-soft: #332f3b;
     --season-adjusted: #4b1f24;
     --season-selection-bg: #4a3b0c;
     --season-selection-border: #f2c94c;
@@ -94,13 +104,15 @@ body {
 }
 
 .date-band,
+.health-band,
 .chart-band,
-.adjustment-band,
 .change-section,
 .pending-section,
 .period-section,
 .log-section {
     padding: 16px;
+    margin-top: 10px;
+    background: var(--omf-surface);
 }
 
 .section-heading {
@@ -112,7 +124,6 @@ body {
 }
 
 .section-heading h2,
-.adjustment-controls h2,
 .change-section h2 {
     margin: 0;
     font-size: 15px;
@@ -127,16 +138,21 @@ body {
 }
 
 .summary-strip {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    background: var(--omf-surface-soft);
-    gap: 1px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 36px;
+    align-items: flex-end;
+    margin-top: 10px;
+    padding: 16px;
+    background: var(--omf-surface);
 }
 
 .summary-item {
-    min-width: 0;
-    padding: 13px 16px;
-    background: var(--omf-surface);
+    flex: 1 1 110px;
+    min-width: 100px;
+    max-width: 190px;
+    padding: 0;
+    background: transparent;
 }
 
 .summary-item span,
@@ -150,19 +166,11 @@ body {
 }
 
 .summary-item strong {
-    margin-top: 2px;
-    font-size: 22px;
+    margin-top: 4px;
+    color: var(--omf-text);
+    font-size: 24px;
     line-height: 1.15;
     font-variant-numeric: tabular-nums;
-}
-
-.chart-heading {
-    align-items: flex-start;
-}
-
-.chart-heading > div:first-child > span {
-    color: var(--omf-text-muted);
-    font-size: 12px;
 }
 
 .distribution-chart {
@@ -170,20 +178,165 @@ body {
     height: 300px;
 }
 
-.adjustment-band {
+.workspace-status {
+    margin: 0;
+    padding: 8px 16px;
     background: var(--omf-surface);
 }
 
-.adjustment-controls {
-    display: grid;
-    grid-template-columns: minmax(150px, 1fr) auto;
-    gap: 8px;
-    align-items: center;
+.health-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
 }
 
-.adjustment-controls > div > span {
+.health-pill,
+.health-level {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+    padding: 2px 8px;
+    border: 1px solid var(--omf-border);
+    border-radius: 999px;
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.health-error {
+    background: var(--omf-danger-bg);
+    color: var(--omf-danger-text);
+}
+
+.health-warning {
+    background: var(--omf-warning-bg);
+    color: var(--omf-warning-text);
+}
+
+.health-info {
+    background: var(--season-leader-soft);
+    color: var(--omf-text-muted);
+}
+
+.health-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    margin-bottom: 12px;
     color: var(--omf-text-muted);
     font-size: 12px;
+}
+
+.health-metrics span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.health-metrics b {
+    color: var(--omf-text);
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+}
+
+.health-list {
+    display: grid;
+    gap: 6px;
+}
+
+.health-item {
+    display: grid;
+    grid-template-columns: 52px 90px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+    padding: 8px 10px;
+    border: 1px solid var(--omf-border);
+    border-radius: 5px;
+    background: var(--omf-surface-soft);
+    font-size: 12px;
+}
+
+.health-item-error .health-level {
+    background: var(--omf-danger-bg);
+    color: var(--omf-danger-text);
+}
+
+.health-item-warning .health-level {
+    background: var(--omf-warning-bg);
+    color: var(--omf-warning-text);
+}
+
+.health-item-info .health-level {
+    background: var(--season-leader-soft);
+    color: var(--omf-text-muted);
+}
+
+.health-area {
+    color: var(--omf-text-muted);
+    font-weight: 600;
+}
+
+.health-message {
+    color: var(--omf-text);
+}
+
+.health-detail {
+    grid-column: 3;
+    color: var(--omf-text-muted);
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.identity-audit {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.identity-audit details {
+    min-width: 0;
+    padding: 9px 10px;
+    border: 1px solid var(--omf-border);
+    border-radius: 5px;
+    background: var(--omf-surface);
+}
+
+.identity-audit summary {
+    cursor: pointer;
+    color: var(--omf-text);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.identity-audit-group {
+    margin-top: 10px;
+}
+
+.identity-audit-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--omf-text-muted);
+    font-size: 11px;
+}
+
+.health-name-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.health-name-list > span {
+    padding: 3px 6px;
+    border: 1px solid var(--omf-border);
+    border-radius: 4px;
+    background: var(--omf-surface-soft);
+    color: var(--omf-text-muted);
+    font-size: 11px;
 }
 
 .move-selection-summary {
@@ -251,7 +404,7 @@ body {
 
 .period-card-header {
     display: grid;
-    grid-template-columns: 160px minmax(0, 1fr) auto;
+    grid-template-columns: 150px minmax(0, 1fr) auto;
     gap: 14px;
     align-items: center;
     min-height: 62px;
@@ -273,15 +426,26 @@ body {
 .period-counts {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 16px;
+    gap: 6px;
     min-width: 0;
 }
 
 .period-counts span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    padding: 4px 7px;
+    border: 1px solid color-mix(in srgb, var(--omf-border) 78%, transparent);
+    border-radius: 4px;
     white-space: nowrap;
     color: var(--omf-text-muted);
     font-size: 12px;
 }
+
+.period-counts .count-total { background: var(--season-total-soft); }
+.period-counts .count-leader { background: var(--season-leader-soft); }
+.period-counts .count-captain { background: var(--season-captain-soft); }
+.period-counts .count-first-officer { background: var(--season-first-officer-soft); }
 
 .period-counts b {
     margin-right: 3px;
@@ -290,9 +454,16 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-.period-counts .count-leader b { color: var(--season-leader); }
-.period-counts .count-captain b { color: var(--season-captain); }
-.period-counts .count-first-officer b { color: var(--season-first-officer); }
+.period-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+}
+
+.move-scope-button {
+    min-width: 106px;
+}
 
 .period-status {
     justify-self: end;
@@ -327,6 +498,7 @@ body {
     margin-bottom: 9px;
     padding: 6px 8px;
     border-radius: 4px;
+    border: 1px solid color-mix(in srgb, var(--omf-border) 75%, transparent);
     background: var(--omf-surface-soft);
 }
 
@@ -341,9 +513,9 @@ body {
     font-size: 12px;
 }
 
-.roster-group.category-leader .group-heading h4 { color: var(--season-leader); }
-.roster-group.category-captain .group-heading h4 { color: var(--season-captain); }
-.roster-group.category-firstOfficer .group-heading h4 { color: var(--season-first-officer); }
+.roster-group.category-leader .group-heading { background: var(--season-leader-soft); }
+.roster-group.category-captain .group-heading { background: var(--season-captain-soft); }
+.roster-group.category-firstOfficer .group-heading { background: var(--season-first-officer-soft); }
 
 .people-grid {
     display: grid;
@@ -389,17 +561,48 @@ body {
     min-width: 0;
 }
 
+.person-name-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+}
+
 .person-copy strong,
 .person-copy small {
     display: block;
 }
 
 .person-copy strong {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 12px;
     line-height: 1.25;
+}
+
+.identity-marker {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    max-width: 92px;
+    padding: 2px 6px;
+    overflow: hidden;
+    border: 1px solid hsl(var(--identity-hue) 46% 78%);
+    border-radius: 999px;
+    background: hsl(var(--identity-hue) 66% 93%);
+    color: hsl(var(--identity-hue) 40% 31%);
+    font-size: 9px;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+:root[data-theme="dark"] .identity-marker {
+    border-color: hsl(var(--identity-hue) 35% 43%);
+    background: hsl(var(--identity-hue) 28% 24%);
+    color: hsl(var(--identity-hue) 55% 84%);
 }
 
 .person-copy small {
@@ -437,7 +640,6 @@ body {
 }
 
 @media (max-width: 1000px) {
-    .summary-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .roster-columns { grid-template-columns: 1fr; }
 }
 
@@ -446,26 +648,30 @@ body {
     .control-band { grid-template-columns: 1fr 82px; }
     .top-actions { grid-column: 1 / -1; justify-content: stretch; }
     .top-actions .btn { flex: 1; }
-    .chart-heading { display: grid; }
-    .adjustment-controls { grid-template-columns: 1fr auto; }
+    .identity-audit { grid-template-columns: 1fr; }
+    .health-item { grid-template-columns: 48px minmax(0, 1fr); }
+    .health-message { grid-column: 2; }
+    .health-detail { grid-column: 2; }
     .period-card-header { grid-template-columns: 1fr auto; }
     .period-counts { grid-column: 1 / -1; }
-    .period-status { grid-column: 2; grid-row: 1; }
+    .period-actions { grid-column: 2; grid-row: 1; }
 }
 
 @media (max-width: 480px) {
     .app-header { padding-left: 10px; padding-right: 10px; }
     .back-link { left: 10px; }
     .app-header h1 { font-size: 17px; }
-    .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .date-band,
+    .health-band,
     .chart-band,
-    .adjustment-band,
     .change-section,
     .pending-section,
     .period-section,
     .log-section { padding: 12px 10px; }
     .distribution-chart { height: 260px; }
+    .summary-strip { gap: 15px 20px; padding: 14px 10px; }
+    .summary-item { flex-basis: 88px; min-width: 82px; }
+    .summary-item strong { font-size: 21px; }
     .people-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .person-copy strong { font-size: 11px; }
     .change-content > div { grid-template-columns: 1fr; }

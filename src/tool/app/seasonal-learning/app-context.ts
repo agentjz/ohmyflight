@@ -16,6 +16,7 @@
             removedPeople: [],
             adjustmentLog: [],
             pendingMoveIds: [],
+            health: null,
             chart: null
         };
 
@@ -37,7 +38,8 @@
         function setMessage(id: string, message: string, type: "muted" | "success" | "warning" | "danger"): void {
             const element = getElement<HTMLElement>(id);
             element.textContent = message;
-            element.className = `status-line status-${type}`;
+            element.classList.remove("status-muted", "status-success", "status-warning", "status-danger");
+            element.classList.add("status-line", `status-${type}`);
         }
 
         function setStatus(message: string, type: "muted" | "success" | "warning" | "danger" = "muted"): void {
@@ -46,6 +48,7 @@
 
         function setActionMessage(message: string, type: "muted" | "success" | "warning" | "danger" = "muted"): void {
             setMessage("actionStatus", message, type);
+            getElement<HTMLElement>("actionStatus").hidden = !message;
         }
 
         async function readWorkbook(file: File): Promise<import("xlsx-js-style").WorkBook> {
@@ -81,6 +84,7 @@
             runtime,
             logic: runtime.SeasonalLearningLogic,
             exporter: runtime.SeasonalLearningExport,
+            health: runtime.SeasonalLearningHealth,
             state,
             getElement,
             escapeHtml,

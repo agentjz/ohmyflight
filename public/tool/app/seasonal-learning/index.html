@@ -41,28 +41,23 @@
         <div id="dateControls" class="date-controls"></div>
     </section>
 
+    <section id="healthSection" class="health-band" hidden aria-labelledby="healthHeading">
+        <div class="section-heading">
+            <h2 id="healthHeading">Excel 健康检查</h2>
+            <div id="healthSummary" class="health-summary" aria-label="健康检查摘要"></div>
+        </div>
+        <div id="healthContent"></div>
+    </section>
+
     <section id="workspace" hidden>
         <div id="summaryStrip" class="summary-strip" aria-label="人员摘要"></div>
+        <div id="actionStatus" class="status-line status-muted workspace-status" hidden></div>
 
         <section class="chart-band" aria-labelledby="chartHeading">
-            <div class="section-heading chart-heading">
-                <div>
-                    <h2 id="chartHeading">各期人数</h2>
-                    <span>三类人员堆叠与总人数</span>
-                </div>
+            <div class="section-heading">
+                <h2 id="chartHeading">各期人数</h2>
             </div>
             <div id="distributionChart" class="distribution-chart"></div>
-        </section>
-
-        <section class="adjustment-band" aria-labelledby="adjustmentHeading">
-            <div class="adjustment-controls">
-                <div>
-                    <h2 id="adjustmentHeading">在线调整</h2>
-                    <span>已选择 <b id="selectionCount">0</b> 人</span>
-                </div>
-                <button id="moveButton" class="btn btn-primary btn-sm" type="button">移动</button>
-            </div>
-            <div id="actionStatus" class="status-line status-muted">选择人员后可移动</div>
         </section>
 
         <section id="changeSection" class="change-section" hidden aria-labelledby="changeHeading">
@@ -73,8 +68,9 @@
         <section id="pendingSection" class="pending-section" hidden aria-labelledby="pendingHeading">
             <div class="section-heading">
                 <h2 id="pendingHeading">待分配 <span id="pendingCount">0</span></h2>
+                <button class="btn btn-outline-secondary btn-sm move-scope-button" type="button" data-move-scope="pending" disabled>移动所选</button>
             </div>
-            <div id="pendingPeople" class="people-grid"></div>
+            <div id="pendingPeople" class="people-grid" data-person-scope="pending"></div>
         </section>
 
         <section class="period-section" aria-labelledby="periodHeading">
@@ -119,6 +115,7 @@
 <script src="../../../libs/xlsx-js-style.min.js"></script>
 <script src="../../../libs/echarts.min.js"></script>
 <script src="data.js"></script>
+<script src="health.js"></script>
 <script src="logic.js"></script>
 <script src="export.js"></script>
 <script src="app-context.js"></script>
