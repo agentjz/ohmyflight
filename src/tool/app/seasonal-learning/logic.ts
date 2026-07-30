@@ -2,7 +2,13 @@
     const Data = window.SeasonalLearningData;
     const Allocation = window.SeasonalLearningAllocation;
     const BalanceFilter = window.SeasonalLearningBalanceFilter;
-    const CATEGORY_ORDER: SeasonalLearningCategory[] = ["leader", "captain", "firstOfficer"];
+    const BalanceRules = window.SeasonalLearningBalanceRules;
+
+    interface ResolvedPeopleGroup {
+        definition: SeasonalLearningBalanceGroupDefinition;
+        people: SeasonalLearningPerson[];
+        firstOrder: number;
+    }
 
     function clonePerson(person: SeasonalLearningPerson): SeasonalLearningPerson {
         return { ...person, adjustmentNotes: [...person.adjustmentNotes] };
@@ -14,71 +20,74 @@
         }
     }
 
-    function assignPeople(
+    function resolvePeopleGroups(
         people: SeasonalLearningPerson[],
-        counts: number[],
-        marked: boolean
-    ): void {
+        enabledHookIds: readonly string[]
+    ): { groups: ResolvedPeopleGroup[]; neutralPeople: SeasonalLearningPerson[] } {
+        const grouped = new Map<string, ResolvedPeopleGroup>();
+        const neutralPeople: SeasonalLearningPerson[] = [];
+        people
+            .slice()
+            .sort((left, right) => left.originalOrder - right.originalOrder)
+            .forEach((person) => {
+                const definition = BalanceRules.resolveBalanceGroup(person, enabledHookIds);
+                if (!definition) {
+                    neutralPeople.push(person);
+                    return;
+                }
+                const current = grouped.get(definition.id);
+                if (current) {
+                    current.people.push(person);
+                    return;
+                }
+                grouped.set(definition.id, {
+                    definition,
+                    people: [person],
+                    firstOrder: person.originalOrder
+                });
+            });
+        const groups = [...grouped.values()].sort((left, right) => (
+            right.definition.priority - left.definition.priority
+            || left.definition.label.localeCompare(right.definition.label, "zh-CN")
+            || left.firstOrder - right.firstOrder
+        ));
+        return { groups, neutralPeople };
+    }
+
+    function assignPeople(people: SeasonalLearningPerson[], counts: number[]): void {
         let cursor = 0;
         counts.forEach((count, periodIndex) => {
             for (let offset = 0; offset < count; offset += 1) {
                 const person = people[cursor];
+                if (!person) throw new Error("均衡组人员配额未闭合。");
                 person.period = periodIndex + 1;
                 person.adjusted = false;
                 person.adjustmentNotes = [];
                 cursor += 1;
             }
         });
-        if (cursor !== people.length) {
-            throw new Error(marked ? "美线带队人员配额未闭合。" : "普通人员配额未闭合。");
-        }
+        if (cursor !== people.length) throw new Error("均衡组人员配额未闭合。");
     }
 
-    function assignOperationallyIgnored(
+    function buildInitialSchedule(
         people: SeasonalLearningPerson[],
-        balancedPeople: SeasonalLearningPerson[],
-        periodCount: number
-    ): void {
-        const totals = Array(periodCount).fill(0) as number[];
-        balancedPeople.forEach((person) => {
-            if (person.period) totals[person.period - 1] += 1;
-        });
-        people
-            .sort((left, right) => left.originalOrder - right.originalOrder)
-            .forEach((person) => {
-                const minimum = Math.min(...totals);
-                const periodIndex = totals.indexOf(minimum);
-                person.period = periodIndex + 1;
-                person.adjusted = false;
-                person.adjustmentNotes = [];
-                totals[periodIndex] += 1;
-            });
-    }
-
-    function buildInitialSchedule(people: SeasonalLearningPerson[], periodCount: number): SeasonalLearningPerson[] {
+        periodCount: number,
+        enabledHookIds: readonly string[] = BalanceRules.DEFAULT_ENABLED_HOOK_IDS
+    ): SeasonalLearningPerson[] {
         validatePeriodCount(periodCount);
+        const normalizedHookIds = BalanceRules.normalizeEnabledHookIds(enabledHookIds);
         const output = people.map(clonePerson);
-        const operationalPeople = output.filter((person) => !BalanceFilter.shouldIgnoreOperational(person));
-        const quotas = Allocation.buildBalancedQuotas(operationalPeople, periodCount);
-
-        CATEGORY_ORDER.forEach((category) => {
-            const group = operationalPeople
-                .filter((person) => person.category === category)
-                .sort((left, right) => left.originalOrder - right.originalOrder);
-            const marked = group.filter((person) => person.isUsLineLeader);
-            const unmarked = group.filter((person) => !person.isUsLineLeader);
-            assignPeople(marked, quotas.usLineLeader[category], true);
-            assignPeople(
-                unmarked,
-                quotas.category[category].map((count, index) => count - quotas.usLineLeader[category][index]),
-                false
-            );
-        });
-        assignOperationallyIgnored(
-            output.filter((person) => BalanceFilter.shouldIgnoreOperational(person)),
-            operationalPeople,
+        const resolved = resolvePeopleGroups(output, normalizedHookIds);
+        const quotas = Allocation.buildDynamicQuotas(
+            resolved.groups.map((group) => ({ id: group.definition.id, count: group.people.length })),
+            resolved.neutralPeople.length,
             periodCount
         );
+
+        resolved.groups.forEach((group) => {
+            assignPeople(group.people, quotas.groupCounts[group.definition.id]);
+        });
+        assignPeople(resolved.neutralPeople, quotas.neutralCounts);
         return output;
     }
 
@@ -100,70 +109,70 @@
         };
     }
 
-    function checkBalance(people: SeasonalLearningPerson[], periodCount: number): SeasonalLearningBalanceReport {
+    function checkBalance(
+        people: SeasonalLearningPerson[],
+        periodCount: number,
+        enabledHookIds: readonly string[] = BalanceRules.DEFAULT_ENABLED_HOOK_IDS
+    ): SeasonalLearningBalanceReport {
         validatePeriodCount(periodCount);
+        const normalizedHookIds = BalanceRules.normalizeEnabledHookIds(enabledHookIds);
         const assigned = people.filter((person) => person.period !== null);
         const pendingCount = people.length - assigned.length;
-        const operationalPeople = people.filter((person) => !BalanceFilter.shouldIgnoreOperational(person));
-        const operationalPendingCount = operationalPeople.filter((person) => person.period === null).length;
+        const resolved = resolvePeopleGroups(people, normalizedHookIds);
+        const operationalPendingCount = resolved.groups.reduce(
+            (sum, group) => sum + group.people.filter((person) => person.period === null).length,
+            0
+        );
         const totalCounts = Array(periodCount).fill(0) as number[];
-        const categoryCounts: Record<SeasonalLearningCategory, number[]> = {
-            leader: Array(periodCount).fill(0),
-            captain: Array(periodCount).fill(0),
-            firstOfficer: Array(periodCount).fill(0)
-        };
-        const usLineLeaderCounts = Array(periodCount).fill(0) as number[];
-
         assigned.forEach((person) => {
-            if (!person.period || person.period > periodCount) return;
-            totalCounts[person.period - 1] += 1;
-            if (!BalanceFilter.shouldIgnoreOperational(person)) {
-                categoryCounts[person.category][person.period - 1] += 1;
-                if (person.isUsLineLeader) usLineLeaderCounts[person.period - 1] += 1;
-            }
+            if (person.period && person.period <= periodCount) totalCounts[person.period - 1] += 1;
         });
-
-        const dimensions = {
-            total: dimensionReport(totalCounts, assigned.length, 5),
-            leader: dimensionReport(categoryCounts.leader, operationalPeople.filter((person) => person.category === "leader").length, 1),
-            captain: dimensionReport(categoryCounts.captain, operationalPeople.filter((person) => person.category === "captain").length, 1),
-            firstOfficer: dimensionReport(categoryCounts.firstOfficer, operationalPeople.filter((person) => person.category === "firstOfficer").length, 1),
-            usLineLeader: dimensionReport(usLineLeaderCounts, operationalPeople.filter((person) => person.isUsLineLeader).length, 1)
-        };
+        const total = dimensionReport(totalCounts, assigned.length, 5);
+        const groups = resolved.groups.map((group) => {
+            const counts = Array(periodCount).fill(0) as number[];
+            group.people.forEach((person) => {
+                if (person.period && person.period <= periodCount) counts[person.period - 1] += 1;
+            });
+            return {
+                ...group.definition,
+                memberCount: group.people.length,
+                ...dimensionReport(counts, group.people.length, 1)
+            };
+        });
         return {
-            balanced: operationalPendingCount === 0 && Object.values(dimensions).every((dimension) => dimension.balanced),
+            balanced: operationalPendingCount === 0 && total.balanced && groups.every((group) => group.balanced),
             pendingCount,
             operationalPendingCount,
-            dimensions
+            total,
+            groups
         };
     }
 
     function buildPeriodSummaries(
         people: SeasonalLearningPerson[],
         periodDates: Record<number, string>,
-        periodCount: number
+        periodCount: number,
+        enabledHookIds: readonly string[] = BalanceRules.DEFAULT_ENABLED_HOOK_IDS
     ): SeasonalLearningPeriodSummary[] {
-        const report = checkBalance(people, periodCount);
-        const labels: Array<[keyof SeasonalLearningBalanceReport["dimensions"], string]> = [
-            ["total", "总人数"],
-            ["leader", "带队机长"],
-            ["captain", "机长"],
-            ["firstOfficer", "副驾驶"],
-            ["usLineLeader", "美线带队"]
-        ];
+        const report = checkBalance(people, periodCount, enabledHookIds);
         return Array.from({ length: periodCount }, (_, index) => {
             const period = index + 1;
-            const issues = labels
-                .filter(([key]) => report.dimensions[key].outlierPeriods.includes(period))
-                .map(([, label]) => label);
+            const periodPeople = people.filter((person) => person.period === period);
+            const operationalPeople = periodPeople.filter((person) => !BalanceFilter.shouldIgnoreOperational(person));
+            const issues = [
+                ...(report.total.outlierPeriods.includes(period) ? ["总人数"] : []),
+                ...report.groups
+                    .filter((group) => group.outlierPeriods.includes(period))
+                    .map((group) => group.label)
+            ];
             return {
                 period,
                 date: periodDates[period] || "",
-                total: report.dimensions.total.counts[index],
-                leader: report.dimensions.leader.counts[index],
-                captain: report.dimensions.captain.counts[index],
-                firstOfficer: report.dimensions.firstOfficer.counts[index],
-                usLineLeader: report.dimensions.usLineLeader.counts[index],
+                total: periodPeople.length,
+                leader: operationalPeople.filter((person) => person.category === "leader").length,
+                captain: operationalPeople.filter((person) => person.category === "captain").length,
+                firstOfficer: operationalPeople.filter((person) => person.category === "firstOfficer").length,
+                usLineLeader: operationalPeople.filter((person) => person.isUsLineLeader).length,
                 issues
             };
         });

@@ -3,6 +3,7 @@
     const namespace = runtime.SeasonalLearningApp || (runtime.SeasonalLearningApp = {});
 
     function createAppContext(): SeasonalLearningAppContext {
+        const rules = runtime.SeasonalLearningBalanceRules;
         const state: SeasonalLearningAppState = {
             sourceWorkbook: null,
             sourceFileName: "",
@@ -16,6 +17,7 @@
             removedPeople: [],
             adjustmentLog: [],
             pendingMoveIds: [],
+            enabledBalanceHookIds: [...rules.DEFAULT_ENABLED_HOOK_IDS],
             health: null,
             chart: null
         };
@@ -83,6 +85,7 @@
         return {
             runtime,
             logic: runtime.SeasonalLearningLogic,
+            rules,
             exporter: runtime.SeasonalLearningExport,
             health: runtime.SeasonalLearningHealth,
             state,

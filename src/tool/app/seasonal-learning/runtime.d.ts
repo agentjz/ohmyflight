@@ -51,7 +51,39 @@ interface SeasonalLearningBalanceReport {
     balanced: boolean;
     pendingCount: number;
     operationalPendingCount: number;
-    dimensions: Record<"total" | "usLineLeader" | SeasonalLearningCategory, SeasonalLearningDimensionReport>;
+    total: SeasonalLearningDimensionReport;
+    groups: SeasonalLearningBalanceGroupReport[];
+}
+
+type SeasonalLearningBalanceGroupKind = "hook" | "technical";
+
+interface SeasonalLearningBalanceGroupDefinition {
+    id: string;
+    label: string;
+    kind: SeasonalLearningBalanceGroupKind;
+    priority: number;
+}
+
+interface SeasonalLearningBalanceGroupReport extends SeasonalLearningDimensionReport, SeasonalLearningBalanceGroupDefinition {
+    memberCount: number;
+}
+
+interface SeasonalLearningBalanceHookDefinition {
+    id: string;
+    label: string;
+    priority: number;
+    defaultEnabled: boolean;
+    matches(person: SeasonalLearningPerson): boolean;
+}
+
+interface SeasonalLearningBalanceRulesApi {
+    HOOKS: SeasonalLearningBalanceHookDefinition[];
+    DEFAULT_ENABLED_HOOK_IDS: string[];
+    normalizeEnabledHookIds(enabledHookIds?: readonly string[]): string[];
+    resolveBalanceGroup(
+        person: SeasonalLearningPerson,
+        enabledHookIds?: readonly string[]
+    ): SeasonalLearningBalanceGroupDefinition | null;
 }
 
 interface SeasonalLearningPeriodSummary {
@@ -77,16 +109,23 @@ interface SeasonalLearningOperationResult {
     events: SeasonalLearningAdjustmentEvent[];
 }
 
-interface SeasonalLearningAllocationQuotas {
-    category: Record<SeasonalLearningCategory, number[]>;
-    usLineLeader: Record<SeasonalLearningCategory, number[]>;
+interface SeasonalLearningAllocationGroupInput {
+    id: string;
+    count: number;
+}
+
+interface SeasonalLearningAllocationResult {
+    groupCounts: Record<string, number[]>;
+    neutralCounts: number[];
+    totalCounts: number[];
 }
 
 interface SeasonalLearningAllocationApi {
-    buildBalancedQuotas(
-        people: SeasonalLearningPerson[],
+    buildDynamicQuotas(
+        groups: SeasonalLearningAllocationGroupInput[],
+        neutralCount: number,
         periodCount: number
-    ): SeasonalLearningAllocationQuotas;
+    ): SeasonalLearningAllocationResult;
 }
 
 interface SeasonalLearningBalanceFilterEntry {
@@ -148,12 +187,21 @@ interface SeasonalLearningDataApi {
 }
 
 interface SeasonalLearningLogicApi extends SeasonalLearningDataApi {
-    buildInitialSchedule(people: SeasonalLearningPerson[], periodCount: number): SeasonalLearningPerson[];
-    checkBalance(people: SeasonalLearningPerson[], periodCount: number): SeasonalLearningBalanceReport;
+    buildInitialSchedule(
+        people: SeasonalLearningPerson[],
+        periodCount: number,
+        enabledHookIds?: readonly string[]
+    ): SeasonalLearningPerson[];
+    checkBalance(
+        people: SeasonalLearningPerson[],
+        periodCount: number,
+        enabledHookIds?: readonly string[]
+    ): SeasonalLearningBalanceReport;
     buildPeriodSummaries(
         people: SeasonalLearningPerson[],
         periodDates: Record<number, string>,
-        periodCount: number
+        periodCount: number,
+        enabledHookIds?: readonly string[]
     ): SeasonalLearningPeriodSummary[];
     movePeople(
         people: SeasonalLearningPerson[],
@@ -189,6 +237,7 @@ interface SeasonalLearningAppState {
     removedPeople: SeasonalLearningRemovedPerson[];
     adjustmentLog: string[];
     pendingMoveIds: string[];
+    enabledBalanceHookIds: string[];
     health: SeasonalLearningHealthResult | null;
     chart: any;
 }
@@ -196,6 +245,7 @@ interface SeasonalLearningAppState {
 interface SeasonalLearningAppContext {
     runtime: Window;
     logic: SeasonalLearningLogicApi;
+    rules: SeasonalLearningBalanceRulesApi;
     exporter: SeasonalLearningExportApi;
     health: SeasonalLearningHealthApi;
     state: SeasonalLearningAppState;
@@ -227,6 +277,7 @@ interface Window {
     echarts?: any;
     SeasonalLearningData: SeasonalLearningDataApi;
     SeasonalLearningBalanceFilter: SeasonalLearningBalanceFilterApi;
+    SeasonalLearningBalanceRules: SeasonalLearningBalanceRulesApi;
     SeasonalLearningAllocation: SeasonalLearningAllocationApi;
     SeasonalLearningLogic: SeasonalLearningLogicApi;
     SeasonalLearningExport: SeasonalLearningExportApi;

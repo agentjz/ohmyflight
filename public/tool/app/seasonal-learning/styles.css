@@ -108,7 +108,9 @@ body {
 }
 
 .date-band,
+.balance-rule-band,
 .health-band,
+.balance-result-band,
 .chart-band,
 .change-section,
 .pending-section,
@@ -117,6 +119,129 @@ body {
     padding: 16px;
     margin-top: 10px;
     background: var(--omf-surface);
+}
+
+.balance-rule-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.balance-rule-option {
+    display: grid;
+    grid-template-columns: 18px 20px minmax(0, 1fr);
+    gap: 7px;
+    align-items: center;
+    min-width: 154px;
+    min-height: 38px;
+    padding: 6px 9px;
+    border: 1px solid var(--omf-border);
+    border-radius: 4px;
+    background: var(--omf-surface-soft);
+    color: var(--omf-text);
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.balance-rule-option.is-fixed {
+    color: var(--omf-text-muted);
+    cursor: default;
+}
+
+.balance-rule-order {
+    color: var(--omf-text-muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.balance-result-summary {
+    color: var(--omf-text-muted);
+    font-size: 12px;
+}
+
+.balance-results {
+    display: grid;
+    gap: 6px;
+}
+
+.balance-result-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 260px) minmax(0, 1fr) 82px;
+    gap: 12px;
+    align-items: center;
+    min-height: 54px;
+    padding: 8px 10px;
+    border: 1px solid var(--omf-border);
+    border-radius: 4px;
+    background: var(--omf-surface-soft);
+}
+
+.balance-result-row.needs-check {
+    border-color: color-mix(in srgb, var(--omf-warning-text) 45%, var(--omf-border));
+    background: color-mix(in srgb, var(--omf-warning-bg) 62%, var(--omf-surface));
+}
+
+.balance-result-name {
+    min-width: 0;
+}
+
+.balance-result-name strong,
+.balance-result-name span {
+    display: block;
+}
+
+.balance-result-name strong {
+    overflow: hidden;
+    color: var(--omf-text);
+    font-size: 12px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.balance-result-name span {
+    margin-top: 2px;
+    color: var(--omf-text-muted);
+    font-size: 10px;
+}
+
+.balance-period-counts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
+    gap: 5px;
+}
+
+.balance-period-counts span {
+    min-width: 0;
+    text-align: center;
+}
+
+.balance-period-counts small,
+.balance-period-counts b {
+    display: block;
+}
+
+.balance-period-counts small {
+    color: var(--omf-text-muted);
+    font-size: 9px;
+}
+
+.balance-period-counts b {
+    margin-top: 1px;
+    color: var(--omf-text);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+}
+
+.balance-result-state {
+    justify-self: end;
+    padding: 3px 6px;
+    border: 1px solid var(--omf-border);
+    border-radius: 4px;
+    color: var(--omf-text-muted);
+    font-size: 11px;
+    white-space: nowrap;
 }
 
 .section-heading {
@@ -668,6 +793,9 @@ body {
     .period-card-header { grid-template-columns: 1fr auto; }
     .period-counts { grid-column: 1 / -1; }
     .period-actions { grid-column: 2; grid-row: 1; }
+    .balance-result-row { grid-template-columns: minmax(0, 1fr) auto; }
+    .balance-period-counts { grid-column: 1 / -1; }
+    .balance-result-state { grid-column: 2; grid-row: 1; }
 }
 
 @media (max-width: 480px) {
@@ -675,7 +803,9 @@ body {
     .back-link { left: 10px; }
     .app-header h1 { font-size: 17px; }
     .date-band,
+    .balance-rule-band,
     .health-band,
+    .balance-result-band,
     .chart-band,
     .change-section,
     .pending-section,

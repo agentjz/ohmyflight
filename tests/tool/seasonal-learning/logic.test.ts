@@ -37,17 +37,50 @@ function rosterRows(groups: { leader: number; captain: number; firstOfficer: num
   return rows;
 }
 
+function technicalRosterRows(groups: Array<{
+  technicalInfo: string;
+  count: number;
+  isLeader?: number;
+  isUsLineLeader?: number;
+  identity?: string;
+}>): unknown[][] {
+  const rows: unknown[][] = [HEADERS];
+  let index = 1;
+  groups.forEach((group) => {
+    for (let offset = 0; offset < group.count; offset += 1) {
+      rows.push([
+        index,
+        String(200000 + index),
+        `等级人员${index}`,
+        `${(index % 4) + 1}分部`,
+        group.technicalInfo,
+        group.isLeader || 0,
+        group.isUsLineLeader || 0,
+        "换季学习",
+        "",
+        "",
+        group.identity || ""
+      ]);
+      index += 1;
+    }
+  });
+  return rows;
+}
+
 describe("seasonal learning logic", () => {
   let logic: any;
+  let rules: any;
 
   beforeAll(() => {
     const context = loadBrowserScripts([
       "tool/app/seasonal-learning/data.js",
       "tool/app/seasonal-learning/balance-filter.js",
+      "tool/app/seasonal-learning/balance-rules.js",
       "tool/app/seasonal-learning/allocation.js",
       "tool/app/seasonal-learning/logic.js"
     ]);
     logic = context.SeasonalLearningLogic;
+    rules = context.SeasonalLearningBalanceRules;
   });
 
   it("parses Excel dates as unambiguous business dates", () => {
@@ -83,6 +116,57 @@ describe("seasonal learning logic", () => {
     expect(people[0].isUsLineLeader).toBe(true);
   });
 
+  it("resolves the first enabled hook and falls back to the full technical level", () => {
+    const [person] = logic.readRosterRows(technicalRosterRows([{
+      technicalInfo: "777:飞行教员A",
+      count: 1,
+      isLeader: 1,
+      isUsLineLeader: 1
+    }]));
+
+    expect(rules.resolveBalanceGroup(person, ["us-line-leader", "leader"]).id).toBe("hook:us-line-leader");
+    expect(rules.resolveBalanceGroup(person, ["leader"]).id).toBe("hook:leader");
+    expect(rules.resolveBalanceGroup(person, []).id).toBe("technical:777:飞行教员A");
+  });
+
+  it("balances every full technical level as its own dynamic group", () => {
+    const people = logic.readRosterRows(technicalRosterRows([
+      { technicalInfo: "777:A1类副驾驶", count: 7 },
+      { technicalInfo: "777:A2类副驾驶", count: 5 },
+      { technicalInfo: "777:C类机长", count: 8 },
+      { technicalInfo: "划转副驾驶", count: 4 }
+    ]));
+    const scheduled = logic.buildInitialSchedule(people, 3, rules.DEFAULT_ENABLED_HOOK_IDS);
+    const report = logic.checkBalance(scheduled, 3, rules.DEFAULT_ENABLED_HOOK_IDS);
+
+    expect(report.total.maximum - report.total.minimum).toBeLessThanOrEqual(1);
+    expect(report.groups.map((group: any) => group.label)).toEqual([
+      "777:A1类副驾驶",
+      "777:A2类副驾驶",
+      "777:C类机长",
+      "划转副驾驶"
+    ]);
+    expect(report.groups.every((group: any) => group.maximum - group.minimum <= 1)).toBe(true);
+    expect(scheduled.every((person: any) => person.period !== null)).toBe(true);
+  });
+
+  it("uses company leaders only as total-headcount fillers", () => {
+    const people = logic.readRosterRows(technicalRosterRows([
+      { technicalInfo: "777:飞行教员A", count: 2, isLeader: 1, isUsLineLeader: 1 },
+      { technicalInfo: "777:C类机长", count: 2 },
+      { technicalInfo: "777:飞行教员B", count: 2, isLeader: 1, isUsLineLeader: 1, identity: "公司领导" }
+    ]));
+    const companyLeader = people.find((person: any) => person.identity === "公司领导");
+
+    expect(rules.resolveBalanceGroup(companyLeader, rules.DEFAULT_ENABLED_HOOK_IDS)).toBeNull();
+    const scheduled = logic.buildInitialSchedule(people, 2, rules.DEFAULT_ENABLED_HOOK_IDS);
+    const report = logic.checkBalance(scheduled, 2, rules.DEFAULT_ENABLED_HOOK_IDS);
+
+    expect(report.total.counts).toEqual([3, 3]);
+    expect(report.groups.find((group: any) => group.id === "hook:us-line-leader").counts).toEqual([1, 1]);
+    expect(report.groups.every((group: any) => !group.label.includes("公司领导"))).toBe(true);
+  });
+
   it("rejects duplicate employee IDs and unrecognized technical information", () => {
     expect(() => logic.readRosterRows([
       HEADERS,
@@ -96,31 +180,37 @@ describe("seasonal learning logic", () => {
     ])).toThrow("无法归类");
   });
 
-  it("builds a six-period baseline with total and category differences no greater than one", () => {
+  it("builds a six-period baseline with dynamic group differences no greater than one", () => {
     const people = logic.readRosterRows(rosterRows({ leader: 81, captain: 49, firstOfficer: 113, usLineLeader: 60 }));
-    const scheduled = logic.buildInitialSchedule(people, 6);
-    const report = logic.checkBalance(scheduled, 6);
+    const scheduled = logic.buildInitialSchedule(people, 6, rules.DEFAULT_ENABLED_HOOK_IDS);
+    const report = logic.checkBalance(scheduled, 6, rules.DEFAULT_ENABLED_HOOK_IDS);
 
     expect(report.balanced).toBe(true);
     expect(report.pendingCount).toBe(0);
-    expect(report.dimensions.total.counts).toEqual([41, 41, 41, 40, 40, 40]);
-    expect(report.dimensions.usLineLeader.counts).toEqual([10, 10, 10, 10, 10, 10]);
-    expect(Math.max(...report.dimensions.leader.counts) - Math.min(...report.dimensions.leader.counts)).toBeLessThanOrEqual(1);
-    expect(Math.max(...report.dimensions.captain.counts) - Math.min(...report.dimensions.captain.counts)).toBeLessThanOrEqual(1);
-    expect(Math.max(...report.dimensions.firstOfficer.counts) - Math.min(...report.dimensions.firstOfficer.counts)).toBeLessThanOrEqual(1);
+    expect(report.total.counts).toEqual([41, 41, 41, 40, 40, 40]);
+    expect(report.groups.find((group: any) => group.id === "hook:us-line-leader").counts).toEqual([10, 10, 10, 10, 10, 10]);
+    expect(report.groups.slice(0, 2).map((group: any) => group.id)).toEqual([
+      "hook:us-line-leader",
+      "hook:leader"
+    ]);
+    expect(new Set(report.groups.slice(2).map((group: any) => group.id))).toEqual(new Set([
+      "technical:777:C类机长",
+      "technical:777:C类副驾驶"
+    ]));
+    expect(report.groups.every((group: any) => group.maximum - group.minimum <= 1)).toBe(true);
     expect(scheduled.every((person: any) => person.adjusted === false && person.adjustmentNotes.length === 0)).toBe(true);
   });
 
-  it("balances an overlapping marker when different category capacities compete for the same periods", () => {
+  it("uses the higher-priority hook for people whose markers overlap", () => {
     const rows = rosterRows({ leader: 37, captain: 3, firstOfficer: 19 });
     rows.slice(1 + 37, 1 + 37 + 1).forEach((row) => { row[6] = 1; });
     rows.slice(1 + 37 + 3).forEach((row) => { row[6] = 1; });
 
     const scheduled = logic.buildInitialSchedule(logic.readRosterRows(rows), 10);
-    const report = logic.checkBalance(scheduled, 10);
+    const report = logic.checkBalance(scheduled, 10, rules.DEFAULT_ENABLED_HOOK_IDS);
 
     expect(report.balanced).toBe(true);
-    expect(report.dimensions.usLineLeader.counts).toEqual([2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
+    expect(report.groups.find((group: any) => group.id === "hook:us-line-leader").counts).toEqual([2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
   });
 
   it("excludes only company leaders from operational quotas while balancing them in total headcount", () => {
@@ -134,14 +224,13 @@ describe("seasonal learning logic", () => {
     const companyLeaders = scheduled.filter((person: any) => person.identity === "公司领导");
 
     expect(report.balanced).toBe(true);
-    expect(report.dimensions.total.counts).toEqual([4, 4]);
-    expect(report.dimensions.leader.counts).toEqual([1, 1]);
-    expect(report.dimensions.usLineLeader.counts).toEqual([1, 1]);
+    expect(report.total.counts).toEqual([4, 4]);
+    expect(report.groups.find((group: any) => group.id === "hook:us-line-leader").counts).toEqual([1, 1]);
     expect(companyLeaders.map((person: any) => person.period).sort()).toEqual([1, 2]);
     expect(scheduled.find((person: any) => person.identity === "领导").period).not.toBeNull();
   });
 
-  it("uses a five-person tolerance for total counts and checks categories without changing assignments", () => {
+  it("uses a five-person tolerance for total counts and checks dynamic groups without changing assignments", () => {
     const scheduled = logic.buildInitialSchedule(
       logic.readRosterRows(rosterRows({ leader: 6, captain: 6, firstOfficer: 6 })),
       6
@@ -151,9 +240,34 @@ describe("seasonal learning logic", () => {
     const report = logic.checkBalance(scheduled, 6);
 
     expect(report.balanced).toBe(false);
-    expect(report.dimensions.total.balanced).toBe(true);
-    expect(report.dimensions.leader.balanced).toBe(false);
+    expect(report.total.balanced).toBe(true);
+    expect(report.groups.find((group: any) => group.id === "hook:leader").balanced).toBe(false);
     expect(scheduled.map((person: any) => person.period)).toEqual(before);
+  });
+
+  it("assigns every person deterministically for all supported period counts and hook selections", () => {
+    const people = logic.readRosterRows(technicalRosterRows([
+      { technicalInfo: "777:A1类副驾驶", count: 9 },
+      { technicalInfo: "777:A2类副驾驶", count: 7 },
+      { technicalInfo: "777:B类机长", count: 5 },
+      { technicalInfo: "777:飞行教员A", count: 4, isLeader: 1 },
+      { technicalInfo: "777:飞行教员B", count: 3, isLeader: 1, isUsLineLeader: 1 },
+      { technicalInfo: "划转机长", count: 2, identity: "公司领导" }
+    ]));
+    const hookSelections = [rules.DEFAULT_ENABLED_HOOK_IDS, ["leader"], []];
+
+    for (let periodCount = 1; periodCount <= 30; periodCount += 1) {
+      hookSelections.forEach((enabledHookIds) => {
+        const first = logic.buildInitialSchedule(people, periodCount, enabledHookIds);
+        const second = logic.buildInitialSchedule(people, periodCount, enabledHookIds);
+        expect(first.map((person: any) => person.period)).toEqual(second.map((person: any) => person.period));
+        expect(first.every((person: any) => person.period >= 1 && person.period <= periodCount)).toBe(true);
+        expect(new Set(first.map((person: any) => person.employeeId)).size).toBe(people.length);
+        const report = logic.checkBalance(first, periodCount, enabledHookIds);
+        expect(report.total.maximum - report.total.minimum).toBeLessThanOrEqual(1);
+        expect(report.groups.every((group: any) => group.maximum - group.minimum <= 1)).toBe(true);
+      });
+    }
   });
 
   it("moves one or more people to the selected period", () => {

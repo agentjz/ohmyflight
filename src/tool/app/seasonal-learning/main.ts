@@ -173,21 +173,34 @@
 
     function balanceOrCheck(context: SeasonalLearningAppContext): void {
         if (!context.state.scheduleReady) {
-            context.state.people = context.logic.buildInitialSchedule(context.state.people, context.state.periodCount);
+            context.state.people = context.logic.buildInitialSchedule(
+                context.state.people,
+                context.state.periodCount,
+                context.state.enabledBalanceHookIds
+            );
             context.state.scheduleReady = true;
             context.setActionMessage("均衡负载已生成初版；后续均衡检查不会改动人员期次。", "success");
             namespace.View?.renderAll(context);
             return;
         }
 
-        const report = context.logic.checkBalance(context.state.people, context.state.periodCount);
+        const report = context.logic.checkBalance(
+            context.state.people,
+            context.state.periodCount,
+            context.state.enabledBalanceHookIds
+        );
         const pendingText = report.operationalPendingCount
             ? `另有 ${report.operationalPendingCount} 名运行人员待分配。`
             : "";
+        const unbalancedGroupCount = report.groups.filter((group) => !group.balanced).length;
+        const differenceText = [
+            ...(!report.total.balanced ? ["总人数"] : []),
+            ...(unbalancedGroupCount ? [`${unbalancedGroupCount} 个均衡组`] : [])
+        ].join("和");
         context.setActionMessage(
             report.balanced
                 ? `当前分布在允许范围内，人员期次未改动。${pendingText}`
-                : `存在超过容差的期次差异，人员期次未改动。${pendingText}`,
+                : `${differenceText || "当前安排"}存在差异，人员期次未改动。${pendingText}`,
             report.balanced ? "success" : "warning"
         );
     }
@@ -210,6 +223,16 @@
             if (!(input instanceof HTMLInputElement) || !input.classList.contains("period-date")) return;
             const period = Number(input.dataset.period);
             context.state.periodDates[period] = input.value;
+            namespace.View?.renderAll(context);
+        });
+        context.getElement<HTMLDivElement>("balanceRuleControls").addEventListener("change", (event) => {
+            const input = event.target;
+            if (!(input instanceof HTMLInputElement) || !input.classList.contains("balance-hook-checkbox")) return;
+            const selected = Array.from(
+                context.getElement<HTMLDivElement>("balanceRuleControls")
+                    .querySelectorAll<HTMLInputElement>(".balance-hook-checkbox:checked")
+            ).map((checkbox) => checkbox.value);
+            context.state.enabledBalanceHookIds = context.rules.normalizeEnabledHookIds(selected);
             namespace.View?.renderAll(context);
         });
         context.getElement<HTMLElement>("workspace").addEventListener("change", (event) => {

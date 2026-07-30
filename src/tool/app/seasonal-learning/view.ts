@@ -78,9 +78,101 @@
         }).join("");
     }
 
+    function renderBalanceRules(context: SeasonalLearningAppContext): void {
+        const enabled = new Set(context.state.enabledBalanceHookIds);
+        const disabled = context.state.scheduleReady ? "disabled" : "";
+        const hookOptions = context.rules.HOOKS.map((hook, index) => `
+            <label class="balance-rule-option">
+                <input
+                    class="form-check-input balance-hook-checkbox"
+                    type="checkbox"
+                    value="${context.escapeHtml(hook.id)}"
+                    ${enabled.has(hook.id) ? "checked" : ""}
+                    ${disabled}
+                >
+                <span class="balance-rule-order">${index + 1}</span>
+                <span>${context.escapeHtml(hook.label)}</span>
+            </label>
+        `).join("");
+        context.getElement<HTMLDivElement>("balanceRuleControls").innerHTML = `
+            ${hookOptions}
+            <label class="balance-rule-option is-fixed">
+                <input class="form-check-input" type="checkbox" checked disabled>
+                <span class="balance-rule-order">${context.rules.HOOKS.length + 1}</span>
+                <span>技术等级</span>
+            </label>
+        `;
+    }
+
+    function balanceRow(
+        context: SeasonalLearningAppContext,
+        label: string,
+        kindLabel: string,
+        counts: number[],
+        memberCount: number,
+        balanced: boolean
+    ): string {
+        const assignedCount = counts.reduce((sum, count) => sum + count, 0);
+        const pendingCount = memberCount - assignedCount;
+        const minimum = Math.min(...counts);
+        const maximum = Math.max(...counts);
+        const status = pendingCount > 0 ? `待分配 ${pendingCount}` : balanced ? "均衡" : `相差 ${maximum - minimum}`;
+        return `
+            <div class="balance-result-row ${balanced && pendingCount === 0 ? "" : "needs-check"}">
+                <div class="balance-result-name">
+                    <strong>${context.escapeHtml(label)}</strong>
+                    <span>${context.escapeHtml(kindLabel)} · ${memberCount} 人</span>
+                </div>
+                <div class="balance-period-counts">
+                    ${counts.map((count, index) => `
+                        <span><small>${index + 1}期</small><b>${count}</b></span>
+                    `).join("")}
+                </div>
+                <span class="balance-result-state">${context.escapeHtml(status)}</span>
+            </div>
+        `;
+    }
+
+    function renderBalanceResults(context: SeasonalLearningAppContext): void {
+        const report = context.logic.checkBalance(
+            context.state.people,
+            context.state.periodCount,
+            context.state.enabledBalanceHookIds
+        );
+        const issueCount = report.groups.filter((group) => !group.balanced).length + (report.total.balanced ? 0 : 1);
+        context.getElement<HTMLSpanElement>("balanceResultSummary").textContent = report.operationalPendingCount
+            ? `${report.operationalPendingCount} 名运行人员待分配`
+            : issueCount
+                ? `${issueCount} 项需检查`
+                : "全部在允许范围内";
+        const rows = [
+            balanceRow(
+                context,
+                "总人数",
+                "总览",
+                report.total.counts,
+                context.state.people.length,
+                report.total.balanced && report.pendingCount === 0
+            ),
+            ...report.groups.map((group) => balanceRow(
+                context,
+                group.label,
+                group.kind === "hook" ? "Hook" : "技术等级",
+                group.counts,
+                group.memberCount,
+                group.balanced
+            ))
+        ];
+        context.getElement<HTMLDivElement>("balanceResults").innerHTML = rows.join("");
+    }
+
     function renderSummary(context: SeasonalLearningAppContext): void {
         const people = context.state.people;
-        const report = context.logic.checkBalance(people, context.state.periodCount);
+        const report = context.logic.checkBalance(
+            people,
+            context.state.periodCount,
+            context.state.enabledBalanceHookIds
+        );
         const operationalPeople = people.filter((person) => !BalanceFilter.shouldIgnoreOperational(person));
         const summary = [
             { key: "total", label: "总人数", value: people.length },
@@ -112,7 +204,8 @@
         const summaries = context.logic.buildPeriodSummaries(
             context.state.people,
             context.state.periodDates,
-            context.state.periodCount
+            context.state.periodCount,
+            context.state.enabledBalanceHookIds
         );
         context.state.chart = context.state.chart || window.echarts.init(element);
         const textColor = cssColor("--omf-text", "#1f2328");
@@ -173,11 +266,15 @@
         const summaries = context.logic.buildPeriodSummaries(
             context.state.people,
             context.state.periodDates,
-            context.state.periodCount
+            context.state.periodCount,
+            context.state.enabledBalanceHookIds
         );
         context.getElement<HTMLDivElement>("periodCards").innerHTML = summaries.map((summary) => {
             const people = context.state.people.filter((person) => person.period === summary.period);
-            const status = summary.issues.length ? `需检查：${summary.issues.join("、")}` : "均衡";
+            const issueLabels = summary.issues.slice(0, 2).join("、");
+            const status = summary.issues.length
+                ? `需检查：${issueLabels}${summary.issues.length > 2 ? `等 ${summary.issues.length} 项` : ""}`
+                : "均衡";
             return `
                 <article class="period-card ${summary.issues.length ? "has-issue" : ""}" data-person-scope="period-${summary.period}">
                     <header class="period-card-header">
@@ -307,6 +404,7 @@
         balanceButton.disabled = !context.state.initialized;
         balanceButton.textContent = context.state.scheduleReady ? "均衡检查" : "均衡负载";
         context.getElement<HTMLInputElement>("periodCount").disabled = context.state.scheduleReady;
+        renderBalanceRules(context);
         renderHealth(context);
         if (!context.state.initialized) {
             renderDateControls(context);
@@ -314,6 +412,7 @@
         }
         renderDateControls(context);
         renderSummary(context);
+        renderBalanceResults(context);
         renderChart(context);
         renderPending(context);
         renderPeriodCards(context);
