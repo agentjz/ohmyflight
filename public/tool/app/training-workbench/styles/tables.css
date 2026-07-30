@@ -172,6 +172,35 @@
     min-width: 940px;
 }
 
+.person-validity-table-shell {
+    max-height: 520px;
+    overflow: auto;
+}
+
+.person-validity-table {
+    min-width: 520px;
+}
+
+.person-validity-table :is(th, td) {
+    padding: 9px 12px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.person-validity-table :is(th, td):nth-child(1) {
+    width: 42%;
+}
+
+.person-validity-table :is(th, td):nth-child(2) {
+    width: 34%;
+    white-space: nowrap;
+}
+
+.person-validity-table :is(th, td):nth-child(3) {
+    width: 24%;
+    white-space: nowrap;
+}
+
 .selected-person-table :is(th, td) {
     padding: 10px 8px;
     font-size: 13px;

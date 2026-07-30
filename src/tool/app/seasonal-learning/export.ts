@@ -1,7 +1,7 @@
 (function () {
     const ACTUAL_SHEET = "换季实际";
     const TOTAL_SHEET = "换季总名单";
-    const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份", "调整说明"];
+    const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份", "调整说明"];
     const DATE_FORMAT = "yyyy-mm-dd";
 
     function cloneValue<T>(value: T): T {
@@ -38,16 +38,41 @@
         return new Date(Number(matched[1]), Number(matched[2]) - 1, Number(matched[3]), 12, 0, 0, 0);
     }
 
+    function buildHeaderMap(sheet: import("xlsx-js-style").WorkSheet): Map<string, number> {
+        const range = sheet["!ref"] ? window.XLSX.utils.decode_range(sheet["!ref"] as string) : null;
+        const result = new Map<string, number>();
+        if (!range) return result;
+        for (let columnIndex = range.s.c; columnIndex <= range.e.c; columnIndex += 1) {
+            const address = window.XLSX.utils.encode_cell({ r: 0, c: columnIndex });
+            const value = (sheet[address] as { v?: unknown } | undefined)?.v;
+            const header = String(value ?? "").trim();
+            if (header && !result.has(header)) result.set(header, columnIndex);
+        }
+        return result;
+    }
+
     function sourceStyle(
         actualSheet: import("xlsx-js-style").WorkSheet,
         totalSheet: import("xlsx-js-style").WorkSheet,
+        actualHeaders: Map<string, number>,
+        totalHeaders: Map<string, number>,
         person: SeasonalLearningPerson | null,
-        columnIndex: number
+        header: string
     ): Record<string, unknown> {
-        const actualAddress = window.XLSX.utils.encode_cell({ r: person ? 1 : 0, c: columnIndex });
-        const totalAddress = window.XLSX.utils.encode_cell({ r: person ? person.sourceRow - 1 : 0, c: Math.min(columnIndex, 9) });
-        const actualCell = actualSheet[actualAddress] as { s?: Record<string, unknown> } | undefined;
-        const totalCell = totalSheet[totalAddress] as { s?: Record<string, unknown> } | undefined;
+        const actualColumn = actualHeaders.get(header);
+        const totalColumn = totalHeaders.get(header);
+        const actualAddress = actualColumn === undefined
+            ? ""
+            : window.XLSX.utils.encode_cell({ r: person ? 1 : 0, c: actualColumn });
+        const totalAddress = totalColumn === undefined
+            ? ""
+            : window.XLSX.utils.encode_cell({ r: person ? person.sourceRow - 1 : 0, c: totalColumn });
+        const actualCell = actualAddress
+            ? actualSheet[actualAddress] as { s?: Record<string, unknown> } | undefined
+            : undefined;
+        const totalCell = totalAddress
+            ? totalSheet[totalAddress] as { s?: Record<string, unknown> } | undefined
+            : undefined;
         return cloneValue(actualCell?.s || totalCell?.s || {});
     }
 
@@ -105,8 +130,17 @@
 
         const output = cloneWorkbook(sourceWorkbook);
         const actual = cloneSheetMeta(sourceActual);
+        const actualHeaders = buildHeaderMap(sourceActual);
+        const totalHeaders = buildHeaderMap(sourceTotal);
         HEADERS.forEach((header, columnIndex) => {
-            writeCell(actual, 0, columnIndex, header, sourceStyle(sourceActual, sourceTotal, null, columnIndex), "s");
+            writeCell(
+                actual,
+                0,
+                columnIndex,
+                header,
+                sourceStyle(sourceActual, sourceTotal, actualHeaders, totalHeaders, null, header),
+                "s"
+            );
         });
 
         sortedPeople(people, periodDates).forEach((person, index) => {
@@ -119,6 +153,7 @@
                 person.department,
                 person.technicalInfo,
                 person.isLeader ? 1 : 0,
+                person.isUsLineLeader ? 1 : 0,
                 person.trainingType,
                 date || "",
                 person.period ?? "",
@@ -127,11 +162,21 @@
             ];
 
             values.forEach((value, columnIndex) => {
-                const base = sourceStyle(sourceActual, sourceTotal, person, columnIndex);
+                const base = sourceStyle(
+                    sourceActual,
+                    sourceTotal,
+                    actualHeaders,
+                    totalHeaders,
+                    person,
+                    HEADERS[columnIndex]
+                );
                 const style = person.adjusted ? adjustedStyle(base) : base;
-                const type = columnIndex === 7 && date
+                const type = columnIndex === 8 && date
                     ? "d"
-                    : columnIndex === 0 && typeof value === "number" || columnIndex === 5 || columnIndex === 8 && typeof value === "number"
+                    : columnIndex === 0 && typeof value === "number"
+                        || columnIndex === 5
+                        || columnIndex === 6
+                        || columnIndex === 9 && typeof value === "number"
                         ? "n"
                         : "s";
                 writeCell(actual, rowIndex, columnIndex, value, style, type);

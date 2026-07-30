@@ -27,6 +27,7 @@
       state.workbook = null;
       state.analysis = null;
       state.workbookHealth = null;
+      runtime.personValidityQuery.rebuild();
       runtime.trainingCalendar.clear();
       projects.renderEmptyState();
       renderers.renderWorkbookHealth();
@@ -66,6 +67,7 @@
       renderers.renderScheduledDistribution();
       renderers.renderAnnualTrainingStats();
       renderers.renderCrmAnnual();
+      runtime.personValidityQuery.rebuild();
       controls.clearPendingExport();
       controls.refreshButtons();
 
@@ -78,6 +80,7 @@
       state.workbook = null;
       state.analysis = null;
       state.workbookHealth = null;
+      runtime.personValidityQuery.rebuild();
       state.workbenchView = null;
       state.workbenchSelection = null;
       runtime.trainingCalendar.clear();

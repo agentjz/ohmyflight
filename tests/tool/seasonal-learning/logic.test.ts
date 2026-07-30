@@ -2,14 +2,17 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { loadBrowserScripts } from "../../helpers/browser-context";
 
-const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
+const ACTUAL_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
+const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份"];
 
-function rosterRows(groups: { leader: number; captain: number; firstOfficer: number }): unknown[][] {
+function rosterRows(groups: { leader: number; captain: number; firstOfficer: number; usLineLeader?: number }): unknown[][] {
   const rows: unknown[][] = [HEADERS];
   let index = 1;
+  let remainingUsLineLeaders = groups.usLineLeader || 0;
 
   const add = (count: number, technicalInfo: string, isLeader: number) => {
     for (let offset = 0; offset < count; offset += 1) {
+      const isUsLineLeader = isLeader === 1 && remainingUsLineLeaders > 0 ? 1 : 0;
       rows.push([
         index,
         String(100000 + index),
@@ -17,11 +20,13 @@ function rosterRows(groups: { leader: number; captain: number; firstOfficer: num
         `${(index % 4) + 1}分部`,
         technicalInfo,
         isLeader,
+        isUsLineLeader,
         "换季学习",
         "",
         "",
         ""
       ]);
+      remainingUsLineLeaders -= isUsLineLeader;
       index += 1;
     }
   };
@@ -38,6 +43,7 @@ describe("seasonal learning logic", () => {
   beforeAll(() => {
     const context = loadBrowserScripts([
       "tool/app/seasonal-learning/data.js",
+      "tool/app/seasonal-learning/allocation.js",
       "tool/app/seasonal-learning/logic.js"
     ]);
     logic = context.SeasonalLearningLogic;
@@ -57,10 +63,10 @@ describe("seasonal learning logic", () => {
   it("classifies leaders first and treats non-leading instructors as captains", () => {
     const rows = [
       HEADERS,
-      [1, 100001, "带队", "一分部", "777:D类副驾驶", 1, "换季学习", "", "", "临时观察员"],
-      [2, 100002, "教员", "二分部", "777:飞行教员B", 0, "换季学习", "", "", ""],
-      [3, 100003, "机长", "三分部", "划转机长", 0, "换季学习", "", "", ""],
-      [4, 100004, "副驾驶", "四分部", "划转副驾驶", 0, "换季学习", "2026-09-28", "", ""]
+      [1, 100001, "带队", "一分部", "777:D类副驾驶", 1, 1, "换季学习", "", "", "临时观察员"],
+      [2, 100002, "教员", "二分部", "777:飞行教员B", 0, 0, "换季学习", "", "", ""],
+      [3, 100003, "机长", "三分部", "划转机长", 0, 0, "换季学习", "", "", ""],
+      [4, 100004, "副驾驶", "四分部", "划转副驾驶", 0, 0, "换季学习", "2026-09-28", "", ""]
     ];
 
     const people = logic.readRosterRows(rows);
@@ -73,33 +79,47 @@ describe("seasonal learning logic", () => {
     expect(people[3].sourceDate).toBe("2026-09-28");
     expect(people[0].employeeId).toBe("100001");
     expect(people[0].identity).toBe("临时观察员");
+    expect(people[0].isUsLineLeader).toBe(true);
   });
 
   it("rejects duplicate employee IDs and unrecognized technical information", () => {
     expect(() => logic.readRosterRows([
       HEADERS,
-      [1, "100001", "甲", "一分部", "777:C类机长", 0, "换季学习", "", "", ""],
-      [2, 100001, "乙", "二分部", "777:C类副驾驶", 0, "换季学习", "", "", ""]
+      [1, "100001", "甲", "一分部", "777:C类机长", 0, 0, "换季学习", "", "", ""],
+      [2, 100001, "乙", "二分部", "777:C类副驾驶", 0, 0, "换季学习", "", "", ""]
     ])).toThrow("员工号重复");
 
     expect(() => logic.readRosterRows([
       HEADERS,
-      [1, "100001", "甲", "一分部", "未识别等级", 0, "换季学习", "", "", ""]
+      [1, "100001", "甲", "一分部", "未识别等级", 0, 0, "换季学习", "", "", ""]
     ])).toThrow("无法归类");
   });
 
   it("builds a six-period baseline with total and category differences no greater than one", () => {
-    const people = logic.readRosterRows(rosterRows({ leader: 81, captain: 49, firstOfficer: 113 }));
+    const people = logic.readRosterRows(rosterRows({ leader: 81, captain: 49, firstOfficer: 113, usLineLeader: 60 }));
     const scheduled = logic.buildInitialSchedule(people, 6);
     const report = logic.checkBalance(scheduled, 6);
 
     expect(report.balanced).toBe(true);
     expect(report.pendingCount).toBe(0);
     expect(report.dimensions.total.counts).toEqual([41, 41, 41, 40, 40, 40]);
+    expect(report.dimensions.usLineLeader.counts).toEqual([10, 10, 10, 10, 10, 10]);
     expect(Math.max(...report.dimensions.leader.counts) - Math.min(...report.dimensions.leader.counts)).toBeLessThanOrEqual(1);
     expect(Math.max(...report.dimensions.captain.counts) - Math.min(...report.dimensions.captain.counts)).toBeLessThanOrEqual(1);
     expect(Math.max(...report.dimensions.firstOfficer.counts) - Math.min(...report.dimensions.firstOfficer.counts)).toBeLessThanOrEqual(1);
     expect(scheduled.every((person: any) => person.adjusted === false && person.adjustmentNotes.length === 0)).toBe(true);
+  });
+
+  it("balances an overlapping marker when different category capacities compete for the same periods", () => {
+    const rows = rosterRows({ leader: 37, captain: 3, firstOfficer: 19 });
+    rows.slice(1 + 37, 1 + 37 + 1).forEach((row) => { row[6] = 1; });
+    rows.slice(1 + 37 + 3).forEach((row) => { row[6] = 1; });
+
+    const scheduled = logic.buildInitialSchedule(logic.readRosterRows(rows), 10);
+    const report = logic.checkBalance(scheduled, 10);
+
+    expect(report.balanced).toBe(true);
+    expect(report.dimensions.usLineLeader.counts).toEqual([2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
   });
 
   it("uses a five-person tolerance for total counts and checks categories without changing assignments", () => {
@@ -133,11 +153,11 @@ describe("seasonal learning logic", () => {
 
   it("restores actual assignments first and otherwise preserves the current schedule on re-import", () => {
     const total = rosterRows({ leader: 1, captain: 1, firstOfficer: 1 });
-    total[1][9] = "临时观察员";
+    total[1][10] = "临时观察员";
     const actual = [
       [...HEADERS, "调整说明"],
-      [1, "100001", "人员1", "一分部", "777:飞行教员A", 1, "换季学习", "2026-10-08", "第3期", "临时观察员", "移动：第1期 → 第3期"],
-      [2, "100002", "人员2", "二分部", "777:C类机长", 0, "换季学习", "2026-10-09", 4, "", ""]
+      [1, "100001", "人员1", "一分部", "777:飞行教员A", 1, 1, "换季学习", "2026-10-08", "第3期", "临时观察员", "移动：第1期 → 第3期"],
+      [2, "100002", "人员2", "二分部", "777:C类机长", 0, 0, "换季学习", "2026-10-09", 4, "", ""]
     ];
     const restored = logic.buildImportResult(total, actual, 6, null);
 
@@ -148,18 +168,18 @@ describe("seasonal learning logic", () => {
     expect(restored.periodDates).toMatchObject({ 3: "2026-10-08", 4: "2026-10-09" });
     expect(restored.addedEmployeeIds).toEqual(["100003"]);
 
-    const pending = logic.buildImportResult(total, [HEADERS], 2, null);
+    const pending = logic.buildImportResult(total, [ACTUAL_HEADERS], 2, null);
     expect(pending.mode).toBe("pending");
     expect(pending.scheduleReady).toBe(false);
     expect(pending.people.every((person: any) => person.period === null)).toBe(true);
     const baselinePeople = logic.buildInitialSchedule(pending.people, 2);
     const updatedTotal = [
       HEADERS,
-      [...total[1].slice(0, 9), "更新身份"],
+      [...total[1].slice(0, 10), "更新身份"],
       total[3],
-      [4, "100004", "新增人员", "四分部", "777:B类副驾驶", 0, "换季学习", "", "", ""]
+      [4, "100004", "新增人员", "四分部", "777:B类副驾驶", 0, 0, "换季学习", "", "", ""]
     ];
-    const merged = logic.buildImportResult(updatedTotal, [HEADERS], 2, {
+    const merged = logic.buildImportResult(updatedTotal, [ACTUAL_HEADERS], 2, {
       people: baselinePeople,
       periodDates: { 1: "2026-09-01", 2: "2026-09-02" },
       periodCount: 2,

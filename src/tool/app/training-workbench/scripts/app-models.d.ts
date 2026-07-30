@@ -28,6 +28,8 @@ interface TrainingToolProjectAnalysis {
 
 interface TrainingToolPeopleInfo {
   name: string;
+  headers: string[];
+  headerMap: Map<string, number>;
   rows: TrainingToolSheetRow[];
 }
 
@@ -37,6 +39,29 @@ interface TrainingToolAnalysis {
   availableMonths: string[];
   sheetNames: string[];
   projectMap: Map<string, TrainingToolProjectAnalysis>;
+}
+
+interface TrainingToolPersonValidityItem {
+  name: string;
+  value: string;
+  state: "valid" | "expired" | "text" | "empty";
+  stateLabel: string;
+}
+
+interface TrainingToolPersonValidityRecord {
+  key: string;
+  rowNumber: number;
+  employeeId: string;
+  name: string;
+  department: string;
+  technicalInfo: string;
+  validities: TrainingToolPersonValidityItem[];
+}
+
+interface TrainingToolPersonValidityIndex {
+  people: TrainingToolPersonValidityRecord[];
+  byEmployeeId: Map<string, TrainingToolPersonValidityRecord[]>;
+  byName: Map<string, TrainingToolPersonValidityRecord[]>;
 }
 
 interface TrainingCalendarSession {
@@ -94,6 +119,8 @@ interface TrainingToolAppState {
   crmAnnualResult: any;
   trainingCalendarResult: TrainingCalendarResult | null;
   trainingCalendarMonthKey: string;
+  personValidityIndex: TrainingToolPersonValidityIndex | null;
+  personValiditySelectedKey: string;
   updateSelectedProjects: string[];
 }
 
@@ -106,6 +133,10 @@ interface TrainingToolAppElements {
   workbookFile: HTMLInputElement;
   workbookOverview: HTMLElement;
   workbookHealthPanel: HTMLElement;
+  personValidityForm: HTMLFormElement;
+  personValiditySearchInput: HTMLInputElement;
+  personValiditySearchButton: HTMLButtonElement;
+  personValidityResult: HTMLElement;
   statusLine: HTMLElement;
   trainingCalendarMonthLabel: HTMLElement;
   trainingCalendarMonthInput: HTMLInputElement;
@@ -194,6 +225,7 @@ interface TrainingToolAppRuntime {
   summaryView: any;
   simulationSchedule: any;
   trainingCalendar: any;
+  personValidityQuery: any;
 }
 
 interface Window {

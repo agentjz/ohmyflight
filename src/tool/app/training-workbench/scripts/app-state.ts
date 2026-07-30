@@ -21,6 +21,8 @@
     crmAnnualResult: null,
     trainingCalendarResult: null,
     trainingCalendarMonthKey: "",
+    personValidityIndex: null,
+    personValiditySelectedKey: "",
     updateSelectedProjects: []
   };
 })();

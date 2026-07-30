@@ -2,10 +2,12 @@
     --season-leader-chart: #a8c4e5;
     --season-captain-chart: #a6d2c8;
     --season-first-officer-chart: #e8c796;
+    --season-us-line-chart: #a9c9bf;
     --season-total-chart: #9c91ae;
     --season-leader-soft: #eef5fc;
     --season-captain-soft: #edf8f5;
     --season-first-officer-soft: #fcf6e9;
+    --season-us-line-soft: #edf7f3;
     --season-total-soft: #f2f0f5;
     --season-adjusted: #fff2f2;
     --season-selection-bg: #fff3cd;
@@ -17,10 +19,12 @@
     --season-leader-chart: #7189a6;
     --season-captain-chart: #6f968f;
     --season-first-officer-chart: #a28b63;
+    --season-us-line-chart: #75988d;
     --season-total-chart: #8d849a;
     --season-leader-soft: #263342;
     --season-captain-soft: #243a36;
     --season-first-officer-soft: #3b3426;
+    --season-us-line-soft: #243a34;
     --season-total-soft: #332f3b;
     --season-adjusted: #4b1f24;
     --season-selection-bg: #4a3b0c;
@@ -446,6 +450,7 @@ body {
 .period-counts .count-leader { background: var(--season-leader-soft); }
 .period-counts .count-captain { background: var(--season-captain-soft); }
 .period-counts .count-first-officer { background: var(--season-first-officer-soft); }
+.period-counts .count-us-line-leader { background: var(--season-us-line-soft); }
 
 .period-counts b {
     margin-right: 3px;
@@ -563,6 +568,7 @@ body {
 
 .person-name-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 5px;
     min-width: 0;
@@ -582,7 +588,8 @@ body {
     line-height: 1.25;
 }
 
-.identity-marker {
+.identity-marker,
+.us-line-marker {
     display: inline-flex;
     flex: 0 0 auto;
     align-items: center;
@@ -597,6 +604,12 @@ body {
     line-height: 1.2;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.us-line-marker {
+    border-color: color-mix(in srgb, var(--season-us-line-chart) 72%, var(--omf-border));
+    background: var(--season-us-line-soft);
+    color: var(--omf-text-muted);
 }
 
 :root[data-theme="dark"] .identity-marker {

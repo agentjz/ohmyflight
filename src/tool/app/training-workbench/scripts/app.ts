@@ -48,5 +48,6 @@
     projects.renderEmptyState();
     runtime.trainingCalendar.initialize();
     runtime.simulationSchedule.render();
+    runtime.personValidityQuery.initialize();
   }
 })();

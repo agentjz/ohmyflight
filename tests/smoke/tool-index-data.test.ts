@@ -55,18 +55,20 @@ describe("tool index data", () => {
     expect(visibility.sponsorPage).toMatchObject({ contributors: expect.any(Boolean) });
   });
 
-  it("uses the mascot only in the header and renders plain text tool cards", () => {
+  it("uses the shared mascot in the header and the article-style tool list", () => {
     const homepage = fs.readFileSync(resolveFromRoot("public", "tool", "index.html"), "utf8");
     const renderer = fs.readFileSync(resolveFromRoot("src", "tool", "tools-render.ts"), "utf8");
 
     expect(fs.existsSync(resolveFromDist("tool", "assets", "status-done.png"))).toBe(true);
     expect(homepage.match(/status-done\.png/g)).toHaveLength(1);
     expect(homepage).not.toContain("imperialOverlay");
-    expect(renderer).not.toContain("status-done.png");
     expect(renderer).not.toContain("edge-particle");
     expect(renderer).not.toContain('class="tool-kind"');
     expect(renderer).not.toContain("workflow");
-    expect(renderer).toContain('class="tool-card"');
+    expect(renderer).toContain('src="./assets/status-done.png"');
+    expect(renderer).toContain('class="tool-list-avatar"');
+    expect(renderer).toContain('class="tool-list-item"');
+    expect(renderer).toContain('class="tool-list-title"');
   });
 
   it("publishes the current repository skills", () => {

@@ -10,6 +10,7 @@ interface SeasonalLearningPerson {
     technicalInfo: string;
     identity: string;
     isLeader: boolean;
+    isUsLineLeader: boolean;
     trainingType: string;
     sourceDate: string;
     category: SeasonalLearningCategory;
@@ -49,7 +50,7 @@ interface SeasonalLearningDimensionReport {
 interface SeasonalLearningBalanceReport {
     balanced: boolean;
     pendingCount: number;
-    dimensions: Record<"total" | SeasonalLearningCategory, SeasonalLearningDimensionReport>;
+    dimensions: Record<"total" | "usLineLeader" | SeasonalLearningCategory, SeasonalLearningDimensionReport>;
 }
 
 interface SeasonalLearningPeriodSummary {
@@ -59,6 +60,7 @@ interface SeasonalLearningPeriodSummary {
     leader: number;
     captain: number;
     firstOfficer: number;
+    usLineLeader: number;
     issues: string[];
 }
 
@@ -72,6 +74,18 @@ interface SeasonalLearningAdjustmentEvent {
 interface SeasonalLearningOperationResult {
     people: SeasonalLearningPerson[];
     events: SeasonalLearningAdjustmentEvent[];
+}
+
+interface SeasonalLearningAllocationQuotas {
+    category: Record<SeasonalLearningCategory, number[]>;
+    usLineLeader: Record<SeasonalLearningCategory, number[]>;
+}
+
+interface SeasonalLearningAllocationApi {
+    buildBalancedQuotas(
+        people: SeasonalLearningPerson[],
+        periodCount: number
+    ): SeasonalLearningAllocationQuotas;
 }
 
 type SeasonalLearningHealthLevel = "error" | "warning" | "info";
@@ -195,6 +209,7 @@ interface Window {
     XLSX: typeof import("xlsx-js-style");
     echarts?: any;
     SeasonalLearningData: SeasonalLearningDataApi;
+    SeasonalLearningAllocation: SeasonalLearningAllocationApi;
     SeasonalLearningLogic: SeasonalLearningLogicApi;
     SeasonalLearningExport: SeasonalLearningExportApi;
     SeasonalLearningHealth: SeasonalLearningHealthApi;

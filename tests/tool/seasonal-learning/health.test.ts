@@ -2,7 +2,8 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { loadBrowserScripts } from "../../helpers/browser-context";
 
-const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
+const ACTUAL_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
+const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份"];
 
 function row(
   sequence: number,
@@ -11,7 +12,7 @@ function row(
   period: string | number,
   identity: string
 ): unknown[] {
-  return [sequence, employeeId, name, "一分部", "777:C类机长", 0, "换季学习", "2026-09-23", period, identity];
+  return [sequence, employeeId, name, "一分部", "777:C类机长", 0, 0, "换季学习", "2026-09-23", period, identity];
 }
 
 describe("seasonal learning workbook health", () => {
@@ -78,7 +79,7 @@ describe("seasonal learning workbook health", () => {
     const result = health.buildWorkbookHealth([
       HEADERS,
       row(1, "100001", "甲", "", "")
-    ], [HEADERS]);
+    ], [ACTUAL_HEADERS]);
 
     expect(result.summary.error).toBe(0);
     expect(result.summary.warning).toBe(0);
@@ -87,7 +88,7 @@ describe("seasonal learning workbook health", () => {
 
   it("includes every required workbook column in the health check", () => {
     const incompleteHeaders = HEADERS.filter((header) => header !== "技术信息" && header !== "日期");
-    const result = health.buildWorkbookHealth([incompleteHeaders], [HEADERS]);
+    const result = health.buildWorkbookHealth([incompleteHeaders], [ACTUAL_HEADERS]);
 
     expect(result.summary.error).toBe(1);
     expect(result.items.some((item: any) => (
@@ -95,5 +96,12 @@ describe("seasonal learning workbook health", () => {
       && item.message.includes("技术信息")
       && item.message.includes("日期")
     ))).toBe(true);
+  });
+
+  it("accepts the previous empty actual-sheet header while requiring the new total-roster column", () => {
+    const result = health.buildWorkbookHealth([HEADERS], [ACTUAL_HEADERS]);
+
+    expect(result.summary.error).toBe(0);
+    expect(result.items.some((item: any) => item.message.includes("尚未生成实际安排"))).toBe(true);
   });
 });

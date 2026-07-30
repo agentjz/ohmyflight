@@ -14,6 +14,14 @@
 }
 
 @media (max-width: 720px) {
+    .person-validity-form {
+        grid-template-columns: 1fr;
+    }
+
+    .person-validity-form .action-button {
+        width: 100%;
+    }
+
     .page {
         padding: 14px;
     }

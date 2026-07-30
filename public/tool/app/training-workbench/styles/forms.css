@@ -92,3 +92,14 @@
 .form-grid + .toolbar {
     margin-top: 22px;
 }
+
+.person-validity-form {
+    display: grid;
+    grid-template-columns: minmax(240px, 480px) auto;
+    gap: 10px;
+    align-items: end;
+}
+
+.person-validity-form .action-button {
+    min-height: 40px;
+}

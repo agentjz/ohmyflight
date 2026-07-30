@@ -1,6 +1,6 @@
 const tools: ToolItem[] = [
-    { name: "培训皇帝", desc: "排培训、核覆盖、看年度压力、更新有效期", entry: "training-workbench", status: "done", category: "heavy" },
-    { name: "换季学习", desc: "检查换季名单、恢复或均衡排期、标记身份并移动导出实际安排", entry: "seasonal-learning", status: "done", category: "heavy" },
+    { name: "培训皇帝", desc: "查个人资质、排培训、核覆盖、看年度压力并更新有效期", entry: "training-workbench", status: "done", category: "heavy" },
+    { name: "换季学习", desc: "检查换季名单，均衡岗位和美线带队并移动导出实际安排", entry: "seasonal-learning", status: "done", category: "heavy" },
     { name: "审计之王", desc: "从检查项检索手册证据，整理审计依据和 PDF 页面", entry: "audit-king", status: "done", category: "heavy" },
     { name: "校对之王", desc: "比对同一本手册新旧版，复核新增、删除和修改", entry: "proof-king", status: "done", category: "heavy" },
     { name: "姓名匹配员工号", desc: "识别姓名并匹配员工号", entry: "crew-match-name-id", status: "done", category: "light" },

@@ -6,7 +6,7 @@ const categoryLabels: Record<ToolCategory, string> = {
 };
 
 const searchInput = document.getElementById("searchInput");
-const toolGrid = document.getElementById("toolGrid");
+const toolList = document.getElementById("toolList");
 const emptyState = document.getElementById("emptyState");
 const categorySwitch = document.getElementById("categorySwitch");
 const announcementBanner = document.getElementById("announcementBanner");
@@ -26,7 +26,7 @@ renderAnnouncement();
 
 if (
     searchInput instanceof HTMLInputElement
-    && toolGrid instanceof HTMLElement
+    && toolList instanceof HTMLElement
     && emptyState instanceof HTMLElement
 ) {
     renderCategoryCounts();
@@ -66,25 +66,32 @@ function renderAnnouncement(): void {
     announcementBanner.hidden = false;
 }
 
-function renderToolCards(rows: ToolItem[]): void {
-    if (!(toolGrid instanceof HTMLElement) || !(emptyState instanceof HTMLElement)) return;
+function renderToolList(rows: ToolItem[]): void {
+    if (!(toolList instanceof HTMLElement) || !(emptyState instanceof HTMLElement)) return;
 
-    toolGrid.innerHTML = rows
-        .map((item) => renderToolCard(item))
+    toolList.innerHTML = rows
+        .map((item) => renderToolListItem(item))
         .join("");
 
     emptyState.hidden = rows.length > 0;
 }
 
-function renderToolCard(item: ToolItem): string {
+function renderToolListItem(item: ToolItem): string {
     return `
-        <a class="tool-card"
-            href="${escapeHtml(resolveToolUrl(item))}"
-            target="_blank"
-            rel="noopener noreferrer">
-            <span class="tool-name">${escapeHtml(item.name)}</span>
-            <span class="tool-desc">${escapeHtml(item.desc)}</span>
-        </a>
+        <article class="tool-list-item">
+            <img class="tool-list-avatar" src="./assets/status-done.png" alt="" aria-hidden="true">
+            <div class="tool-list-copy">
+                <h2 class="tool-list-title">
+                    <a class="tool-name"
+                    href="${escapeHtml(resolveToolUrl(item))}"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                        ${escapeHtml(item.name)}
+                    </a>
+                </h2>
+                <p class="tool-desc">${escapeHtml(item.desc)}</p>
+            </div>
+        </article>
     `;
 }
 
@@ -107,7 +114,7 @@ function renderCurrentView(): void {
             || `${item.name} ${item.desc} ${categoryLabels[item.category]}`.toLowerCase().includes(query);
         return categoryMatches && queryMatches;
     });
-    renderToolCards(rows);
+    renderToolList(rows);
 }
 
 function renderCategoryCounts(): void {

@@ -1,6 +1,7 @@
 (function () {
     const Data = window.SeasonalLearningData;
-    const REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
+    const ACTUAL_REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
+    const TOTAL_REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份"];
 
     interface HealthRecord extends SeasonalLearningHealthPerson {
         periodText: string;
@@ -48,10 +49,11 @@
         result: SeasonalLearningHealthResult,
         rows: unknown[][],
         label: string,
+        requiredHeaders: string[],
         requirePeriod: boolean
     ): SheetScan {
         const headers = buildHeaderMap(rows[0] || []);
-        const missingHeaders = REQUIRED_HEADERS.filter((header) => !headers.has(header));
+        const missingHeaders = requiredHeaders.filter((header) => !headers.has(header));
         if (missingHeaders.length) {
             addItem(result, "error", label, `缺少必要表头：${missingHeaders.join("、")}。`);
         }
@@ -113,8 +115,8 @@
             actualTagged: [],
             actualUntagged: []
         };
-        const total = scanSheet(result, totalRows, "换季总名单", false);
-        const actual = scanSheet(result, actualRows, "换季实际", true);
+        const total = scanSheet(result, totalRows, "换季总名单", TOTAL_REQUIRED_HEADERS, false);
+        const actual = scanSheet(result, actualRows, "换季实际", ACTUAL_REQUIRED_HEADERS, true);
         const totalPeople = [...total.byEmployeeId.values()];
         const actualPeople = [...actual.byEmployeeId.values()];
 

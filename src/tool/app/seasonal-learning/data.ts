@@ -1,5 +1,6 @@
 (function () {
-    const REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
+    const ACTUAL_REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
+    const TOTAL_REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份"];
 
     function normalizeText(value: unknown): string {
         return String(value ?? "").trim();
@@ -80,9 +81,9 @@
         return result;
     }
 
-    function requireHeaders(rows: unknown[][], label: string): Map<string, number> {
+    function requireHeaders(rows: unknown[][], label: string, requiredHeaders: string[]): Map<string, number> {
         const headerMap = buildHeaderMap(rows[0] || []);
-        const missing = REQUIRED_HEADERS.filter((header) => !headerMap.has(header));
+        const missing = requiredHeaders.filter((header) => !headerMap.has(header));
         if (missing.length) throw new Error(`${label}缺少必要表头：${missing.join("、")}。`);
         return headerMap;
     }
@@ -92,7 +93,7 @@
         return index === undefined ? null : row[index];
     }
 
-    function isLeaderValue(value: unknown): boolean {
+    function isCheckedValue(value: unknown): boolean {
         if (value === true || value === 1) return true;
         return normalizeText(value) === "1";
     }
@@ -111,7 +112,7 @@
     }
 
     function readRosterRows(rows: unknown[][], options: { date1904?: boolean } = {}): SeasonalLearningPerson[] {
-        const headers = requireHeaders(rows, "换季总名单");
+        const headers = requireHeaders(rows, "换季总名单", TOTAL_REQUIRED_HEADERS);
         const people: SeasonalLearningPerson[] = [];
         const seen = new Set<string>();
 
@@ -131,7 +132,7 @@
                 throw new Error(`换季总名单第${rowNumber}行日期无法解析。`);
             }
             const technicalInfo = normalizeText(cell(row, headers, "技术信息"));
-            const isLeader = isLeaderValue(cell(row, headers, "是否带队"));
+            const isLeader = isCheckedValue(cell(row, headers, "是否带队"));
 
             people.push({
                 sequence: parseSequence(cell(row, headers, "序号"), people.length + 1),
@@ -143,6 +144,7 @@
                 technicalInfo,
                 identity: normalizeText(cell(row, headers, "身份")),
                 isLeader,
+                isUsLineLeader: isCheckedValue(cell(row, headers, "是否美线带队")),
                 trainingType: normalizeText(cell(row, headers, "培训类型")),
                 sourceDate,
                 category: classifyPerson(isLeader, technicalInfo, rowNumber),
@@ -173,7 +175,7 @@
     }
 
     function readActualRows(rows: unknown[][], options: { date1904?: boolean }): ActualRecord[] {
-        const headers = requireHeaders(rows, "换季实际");
+        const headers = requireHeaders(rows, "换季实际", ACTUAL_REQUIRED_HEADERS);
         const noteIndex = buildHeaderMap(rows[0] || []).get("调整说明");
         const records: ActualRecord[] = [];
         const seen = new Set<string>();

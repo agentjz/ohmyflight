@@ -1,5 +1,6 @@
 (function () {
     const Data = window.SeasonalLearningData;
+    const Allocation = window.SeasonalLearningAllocation;
     const CATEGORY_ORDER: SeasonalLearningCategory[] = ["leader", "captain", "firstOfficer"];
 
     function clonePerson(person: SeasonalLearningPerson): SeasonalLearningPerson {
@@ -12,48 +13,43 @@
         }
     }
 
-    function buildCategoryQuotas(people: SeasonalLearningPerson[], periodCount: number): Record<SeasonalLearningCategory, number[]> {
-        const quotas = {} as Record<SeasonalLearningCategory, number[]>;
-        const totals = Array(periodCount).fill(0) as number[];
-
-        CATEGORY_ORDER.forEach((category) => {
-            const categoryCount = people.filter((person) => person.category === category).length;
-            const base = Math.floor(categoryCount / periodCount);
-            const remainder = categoryCount % periodCount;
-            const counts = Array(periodCount).fill(base) as number[];
-            totals.forEach((_, index) => { totals[index] += base; });
-
-            const recipients = Array.from({ length: periodCount }, (_, index) => index)
-                .sort((left, right) => totals[left] - totals[right] || left - right)
-                .slice(0, remainder);
-            recipients.forEach((index) => {
-                counts[index] += 1;
-                totals[index] += 1;
-            });
-            quotas[category] = counts;
+    function assignPeople(
+        people: SeasonalLearningPerson[],
+        counts: number[],
+        marked: boolean
+    ): void {
+        let cursor = 0;
+        counts.forEach((count, periodIndex) => {
+            for (let offset = 0; offset < count; offset += 1) {
+                const person = people[cursor];
+                person.period = periodIndex + 1;
+                person.adjusted = false;
+                person.adjustmentNotes = [];
+                cursor += 1;
+            }
         });
-
-        return quotas;
+        if (cursor !== people.length) {
+            throw new Error(marked ? "美线带队人员配额未闭合。" : "普通人员配额未闭合。");
+        }
     }
 
     function buildInitialSchedule(people: SeasonalLearningPerson[], periodCount: number): SeasonalLearningPerson[] {
         validatePeriodCount(periodCount);
         const output = people.map(clonePerson);
-        const quotas = buildCategoryQuotas(output, periodCount);
+        const quotas = Allocation.buildBalancedQuotas(output, periodCount);
 
         CATEGORY_ORDER.forEach((category) => {
             const group = output
                 .filter((person) => person.category === category)
                 .sort((left, right) => left.originalOrder - right.originalOrder);
-            let cursor = 0;
-            quotas[category].forEach((count, periodIndex) => {
-                for (let offset = 0; offset < count; offset += 1) {
-                    group[cursor].period = periodIndex + 1;
-                    group[cursor].adjusted = false;
-                    group[cursor].adjustmentNotes = [];
-                    cursor += 1;
-                }
-            });
+            const marked = group.filter((person) => person.isUsLineLeader);
+            const unmarked = group.filter((person) => !person.isUsLineLeader);
+            assignPeople(marked, quotas.usLineLeader[category], true);
+            assignPeople(
+                unmarked,
+                quotas.category[category].map((count, index) => count - quotas.usLineLeader[category][index]),
+                false
+            );
         });
         return output;
     }
@@ -86,18 +82,21 @@
             captain: Array(periodCount).fill(0),
             firstOfficer: Array(periodCount).fill(0)
         };
+        const usLineLeaderCounts = Array(periodCount).fill(0) as number[];
 
         assigned.forEach((person) => {
             if (!person.period || person.period > periodCount) return;
             totalCounts[person.period - 1] += 1;
             categoryCounts[person.category][person.period - 1] += 1;
+            if (person.isUsLineLeader) usLineLeaderCounts[person.period - 1] += 1;
         });
 
         const dimensions = {
             total: dimensionReport(totalCounts, people.length, 5),
             leader: dimensionReport(categoryCounts.leader, people.filter((person) => person.category === "leader").length, 1),
             captain: dimensionReport(categoryCounts.captain, people.filter((person) => person.category === "captain").length, 1),
-            firstOfficer: dimensionReport(categoryCounts.firstOfficer, people.filter((person) => person.category === "firstOfficer").length, 1)
+            firstOfficer: dimensionReport(categoryCounts.firstOfficer, people.filter((person) => person.category === "firstOfficer").length, 1),
+            usLineLeader: dimensionReport(usLineLeaderCounts, people.filter((person) => person.isUsLineLeader).length, 1)
         };
         return {
             balanced: pendingCount === 0 && Object.values(dimensions).every((dimension) => dimension.balanced),
@@ -116,7 +115,8 @@
             ["total", "总人数"],
             ["leader", "带队机长"],
             ["captain", "机长"],
-            ["firstOfficer", "副驾驶"]
+            ["firstOfficer", "副驾驶"],
+            ["usLineLeader", "美线带队"]
         ];
         return Array.from({ length: periodCount }, (_, index) => {
             const period = index + 1;
@@ -130,6 +130,7 @@
                 leader: report.dimensions.leader.counts[index],
                 captain: report.dimensions.captain.counts[index],
                 firstOfficer: report.dimensions.firstOfficer.counts[index],
+                usLineLeader: report.dimensions.usLineLeader.counts[index],
                 issues
             };
         });

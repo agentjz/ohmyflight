@@ -44,6 +44,24 @@
             <div class="status-line" id="statusLine">请先导入总培训表文件。</div>
         </section>
 
+        <section class="section person-validity-section" aria-labelledby="personValidityTitle">
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title" id="personValidityTitle">人员资质查询</h2>
+                </div>
+            </div>
+            <form class="person-validity-form" id="personValidityForm">
+                <div class="field">
+                    <label for="personValiditySearchInput">姓名或员工号</label>
+                    <input id="personValiditySearchInput" type="search" placeholder="输入姓名或员工号" autocomplete="off" disabled>
+                </div>
+                <button class="action-button" id="personValiditySearchButton" type="submit" disabled>查询</button>
+            </form>
+            <div class="person-validity-result" id="personValidityResult" aria-live="polite">
+                <div class="empty-block">导入总培训表后可查询人员资质。</div>
+            </div>
+        </section>
+
         <section class="section training-calendar-section" aria-labelledby="trainingCalendarTitle">
             <div class="section-head training-calendar-head">
                 <div>
@@ -518,6 +536,7 @@
     <script src="./scripts/training-ignore-list.js"></script>
     <script src="./scripts/training-record-policy.js"></script>
     <script src="./scripts/scanner.js"></script>
+    <script src="./scripts/person-validity-query.js"></script>
     <script src="./scripts/training-calendar-exclusions.js"></script>
     <script src="./scripts/training-calendar.js"></script>
     <script src="./scripts/rule-engine.js"></script>
@@ -537,6 +556,7 @@
     <script src="./scripts/app-copy.js"></script>
     <script src="./scripts/app-state.js"></script>
     <script src="./scripts/app-elements.js"></script>
+    <script src="./scripts/app-person-validity-query.js"></script>
     <script src="./scripts/app-training-calendar.js"></script>
     <script src="./scripts/app-charts.js"></script>
     <script src="./scripts/app-result-table.js"></script>

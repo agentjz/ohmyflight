@@ -22,6 +22,10 @@
         return `<span class="identity-marker" style="--identity-hue:${identityHue(identity)}deg">${context.escapeHtml(identity)}</span>`;
     }
 
+    function renderUsLineLeader(person: SeasonalLearningPerson): string {
+        return person.isUsLineLeader ? '<span class="us-line-marker">美线带队</span>' : "";
+    }
+
     function renderPerson(context: SeasonalLearningAppContext, person: SeasonalLearningPerson): string {
         const category = context.logic.categoryLabel(person.category);
         return `
@@ -31,6 +35,7 @@
                     <span class="person-name-row">
                         <strong>${context.escapeHtml(person.name)}</strong>
                         ${renderIdentity(context, person.identity)}
+                        ${renderUsLineLeader(person)}
                     </span>
                     <small class="person-category">${context.escapeHtml(category)}</small>
                     <small class="person-technical">${context.escapeHtml(person.technicalInfo)}</small>
@@ -80,6 +85,7 @@
             { key: "leader", label: "带队机长", value: people.filter((person) => person.category === "leader").length },
             { key: "captain", label: "机长", value: people.filter((person) => person.category === "captain").length },
             { key: "first-officer", label: "副驾驶", value: people.filter((person) => person.category === "firstOfficer").length },
+            { key: "us-line-leader", label: "美线带队", value: people.filter((person) => person.isUsLineLeader).length },
             { key: "pending", label: "待分配", value: report.pendingCount },
             { key: "adjusted", label: "人工调整", value: people.filter((person) => person.adjusted).length }
         ];
@@ -117,6 +123,7 @@
                 cssColor("--season-leader-chart", "#a8c4e5"),
                 cssColor("--season-captain-chart", "#a6d2c8"),
                 cssColor("--season-first-officer-chart", "#e8c796"),
+                cssColor("--season-us-line-chart", "#a9c9bf"),
                 cssColor("--season-total-chart", "#9c91ae")
             ],
             tooltip: {
@@ -144,6 +151,7 @@
                 { name: "带队机长", type: "bar", stack: "people", data: summaries.map((item) => item.leader), barMaxWidth: 54 },
                 { name: "机长", type: "bar", stack: "people", data: summaries.map((item) => item.captain), barMaxWidth: 54 },
                 { name: "副驾驶", type: "bar", stack: "people", data: summaries.map((item) => item.firstOfficer), barMaxWidth: 54 },
+                { name: "美线带队", type: "line", data: summaries.map((item) => item.usLineLeader), symbolSize: 6, lineStyle: { width: 2, type: "dashed" } },
                 { name: "总人数", type: "line", data: summaries.map((item) => item.total), symbolSize: 7, lineStyle: { width: 2 } }
             ]
         }, true);
@@ -180,6 +188,7 @@
                             <span class="count-leader"><b>${summary.leader}</b> 带队机长</span>
                             <span class="count-captain"><b>${summary.captain}</b> 机长</span>
                             <span class="count-first-officer"><b>${summary.firstOfficer}</b> 副驾驶</span>
+                            <span class="count-us-line-leader"><b>${summary.usLineLeader}</b> 美线带队</span>
                         </div>
                         <div class="period-actions">
                             <span class="period-status">${context.escapeHtml(status)}</span>
