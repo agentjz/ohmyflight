@@ -88,6 +88,39 @@ interface TrainingCalendarResult {
   reminders: TrainingCalendarReminder[];
 }
 
+interface TrainingToolScheduleGapCheckRow {
+  key: string;
+  windowKey: "expired" | "within30" | "within60" | "within90";
+  windowLabel: string;
+  windowTone: "danger" | "near" | "mid" | "far";
+  workbenchStatus: string;
+  attentionLabel: "未安排" | "已排未覆盖";
+  projectName: string;
+  employeeId: string;
+  name: string;
+  currentExpiry: string;
+  latestCompletionDate: string;
+  scheduledDate: string;
+  source: string;
+  reason: string;
+}
+
+interface TrainingToolScheduleGapCheckResult {
+  baseDate: string;
+  endDate: string;
+  horizonDays: number;
+  summary: {
+    peopleCount: number;
+    itemCount: number;
+    expiredCount: number;
+    within30Count: number;
+    within60Count: number;
+    within90Count: number;
+    scheduledButUncoveredCount: number;
+  };
+  rows: TrainingToolScheduleGapCheckRow[];
+}
+
 interface TrainingToolAppCopy {
   defaultExportButton: string;
   defaultOverview: string;
@@ -119,6 +152,7 @@ interface TrainingToolAppState {
   crmAnnualResult: any;
   trainingCalendarResult: TrainingCalendarResult | null;
   trainingCalendarMonthKey: string;
+  scheduleGapCheckResult: TrainingToolScheduleGapCheckResult | null;
   personValidityIndex: TrainingToolPersonValidityIndex | null;
   personValiditySelectedKey: string;
   updateSelectedProjects: string[];
@@ -133,6 +167,10 @@ interface TrainingToolAppElements {
   workbookFile: HTMLInputElement;
   workbookOverview: HTMLElement;
   workbookHealthPanel: HTMLElement;
+  scheduleGapBaseDateInput: HTMLInputElement;
+  scheduleGapHorizonGroup: HTMLFieldSetElement;
+  scheduleGapSummary: HTMLElement;
+  scheduleGapTableBody: HTMLTableSectionElement;
   personValidityForm: HTMLFormElement;
   personValiditySearchInput: HTMLInputElement;
   personValiditySearchButton: HTMLButtonElement;
@@ -225,6 +263,7 @@ interface TrainingToolAppRuntime {
   summaryView: any;
   simulationSchedule: any;
   trainingCalendar: any;
+  scheduleGapCheck: any;
   personValidityQuery: any;
 }
 

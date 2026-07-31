@@ -21,6 +21,7 @@
     crmAnnualResult: null,
     trainingCalendarResult: null,
     trainingCalendarMonthKey: "",
+    scheduleGapCheckResult: null,
     personValidityIndex: null,
     personValiditySelectedKey: "",
     updateSelectedProjects: []

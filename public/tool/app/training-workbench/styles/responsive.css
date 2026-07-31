@@ -17,6 +17,20 @@
         gap: 12px;
     }
 
+    .schedule-gap-head {
+        align-items: stretch;
+    }
+
+    .schedule-gap-controls {
+        display: grid;
+        grid-template-columns: minmax(160px, 0.7fr) minmax(246px, 1fr);
+    }
+
+    .schedule-gap-date-field,
+    .schedule-gap-horizon-field {
+        width: auto;
+    }
+
     .annual-training-panel .form-grid-3 {
         grid-template-columns: 1fr;
     }
@@ -34,6 +48,15 @@
     .person-validity-meta {
         grid-template-columns: 1fr;
         gap: 8px;
+    }
+
+    .schedule-gap-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .schedule-gap-summary {
+        align-items: flex-start;
+        gap: 6px 14px;
     }
 
     .page {

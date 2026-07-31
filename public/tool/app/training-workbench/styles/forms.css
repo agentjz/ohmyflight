@@ -119,3 +119,79 @@
     min-height: 44px;
     font-weight: 600;
 }
+
+.schedule-gap-controls {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.schedule-gap-date-field {
+    width: 170px;
+}
+
+.schedule-gap-horizon-field {
+    min-width: 246px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.schedule-gap-horizon-field legend {
+    margin-bottom: 8px;
+    color: var(--omf-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.schedule-gap-segmented {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(76px, 1fr));
+    gap: 6px;
+}
+
+.schedule-gap-segmented label {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+}
+
+.schedule-gap-segmented input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.schedule-gap-segmented span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 10px;
+    border: 1px solid var(--omf-border);
+    border-radius: 6px;
+    background: var(--omf-surface);
+    color: var(--omf-text-muted);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.schedule-gap-segmented input:checked + span {
+    border-color: var(--st-info-border);
+    background: var(--st-info-soft);
+    color: var(--st-info);
+    font-weight: 600;
+}
+
+.schedule-gap-segmented input:focus-visible + span {
+    outline: 3px solid var(--accent-ring);
+    outline-offset: 1px;
+}
+
+.schedule-gap-horizon-field:disabled .schedule-gap-segmented span {
+    cursor: not-allowed;
+    opacity: 0.55;
+}

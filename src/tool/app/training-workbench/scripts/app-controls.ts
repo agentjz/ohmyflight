@@ -73,6 +73,12 @@
     elements.workbenchStartDateInput.disabled = !state.analysis || state.busy;
     elements.workbenchEndDateInput.disabled = !state.analysis || state.busy;
     elements.workbenchPressureYearInput.disabled = !state.workbenchResult || state.busy;
+    elements.scheduleGapBaseDateInput.disabled = !state.analysis || state.busy;
+    elements.scheduleGapHorizonGroup.disabled = !state.analysis || state.busy;
+    elements.scheduleGapHorizonGroup.querySelectorAll<HTMLInputElement>('input[name="scheduleGapHorizon"]')
+      .forEach((input) => {
+        input.disabled = !state.analysis || state.busy;
+      });
     elements.exportButton.disabled = !state.pendingExport || state.busy;
   }
 

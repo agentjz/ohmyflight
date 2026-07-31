@@ -44,6 +44,60 @@
             <div class="status-line" id="statusLine">请先导入总培训表文件。</div>
         </section>
 
+        <section class="section schedule-gap-section" aria-labelledby="scheduleGapTitle">
+            <div class="section-head schedule-gap-head">
+                <div>
+                    <h2 class="section-title" id="scheduleGapTitle">排班漏项检查</h2>
+                </div>
+                <div class="schedule-gap-controls">
+                    <div class="field schedule-gap-date-field">
+                        <label for="scheduleGapBaseDateInput">观察基准日</label>
+                        <input id="scheduleGapBaseDateInput" type="date" disabled>
+                    </div>
+                    <fieldset class="schedule-gap-horizon-field" id="scheduleGapHorizonGroup" disabled>
+                        <legend>检查范围</legend>
+                        <div class="schedule-gap-segmented">
+                            <label>
+                                <input type="radio" name="scheduleGapHorizon" value="30" checked disabled>
+                                <span>30 天</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="scheduleGapHorizon" value="60" disabled>
+                                <span>60 天</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="scheduleGapHorizon" value="90" disabled>
+                                <span>90 天</span>
+                            </label>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="schedule-gap-summary" id="scheduleGapSummary" aria-live="polite">
+                导入总培训表后显示检查结果。
+            </div>
+            <div class="table-shell schedule-gap-table-shell">
+                <table class="table align-middle schedule-gap-table">
+                    <thead>
+                        <tr>
+                            <th>状态</th>
+                            <th>人员</th>
+                            <th>项目</th>
+                            <th>当前有效期</th>
+                            <th>最晚完成日期</th>
+                            <th>已排日期</th>
+                            <th>检查说明</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleGapTableBody">
+                        <tr>
+                            <td class="empty-block" colspan="7">请先导入总培训表文件。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <section class="section person-validity-section" aria-labelledby="personValidityTitle">
             <div class="section-head">
                 <div>
@@ -549,6 +603,7 @@
     <script src="./scripts/workbook-health.js"></script>
     <script src="./scripts/crm-export.js"></script>
     <script src="./scripts/workbench.js"></script>
+    <script src="./scripts/schedule-gap-check.js"></script>
     <script src="./scripts/workbench-export.js"></script>
     <script src="./scripts/validity.js"></script>
     <script src="./scripts/report-sheet.js"></script>
@@ -557,6 +612,7 @@
     <script src="./scripts/app-state.js"></script>
     <script src="./scripts/app-elements.js"></script>
     <script src="./scripts/app-person-validity-query.js"></script>
+    <script src="./scripts/app-schedule-gap-check.js"></script>
     <script src="./scripts/app-training-calendar.js"></script>
     <script src="./scripts/app-charts.js"></script>
     <script src="./scripts/app-result-table.js"></script>

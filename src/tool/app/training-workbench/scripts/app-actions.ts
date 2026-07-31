@@ -27,6 +27,7 @@
       state.workbook = null;
       state.analysis = null;
       state.workbookHealth = null;
+      runtime.scheduleGapCheck.clear();
       runtime.personValidityQuery.rebuild();
       runtime.trainingCalendar.clear();
       projects.renderEmptyState();
@@ -73,6 +74,7 @@
 
       state.workbenchResult = workbenchController.buildCurrentWorkbenchResult(analysis);
       workbenchController.renderWorkbenchView();
+      runtime.scheduleGapCheck.rebuild();
 
       controls.setStatus(`识别完成：人员信息表“${analysis.peopleInfo.name}”，共识别 ${analysis.projects.length} 个项目 sheet，${analysis.availableMonths.length} 个可选月份。`);
     } catch (error) {
@@ -80,6 +82,7 @@
       state.workbook = null;
       state.analysis = null;
       state.workbookHealth = null;
+      runtime.scheduleGapCheck.clear();
       runtime.personValidityQuery.rebuild();
       state.workbenchView = null;
       state.workbenchSelection = null;

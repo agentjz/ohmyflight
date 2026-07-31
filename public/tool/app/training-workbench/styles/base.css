@@ -31,6 +31,12 @@
     --st-status-info-bg: var(--st-info-soft);
     --st-status-info-text: var(--st-info);
     --st-status-info-border: var(--st-info-border);
+    --st-gap-near-bg: #dff7f4;
+    --st-gap-near-text: #0f6f69;
+    --st-gap-mid-bg: #e7f0fc;
+    --st-gap-mid-text: #315b84;
+    --st-gap-far-bg: #edf0f4;
+    --st-gap-far-text: #5b6674;
     --accent: var(--st-primary);
     --accent-strong: var(--st-primary-strong);
     --accent-deep: var(--st-primary-deep);
@@ -43,6 +49,12 @@
     --st-warning: #e4b75f;
     --st-warning-soft: #29302c;
     --st-warning-border: rgba(228, 183, 95, 0.3);
+    --st-gap-near-bg: #163c3b;
+    --st-gap-near-text: #8edbd4;
+    --st-gap-mid-bg: #1d304a;
+    --st-gap-mid-text: #a8c8ee;
+    --st-gap-far-bg: #29303a;
+    --st-gap-far-text: #b8c0cb;
 }
 
 * {

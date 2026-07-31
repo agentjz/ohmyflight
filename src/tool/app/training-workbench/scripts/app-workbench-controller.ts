@@ -65,6 +65,7 @@
 
     state.workbenchResult = buildCurrentWorkbenchResult(state.analysis);
     const view = renderWorkbenchView();
+    if (runtime.scheduleGapCheck) runtime.scheduleGapCheck.rebuild();
     if (statusMessage) controls.setStatus(statusMessage);
     return view;
   }

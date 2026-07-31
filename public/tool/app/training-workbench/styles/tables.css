@@ -204,6 +204,142 @@
     white-space: nowrap;
 }
 
+.schedule-gap-table-shell {
+    max-height: 520px;
+    overflow: auto;
+    scrollbar-width: auto;
+    scrollbar-color: var(--omf-border-strong) var(--omf-surface-soft);
+}
+
+.schedule-gap-table-shell::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.schedule-gap-table-shell::-webkit-scrollbar-track {
+    background: var(--omf-surface-soft);
+}
+
+.schedule-gap-table-shell::-webkit-scrollbar-thumb {
+    border: 3px solid var(--omf-surface-soft);
+    border-radius: 999px;
+    background: var(--omf-border-strong);
+}
+
+.schedule-gap-table {
+    width: 100%;
+    min-width: 1180px;
+    table-layout: fixed;
+}
+
+.schedule-gap-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.schedule-gap-table :is(th, td) {
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.schedule-gap-table :is(th, td):nth-child(1) {
+    width: 13%;
+}
+
+.schedule-gap-table :is(th, td):nth-child(2) {
+    width: 12%;
+}
+
+.schedule-gap-table :is(th, td):nth-child(3) {
+    width: 10%;
+}
+
+.schedule-gap-table :is(th, td):nth-child(4),
+.schedule-gap-table :is(th, td):nth-child(5),
+.schedule-gap-table :is(th, td):nth-child(6) {
+    width: 12%;
+}
+
+.schedule-gap-table :is(th, td):nth-child(7) {
+    width: 29%;
+}
+
+.schedule-gap-status {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.gap-window-badge,
+.gap-attention-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.gap-window-badge.danger {
+    background: var(--st-status-danger-bg);
+    color: var(--st-status-danger-text);
+}
+
+.gap-window-badge.near {
+    background: var(--st-gap-near-bg);
+    color: var(--st-gap-near-text);
+}
+
+.gap-window-badge.mid {
+    background: var(--st-gap-mid-bg);
+    color: var(--st-gap-mid-text);
+}
+
+.gap-window-badge.far {
+    background: var(--st-gap-far-bg);
+    color: var(--st-gap-far-text);
+}
+
+.gap-attention-label {
+    background: var(--omf-surface-muted);
+    color: var(--omf-text-muted);
+}
+
+.gap-attention-label.is-uncovered {
+    background: var(--st-status-danger-bg);
+    color: var(--st-status-danger-text);
+}
+
+.schedule-gap-person-name,
+.schedule-gap-person-id {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.schedule-gap-person-name {
+    color: var(--omf-text);
+    font-weight: 600;
+}
+
+.schedule-gap-person-id {
+    margin-top: 2px;
+    color: var(--omf-text-muted);
+    font-size: 11px;
+}
+
+.schedule-gap-date {
+    white-space: nowrap;
+}
+
+.schedule-gap-reason {
+    color: var(--omf-text-muted);
+}
+
 .selected-person-table :is(th, td) {
     padding: 10px 8px;
     font-size: 13px;
