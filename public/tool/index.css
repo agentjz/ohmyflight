@@ -283,20 +283,6 @@ body.is-gated {
     text-decoration: none;
 }
 
-.brand-symbol {
-    display: grid;
-    width: 44px;
-    height: 44px;
-    flex: 0 0 44px;
-    place-items: center;
-    border-radius: 14px;
-    background: var(--neu-bg);
-    box-shadow: var(--shadow-in-small);
-    color: var(--neu-accent-strong);
-    font-size: 19px;
-    font-weight: 800;
-}
-
 .brand-copy {
     line-height: 1.15;
 }

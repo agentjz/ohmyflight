@@ -39,12 +39,14 @@ function renderSkills(container: HTMLElement): void {
                     <strong>${escapeHtml(item.name)}</strong>
                     <span>${escapeHtml(item.description)}</span>
                 </span>
-                <span class="skill-chevron" aria-hidden="true">⌄</span>
+                <span class="skill-chevron" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+                </span>
             </button>
             <div class="collapse skill-collapse" id="skillSource${index}" data-skill-index="${index}">
                 <div class="skill-body">
                     <div class="skill-actions">
-                        <button class="btn btn-sm btn-light border copy-skill" type="button" data-copy-skill="${index}">复制 Skill</button>
+                        <button class="support-link copy-skill" type="button" data-copy-skill="${index}">复制 Skill</button>
                     </div>
                     <article class="skill-markdown"></article>
                 </div>

@@ -70,7 +70,7 @@ describe("focus crew logic", () => {
 
     expect(collected.focusNames.sort()).toEqual(["张三", "李四"]);
     expect(sheet.B2.v).toBe("张三[重点][一般]");
-    expect(sheet.B2.s.fill.fgColor.rgb).toBe("FFE5CC");
+    expect(sheet.B2.s.fill.fgColor.rgb).toBe("F6DADF");
     expect(sheet.B3.v).toBe("李四[一般]");
     expect(sheet.B4.v).toBe("王五");
     expect(result.matchedCategories).toEqual({ "重点关注": 1, "一般关注": 2 });

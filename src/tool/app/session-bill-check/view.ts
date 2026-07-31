@@ -56,7 +56,7 @@
         chartElement.innerHTML = "";
         const chart = echarts.init(chartElement);
         chart.setOption({
-            color: ["#2f9e44", "#f08c00", "#1971c2", "#fab005", "#4dabf7"],
+            color: ["#2f9e44", "#8f72b5", "#1971c2", "#718096", "#c4567a"],
             tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
             legend: { orient: "vertical", right: 10, top: "middle" },
             series: [{

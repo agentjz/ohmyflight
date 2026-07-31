@@ -217,7 +217,7 @@
             color: [
                 cssColor("--season-leader-chart", "#a8c4e5"),
                 cssColor("--season-captain-chart", "#a6d2c8"),
-                cssColor("--season-first-officer-chart", "#e8c796"),
+                cssColor("--season-first-officer-chart", "#9ba3b8"),
                 cssColor("--season-us-line-chart", "#a9c9bf"),
                 cssColor("--season-total-chart", "#9c91ae")
             ],

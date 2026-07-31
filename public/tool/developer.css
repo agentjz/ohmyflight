@@ -1,155 +1,93 @@
-:root {
-    color-scheme: light;
-    --page: #f8fafc;
-    --surface: #ffffff;
-    --surface-soft: #f8fafc;
-    --ink: #202320;
-    --muted: #6b726c;
-    --line: #e5e7eb;
-    --line-strong: #9ca59d;
-}
-
-* {
-    box-sizing: border-box;
-    scrollbar-width: none;
-}
-
-*::-webkit-scrollbar {
-    display: none;
-}
-
-body {
-    min-height: 100vh;
-    margin: 0;
-    background: var(--page);
-    color: var(--ink);
-    font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
-}
-
-.developer-shell {
+.developer-main,
+.manual-main {
     width: min(1160px, 100%);
-    margin: 0 auto;
-    padding: 18px 22px 42px;
-}
-
-.developer-bar {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 18px;
-    align-items: end;
-    margin-bottom: 18px;
-}
-
-.manual-bar {
-    align-items: center;
-}
-
-.manual-page-title {
-    margin: 0;
-    text-align: center;
-    font-size: 18px;
-    font-weight: 750;
-    letter-spacing: 0;
-}
-
-.download-manuals {
-    min-height: 42px;
-    border-radius: 6px;
-    color: var(--ink);
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.back-link,
-.github-link {
-    color: var(--ink);
-    text-decoration: none;
-}
-
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 42px;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.back-link:hover {
-    color: var(--muted);
-}
-
-.github-link {
-    display: inline-flex;
-    width: 42px;
-    height: 42px;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--surface);
-}
-
-.github-link:hover {
-    border-color: var(--line-strong);
-    color: var(--ink);
-}
-
-.github-link svg {
-    width: 18px;
-    height: 18px;
 }
 
 .developer-tabs {
-    justify-content: center;
-    border-bottom-color: var(--line);
+    display: grid;
+    width: min(380px, 100%);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0 auto;
+    padding: 8px;
+    border: 0;
+    border-radius: 18px;
+    background: var(--neu-bg);
+    box-shadow: var(--shadow-in-medium);
 }
 
 .developer-tabs .nav-link {
-    border-radius: 6px 6px 0 0;
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: 700;
+    min-height: 42px;
+    padding: 0 16px;
+    border: 0 !important;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--neu-muted);
+    font-size: 13px;
+    font-weight: 720;
+    transition: box-shadow 160ms ease, color 160ms ease;
+}
+
+.developer-tabs .nav-link:hover,
+.developer-tabs .nav-link:focus-visible {
+    color: var(--neu-ink);
+}
+
+.developer-tabs .nav-link:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--neu-accent) 30%, transparent);
+    outline-offset: 2px;
 }
 
 .developer-tabs .nav-link.active {
-    border-color: var(--line) var(--line) var(--page);
-    background: var(--page);
-    color: var(--ink);
+    background: var(--neu-bg);
+    box-shadow: var(--shadow-out-small);
+    color: var(--neu-accent-strong);
+}
+
+.tab-content {
+    margin-top: 26px;
 }
 
 .skills-list,
 .commit-list {
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
+    display: grid;
+    gap: 7px;
 }
 
-.skill-item,
-.commit-item {
-    border-bottom: 1px solid var(--line);
-}
-
-.skill-item:last-child,
-.commit-item:last-child {
-    border-bottom: 0;
+.skill-item {
+    min-width: 0;
 }
 
 .skill-toggle {
     display: grid;
     width: 100%;
-    min-height: 70px;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 18px;
+    min-height: 68px;
+    grid-template-columns: minmax(0, 1fr) 34px;
+    gap: 16px;
     align-items: center;
-    padding: 12px 4px;
+    padding: 12px 14px;
     border: 0;
+    border-radius: 14px;
     background: transparent;
-    color: var(--ink);
+    color: var(--neu-ink);
     text-align: left;
+    transition: box-shadow 160ms ease, color 160ms ease;
 }
 
-.skill-toggle:hover {
-    background: rgba(255, 255, 255, 0.5);
+.skill-toggle:hover,
+.skill-toggle:focus-visible {
+    box-shadow: var(--shadow-out-hover);
+    color: var(--neu-accent-strong);
+}
+
+.skill-toggle:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--neu-accent) 30%, transparent);
+    outline-offset: 2px;
+}
+
+.skill-toggle[aria-expanded="true"] {
+    box-shadow: var(--shadow-in-small);
+    color: var(--neu-accent-strong);
 }
 
 .skill-summary-copy {
@@ -162,22 +100,36 @@ body {
 
 .skill-summary-copy strong {
     overflow-wrap: anywhere;
+    color: inherit;
     font-size: 14px;
     font-weight: 780;
 }
 
 .skill-summary-copy > span {
     min-width: 0;
-    color: var(--muted);
+    color: var(--neu-muted);
     font-size: 13px;
     line-height: 1.55;
 }
 
 .skill-chevron {
-    color: var(--muted);
-    font-size: 20px;
-    line-height: 1;
-    transition: rotate 140ms ease;
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border-radius: 10px;
+    color: var(--neu-muted);
+    transition: rotate 160ms ease;
+}
+
+.skill-chevron svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
 }
 
 .skill-toggle[aria-expanded="true"] .skill-chevron {
@@ -185,24 +137,28 @@ body {
 }
 
 .skill-body {
-    padding: 0 0 14px;
+    padding: 12px 8px 20px;
 }
 
 .skill-actions {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.copy-skill {
+    cursor: pointer;
 }
 
 .skill-markdown {
-    max-height: 70vh;
+    max-height: min(70vh, 760px);
     margin: 0;
-    padding: 20px 22px;
+    padding: 22px 24px;
     overflow: auto;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--surface);
-    color: var(--ink);
+    border-radius: 14px;
+    background: var(--neu-bg);
+    box-shadow: var(--shadow-in-medium);
+    color: var(--neu-ink);
     font-size: 14px;
     line-height: 1.75;
     overflow-wrap: anywhere;
@@ -219,14 +175,12 @@ body {
 .skill-markdown h1,
 .skill-markdown h2,
 .skill-markdown h3 {
-    color: var(--ink);
+    color: var(--neu-ink);
     line-height: 1.4;
 }
 
 .skill-markdown h1 {
     margin: 0 0 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--line);
     font-size: 26px;
 }
 
@@ -244,7 +198,8 @@ body {
 .skill-markdown ul,
 .skill-markdown ol,
 .skill-markdown table,
-.skill-markdown pre {
+.skill-markdown pre,
+.skill-markdown blockquote {
     margin: 0 0 16px;
 }
 
@@ -259,29 +214,36 @@ body {
 .skill-markdown td {
     min-width: 150px;
     padding: 9px 11px;
-    border: 1px solid var(--line);
+    border: 1px solid color-mix(in srgb, var(--neu-faint) 32%, transparent);
     text-align: left;
     vertical-align: top;
 }
 
 .skill-markdown th {
-    background: var(--surface-soft);
+    background: color-mix(in srgb, var(--neu-light) 28%, var(--neu-bg));
+    color: var(--neu-ink);
     font-weight: 700;
+}
+
+.skill-markdown blockquote {
+    padding: 11px 13px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--neu-dark) 12%, var(--neu-bg));
+    color: var(--neu-muted);
 }
 
 .skill-markdown code {
     padding: 2px 5px;
     border-radius: 4px;
-    background: #eef1f4;
+    background: color-mix(in srgb, var(--neu-dark) 18%, var(--neu-bg));
     font: 0.9em/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 .skill-markdown pre {
     padding: 14px;
     overflow: auto;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--surface-soft);
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--neu-dark) 14%, var(--neu-bg));
 }
 
 .skill-markdown pre code {
@@ -292,17 +254,18 @@ body {
 .skill-markdown img {
     max-width: 100%;
     height: auto;
+    border-radius: 8px;
 }
 
 .skill-markdown a {
-    color: #175cd3;
+    color: var(--neu-accent-strong);
     text-underline-offset: 3px;
 }
 
 .commit-meta {
     min-height: 38px;
-    padding: 0 4px 12px;
-    color: var(--muted);
+    padding: 2px 14px 12px;
+    color: var(--neu-muted);
     font-size: 12px;
 }
 
@@ -310,13 +273,19 @@ body {
     display: grid;
     grid-template-columns: 150px 86px minmax(0, 1fr);
     gap: 14px;
-    padding: 11px 4px;
-    background: transparent;
+    align-items: baseline;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: var(--neu-ink);
+}
+
+.commit-item:hover {
+    box-shadow: var(--shadow-in-small);
 }
 
 .commit-date,
 .commit-hash {
-    color: var(--muted);
+    color: var(--neu-muted);
     font-size: 12px;
 }
 
@@ -331,46 +300,46 @@ body {
 }
 
 .empty-row {
-    padding: 20px 4px;
-    color: var(--muted);
+    padding: 24px 14px;
+    color: var(--neu-muted);
     font-size: 13px;
+    text-align: center;
+}
+
+.manual-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.download-manuals {
+    cursor: pointer;
+}
+
+.download-manuals:disabled {
+    box-shadow: var(--shadow-in-small);
+    color: var(--neu-faint);
+    cursor: not-allowed;
+}
+
+.toast {
+    border: 0;
+    border-radius: 12px;
+    background: var(--neu-bg) !important;
+    box-shadow: var(--shadow-out-medium);
+    color: var(--neu-ink) !important;
+}
+
+.toast .btn-close {
+    filter: none;
+}
+
+:root[data-theme="dark"] .toast .btn-close {
+    filter: invert(1);
 }
 
 @media (max-width: 760px) {
-    .developer-shell {
-        padding: 12px 12px 32px;
-    }
-
-    .developer-bar {
-        grid-template-columns: auto auto;
-        align-items: center;
-    }
-
     .developer-tabs {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        justify-content: stretch;
-    }
-
-    .developer-tabs .nav-item,
-    .developer-tabs .nav-link {
-        flex: 1;
-    }
-
-    .github-link {
-        justify-self: end;
-    }
-
-    .manual-bar {
-        grid-template-columns: auto minmax(0, 1fr);
-    }
-
-    .manual-page-title {
-        text-align: right;
-    }
-
-    .download-manuals {
-        grid-column: 1 / -1;
         width: 100%;
     }
 
@@ -382,16 +351,23 @@ body {
 
     .skill-markdown {
         max-height: 72vh;
-        padding: 16px;
+        padding: 17px;
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+@media (max-width: 520px) {
+    .skill-toggle {
+        grid-template-columns: minmax(0, 1fr) 30px;
+        padding-right: 8px;
+        padding-left: 8px;
+    }
+
+    .skill-body {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .manual-toolbar .download-manuals {
+        width: 100%;
     }
 }

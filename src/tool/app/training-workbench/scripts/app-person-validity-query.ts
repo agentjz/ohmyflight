@@ -23,15 +23,24 @@
     state.personValiditySelectedKey = person.key;
     setResult(`
       <div class="person-validity-profile">
-        <div>
+        <div class="person-validity-heading">
           <h3>${Utils.escapeHtml(person.name || "姓名未填写")}</h3>
-          <div class="person-validity-meta">
-            <span>${Utils.escapeHtml(person.employeeId || "员工号未填写")}</span>
-            <span>${Utils.escapeHtml(person.department || "分部未填写")}</span>
-            <span>${Utils.escapeHtml(person.technicalInfo || "技术信息未填写")}</span>
-          </div>
+          <span class="person-validity-count">共 ${person.validities.length} 项</span>
         </div>
-        <span class="person-validity-count">${person.validities.length} 项</span>
+        <dl class="person-validity-meta">
+          <div>
+            <dt>员工号</dt>
+            <dd>${Utils.escapeHtml(person.employeeId || "未填写")}</dd>
+          </div>
+          <div>
+            <dt>分部</dt>
+            <dd>${Utils.escapeHtml(person.department || "未填写")}</dd>
+          </div>
+          <div>
+            <dt>技术信息</dt>
+            <dd>${Utils.escapeHtml(person.technicalInfo || "未填写")}</dd>
+          </div>
+        </dl>
       </div>
       <div class="table-shell person-validity-table-shell">
         <table class="table person-validity-table">
@@ -54,11 +63,15 @@
 
   function renderMatches(matches: TrainingToolPersonValidityRecord[]): void {
     setResult(`
+      <p class="person-validity-match-summary">找到 ${matches.length} 人，请选择要查看的人员。</p>
       <div class="person-validity-match-list">
         ${matches.map((person) => `
           <button class="person-validity-match" type="button" data-person-validity-key="${Utils.escapeHtml(person.key)}">
-            <strong>${Utils.escapeHtml(person.name || "姓名未填写")}</strong>
-            <span>${Utils.escapeHtml([person.employeeId, person.department, person.technicalInfo].filter(Boolean).join(" · "))}</span>
+            <strong>
+              <span>${Utils.escapeHtml(person.name || "姓名未填写")}</span>
+              <span class="person-validity-match-id">${Utils.escapeHtml(person.employeeId || "员工号未填写")}</span>
+            </strong>
+            <span>${Utils.escapeHtml([person.department, person.technicalInfo].filter(Boolean).join(" · ") || "分部和技术信息未填写")}</span>
           </button>
         `).join("")}
       </div>

@@ -12,8 +12,8 @@
     --omf-focus: #1f6feb;
     --omf-success-bg: #d1e7dd;
     --omf-success-text: #0f5132;
-    --omf-warning-bg: #fff3cd;
-    --omf-warning-text: #664d03;
+    --omf-warning-bg: #edf0ee;
+    --omf-warning-text: #76571a;
     --omf-danger-bg: #f8d7da;
     --omf-danger-text: #842029;
     --omf-info-bg: #cff4fc;
@@ -34,8 +34,8 @@
     --omf-focus: #8bb9ff;
     --omf-success-bg: #173b25;
     --omf-success-text: #8fd19e;
-    --omf-warning-bg: #463a16;
-    --omf-warning-text: #ffda6a;
+    --omf-warning-bg: #29302c;
+    --omf-warning-text: #e4b75f;
     --omf-danger-bg: #4b1f24;
     --omf-danger-text: #f1aeb5;
     --omf-info-bg: #173642;
@@ -273,6 +273,7 @@ textarea:focus {
 }
 
 .alert-warning,
+.text-bg-warning,
 .warning-list,
 .result-table tr.duplicate,
 .result-table .hotel-row,

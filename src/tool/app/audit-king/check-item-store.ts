@@ -1,8 +1,8 @@
 (function () {
     const runtime = window.AuditKing || (window.AuditKing = {});
     const palette = [
-        "#f59e0b", "#22c55e", "#3b82f6", "#ef4444",
-        "#8b5cf6", "#14b8a6", "#f97316", "#64748b"
+        "#c45d7a", "#22c55e", "#3b82f6", "#ef4444",
+        "#8b5cf6", "#14b8a6", "#4f7f99", "#64748b"
     ];
     let serial = 0;
 

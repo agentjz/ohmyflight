@@ -3,8 +3,8 @@ type FocusCrewWorksheet = import("xlsx-js-style").WorkSheet;
 
 (function () {
     const CATEGORY_CONFIG: Record<FocusCrewCategory, FocusCrewCategoryConfigEntry> = {
-        '重点关注': { priority: 1, color: 'FFE5CC', label: '重点' },
-        '一般关注': { priority: 2, color: 'FFF3CD', label: '一般' },
+        '重点关注': { priority: 1, color: 'F6DADF', label: '重点' },
+        '一般关注': { priority: 2, color: 'E4E0F1', label: '一般' },
         '预防性关注': { priority: 3, color: '5b84f9', label: '预防' },
         '三新人员（不上会）': { priority: 4, color: '65c53f', label: '三新' },
         '长期关注': { priority: 5, color: 'a584ed', label: '长期' }

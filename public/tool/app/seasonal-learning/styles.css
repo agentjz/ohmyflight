@@ -1,35 +1,35 @@
 :root {
     --season-leader-chart: #a8c4e5;
     --season-captain-chart: #a6d2c8;
-    --season-first-officer-chart: #e8c796;
+    --season-first-officer-chart: #9ba3b8;
     --season-us-line-chart: #a9c9bf;
     --season-total-chart: #9c91ae;
     --season-leader-soft: #eef5fc;
     --season-captain-soft: #edf8f5;
-    --season-first-officer-soft: #fcf6e9;
+    --season-first-officer-soft: #eef0f5;
     --season-us-line-soft: #edf7f3;
     --season-total-soft: #f2f0f5;
     --season-adjusted: #fff2f2;
-    --season-selection-bg: #fff3cd;
-    --season-selection-border: #c69200;
-    --season-selection-text: #4d3900;
+    --season-selection-bg: #d8ebe4;
+    --season-selection-border: #14795e;
+    --season-selection-text: #17493d;
 }
 
 :root[data-theme="dark"] {
     --season-leader-chart: #7189a6;
     --season-captain-chart: #6f968f;
-    --season-first-officer-chart: #a28b63;
+    --season-first-officer-chart: #7f879c;
     --season-us-line-chart: #75988d;
     --season-total-chart: #8d849a;
     --season-leader-soft: #263342;
     --season-captain-soft: #243a36;
-    --season-first-officer-soft: #3b3426;
+    --season-first-officer-soft: #30343f;
     --season-us-line-soft: #243a34;
     --season-total-soft: #332f3b;
     --season-adjusted: #4b1f24;
-    --season-selection-bg: #4a3b0c;
-    --season-selection-border: #f2c94c;
-    --season-selection-text: #fff1a8;
+    --season-selection-bg: #243d35;
+    --season-selection-border: #54d2a4;
+    --season-selection-text: #e0f4ec;
 }
 
 body {

@@ -4,7 +4,7 @@
 
 Jobskill 集中展示飞行部日常工作中需要反复查询的业务 Skill。
 
-用户从 ohmyflight 工具主页点击“技能”，在新标签页打开 Jobskill。页面使用与打工皇帝工具首页一致的浅灰背景、熊猫品牌、紧凑搜索命令栏、6px 边界和中性状态色。桌面端通过左侧导航切换 Skill，移动端通过命令栏中的折叠菜单切换；右侧显示对应 Markdown 正文、表格和图片。
+用户从 ohmyflight 工具主页点击“技能”，在新标签页打开 Jobskill。页面与工具首页、开发者页和用户手册页共用新拟物双主题壳层，默认使用白天模式并支持在顶栏切换主题；搜索框使用内凹样式，页面和正文滚动区域提供可见的细滚动条。桌面端通过左侧导航切换 Skill，移动端通过命令栏中的折叠菜单切换；右侧显示对应 Markdown 正文、表格和图片。
 
 命令栏搜索框按关键词检索全部 Skill 正文。命中后左侧显示 Skill 名称和上下文摘要，右侧打开首个命中 Skill，滚动到首个命中位置并高亮正文中的全部命中词；点击其他搜索结果可切换到对应全文。清空搜索后恢复完整 Skill 导航和普通正文显示。
 
@@ -38,6 +38,8 @@ Jobskill 集中展示飞行部日常工作中需要反复查询的业务 Skill�
 | --- | --- |
 | `public/jobskill/index.html` | 页面入口 |
 | `public/jobskill/site.css` | 页面样式 |
+| `public/tool/support-shell.css` | 支持页面共享主题、顶栏和滚动条 |
+| `src/tool/support-shell.ts` | 支持页面共享主题切换 |
 | `public/jobskill/skills/` | Skill 正文和图片附件 |
 | `public/jobskill/SKILL_INDEX.md` | Skill 人工索引 |
 | `src/jobskill/skills-data.ts` | 页面导航索引 |

@@ -29,7 +29,9 @@ function renderManuals(container: HTMLElement): void {
                     <strong>${escapeManualHtml(item.name)}</strong>
                     <span>${escapeManualHtml(item.description)}</span>
                 </span>
-                <span class="skill-chevron" aria-hidden="true">⌄</span>
+                <span class="skill-chevron" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+                </span>
             </button>
             <div class="collapse manual-collapse" id="manualSource${index}" data-manual-index="${index}">
                 <div class="skill-body">

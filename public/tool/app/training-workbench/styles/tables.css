@@ -178,13 +178,15 @@
 }
 
 .person-validity-table {
+    width: 100%;
     min-width: 520px;
+    table-layout: fixed;
 }
 
 .person-validity-table :is(th, td) {
-    padding: 9px 12px;
+    padding: 10px 14px;
     font-size: 13px;
-    line-height: 1.4;
+    line-height: 1.45;
 }
 
 .person-validity-table :is(th, td):nth-child(1) {
@@ -198,6 +200,7 @@
 
 .person-validity-table :is(th, td):nth-child(3) {
     width: 24%;
+    text-align: right;
     white-space: nowrap;
 }
 

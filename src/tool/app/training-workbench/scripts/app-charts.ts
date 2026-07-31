@@ -11,6 +11,7 @@
   let crmParticipationChart: any = null;
   let crmMonthlyChart: any = null;
   let crmRoleChart: any = null;
+  let resizeFrameId = 0;
 
   function getEcharts() {
     return window.echarts || null;
@@ -398,6 +399,24 @@
       renderCrmCharts(state.crmAnnualResult);
     }
   }
+
+  function resizeRenderedCharts(): void {
+    [
+      workbenchStatusChart,
+      workbenchProjectChart,
+      workbenchMonthChart,
+      scheduledDistributionDateChart,
+      annualTrainingDateChart,
+      crmParticipationChart,
+      crmMonthlyChart,
+      crmRoleChart
+    ].forEach((chart) => chart?.resize());
+  }
+
+  window.addEventListener("resize", () => {
+    window.cancelAnimationFrame(resizeFrameId);
+    resizeFrameId = window.requestAnimationFrame(resizeRenderedCharts);
+  });
 
   window.addEventListener("ohmyflight:themechange", () => {
     window.setTimeout(refreshRenderedCharts, 0);

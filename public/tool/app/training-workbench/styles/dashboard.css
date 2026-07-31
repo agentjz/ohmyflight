@@ -293,9 +293,10 @@
 
 .chart-grid {
     display: grid;
-    grid-template-columns: minmax(240px, 0.8fr) minmax(360px, 1.2fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin-top: 16px;
+    width: 100%;
 }
 
 .daily-monitor-section {
@@ -310,6 +311,7 @@
 }
 
 .chart-panel {
+    width: 100%;
     min-width: 0;
     border: 1px solid var(--omf-border);
     border-radius: 8px;
@@ -335,49 +337,92 @@
 }
 
 .person-validity-result {
-    margin-top: 14px;
+    min-width: 0;
+    margin-top: 12px;
 }
 
 .person-validity-profile {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.55fr) minmax(0, 1.45fr);
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--omf-border);
+    border-radius: 8px;
+    background: var(--omf-surface-soft);
+}
+
+.person-validity-heading {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 10px;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
 }
 
 .person-validity-profile h3 {
     margin: 0;
     color: var(--omf-text);
-    font-size: 18px;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 
 .person-validity-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 16px;
-    margin-top: 6px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+}
+
+.person-validity-meta > div {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+.person-validity-meta dt {
     color: var(--omf-text-muted);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.person-validity-meta dd {
+    min-width: 0;
+    margin: 0;
+    color: var(--omf-text);
     font-size: 13px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
 }
 
 .person-validity-count {
     flex: 0 0 auto;
+    color: var(--omf-text-muted);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.person-validity-match-summary {
+    margin: 0 0 8px;
     color: var(--omf-text-muted);
     font-size: 13px;
 }
 
 .person-validity-match-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
     gap: 8px;
 }
 
 .person-validity-match {
     display: grid;
-    gap: 4px;
+    gap: 5px;
     min-width: 0;
-    padding: 10px 12px;
+    min-height: 76px;
+    padding: 11px 13px;
     border: 1px solid var(--omf-border);
     border-radius: 6px;
     background: var(--omf-surface);
@@ -388,12 +433,28 @@
 
 .person-validity-match:hover,
 .person-validity-match:focus-visible {
-    border-color: var(--accent);
-    background: var(--accent-soft);
+    border-color: var(--omf-border-strong);
+    background: var(--omf-surface-muted);
     outline: none;
 }
 
-.person-validity-match span {
+.person-validity-match strong {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+    font-size: 14px;
+}
+
+.person-validity-match-id {
+    flex: 0 0 auto;
+    color: var(--omf-text-muted);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.person-validity-match > span {
     overflow-wrap: anywhere;
     color: var(--omf-text-muted);
     font-size: 12px;
@@ -407,7 +468,10 @@
 .risk-workspace,
 .simulation-panel,
 .scheduled-distribution-panel,
+.annual-training-panel,
 .crm-annual-panel {
+    width: 100%;
+    min-width: 0;
     margin-top: 12px;
 }
 
@@ -424,19 +488,28 @@
 }
 
 .scheduled-distribution-panel,
+.annual-training-panel,
 .crm-annual-panel {
-    border: 1px solid var(--omf-border);
-    border-radius: 8px;
-    background: var(--omf-surface);
-    padding: 12px;
+    padding: 18px 0 0;
 }
 
 .scheduled-distribution-chart-panel {
     margin-top: 12px;
 }
 
-.scheduled-distribution-chart-panel .chart-box {
+.scheduled-distribution-chart-panel,
+.annual-training-chart-panel {
+    width: 100%;
+    margin-top: 12px;
+}
+
+.scheduled-distribution-chart-panel .chart-box,
+.annual-training-chart-panel .chart-box {
     height: 340px;
+}
+
+.annual-training-panel .form-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .crm-stats-grid {
@@ -444,7 +517,7 @@
 }
 
 .crm-chart-grid {
-    grid-template-columns: minmax(280px, 0.72fr) minmax(460px, 1.28fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .crm-chart-grid .chart-box {

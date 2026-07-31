@@ -1,38 +1,55 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-default-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>开发者 · 打工皇帝</title>
+    <script src="../theme.js"></script>
     <link rel="stylesheet" href="../libs/bootstrap.min.css">
+    <link rel="stylesheet" href="./support-shell.css">
     <link rel="stylesheet" href="./developer.css">
 </head>
 <body>
-    <div class="developer-shell">
-        <header class="developer-bar">
-            <a class="back-link" href="./index.html">返回</a>
+    <div class="support-shell">
+        <header class="support-bar">
+            <a class="support-brand" href="./index.html" title="返回工具首页">
+                <span class="support-brand-symbol" aria-hidden="true">码</span>
+                <strong>开发者</strong>
+            </a>
+            <nav class="support-actions" aria-label="页面操作">
+                <a class="support-link" href="./index.html">工具首页</a>
+                <button class="support-icon-button" type="button" data-theme-toggle aria-label="切换到暗夜模式" aria-pressed="false" title="切换到暗夜模式">
+                    <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path>
+                    </svg>
+                    <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20.99 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 20.99 12.79Z"></path>
+                    </svg>
+                </button>
+                <a class="support-icon-button" href="https://github.com/luckymaomi/ohmyflight" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+                    <svg class="filled-icon" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.65 7.65 0 0 1 8 3.86c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path>
+                    </svg>
+                </a>
+            </nav>
+        </header>
 
-            <nav class="nav nav-tabs developer-tabs" role="tablist" aria-label="开发者内容">
+        <main class="support-main developer-main">
+            <nav class="nav developer-tabs" role="tablist" aria-label="开发者内容">
                 <button class="nav-link active" id="skillsTab" data-bs-toggle="tab" data-bs-target="#skillsPane" type="button" role="tab" aria-controls="skillsPane" aria-selected="true">Skills</button>
                 <button class="nav-link" id="commitsTab" data-bs-toggle="tab" data-bs-target="#commitsPane" type="button" role="tab" aria-controls="commitsPane" aria-selected="false">提交记录</button>
             </nav>
+            <div class="tab-content">
+                <section class="tab-pane fade show active" id="skillsPane" role="tabpanel" aria-labelledby="skillsTab" tabindex="0">
+                    <div class="skills-list" id="developerSkills"></div>
+                </section>
 
-            <a class="github-link" href="https://github.com/luckymaomi/ohmyflight" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
-                <svg viewBox="0 0 16 16" aria-hidden="true">
-                    <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.65 7.65 0 0 1 8 3.86c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
-                </svg>
-            </a>
-        </header>
-
-        <main class="tab-content">
-            <section class="tab-pane fade show active" id="skillsPane" role="tabpanel" aria-labelledby="skillsTab" tabindex="0">
-                <div class="skills-list" id="developerSkills"></div>
-            </section>
-
-            <section class="tab-pane fade" id="commitsPane" role="tabpanel" aria-labelledby="commitsTab" tabindex="0">
-                <div class="commit-meta" id="commitMeta"></div>
-                <div class="commit-list" id="commitList"></div>
-            </section>
+                <section class="tab-pane fade" id="commitsPane" role="tabpanel" aria-labelledby="commitsTab" tabindex="0">
+                    <div class="commit-meta" id="commitMeta"></div>
+                    <div class="commit-list" id="commitList"></div>
+                </section>
+            </div>
         </main>
     </div>
 
@@ -48,6 +65,7 @@
     <script src="../libs/marked.min.js"></script>
     <script src="../libs/bootstrap.bundle.min.js"></script>
     <script src="./skills-data.js"></script>
+    <script src="./support-shell.js"></script>
     <script src="./developer.js"></script>
 </body>
 </html>

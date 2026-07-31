@@ -1,0 +1,283 @@
+:root {
+    color-scheme: light;
+    --neu-bg: #dfe3e1;
+    --neu-light: #ffffff;
+    --neu-dark: #aeb5b1;
+    --neu-ink: #1e2723;
+    --neu-muted: #4c5b54;
+    --neu-faint: #56645d;
+    --neu-accent: #118667;
+    --neu-accent-strong: #075c47;
+    --neu-danger: #a33f49;
+    --neu-warning: #7a5310;
+    --neu-surface-warning: #edf0ee;
+    --shadow-out-small: 4px 4px 8px var(--neu-dark), -4px -4px 8px var(--neu-light);
+    --shadow-out-medium: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light);
+    --shadow-out-hover: 3px 3px 6px var(--neu-dark), -3px -3px 6px var(--neu-light);
+    --shadow-in-small: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light);
+    --shadow-in-medium: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
+    --shadow-in-focus: inset 6px 6px 12px var(--neu-dark), inset -6px -6px 12px var(--neu-light);
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --neu-bg: #202522;
+    --neu-light: #2d3430;
+    --neu-dark: #111411;
+    --neu-ink: #e7eee9;
+    --neu-muted: #aebab3;
+    --neu-faint: #8f9c95;
+    --neu-accent: #43d6a3;
+    --neu-accent-strong: #72e6bd;
+    --neu-danger: #ff7b72;
+    --neu-warning: #f2b84b;
+    --neu-surface-warning: #29302c;
+}
+
+* {
+    box-sizing: border-box;
+    scrollbar-color: color-mix(in srgb, var(--neu-faint) 70%, transparent) var(--neu-bg);
+    scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--neu-bg);
+}
+
+*::-webkit-scrollbar-thumb {
+    border: 2px solid var(--neu-bg);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--neu-faint) 72%, transparent);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--neu-faint);
+}
+
+html {
+    min-width: 320px;
+    min-height: 100%;
+    background: var(--neu-bg);
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--neu-bg);
+    color: var(--neu-ink);
+    font-family: Aptos, "Microsoft YaHei", "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button,
+a,
+input {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.support-shell {
+    width: min(1500px, 100%);
+    margin: 0 auto;
+    padding: 22px 24px 56px;
+}
+
+.support-bar {
+    position: sticky;
+    top: 18px;
+    z-index: 40;
+    display: flex;
+    min-height: 74px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 13px 16px 13px 18px;
+    border-radius: 24px;
+    background: var(--neu-bg);
+    box-shadow: var(--shadow-out-medium);
+}
+
+.support-brand {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    gap: 12px;
+    color: var(--neu-ink);
+    text-decoration: none;
+}
+
+.support-brand:hover,
+.support-brand:focus-visible {
+    color: var(--neu-ink);
+}
+
+.support-brand:focus-visible,
+.support-link:focus-visible,
+.support-icon-button:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--neu-accent) 34%, transparent);
+    outline-offset: 3px;
+}
+
+.support-brand-symbol {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    place-items: center;
+    border-radius: 14px;
+    background: var(--neu-bg);
+    box-shadow: var(--shadow-in-small);
+    color: var(--neu-accent-strong);
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.support-brand strong {
+    overflow-wrap: anywhere;
+    font-size: 17px;
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.support-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.support-link,
+.support-icon-button {
+    display: inline-flex;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 13px;
+    background: var(--neu-bg);
+    box-shadow: var(--shadow-out-small);
+    color: var(--neu-muted);
+    text-decoration: none;
+    transition: box-shadow 180ms ease, color 180ms ease;
+}
+
+.support-link {
+    gap: 7px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.support-icon-button {
+    width: 42px;
+    flex: 0 0 42px;
+    padding: 0;
+}
+
+.support-link:hover,
+.support-icon-button:hover {
+    box-shadow: var(--shadow-out-hover);
+    color: var(--neu-accent-strong);
+}
+
+.support-link:active,
+.support-icon-button:active {
+    box-shadow: var(--shadow-in-small);
+}
+
+.support-icon-button svg,
+.support-link svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.support-icon-button .filled-icon {
+    fill: currentColor;
+    stroke: none;
+}
+
+.theme-icon-moon {
+    display: none;
+}
+
+:root[data-theme="light"] .theme-icon-sun {
+    display: none;
+}
+
+:root[data-theme="light"] .theme-icon-moon {
+    display: block;
+}
+
+.support-main {
+    width: min(1160px, 100%);
+    margin: 34px auto 0;
+}
+
+@media (max-width: 780px) {
+    .support-shell {
+        padding: 16px 14px 42px;
+    }
+
+    .support-bar {
+        position: relative;
+        top: auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .support-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(42px, 1fr));
+    }
+
+    .support-link,
+    .support-icon-button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .support-main {
+        margin-top: 26px;
+    }
+}
+
+@media (max-width: 520px) {
+    .support-brand strong {
+        font-size: 16px;
+    }
+
+    .support-bar {
+        grid-template-columns: 1fr;
+    }
+
+    .support-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

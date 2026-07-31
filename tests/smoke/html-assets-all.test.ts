@@ -10,6 +10,7 @@ describe("all tool html pages", () => {
   const htmlFiles = [
     resolveFromDist("tool", "index.html"),
     resolveFromDist("tool", "developer.html"),
+    resolveFromDist("tool", "manuals.html"),
     resolveFromDist("jobskill", "index.html"),
     ...walkFiles(resolveFromDist("tool", "app"), [".html"])
   ];

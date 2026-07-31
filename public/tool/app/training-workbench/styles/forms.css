@@ -95,11 +95,27 @@
 
 .person-validity-form {
     display: grid;
-    grid-template-columns: minmax(240px, 480px) auto;
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) 104px;
+    gap: 12px;
     align-items: end;
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--omf-border);
+    border-radius: 8px;
+    background: var(--omf-surface-soft);
+}
+
+.person-validity-form .field {
+    gap: 6px;
+}
+
+.person-validity-form .field input {
+    min-height: 44px;
+    background: var(--omf-surface);
 }
 
 .person-validity-form .action-button {
-    min-height: 40px;
+    width: 100%;
+    min-height: 44px;
+    font-weight: 600;
 }
