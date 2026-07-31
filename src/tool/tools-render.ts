@@ -7,8 +7,7 @@ const categoryLabels: Record<ToolCategory, string> = {
 const homepageStateLabels: Record<ToolHomepageState, string> = {
     enabled: "已启用",
     beta: "Beta 测试",
-    maintenance: "维护中",
-    disabled: "已关闭"
+    cooling: "冷却中"
 };
 
 const searchInput = document.getElementById("searchInput");
@@ -20,6 +19,7 @@ const announcementBanner = document.getElementById("announcementBanner");
 const announcementMessage = document.getElementById("announcementMessage");
 const announcementLink = document.getElementById("announcementLink");
 const announcementCta = document.getElementById("announcementCta");
+const homeThemeToggle = document.getElementById("homeThemeToggle");
 type HomepageCategory = ToolCategory | "all";
 
 const configuredDefaultCategory = categorySwitch instanceof HTMLElement
@@ -30,6 +30,7 @@ let activeCategory: HomepageCategory = isHomepageCategory(configuredDefaultCateg
     : "all";
 
 renderAnnouncement();
+bindHomeThemeToggle();
 
 if (
     searchInput instanceof HTMLInputElement
@@ -73,6 +74,24 @@ function renderAnnouncement(): void {
     announcementBanner.hidden = false;
 }
 
+function bindHomeThemeToggle(): void {
+    if (!(homeThemeToggle instanceof HTMLButtonElement) || !window.OhmyflightTheme) return;
+
+    const syncToggle = (): void => {
+        const isDark = window.OhmyflightTheme?.getTheme() === "dark";
+        const label = isDark ? "切换到白天模式" : "切换到暗夜模式";
+        homeThemeToggle.setAttribute("aria-label", label);
+        homeThemeToggle.setAttribute("aria-pressed", String(isDark));
+        homeThemeToggle.title = label;
+    };
+
+    homeThemeToggle.addEventListener("click", () => {
+        window.OhmyflightTheme?.toggleTheme();
+    });
+    window.addEventListener("ohmyflight:themechange", syncToggle);
+    syncToggle();
+}
+
 function renderToolList(rows: ToolItem[]): void {
     if (!(toolList instanceof HTMLElement) || !(emptyState instanceof HTMLElement)) return;
 
@@ -101,7 +120,7 @@ function renderToolListItem(item: ToolItem): string {
         <p class="tool-desc">${escapeHtml(item.desc)}</p>
     `;
     return `
-        <article class="tool-card is-${escapeHtml(state)} ${enabled ? "is-enabled" : "is-disabled"}" ${enabled ? "" : 'aria-disabled="true"'}>
+        <article class="tool-card is-${escapeHtml(state)} ${enabled ? "is-enabled" : "is-inactive"}" ${enabled ? "" : 'aria-disabled="true"'}>
             ${enabled
                 ? `<a class="tool-card-surface" href="${escapeHtml(resolveToolUrl(item))}" target="_blank" rel="noopener noreferrer">${content}</a>`
                 : `<div class="tool-card-surface">${content}</div>`}

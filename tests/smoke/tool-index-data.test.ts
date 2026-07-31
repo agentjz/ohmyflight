@@ -24,7 +24,7 @@ describe("tool index data", () => {
     }));
     expect(tools).toContainEqual(expect.objectContaining({
       entry: "oa-read-helper",
-      homepageState: "disabled"
+      homepageState: "cooling"
     }));
     expect(tools).toContainEqual(expect.objectContaining({
       entry: "proof-king",
@@ -32,7 +32,7 @@ describe("tool index data", () => {
     }));
     expect(tools).toContainEqual(expect.objectContaining({
       entry: "session-bill-check",
-      homepageState: "maintenance"
+      homepageState: "cooling"
     }));
   });
 
@@ -61,6 +61,9 @@ describe("tool index data", () => {
 
     expect(homepage).toContain('class="command-bar"');
     expect(homepage).toContain('id="homePatternGate"');
+    expect(homepage).toContain('data-default-theme="light"');
+    expect(homepage).toContain('id="homeThemeToggle"');
+    expect(homepage).toContain('src="../theme.js"');
     expect(homepage).toContain('id="searchInput"');
     expect(homepage).toContain('id="resultToolCount"');
     expect(renderer).toContain('class="tool-card');

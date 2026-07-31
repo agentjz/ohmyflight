@@ -1,6 +1,6 @@
 type ToolStatus = "done" | "wip";
 type ToolCategory = "heavy" | "light" | "automation";
-type ToolHomepageState = "enabled" | "beta" | "maintenance" | "disabled";
+type ToolHomepageState = "enabled" | "beta" | "cooling";
 
 interface ToolItem {
   name: string;

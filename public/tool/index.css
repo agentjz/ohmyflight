@@ -1,16 +1,17 @@
 :root {
-    color-scheme: light;
-    --neu-bg: #e0e5ec;
-    --neu-light: #ffffff;
-    --neu-dark: #b8bcc2;
-    --neu-ink: #313943;
-    --neu-muted: #5a6570;
-    --neu-faint: #737d87;
-    --neu-accent: #7569f6;
-    --neu-accent-strong: #6257d8;
-    --neu-danger: #a44646;
-    --neu-success: #3d7058;
-    --neu-beta: #98611f;
+    color-scheme: dark;
+    --neu-bg: #202522;
+    --neu-light: #2d3430;
+    --neu-dark: #111411;
+    --neu-ink: #e7eee9;
+    --neu-muted: #aebab3;
+    --neu-faint: #8f9c95;
+    --neu-cooling: #829087;
+    --neu-accent: #43d6a3;
+    --neu-accent-strong: #72e6bd;
+    --neu-danger: #ff7b72;
+    --neu-success: #5ce1ae;
+    --neu-beta: #f2b84b;
     --shadow-out-small: 4px 4px 8px var(--neu-dark), -4px -4px 8px var(--neu-light);
     --shadow-out-medium: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light);
     --shadow-out-large: 8px 8px 16px var(--neu-dark), -8px -8px 16px var(--neu-light);
@@ -18,6 +19,22 @@
     --shadow-in-small: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light);
     --shadow-in-medium: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
     --shadow-in-focus: inset 6px 6px 12px var(--neu-dark), inset -6px -6px 12px var(--neu-light);
+}
+
+:root[data-theme="light"] {
+    color-scheme: light;
+    --neu-bg: #dfe3e1;
+    --neu-light: #ffffff;
+    --neu-dark: #aeb5b1;
+    --neu-ink: #1e2723;
+    --neu-muted: #4c5b54;
+    --neu-faint: #56645d;
+    --neu-cooling: #59655f;
+    --neu-accent: #118667;
+    --neu-accent-strong: #075c47;
+    --neu-danger: #a33f49;
+    --neu-success: #076c51;
+    --neu-beta: #8a5900;
 }
 
 * {
@@ -336,6 +353,18 @@ body.is-gated {
     height: 18px;
 }
 
+.theme-icon-moon {
+    display: none;
+}
+
+:root[data-theme="light"] .theme-icon-sun {
+    display: none;
+}
+
+:root[data-theme="light"] .theme-icon-moon {
+    display: block;
+}
+
 .header-link:hover,
 .icon-button:hover {
     box-shadow: var(--shadow-out-hover);
@@ -502,7 +531,7 @@ body.is-gated {
     outline-offset: 4px;
 }
 
-.is-disabled .tool-card-surface {
+.is-inactive .tool-card-surface {
     box-shadow: var(--shadow-in-medium);
     color: var(--neu-faint);
     cursor: not-allowed;
@@ -538,9 +567,8 @@ body.is-gated {
     color: var(--neu-beta);
 }
 
-.is-maintenance .tool-state-label,
-.is-disabled .tool-state-label {
-    color: var(--neu-faint);
+.is-cooling .tool-state-label {
+    color: var(--neu-cooling);
 }
 
 .tool-status-switch {
@@ -585,9 +613,9 @@ body.is-gated {
     color: var(--neu-accent-strong);
 }
 
-.is-disabled .tool-card-title,
-.is-disabled .tool-desc {
-    color: var(--neu-faint);
+.is-inactive .tool-card-title,
+.is-inactive .tool-desc {
+    color: var(--neu-cooling);
 }
 
 .empty-state {
@@ -640,7 +668,7 @@ body.is-gated {
 
     .external-actions {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 
     .header-link,
@@ -666,7 +694,7 @@ body.is-gated {
     }
 
     .external-actions {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
     }
 

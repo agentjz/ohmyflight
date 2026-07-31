@@ -2,15 +2,16 @@
     "use strict";
 
     var storageKey = "ohmyflight.theme";
+    var defaultTheme = document.documentElement.dataset.defaultTheme === "dark" ? "dark" : "light";
     function normalizeTheme(value) {
-        return value === "dark" ? "dark" : "light";
+        return value === "dark" || value === "light" ? value : defaultTheme;
     }
 
     function readStoredTheme() {
         try {
             return normalizeTheme(window.localStorage.getItem(storageKey));
         } catch (error) {
-            return "light";
+            return defaultTheme;
         }
     }
 
