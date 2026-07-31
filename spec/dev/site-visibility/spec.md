@@ -1,7 +1,7 @@
 # 站点入口可见性开发规格
 
-`src/site-visibility.ts` 是全站入口显示开关的唯一配置源。配置按 `homepage`、`sponsorPage` 和 `tools` 分组，分别控制首页图案门禁、公告、宣传页入口、贡献人员名单和每个工具链接。
+`src/site-visibility.ts` 只维护页面级入口开关。`homepage` 控制首页图案门禁、公告和宣传页入口，`sponsorPage` 控制贡献人员名单。
 
-工具开关键必须与 `src/tool/tools-data.ts` 中的全部 `entry` 一一对应。只有值严格为 `true` 的工具才进入首页列表、搜索集合和分类计数；缺失键按不显示处理。
+工具目录不经过可见性开关过滤，`src/tool/tools-data.ts` 中的全部工具直接进入首页列表、搜索集合和分类计数。
 
-这些开关只控制页面入口呈现，不提供权限或安全隔离，不删除构建产物，也不阻止用户通过固定 URL 打开工具或宣传页。工具名称、说明和公告正文继续由内容模块维护，贡献人员及其文案继续由 `public/sponsor/contributors.js` 维护；工具内部业务规则的 `enabled` 不属于此配置。
+这些页面开关只控制入口呈现，不提供权限或安全隔离。工具名称、说明和公告正文继续由内容模块维护，贡献人员及其文案继续由 `public/sponsor/contributors.js` 维护；工具内部业务规则的 `enabled` 不属于此配置。

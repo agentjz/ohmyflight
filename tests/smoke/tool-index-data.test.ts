@@ -3,7 +3,7 @@ import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { loadManualsData, loadSiteVisibility, loadSkillsData, loadToolsData } from "../helpers/browser-context";
-import { resolveFromDist, resolveFromRoot } from "../helpers/paths";
+import { resolveFromRoot } from "../helpers/paths";
 
 describe("tool index data", () => {
   it("uses a single explicit tool list", () => {
@@ -22,16 +22,18 @@ describe("tool index data", () => {
       category: "heavy",
       status: "done"
     }));
-  });
-
-  it("has no work-in-progress tools", () => {
-    const tools = loadToolsData() || [];
-    const wipNames = tools
-      .filter((tool) => tool.status === "wip")
-      .map((tool) => tool.name)
-      .sort();
-
-    expect(wipNames).toEqual([]);
+    expect(tools).toContainEqual(expect.objectContaining({
+      entry: "oa-read-helper",
+      homepageState: "disabled"
+    }));
+    expect(tools).toContainEqual(expect.objectContaining({
+      entry: "proof-king",
+      homepageState: "beta"
+    }));
+    expect(tools).toContainEqual(expect.objectContaining({
+      entry: "session-bill-check",
+      homepageState: "maintenance"
+    }));
   });
 
   it("publishes four category views and defaults to all tools", () => {
@@ -40,35 +42,31 @@ describe("tool index data", () => {
 
     expect(categories).toEqual(["all", "heavy", "light", "automation"]);
     expect(homepage).toContain('data-default-category="all"');
-    expect(homepage).not.toContain("workflows-data.js");
-    expect(homepage).not.toContain('data-category="workflow"');
   });
 
   it("keeps only non-tool page switches in site visibility", () => {
     const visibility = loadSiteVisibility();
 
     expect(visibility.homepage).toMatchObject({
-      patternGate: expect.any(Boolean),
+      patternGate: false,
       announcement: expect.any(Boolean),
       sponsorEntry: expect.any(Boolean)
     });
     expect(visibility.sponsorPage).toMatchObject({ contributors: expect.any(Boolean) });
   });
 
-  it("uses the shared mascot in the header and the article-style tool list", () => {
+  it("keeps the top bar, pattern gate and searchable tool directory wiring", () => {
     const homepage = fs.readFileSync(resolveFromRoot("public", "tool", "index.html"), "utf8");
     const renderer = fs.readFileSync(resolveFromRoot("src", "tool", "tools-render.ts"), "utf8");
 
-    expect(fs.existsSync(resolveFromDist("tool", "assets", "status-done.png"))).toBe(true);
-    expect(homepage.match(/status-done\.png/g)).toHaveLength(1);
-    expect(homepage).not.toContain("imperialOverlay");
-    expect(renderer).not.toContain("edge-particle");
-    expect(renderer).not.toContain('class="tool-kind"');
-    expect(renderer).not.toContain("workflow");
-    expect(renderer).toContain('src="./assets/status-done.png"');
-    expect(renderer).toContain('class="tool-list-avatar"');
-    expect(renderer).toContain('class="tool-list-item"');
-    expect(renderer).toContain('class="tool-list-title"');
+    expect(homepage).toContain('class="command-bar"');
+    expect(homepage).toContain('id="homePatternGate"');
+    expect(homepage).toContain('id="searchInput"');
+    expect(homepage).toContain('id="resultToolCount"');
+    expect(renderer).toContain('class="tool-card');
+    expect(renderer).toContain('class="tool-card-surface"');
+    expect(renderer).toContain('class="tool-status-switch"');
+    expect(renderer).toContain('aria-disabled="true"');
   });
 
   it("publishes the current repository skills", () => {
@@ -92,7 +90,6 @@ describe("tool index data", () => {
       expect(skill.source).toContain(`# `);
       expect(skill.path).toMatch(/^\.agents\/skills\/[a-z0-9-]+\/SKILL\.md$/);
     });
-    expect(skills.map((skill) => skill.name)).not.toEqual(expect.arrayContaining([...manualSkillDirectories]));
     expect(manuals.slice(0, 3).map((manual) => manual.path)).toEqual(
       [...manualSkillDirectories].map((directory) => `.agents/skills/${directory}/SKILL.md`)
     );

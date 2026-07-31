@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>打工皇帝</title>
-    <link rel="stylesheet" href="../libs/bootstrap.min.css">
     <link rel="stylesheet" href="./index.css">
 </head>
 <body class="is-gated">
@@ -38,25 +37,14 @@
 
     <div class="page-shell" inert>
         <header class="command-bar">
-            <div class="mascot-status" title="恭喜发财">
-                <img src="./assets/status-done.png" alt="">
-                <span>皇帝，您又来了</span>
-            </div>
+            <a class="brand-lockup" href="./index.html" aria-label="打工皇帝首页">
+                <span class="brand-symbol" aria-hidden="true">帝</span>
+                <span class="brand-copy">
+                    <strong>打工皇帝</strong>
+                </span>
+            </a>
 
-            <div class="search-box">
-                <label class="visually-hidden" for="searchInput">搜索工具</label>
-                <input id="searchInput" type="search" placeholder="恭喜发财" autocomplete="off" spellcheck="false">
-                <kbd aria-hidden="true">/</kbd>
-            </div>
-
-            <div class="category-switch" id="categorySwitch" data-default-category="all" role="group" aria-label="工具分类">
-                <button type="button" class="category-button" data-category="all" aria-pressed="false">全部 <span data-category-count="all">0</span></button>
-                <button type="button" class="category-button" data-category="heavy" aria-pressed="false">重型 <span data-category-count="heavy">0</span></button>
-                <button type="button" class="category-button" data-category="light" aria-pressed="false">轻型 <span data-category-count="light">0</span></button>
-                <button type="button" class="category-button" data-category="automation" aria-pressed="false">自动化 <span data-category-count="automation">0</span></button>
-            </div>
-
-            <div class="external-actions">
+            <nav class="external-actions" aria-label="扩展入口">
                 <a class="header-link" href="../jobskill/index.html" target="_blank" rel="noopener noreferrer" title="工作技能">技能</a>
                 <a class="header-link" href="./developer.html" target="_blank" rel="noopener noreferrer" title="开发者入口">
                     <span class="header-symbol" aria-hidden="true">&lt;/&gt;</span>
@@ -68,10 +56,33 @@
                         <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.65 7.65 0 0 1 8 3.86c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
                     </svg>
                 </a>
-            </div>
+            </nav>
         </header>
 
         <main>
+            <h1 class="visually-hidden">打工皇帝</h1>
+
+            <section class="tool-controls" aria-labelledby="toolIndexTitle">
+                <div class="search-box">
+                    <label class="visually-hidden" for="searchInput">搜索工具</label>
+                    <div class="search-field">
+                        <input id="searchInput" type="search" placeholder="输入工具、任务或关键词" autocomplete="off" spellcheck="false">
+                        <kbd aria-hidden="true">/</kbd>
+                    </div>
+                </div>
+
+                <div class="category-area">
+                    <h2 id="toolIndexTitle" class="visually-hidden">工具索引</h2>
+                    <span id="resultToolCount" class="visually-hidden" aria-live="polite">0 项</span>
+                    <div class="category-switch" id="categorySwitch" data-default-category="all" role="group" aria-label="工具分类">
+                        <button type="button" class="category-button" data-category="all" aria-pressed="false">全部 <span data-category-count="all">0</span></button>
+                        <button type="button" class="category-button" data-category="heavy" aria-pressed="false">重型 <span data-category-count="heavy">0</span></button>
+                        <button type="button" class="category-button" data-category="light" aria-pressed="false">轻型 <span data-category-count="light">0</span></button>
+                        <button type="button" class="category-button" data-category="automation" aria-pressed="false">自动化 <span data-category-count="automation">0</span></button>
+                    </div>
+                </div>
+            </section>
+
             <section id="toolsView" aria-label="工具清单">
                 <div class="tool-list" id="toolList"></div>
             </section>
@@ -80,7 +91,6 @@
         </main>
     </div>
 
-    <script src="../libs/bootstrap.bundle.min.js"></script>
     <script src="../site-visibility.js"></script>
     <script src="./home-pattern-gate-logic.js"></script>
     <script src="./home-pattern-gate.js"></script>

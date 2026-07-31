@@ -4,10 +4,17 @@ const categoryLabels: Record<ToolCategory, string> = {
     light: "轻型",
     automation: "自动化"
 };
+const homepageStateLabels: Record<ToolHomepageState, string> = {
+    enabled: "已启用",
+    beta: "Beta 测试",
+    maintenance: "维护中",
+    disabled: "已关闭"
+};
 
 const searchInput = document.getElementById("searchInput");
 const toolList = document.getElementById("toolList");
 const emptyState = document.getElementById("emptyState");
+const resultToolCount = document.getElementById("resultToolCount");
 const categorySwitch = document.getElementById("categorySwitch");
 const announcementBanner = document.getElementById("announcementBanner");
 const announcementMessage = document.getElementById("announcementMessage");
@@ -74,23 +81,30 @@ function renderToolList(rows: ToolItem[]): void {
         .join("");
 
     emptyState.hidden = rows.length > 0;
+    if (resultToolCount instanceof HTMLElement) resultToolCount.textContent = `${rows.length} 项`;
 }
 
 function renderToolListItem(item: ToolItem): string {
-    return `
-        <article class="tool-list-item">
-            <img class="tool-list-avatar" src="./assets/status-done.png" alt="" aria-hidden="true">
-            <div class="tool-list-copy">
-                <h2 class="tool-list-title">
-                    <a class="tool-name"
-                    href="${escapeHtml(resolveToolUrl(item))}"
-                    target="_blank"
-                    rel="noopener noreferrer">
-                        ${escapeHtml(item.name)}
-                    </a>
-                </h2>
-                <p class="tool-desc">${escapeHtml(item.desc)}</p>
+    const state = item.homepageState || "enabled";
+    const enabled = state === "enabled" || state === "beta";
+    const stateLabel = homepageStateLabels[state];
+    const content = `
+        <div class="tool-card-heading">
+            <div>
+                <h2 class="tool-card-title">${escapeHtml(item.name)}</h2>
+                <span class="tool-state-label">${escapeHtml(stateLabel)}</span>
             </div>
+            <span class="tool-status-switch" role="img" aria-label="首页入口${escapeHtml(stateLabel)}">
+                <span aria-hidden="true"></span>
+            </span>
+        </div>
+        <p class="tool-desc">${escapeHtml(item.desc)}</p>
+    `;
+    return `
+        <article class="tool-card is-${escapeHtml(state)} ${enabled ? "is-enabled" : "is-disabled"}" ${enabled ? "" : 'aria-disabled="true"'}>
+            ${enabled
+                ? `<a class="tool-card-surface" href="${escapeHtml(resolveToolUrl(item))}" target="_blank" rel="noopener noreferrer">${content}</a>`
+                : `<div class="tool-card-surface">${content}</div>`}
         </article>
     `;
 }
