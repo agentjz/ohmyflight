@@ -22,7 +22,7 @@ const tools: ToolItem[] = [
 ];
 
 const announcement: SiteAnnouncement = {
-    message: "🎉🎉🎉校对之王用户体验极致优化！",
+    message: "🎉🎉🎉温和的野兽派！",
     href: "../sponsor/index.html"
 };
 

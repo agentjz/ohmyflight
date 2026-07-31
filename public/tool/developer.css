@@ -5,53 +5,55 @@
 
 .developer-tabs {
     display: grid;
-    width: min(380px, 100%);
+    width: min(410px, 100%);
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 10px;
     margin: 0 auto;
-    padding: 8px;
-    border: 0;
-    border-radius: 18px;
-    background: var(--neu-bg);
-    box-shadow: var(--shadow-in-medium);
+    padding: 10px;
+    border: 2px solid var(--soft-border);
+    background: var(--soft-surface);
+    box-shadow: var(--hard-shadow-medium);
 }
 
 .developer-tabs .nav-link {
     min-height: 42px;
     padding: 0 16px;
-    border: 0 !important;
-    border-radius: 12px;
-    background: transparent;
-    color: var(--neu-muted);
-    font-size: 13px;
+    border: 2px solid var(--soft-border) !important;
+    background: var(--soft-surface);
+    color: var(--soft-muted);
+    font-family: "Cascadia Mono", Consolas, "Microsoft YaHei UI", monospace;
+    font-size: 12px;
     font-weight: 720;
-    transition: box-shadow 160ms ease, color 160ms ease;
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out, color 150ms ease-out, background 150ms ease-out;
 }
 
 .developer-tabs .nav-link:hover,
 .developer-tabs .nav-link:focus-visible {
-    color: var(--neu-ink);
+    background: var(--soft-sky);
+    box-shadow: var(--hard-shadow-small);
+    color: var(--soft-on-pastel);
+    transform: translate(2px, 2px);
 }
 
 .developer-tabs .nav-link:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--neu-accent) 30%, transparent);
+    outline: 2px solid var(--soft-focus);
     outline-offset: 2px;
 }
 
 .developer-tabs .nav-link.active {
-    background: var(--neu-bg);
-    box-shadow: var(--shadow-out-small);
-    color: var(--neu-accent-strong);
+    background: var(--soft-pink);
+    box-shadow: var(--hard-shadow-small);
+    color: var(--soft-on-pastel);
 }
 
 .tab-content {
-    margin-top: 26px;
+    margin-top: 30px;
 }
 
 .skills-list,
 .commit-list {
     display: grid;
-    gap: 7px;
+    gap: 16px;
 }
 
 .skill-item {
@@ -61,33 +63,49 @@
 .skill-toggle {
     display: grid;
     width: 100%;
-    min-height: 68px;
+    min-height: 76px;
     grid-template-columns: minmax(0, 1fr) 34px;
     gap: 16px;
     align-items: center;
-    padding: 12px 14px;
-    border: 0;
-    border-radius: 14px;
-    background: transparent;
-    color: var(--neu-ink);
+    padding: 14px 16px;
+    border: 2px solid var(--soft-border);
+    background: color-mix(in srgb, var(--soft-sky) 8%, var(--soft-surface));
+    box-shadow: var(--hard-shadow-medium);
+    color: var(--soft-ink);
     text-align: left;
-    transition: box-shadow 160ms ease, color 160ms ease;
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out, color 150ms ease-out, background 150ms ease-out;
+}
+
+.skill-item:nth-child(4n + 2) .skill-toggle {
+    background: color-mix(in srgb, var(--soft-pink) 8%, var(--soft-surface));
+}
+
+.skill-item:nth-child(4n + 3) .skill-toggle {
+    background: color-mix(in srgb, var(--soft-mint) 10%, var(--soft-surface));
+}
+
+.skill-item:nth-child(4n + 4) .skill-toggle {
+    background: color-mix(in srgb, var(--soft-amber) 10%, var(--soft-surface));
 }
 
 .skill-toggle:hover,
 .skill-toggle:focus-visible {
-    box-shadow: var(--shadow-out-hover);
-    color: var(--neu-accent-strong);
+    background: var(--soft-sky);
+    box-shadow: none;
+    color: var(--soft-on-pastel);
+    transform: translate(2px, 2px);
 }
 
 .skill-toggle:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--neu-accent) 30%, transparent);
-    outline-offset: 2px;
+    outline: 2px solid var(--soft-focus);
+    outline-offset: 3px;
 }
 
 .skill-toggle[aria-expanded="true"] {
-    box-shadow: var(--shadow-in-small);
-    color: var(--neu-accent-strong);
+    background: var(--soft-mint);
+    box-shadow: none;
+    color: var(--soft-on-pastel);
+    transform: translate(2px, 2px);
 }
 
 .skill-summary-copy {
@@ -107,9 +125,15 @@
 
 .skill-summary-copy > span {
     min-width: 0;
-    color: var(--neu-muted);
+    color: var(--soft-muted);
     font-size: 13px;
     line-height: 1.55;
+}
+
+.skill-toggle:hover .skill-summary-copy > span,
+.skill-toggle:focus-visible .skill-summary-copy > span,
+.skill-toggle[aria-expanded="true"] .skill-summary-copy > span {
+    color: color-mix(in srgb, var(--soft-on-pastel) 74%, transparent);
 }
 
 .skill-chevron {
@@ -117,9 +141,8 @@
     width: 30px;
     height: 30px;
     place-items: center;
-    border-radius: 10px;
-    color: var(--neu-muted);
-    transition: rotate 160ms ease;
+    border: 2px solid currentColor;
+    color: var(--soft-muted);
 }
 
 .skill-chevron svg {
@@ -127,17 +150,18 @@
     height: 17px;
     fill: none;
     stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
     stroke-width: 2;
 }
 
 .skill-toggle[aria-expanded="true"] .skill-chevron {
+    color: var(--soft-on-pastel);
     rotate: 180deg;
 }
 
 .skill-body {
-    padding: 12px 8px 20px;
+    padding: 14px 0 0;
 }
 
 .skill-actions {
@@ -155,10 +179,10 @@
     margin: 0;
     padding: 22px 24px;
     overflow: auto;
-    border-radius: 14px;
-    background: var(--neu-bg);
-    box-shadow: var(--shadow-in-medium);
-    color: var(--neu-ink);
+    border: 2px solid var(--soft-border);
+    background: var(--soft-surface);
+    box-shadow: var(--hard-shadow-medium);
+    color: var(--soft-ink);
     font-size: 14px;
     line-height: 1.75;
     overflow-wrap: anywhere;
@@ -175,7 +199,7 @@
 .skill-markdown h1,
 .skill-markdown h2,
 .skill-markdown h3 {
-    color: var(--neu-ink);
+    color: var(--soft-ink);
     line-height: 1.4;
 }
 
@@ -214,58 +238,62 @@
 .skill-markdown td {
     min-width: 150px;
     padding: 9px 11px;
-    border: 1px solid color-mix(in srgb, var(--neu-faint) 32%, transparent);
+    border: 1px solid color-mix(in srgb, var(--soft-border) 74%, transparent);
     text-align: left;
     vertical-align: top;
 }
 
 .skill-markdown th {
-    background: color-mix(in srgb, var(--neu-light) 28%, var(--neu-bg));
-    color: var(--neu-ink);
-    font-weight: 700;
+    background: var(--soft-sky);
+    color: var(--soft-on-pastel);
+    font-weight: 750;
 }
 
 .skill-markdown blockquote {
     padding: 11px 13px;
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--neu-dark) 12%, var(--neu-bg));
-    color: var(--neu-muted);
+    border: 2px solid var(--soft-border);
+    background: var(--soft-surface-muted);
+    color: var(--soft-muted);
 }
 
 .skill-markdown code {
     padding: 2px 5px;
-    border-radius: 4px;
-    background: color-mix(in srgb, var(--neu-dark) 18%, var(--neu-bg));
+    border: 1px solid color-mix(in srgb, var(--soft-border) 68%, transparent);
+    background: var(--soft-surface-muted);
+    color: var(--soft-ink);
     font: 0.9em/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 .skill-markdown pre {
     padding: 14px;
     overflow: auto;
-    border-radius: 9px;
-    background: color-mix(in srgb, var(--neu-dark) 14%, var(--neu-bg));
+    border: 2px solid var(--soft-border);
+    background: var(--soft-surface-muted);
 }
 
 .skill-markdown pre code {
     padding: 0;
+    border: 0;
     background: transparent;
 }
 
 .skill-markdown img {
     max-width: 100%;
     height: auto;
-    border-radius: 8px;
+    border: 2px solid var(--soft-border);
+    box-shadow: var(--hard-shadow-small);
 }
 
 .skill-markdown a {
-    color: var(--neu-accent-strong);
+    color: var(--soft-sky);
     text-underline-offset: 3px;
 }
 
 .commit-meta {
     min-height: 38px;
-    padding: 2px 14px 12px;
-    color: var(--neu-muted);
+    padding: 2px 0 12px;
+    color: var(--soft-muted);
+    font-family: "Cascadia Mono", Consolas, monospace;
     font-size: 12px;
 }
 
@@ -274,18 +302,31 @@
     grid-template-columns: 150px 86px minmax(0, 1fr);
     gap: 14px;
     align-items: baseline;
-    padding: 12px 14px;
-    border-radius: 12px;
-    color: var(--neu-ink);
+    padding: 14px 16px;
+    border: 2px solid var(--soft-border);
+    background: var(--soft-surface);
+    box-shadow: var(--hard-shadow-small);
+    color: var(--soft-ink);
+}
+
+.commit-item:nth-child(4n + 2) {
+    background: color-mix(in srgb, var(--soft-pink) 8%, var(--soft-surface));
+}
+
+.commit-item:nth-child(4n + 3) {
+    background: color-mix(in srgb, var(--soft-mint) 10%, var(--soft-surface));
 }
 
 .commit-item:hover {
-    box-shadow: var(--shadow-in-small);
+    background: var(--soft-sky);
+    box-shadow: none;
+    color: var(--soft-on-pastel);
+    transform: translate(2px, 2px);
 }
 
 .commit-date,
 .commit-hash {
-    color: var(--neu-muted);
+    color: var(--soft-muted);
     font-size: 12px;
 }
 
@@ -300,8 +341,10 @@
 }
 
 .empty-row {
-    padding: 24px 14px;
-    color: var(--neu-muted);
+    padding: 24px 16px;
+    border: 2px solid var(--soft-border);
+    background: var(--soft-surface-muted);
+    color: var(--soft-muted);
     font-size: 13px;
     text-align: center;
 }
@@ -317,17 +360,18 @@
 }
 
 .download-manuals:disabled {
-    box-shadow: var(--shadow-in-small);
-    color: var(--neu-faint);
+    background: var(--soft-surface-muted);
+    box-shadow: none;
+    color: var(--soft-quiet);
     cursor: not-allowed;
+    transform: translate(2px, 2px);
 }
 
 .toast {
-    border: 0;
-    border-radius: 12px;
-    background: var(--neu-bg) !important;
-    box-shadow: var(--shadow-out-medium);
-    color: var(--neu-ink) !important;
+    border: 2px solid var(--soft-border) !important;
+    background: var(--soft-surface) !important;
+    box-shadow: var(--hard-shadow-medium);
+    color: var(--soft-ink) !important;
 }
 
 .toast .btn-close {

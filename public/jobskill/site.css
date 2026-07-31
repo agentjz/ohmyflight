@@ -1,334 +1,361 @@
 .jobskill-bar {
-  display: grid;
-  grid-template-columns: auto minmax(300px, 1fr) auto;
+    display: grid;
+    grid-template-columns: auto minmax(300px, 1fr) auto;
+    gap: 22px;
 }
 
 .search-box {
-  position: relative;
-  min-width: 0;
+    position: relative;
+    min-width: 0;
 }
 
 .search-box input {
-  width: 100%;
-  height: 48px;
-  padding: 0 132px 0 18px;
-  border: 0;
-  border-radius: 16px;
-  outline: 0;
-  background: var(--neu-bg);
-  box-shadow: var(--shadow-in-medium);
-  color: var(--neu-ink);
-  transition: box-shadow 180ms ease;
+    width: 100%;
+    height: 48px;
+    padding: 0 132px 0 16px;
+    border: 2px solid var(--soft-border);
+    outline: 0;
+    background: var(--soft-surface-muted);
+    box-shadow: var(--hard-shadow-small);
+    color: var(--soft-ink);
+    font-family: "Cascadia Mono", Consolas, "Microsoft YaHei UI", monospace;
+    font-size: 13px;
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out, background 150ms ease-out;
 }
 
 .search-box input::placeholder {
-  color: var(--neu-faint);
-  opacity: 1;
+    color: var(--soft-quiet);
+    opacity: 1;
 }
 
 .search-box input:focus {
-  box-shadow: var(--shadow-in-focus), 0 0 0 3px color-mix(in srgb, var(--neu-accent) 24%, transparent);
+    background: var(--soft-surface);
+    box-shadow: var(--hard-shadow-focus);
+    outline: 2px solid var(--soft-focus);
+    outline-offset: 2px;
 }
 
 .search-status {
-  position: absolute;
-  top: 50%;
-  right: 15px;
-  width: 106px;
-  overflow: hidden;
-  color: var(--neu-muted);
-  font-size: 12px;
-  line-height: 1.4;
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transform: translateY(-50%);
-  pointer-events: none;
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    width: 108px;
+    overflow: hidden;
+    color: var(--soft-muted);
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transform: translateY(-50%);
+    pointer-events: none;
 }
 
 .workspace {
-  display: grid;
-  min-height: calc(100vh - 150px);
-  grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
-  gap: 28px;
-  margin-top: 34px;
+    display: grid;
+    min-height: calc(100vh - 150px);
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+    gap: 28px;
+    margin-top: 34px;
 }
 
 .sidebar {
-  min-width: 0;
+    min-width: 0;
 }
 
 .sidebar-menu {
-  position: sticky;
-  top: 112px;
-  flex-direction: column;
-  max-height: calc(100vh - 136px);
-  padding: 18px 14px;
-  overflow-y: auto;
-  border-radius: 18px;
-  background: var(--neu-bg);
-  box-shadow: var(--shadow-in-medium);
+    position: sticky;
+    top: 112px;
+    max-height: calc(100vh - 136px);
+    padding: 14px;
+    overflow-y: auto;
+    border: 2px solid var(--soft-border);
+    background: var(--soft-surface);
+    box-shadow: var(--hard-shadow-medium);
 }
 
 #skillList {
-  min-width: 0;
+    min-width: 0;
 }
 
 #skillList .nav-link {
-  padding: 9px 10px;
-  border-radius: 11px;
-  color: var(--neu-muted);
-  font-size: 14px;
-  line-height: 1.45;
-  white-space: normal;
-  transition: box-shadow 160ms ease, color 160ms ease;
+    display: block;
+    padding: 10px;
+    border: 2px solid transparent;
+    color: var(--soft-muted);
+    font-size: 13px;
+    line-height: 1.45;
+    text-align: left;
+    white-space: normal;
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out, color 150ms ease-out, background 150ms ease-out, border-color 150ms ease-out;
 }
 
 #skillList .nav-link:hover,
 #skillList .nav-link:focus-visible {
-  box-shadow: var(--shadow-out-hover);
-  color: var(--neu-ink);
+    border-color: var(--soft-border);
+    background: var(--soft-sky);
+    box-shadow: var(--hard-shadow-small);
+    color: var(--soft-on-pastel);
+    transform: translate(2px, 2px);
 }
 
 #skillList .nav-link:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--neu-accent) 30%, transparent);
-  outline-offset: 2px;
+    outline: 2px solid var(--soft-focus);
+    outline-offset: 2px;
 }
 
 #skillList .nav-link.active {
-  background: var(--neu-bg);
-  box-shadow: var(--shadow-in-small);
-  color: var(--neu-accent-strong);
-  font-weight: 750;
+    border-color: var(--soft-border);
+    background: var(--soft-mint);
+    box-shadow: var(--hard-shadow-small);
+    color: var(--soft-on-pastel);
+    font-weight: 750;
 }
 
 #skillList .search-result,
 #skillList .search-result-name {
-  display: block;
+    display: block;
 }
 
 #skillList .search-result-name {
-  font-weight: 700;
+    font-weight: 750;
 }
 
 #skillList .search-result-snippet {
-  display: -webkit-box;
-  margin-top: 4px;
-  overflow: hidden;
-  color: var(--neu-muted);
-  font-size: 12px;
-  line-height: 1.45;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+    display: -webkit-box;
+    margin-top: 4px;
+    overflow: hidden;
+    color: var(--soft-muted);
+    font-size: 11px;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
 }
 
+#skillList .nav-link:hover .search-result-snippet,
 #skillList .nav-link.active .search-result-snippet {
-  color: var(--neu-faint);
+    color: color-mix(in srgb, var(--soft-on-pastel) 72%, transparent);
 }
 
 .search-empty {
-  padding: 10px;
-  color: var(--neu-muted);
-  font-size: 14px;
+    padding: 12px 10px;
+    color: var(--soft-muted);
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
 }
 
 .main-panel {
-  min-width: 0;
+    min-width: 0;
 }
 
 .content {
-  width: min(100%, 1120px);
-  min-height: 100%;
-  padding: 10px 18px 52px;
-  color: var(--neu-ink);
+    width: min(100%, 1120px);
+    min-height: 100%;
+    padding: 4px 4px 52px;
+    color: var(--soft-ink);
 }
 
 .content h1 {
-  margin: 0 0 24px;
-  color: var(--neu-ink);
-  font-size: 28px;
-  font-weight: 760;
-  line-height: 1.3;
+    margin: 0 0 26px;
+    color: var(--soft-ink);
+    font-size: 30px;
+    font-weight: 780;
+    line-height: 1.25;
 }
 
 .content h2 {
-  margin: 30px 0 12px;
-  color: var(--neu-ink);
-  font-size: 21px;
-  font-weight: 720;
-  line-height: 1.4;
+    margin: 34px 0 12px;
+    color: var(--soft-ink);
+    font-size: 21px;
+    font-weight: 750;
+    line-height: 1.35;
 }
 
 .content h3 {
-  margin: 24px 0 10px;
-  color: var(--neu-ink);
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.45;
+    margin: 26px 0 10px;
+    color: var(--soft-ink);
+    font-size: 18px;
+    font-weight: 720;
+    line-height: 1.4;
 }
 
 .content p,
 .content ul,
 .content ol,
 .content blockquote {
-  margin-top: 0;
-  margin-bottom: 1rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
 }
 
 .content p,
 .content li {
-  color: var(--neu-ink);
+    color: var(--soft-ink);
 }
 
 .content a {
-  color: var(--neu-accent-strong);
-  text-underline-offset: 3px;
+    color: var(--soft-beta, var(--soft-sky));
+    text-underline-offset: 3px;
 }
 
 .content img {
-  max-width: 100%;
-  height: auto;
-  border: 1px solid color-mix(in srgb, var(--neu-faint) 36%, transparent);
-  border-radius: 8px;
+    max-width: 100%;
+    height: auto;
+    border: 2px solid var(--soft-border);
+    box-shadow: var(--hard-shadow-small);
 }
 
 .content blockquote {
-  padding: 12px 14px;
-  border-radius: 8px;
-  background: var(--neu-bg);
-  box-shadow: var(--shadow-in-small);
-  color: var(--neu-muted);
+    padding: 12px 14px;
+    border: 2px solid var(--soft-border);
+    background: var(--soft-surface-muted);
+    box-shadow: var(--hard-shadow-small);
+    color: var(--soft-muted);
 }
 
 .content code {
-  padding: 2px 5px;
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--neu-dark) 18%, var(--neu-bg));
-  font-family: Consolas, "Courier New", monospace;
-  font-size: 0.92em;
+    padding: 2px 5px;
+    border: 1px solid color-mix(in srgb, var(--soft-border) 72%, transparent);
+    background: var(--soft-surface-muted);
+    color: var(--soft-ink);
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 0.92em;
 }
 
 .content pre {
-  max-width: 100%;
-  margin: 1rem 0;
-  padding: 14px;
-  overflow: auto;
-  border-radius: 10px;
-  background: var(--neu-bg);
-  box-shadow: var(--shadow-in-small);
+    max-width: 100%;
+    margin: 1rem 0;
+    padding: 14px;
+    overflow: auto;
+    border: 2px solid var(--soft-border);
+    background: var(--soft-surface-muted);
+    box-shadow: var(--hard-shadow-small);
 }
 
 .content pre code {
-  padding: 0;
-  background: transparent;
+    padding: 0;
+    border: 0;
+    background: color-mix(in srgb, var(--soft-sky) 7%, var(--soft-surface));
+}
+
+#skillList .nav-link:nth-child(4n + 2) {
+    background: color-mix(in srgb, var(--soft-pink) 8%, var(--soft-surface));
+}
+
+#skillList .nav-link:nth-child(4n + 3) {
+    background: color-mix(in srgb, var(--soft-mint) 10%, var(--soft-surface));
+}
+
+#skillList .nav-link:nth-child(4n + 4) {
+    background: color-mix(in srgb, var(--soft-amber) 10%, var(--soft-surface));
 }
 
 .table-wrap {
-  width: 100%;
-  margin: 1rem 0;
-  overflow-x: auto;
-  border: 1px solid color-mix(in srgb, var(--neu-faint) 36%, transparent);
-  border-radius: 8px;
+    width: 100%;
+    margin: 1rem 0;
+    overflow-x: auto;
+    border: 2px solid var(--soft-border);
+    box-shadow: var(--hard-shadow-small);
 }
 
 .content table {
-  width: 100%;
-  margin: 0;
-  border-collapse: collapse;
-  background: var(--neu-bg);
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    background: var(--soft-surface);
 }
 
 .content th,
 .content td {
-  padding: 9px 10px;
-  border: 1px solid color-mix(in srgb, var(--neu-faint) 30%, transparent);
-  vertical-align: top;
+    padding: 9px 10px;
+    border: 1px solid color-mix(in srgb, var(--soft-border) 74%, transparent);
+    vertical-align: top;
 }
 
 .content th {
-  background: color-mix(in srgb, var(--neu-light) 28%, var(--neu-bg));
-  color: var(--neu-ink);
-  font-weight: 700;
-  text-align: left;
+    background: var(--soft-sky);
+    color: var(--soft-on-pastel);
+    font-weight: 750;
+    text-align: left;
 }
 
 .search-highlight {
-  padding: 0 2px;
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--neu-accent) 22%, var(--neu-bg));
-  color: var(--neu-ink);
+    padding: 0 2px;
+    border: 1px solid color-mix(in srgb, var(--soft-border) 56%, transparent);
+    background: var(--soft-pink);
+    color: var(--soft-on-pastel);
 }
 
 @media (max-width: 900px) {
-  .jobskill-bar {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
+    .jobskill-bar {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
 
-  .jobskill-bar .search-box {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
+    .jobskill-bar .search-box {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
 
-  .workspace {
-    grid-template-columns: minmax(190px, 220px) minmax(0, 1fr);
-    gap: 18px;
-  }
+    .workspace {
+        grid-template-columns: minmax(190px, 220px) minmax(0, 1fr);
+        gap: 18px;
+    }
 
-  .content {
-    padding-right: 8px;
-    padding-left: 8px;
-  }
+    .content {
+        padding-right: 0;
+        padding-left: 0;
+    }
 }
 
 @media (max-width: 767.98px) {
-  .workspace {
-    min-height: calc(100vh - 160px);
-    grid-template-columns: minmax(0, 1fr);
-    margin-top: 26px;
-  }
+    .workspace {
+        min-height: calc(100vh - 160px);
+        grid-template-columns: minmax(0, 1fr);
+        margin-top: 26px;
+    }
 
-  .sidebar-menu {
-    position: static;
-    max-height: min(48vh, 420px);
-    padding: 12px;
-  }
+    .sidebar-menu {
+        position: static;
+        max-height: min(48vh, 420px);
+        padding: 12px;
+    }
 
-  #skillList .nav-link {
-    padding: 9px;
-  }
+    #skillList .nav-link {
+        padding: 9px;
+    }
 
-  .content {
-    padding: 4px 6px 36px;
-  }
+    .content {
+        padding: 4px 0 36px;
+    }
 
-  .content h1 {
-    font-size: 24px;
-  }
+    .content h1 {
+        font-size: 25px;
+    }
 
-  .content h2 {
-    font-size: 19px;
-  }
+    .content h2 {
+        font-size: 19px;
+    }
 }
 
 @media (max-width: 520px) {
-  .jobskill-bar {
-    grid-template-columns: 1fr;
-  }
+    .jobskill-bar {
+        grid-template-columns: 1fr;
+    }
 
-  .jobskill-bar .support-actions {
-    grid-row: 2;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
+    .jobskill-bar .support-actions {
+        grid-row: 2;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 
-  .jobskill-bar .search-box {
-    grid-row: 3;
-  }
+    .jobskill-bar .search-box {
+        grid-row: 3;
+    }
 
-  .search-box input {
-    padding-right: 14px;
-  }
+    .search-box input {
+        padding-right: 14px;
+    }
 
-  .search-status {
-    display: none;
-  }
+    .search-status {
+        display: none;
+    }
 }
