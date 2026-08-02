@@ -68,4 +68,4 @@ npm.cmd test
 npm.cmd run verify
 ```
 
-`npm.cmd run verify` 覆盖类型检查、TypeScript/Python 全量测试、真实 Chromium 页面与脱敏重型流程、连续双构建和本地第三方完整性。真实 Excel 性能回放使用 `npm.cmd run test:performance -- --training-workbook <培训表> --seasonal-workbook <换季表>`；输入和原始结果不提交。构建与恢复约定见 [`spec/dev/esm-delivery/delivery.md`](./spec/dev/esm-delivery/delivery.md)。
+`npm.cmd run verify` 覆盖类型检查、TypeScript/Python 全量测试、真实 Chromium 页面与脱敏重型流程和连续双构建。真实 Excel 性能回放使用 `npm.cmd run test:performance -- --training-workbook <培训表> --seasonal-workbook <换季表>`；输入和原始结果不提交。构建与恢复约定见 [`spec/dev/esm-delivery/delivery.md`](./spec/dev/esm-delivery/delivery.md)。

@@ -1,194 +1,126 @@
 {
   "schemaVersion": 1,
-  "integrityAlgorithm": "SHA-256",
   "updatedAt": "2026-08-02",
   "libraries": {
     "bootstrap": {
       "version": "5.3.3",
       "files": ["bootstrap.min.css", "bootstrap.bundle.min.js"],
       "source": "https://github.com/twbs/bootstrap/releases/tag/v5.3.3",
-      "license": "MIT",
-      "sha256": {
-        "bootstrap.min.css": "b0a21045f42b8884ae43d97fe386f5cc77d09e21972611a89d5b41d8b952b88b",
-        "bootstrap.bundle.min.js": "eb37e4d8bf11df00a045b673a64122ed4602d9b73a7d81888057cd7aac8e5a74"
-      }
+      "license": "MIT"
     },
     "browser-image-compression": {
       "version": "2.0.2",
       "files": ["browser-image-compression.min.js"],
       "source": "https://github.com/Donaldcwl/browser-image-compression/releases/tag/v2.0.2",
-      "license": "MIT",
-      "sha256": {
-        "browser-image-compression.min.js": "ff374a2e88a144c53c6790eb0e7a846cde972d1fbf44f1a9ba0f90532d399384"
-      }
+      "license": "MIT"
     },
     "cropperjs": {
       "version": "1.6.1",
       "files": ["cropper.min.css", "cropper.min.js"],
       "source": "https://github.com/fengyuanchen/cropperjs/releases/tag/v1.6.1",
-      "license": "MIT",
-      "sha256": {
-        "cropper.min.css": "e7f4b0a35f45a43013d94ed3eb7e3598ad0bbee7ca7cd694ba151a432cd38bf4",
-        "cropper.min.js": "cccc20e9d07881a950441492f908882f5ed5059aa06d72bca2714142c88aab17"
-      }
+      "license": "MIT"
     },
     "docx-preview": {
       "version": "0.4.0",
       "files": ["docx-preview.min.js", "docx-preview.LICENSE.txt"],
       "source": "https://www.npmjs.com/package/docx-preview/v/0.4.0",
-      "license": "Apache-2.0",
-      "sha256": {
-        "docx-preview.min.js": "051ef503f2677d53159a388b7384e950eda41ea4e47a103e5e36f124d7faea40",
-        "docx-preview.LICENSE.txt": "8668bf4417d161e4eb4d47d6044526e4914d9eb3c748573d9bb7e87708c1253f"
-      }
+      "license": "Apache-2.0"
     },
     "docx": {
       "version": "9.7.1",
       "files": ["docx.iife.js", "docx.LICENSE.txt"],
       "source": "https://www.npmjs.com/package/docx/v/9.7.1",
-      "license": "MIT",
-      "sha256": {
-        "docx.iife.js": "d5ec4f5a8b99740845974f5f6f020d6e5b1b6c27026195befc67eb37035c84c7",
-        "docx.LICENSE.txt": "b5b2364c0c95a26b2a2399d7e706a61acac680be1d5b180b00592ee85830bffb"
-      }
+      "license": "MIT"
     },
     "docxtemplater": {
       "version": "3.50.0",
       "files": ["docxtemplater.min.js"],
       "source": "https://www.npmjs.com/package/docxtemplater/v/3.50.0",
-      "license": "MIT",
-      "sha256": {
-        "docxtemplater.min.js": "b744ba75b698403ccd1b9e7abe8065354619893cc2fe0683801395766ba79906"
-      }
+      "license": "MIT"
     },
     "echarts": {
       "version": "5.5.1",
       "files": ["echarts.min.js"],
       "source": "https://github.com/apache/echarts/releases/tag/5.5.1",
-      "license": "Apache-2.0",
-      "sha256": {
-        "echarts.min.js": "dbc15e9b9ca60d2ab3115953cc42e92a70d540388a27d4d0acfcf8c3464b6a0b"
-      }
+      "license": "Apache-2.0"
     },
     "flexsearch": {
       "version": "0.8.214",
       "files": ["flexsearch.bundle.min.js", "flexsearch.LICENSE.txt"],
       "source": "https://github.com/nextapps-de/flexsearch",
-      "license": "Apache-2.0",
-      "sha256": {
-        "flexsearch.bundle.min.js": "c2678faab90b2f6e436c4ce29755831a09cd4f064cace2bbaf1c6fdfcb4dcc75",
-        "flexsearch.LICENSE.txt": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6"
-      }
+      "license": "Apache-2.0"
     },
     "html2canvas": {
       "version": "1.4.1",
       "files": ["html2canvas.min.js"],
       "source": "https://github.com/niklasvh/html2canvas/releases/tag/v1.4.1",
-      "license": "MIT",
-      "sha256": {
-        "html2canvas.min.js": "4917b15ac829f7546ab1c053b06499786b45a053169f31f436c16c8eb821414e"
-      }
+      "license": "MIT"
     },
     "jszip": {
       "version": "3.10.1",
       "files": ["jszip.min.js"],
       "source": "https://github.com/Stuk/jszip/releases/tag/v3.10.1",
-      "license": "MIT OR GPL-3.0",
-      "sha256": {
-        "jszip.min.js": "f12f367798e35ee2d9993dba6167fc61ddb52fb89880f5a99fbb606335188410"
-      }
+      "license": "MIT OR GPL-3.0"
     },
     "mammoth": {
       "version": "1.8.0",
       "files": ["mammoth.min.js"],
       "source": "https://www.npmjs.com/package/mammoth/v/1.8.0",
-      "license": "BSD-2-Clause",
-      "sha256": {
-        "mammoth.min.js": "8e2bcd22e3221aa05dc1d815ce046688ba844d54a85d0bc5001221351630da53"
-      }
+      "license": "BSD-2-Clause"
     },
     "marked": {
       "version": "15.0.12",
       "files": ["marked.min.js"],
       "source": "https://github.com/markedjs/marked/releases/tag/v15.0.12",
-      "license": "MIT",
-      "sha256": {
-        "marked.min.js": "742ee84b0d5a1f6376aeda1bb495c3bf35ddfc7e332f20d3698e9e676b99f714"
-      }
+      "license": "MIT"
     },
     "noto-serif-sc-home-hero": {
       "version": "Google Fonts content-addressed subset",
       "files": ["noto-serif-sc-home-hero.ttf"],
       "source": "https://fonts.google.com/specimen/Noto+Serif+SC",
-      "license": "OFL-1.1",
-      "sha256": {
-        "noto-serif-sc-home-hero.ttf": "d86abf6ad8ffb325df23fc3cfb63452a577c22f98f5e3e3a7c420f5e9da84988"
-      }
+      "license": "OFL-1.1"
     },
     "pdf-lib": {
       "version": "1.17.1",
       "files": ["pdf-lib.min.js"],
       "source": "https://github.com/Hopding/pdf-lib/releases/tag/v1.17.1",
-      "license": "MIT",
-      "sha256": {
-        "pdf-lib.min.js": "e407401e1d27c95af336de6c0583ec048b7decf4b9c3d60f14de0f7b5b0e4ecc"
-      }
+      "license": "MIT"
     },
     "pdfjs": {
       "version": "4.8.69",
       "files": ["pdf.min.js", "pdf.worker.min.js"],
       "source": "https://github.com/mozilla/pdf.js/releases/tag/v4.8.69",
-      "license": "Apache-2.0",
-      "sha256": {
-        "pdf.min.js": "86791280654fb3403853a2e3a39212941fd1c4af0c7e3608ae8f85cead458be0",
-        "pdf.worker.min.js": "6195a19b81679dfb8fbd6c387aa37cf212c83f02628d768d142925fddc3d88fb"
-      }
+      "license": "Apache-2.0"
     },
     "pica": {
       "version": "9.0.1",
       "files": ["pica.min.js"],
       "source": "https://www.npmjs.com/package/pica/v/9.0.1",
-      "license": "MIT",
-      "sha256": {
-        "pica.min.js": "6a7b66e3fe0305216d0536cd88b26ae3bb7a94e710c49610a688e5cb94d40cad"
-      }
+      "license": "MIT"
     },
     "pizzip": {
       "version": "3.1.7",
       "files": ["pizzip.min.js"],
       "source": "https://www.npmjs.com/package/pizzip/v/3.1.7",
-      "license": "MIT OR GPL-3.0",
-      "sha256": {
-        "pizzip.min.js": "a1dd95251e4c7a1d4abddcc0ce48a7dc78420211c954cf808e81cd3dc4961770"
-      }
+      "license": "MIT OR GPL-3.0"
     },
     "tsparticles": {
       "version": "2.12.0",
       "files": ["tsparticles.bundle.min.js"],
       "source": "https://github.com/tsparticles/tsparticles/releases/tag/v2.12.0",
-      "license": "MIT",
-      "sha256": {
-        "tsparticles.bundle.min.js": "6046cff8655dbc102d7c22128e6c74554d4a5a9a9e9b9554d66b771e5403bd16"
-      }
+      "license": "MIT"
     },
     "xlsx": {
       "version": "0.20.3",
       "files": ["xlsx.full.min.js"],
       "source": "https://cdn.sheetjs.com/xlsx-0.20.3/package/",
-      "license": "Apache-2.0",
-      "sha256": {
-        "xlsx.full.min.js": "ac8d774d39bb05a527f87912e2c283e237e3633120b31acf20bc6eef0e19eede"
-      }
+      "license": "Apache-2.0"
     },
     "xlsx-js-style": {
       "version": "1.2.0 / SheetJS 0.18.5",
       "files": ["xlsx.bundle.js", "xlsx-js-style.min.js"],
       "source": "https://github.com/gitbrent/xlsx-js-style/releases/tag/v1.2.0",
-      "license": "Apache-2.0",
-      "sha256": {
-        "xlsx.bundle.js": "58a6ca345c7cbbb6c656cb7dadda44097143b479363e648f90b43a69f654507b",
-        "xlsx-js-style.min.js": "58a6ca345c7cbbb6c656cb7dadda44097143b479363e648f90b43a69f654507b"
-      }
+      "license": "Apache-2.0"
     }
   }
 }

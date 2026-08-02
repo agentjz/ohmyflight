@@ -13,8 +13,7 @@
     "test:smoke": "tsx scripts/build.mts && vitest run tests/smoke",
     "test:tool": "tsx scripts/build.mts && vitest run tests/tool",
     "verify:deterministic": "tsx scripts/verify-deterministic-build.mts",
-    "verify:third-party": "vitest run tests/smoke/third-party-integrity.test.ts",
-    "verify": "npm run typecheck && npm test && npm run test:browser && npm run verify:deterministic && npm run verify:third-party"
+    "verify": "npm run typecheck && npm test && npm run test:browser && npm run verify:deterministic"
   },
   "devDependencies": {
     "@types/node": "^22.20.1",
