@@ -1,6 +1,4 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
-    const views = runtime.DocumentViews || (runtime.DocumentViews = {});
+import type { LocalManual, ManualUnit } from "./models";
 
     type PdfPageShell = { shell: HTMLElement; content: HTMLElement; pageNumber: number };
 
@@ -225,7 +223,4 @@
             .replace(/'/g, "&#39;");
     }
 
-    views.PdfDocumentView = PdfDocumentView;
-    views.calculatePdfPageWindow = calculatePdfPageWindow;
-    views.calculateTopAlignedScrollTop = calculateTopAlignedScrollTop;
-})();
+export { PdfDocumentView, calculatePdfPageWindow, calculateTopAlignedScrollTop };

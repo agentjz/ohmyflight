@@ -1,5 +1,5 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingAppContext } from "./app-context";
+import type { AuditKingDocument } from "./models";
 
     async function handleChecklistFile(context: AuditKingAppContext, file: File): Promise<void> {
         try {
@@ -12,7 +12,6 @@
             context.runtime.View.renderStatus(error instanceof Error ? error.message : String(error), "error");
         }
     }
-
     async function handleManualFiles(context: AuditKingAppContext, files: File[]): Promise<void> {
         try {
             context.runtime.View.renderStatus(`正在读取 ${files.length} 本手册...`, "info");
@@ -28,7 +27,7 @@
         }
     }
 
-    function bindUploads(context: AuditKingAppContext): void {
+export function bindUploads(context: AuditKingAppContext): void {
         const checklistInput = context.getElement<HTMLInputElement>("checklistInput");
         const manualInput = context.getElement<HTMLInputElement>("manualInput");
 
@@ -44,8 +43,3 @@
             if (files.length) void handleManualFiles(context, files);
         });
     }
-
-    runtime.UploadActions = {
-        bindUploads
-    };
-})();

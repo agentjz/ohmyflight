@@ -1,4 +1,6 @@
-window.JOBSKILL_ITEMS = [
+import type { JobskillItem } from "./models";
+
+export const jobskillItems: JobskillItem[] = [
   ["每天看", "skills/01/SKILL.md"],
   ["资质录入、统计与发布", "skills/02/SKILL.md"],
   ["资质代码", "skills/03/SKILL.md"],

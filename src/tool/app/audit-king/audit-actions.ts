@@ -1,7 +1,6 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingAppContext } from "./app-context";
 
-    function bindAuditActions(context: AuditKingAppContext): void {
+export function bindAuditActions(context: AuditKingAppContext): void {
         context.getElement<HTMLButtonElement>("addAuditCheckItemBtn").addEventListener("click", () => {
             context.runtime.State.addCheckItem(context.state, { code: "", name: "", keyword: "" });
             context.runtime.View.renderAll(context.state);
@@ -33,9 +32,6 @@
         context.getElement<HTMLButtonElement>("exportEvidenceBtn").addEventListener("click", () => {
             const groups = context.runtime.State.buildEvidenceGroups(context.state);
             if (!groups.length) return context.runtime.View.renderStatus("没有可导出的审计篮子内容。", "error");
-            XLSX.writeFile(context.runtime.Export.buildEvidenceWorkbook(groups), `审计之王_审计篮子_${context.formatLocalDate(new Date())}.xlsx`);
+            context.runtime.XLSX.writeFile(context.runtime.Export.buildEvidenceWorkbook(groups), `审计之王_审计篮子_${context.formatLocalDate(new Date())}.xlsx`);
         });
     }
-
-    runtime.AuditActions = { bindAuditActions };
-})();

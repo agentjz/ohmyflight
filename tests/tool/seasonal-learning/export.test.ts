@@ -1,7 +1,8 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createSeasonalLearningExport } from "../../../src/tool/app/seasonal-learning/export";
+import { SeasonalLearningLogic as logic } from "../../../src/tool/app/seasonal-learning/logic";
 
 const ACTUAL_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
 const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份"];
@@ -25,21 +26,7 @@ function workbookFixture() {
 }
 
 describe("seasonal learning export", () => {
-  let logic: any;
-  let exporter: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/seasonal-learning/data.js",
-      "tool/app/seasonal-learning/balance-filter.js",
-      "tool/app/seasonal-learning/balance-rules.js",
-      "tool/app/seasonal-learning/allocation.js",
-      "tool/app/seasonal-learning/logic.js",
-      "tool/app/seasonal-learning/export.js"
-    ], { XLSX });
-    logic = context.SeasonalLearningLogic;
-    exporter = context.SeasonalLearningExport;
-  });
+  const exporter = createSeasonalLearningExport(XLSX);
 
   it("replaces only the actual sheet, sorts rows, writes notes, and highlights adjusted rows", () => {
     const source = workbookFixture();

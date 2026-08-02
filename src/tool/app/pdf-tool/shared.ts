@@ -1,11 +1,7 @@
-(function () {
-  const runtime = window.PdfTool || (window.PdfTool = {} as PdfToolRuntimeRegistry);
-
-  function getElement<T extends HTMLElement>(id: string): T {
+export function getElement<T extends HTMLElement>(id: string): T {
     return document.getElementById(id) as T;
   }
-
-  function getCanvasContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+export function getCanvasContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Canvas 2D context unavailable");
@@ -13,7 +9,7 @@
     return context;
   }
 
-  function setupUpload(
+export function setupUpload(
     areaId: string,
     inputId: string,
     handler: (files: File[]) => void,
@@ -40,7 +36,7 @@
     };
   }
 
-  function initDragSort<T extends { id: number }>(
+export function initDragSort<T extends { id: number }>(
     container: HTMLElement,
     dataArray: T[],
     render: () => void
@@ -78,7 +74,7 @@
     });
   }
 
-  function parseRange(value: string, max: number): number[] {
+export function parseRange(value: string, max: number): number[] {
     if (!value.trim()) {
       return [];
     }
@@ -111,7 +107,7 @@
     return Array.from(pages).sort((left, right) => left - right);
   }
 
-  function formatRange(selectedPages: Set<number>): string {
+export function formatRange(selectedPages: Set<number>): string {
     if (selectedPages.size === 0) {
       return "";
     }
@@ -138,13 +134,13 @@
     return ranges.join(",");
   }
 
-  function formatSize(bytes: number): string {
+export function formatSize(bytes: number): string {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
-  function readFileAsDataUrl(file: File): Promise<string> {
+export function readFileAsDataUrl(file: File): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
@@ -159,7 +155,7 @@
     });
   }
 
-  function download(blob: Blob, filename: string): void {
+export function download(blob: Blob, filename: string): void {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -167,16 +163,3 @@
     link.click();
     URL.revokeObjectURL(url);
   }
-
-  runtime.shared = {
-    getElement,
-    getCanvasContext,
-    setupUpload,
-    initDragSort,
-    parseRange,
-    formatRange,
-    formatSize,
-    readFileAsDataUrl,
-    download
-  };
-})();

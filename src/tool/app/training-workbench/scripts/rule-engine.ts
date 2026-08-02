@@ -1,15 +1,33 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
+import { TrainingToolUtils } from "./utils";
+import type {
+  TrainingComputedExpiry,
+  TrainingPlanCoverage,
+  TrainingProjectRule,
+  TrainingScheduleClassification,
+  TrainingScheduleUrgency,
+  TrainingUpdateOutcome,
+  TrainingWindowInfo
+} from "./models";
 
-  function monthEnd(year, month) {
+const Utils = TrainingToolUtils;
+
+  type WindowPolicy = {
+    unit: "month" | "day";
+    amount: number;
+    endOffsetDays: number;
+    tag: string;
+    detailLabel: string;
+  };
+
+  function monthEnd(year: number, month: number): Date {
     return Utils.makeDate(year, month, new Date(year, month, 0).getDate());
   }
 
-  function firstDayOfMonth(value) {
+  function firstDayOfMonth(value: Date): Date {
     return Utils.makeDate(value.getFullYear(), value.getMonth() + 1, 1);
   }
 
-  function addMonths(value, months) {
+  function addMonths(value: Date, months: number): Date {
     const totalMonth = value.getMonth() + months;
     const year = value.getFullYear() + Math.floor(totalMonth / 12);
     const month = ((totalMonth % 12) + 12) % 12 + 1;
@@ -17,14 +35,14 @@
     return Utils.makeDate(year, month, day);
   }
 
-  function addYears(value, years) {
+  function addYears(value: Date, years: number): Date {
     const year = value.getFullYear() + years;
     const month = value.getMonth() + 1;
     const day = Math.min(value.getDate(), new Date(year, month, 0).getDate());
     return Utils.makeDate(year, month, day);
   }
 
-  function addValidity(dateValue, rule) {
+  function addValidity(dateValue: Date, rule: TrainingProjectRule): Date {
     const usesYears = Utils.normalizeText(rule.validityUnit).includes("年");
     const base = usesYears
       ? addYears(dateValue, rule.validityValue)
@@ -35,13 +53,13 @@
       : base;
   }
 
-  function calculateBaseMonthExpiry(trainingDate, validityMonths) {
+  function calculateBaseMonthExpiry(trainingDate: Date, validityMonths: number): Date {
     const anchor = firstDayOfMonth(trainingDate);
     const expiryMonth = addMonths(anchor, validityMonths + 1);
     return monthEnd(expiryMonth.getFullYear(), expiryMonth.getMonth() + 1);
   }
 
-  function inferBaseMonthWindow(oldExpiry, flexMonths) {
+  function inferBaseMonthWindow(oldExpiry: Date, flexMonths: number): { windowStart: Date; windowEnd: Date; baseMonth: Date } {
     const baseMonth = firstDayOfMonth(addMonths(oldExpiry, -1));
     const windowStart = firstDayOfMonth(addMonths(baseMonth, -flexMonths));
     const windowEndMonth = addMonths(baseMonth, flexMonths);
@@ -49,18 +67,18 @@
     return { windowStart, windowEnd, baseMonth };
   }
 
-  function shiftDays(value, days) {
-    const shifted = Utils.cloneDate(value);
+  function shiftDays(value: Date, days: number): Date {
+    const shifted = Utils.cloneDate(value)!;
     shifted.setDate(shifted.getDate() + days);
     return shifted;
   }
 
-  function isThreeMonthWindowRule(rule) {
+  function isThreeMonthWindowRule(rule: TrainingProjectRule): boolean {
     const ruleType = Utils.normalizeText(rule.ruleType);
     return ruleType === "3个月窗口（截止到前一日）" || ruleType === "3个月窗口";
   }
 
-  function resolveWindowPolicy(rule) {
+  function resolveWindowPolicy(rule: TrainingProjectRule): WindowPolicy | null {
     const ruleType = Utils.normalizeText(rule.ruleType);
 
     if (ruleType === "3个月窗口（截止到前一日）") {
@@ -86,7 +104,7 @@
     return null;
   }
 
-  function buildWindowRange(oldExpiry, windowPolicy) {
+  function buildWindowRange(oldExpiry: Date, windowPolicy: WindowPolicy): { windowStart: Date; windowEnd: Date } {
     const windowStart = windowPolicy.unit === "month"
       ? addMonths(oldExpiry, -windowPolicy.amount)
       : shiftDays(oldExpiry, -windowPolicy.amount);
@@ -94,14 +112,14 @@
     return { windowStart, windowEnd };
   }
 
-  function resolveDueDate(oldExpiry, windowInfo) {
+  function resolveDueDate(oldExpiry: Date, windowInfo: TrainingWindowInfo): Date {
     if (windowInfo && windowInfo.hasWindow && windowInfo.windowEnd) {
       return windowInfo.windowEnd;
     }
     return oldExpiry;
   }
 
-  function getWindowInfo(rule, oldExpiry) {
+  function getWindowInfo(rule: TrainingProjectRule, oldExpiry: Date | null): TrainingWindowInfo {
     const ruleType = Utils.normalizeText(rule.ruleType);
     if (!oldExpiry) {
       return {
@@ -145,7 +163,7 @@
     };
   }
 
-  function computeExpiry(rule, trainingDate, oldExpiry) {
+  function computeExpiry(rule: TrainingProjectRule, trainingDate: Date, oldExpiry: Date | null): TrainingComputedExpiry {
     const ruleType = Utils.normalizeText(rule.ruleType);
 
     if (ruleType === "最新日期") {
@@ -159,7 +177,7 @@
     const windowPolicy = resolveWindowPolicy(rule);
     if (windowPolicy) {
       if (oldExpiry) {
-        const windowInfo = getWindowInfo(rule, oldExpiry);
+        const windowInfo = getWindowInfo(rule, oldExpiry) as Extract<TrainingWindowInfo, { hasWindow: true }>;
         if (trainingDate >= windowInfo.windowStart && trainingDate <= windowInfo.windowEnd) {
           const newExpiry = addValidity(oldExpiry, rule);
           return {
@@ -178,7 +196,7 @@
 
     if (ruleType === "基准月") {
       if (oldExpiry) {
-        const windowInfo = getWindowInfo(rule, oldExpiry);
+        const windowInfo = getWindowInfo(rule, oldExpiry) as Extract<TrainingWindowInfo, { hasWindow: true }>;
         if (trainingDate >= windowInfo.windowStart && trainingDate <= windowInfo.windowEnd) {
           const newExpiry = addValidity(oldExpiry, rule);
           return {
@@ -198,22 +216,22 @@
     throw new Error(`不支持的规则类型：${ruleType}`);
   }
 
-  function sameDay(left, right) {
+  function sameDay(left: Date | null, right: Date | null): boolean {
     if (!left || !right) return false;
     return Utils.formatDate(left) === Utils.formatDate(right);
   }
 
-  function isEarlierDay(left, right) {
+  function isEarlierDay(left: Date | null, right: Date | null): boolean {
     if (!left || !right) return false;
     return left.getTime() < right.getTime() && !sameDay(left, right);
   }
 
-  function createTodayDate() {
+  function createTodayDate(): Date {
     const now = new Date();
     return Utils.makeDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
   }
 
-  function classifyUpdateJudgement(rule, trainingDate, oldExpiry) {
+  function classifyUpdateJudgement(rule: TrainingProjectRule, trainingDate: Date, oldExpiry: Date | null): string {
     if (!oldExpiry) return "首次无旧值";
 
     const ruleType = Utils.normalizeText(rule.ruleType);
@@ -231,7 +249,7 @@
     return "提前窗口外";
   }
 
-  function evaluateUpdateResult(oldExpiry, newExpiry, currentDate) {
+  function evaluateUpdateResult(oldExpiry: Date | null, newExpiry: Date | null, currentDate?: Date | null): TrainingUpdateOutcome {
     const today = currentDate || createTodayDate();
 
     if (newExpiry && isEarlierDay(newExpiry, today)) {
@@ -274,7 +292,7 @@
     };
   }
 
-  function evaluatePlanCoverage(rule, trainingDate, oldExpiry) {
+  function evaluatePlanCoverage(rule: TrainingProjectRule, trainingDate: Date | null, oldExpiry: Date | null): TrainingPlanCoverage {
     if (!oldExpiry) {
       return {
         covered: false,
@@ -328,7 +346,7 @@
     };
   }
 
-  function describeIgnored(cutoffDate, oldExpiry, windowInfo) {
+  function describeIgnored(cutoffDate: Date, oldExpiry: Date, windowInfo: TrainingWindowInfo): string {
     const dueDate = resolveDueDate(oldExpiry, windowInfo);
     if (!windowInfo.hasWindow) {
       return "项目无窗口期，且有效期截止日期未晚于旧有效期，默认忽略。";
@@ -342,7 +360,7 @@
     return "仍有效，当前日期不属于窗口期。";
   }
 
-  function classifyScheduleStatus(rule, cutoffDate, oldExpiry) {
+  function classifyScheduleStatus(rule: TrainingProjectRule, cutoffDate: Date, oldExpiry: Date | null): TrainingScheduleClassification {
     if (!oldExpiry) {
       return {
         status: "缺少旧有效期",
@@ -380,7 +398,7 @@
     };
   }
 
-  function describeStageOutsideWindow(stageStart, stageEnd, oldExpiry, windowInfo) {
+  function describeStageOutsideWindow(stageStart: Date, stageEnd: Date, oldExpiry: Date, windowInfo: TrainingWindowInfo): string {
     if (!windowInfo.hasWindow) {
       return `项目无窗口期，当前有效期为 ${Utils.formatDate(oldExpiry)}，未落在预排区间 ${Utils.formatDate(stageStart)} 至 ${Utils.formatDate(stageEnd)} 内。`;
     }
@@ -390,7 +408,7 @@
     return `预排区间未命中${windowInfo.tag}，窗口为 ${Utils.formatDate(windowInfo.windowStart)} 至 ${Utils.formatDate(windowInfo.windowEnd)}。`;
   }
 
-  function classifyScheduleUrgency(rule, stageStart, stageEnd, oldExpiry, status) {
+  function classifyScheduleUrgency(rule: TrainingProjectRule, stageStart: Date, stageEnd: Date, oldExpiry: Date | null, status: string): TrainingScheduleUrgency {
     if (!oldExpiry) {
       return {
         label: "",
@@ -451,7 +469,7 @@
     };
   }
 
-  function classifyScheduleStageStatus(rule, stageStart, stageEnd, oldExpiry) {
+  function classifyScheduleStageStatus(rule: TrainingProjectRule, stageStart: Date, stageEnd: Date, oldExpiry: Date | null): TrainingScheduleClassification {
     if (!oldExpiry) {
       return {
         status: "缺少旧有效期",
@@ -497,8 +515,7 @@
       reason: describeStageOutsideWindow(stageStart, stageEnd, oldExpiry, windowInfo)
     };
   }
-
-  window.TrainingTool.RuleEngine = {
+  export const TrainingToolRuleEngine = {
     addValidity,
     calculateBaseMonthExpiry,
     getWindowInfo,
@@ -511,4 +528,3 @@
     classifyScheduleUrgency,
     createTodayDate
   };
-})();

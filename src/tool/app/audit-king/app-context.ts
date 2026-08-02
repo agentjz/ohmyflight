@@ -1,7 +1,19 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingMatch, AuditKingStateModel } from "./models";
+import type { AuditKingRuntime } from "./runtime";
 
-    function createAppContext(): AuditKingAppContext {
+export interface AuditKingAppContext {
+    runtime: AuditKingRuntime;
+    state: AuditKingStateModel;
+    getElement<T extends HTMLElement>(id: string): T;
+    recomputeSearch(): void;
+    refresh(message?: string, type?: "info" | "success" | "error"): void;
+    getFilteredMatches(): AuditKingMatch[];
+    getCurrentFilteredMatch(): AuditKingMatch | null;
+    focusMatch(index: number): void;
+    formatLocalDate(date: Date): string;
+}
+
+export function createAppContext(runtime: AuditKingRuntime): AuditKingAppContext {
         const state: AuditKingStateModel = runtime.State.createState();
 
         function getElement<T extends HTMLElement>(id: string): T {
@@ -64,8 +76,3 @@
             formatLocalDate
         };
     }
-
-    runtime.AppContext = {
-        createAppContext
-    };
-})();

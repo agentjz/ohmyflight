@@ -1,5 +1,4 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingPdfLocatorDocument, AuditKingPdfLocatorSlot } from "./models";
     const PREVIEW_SCALE = 1.15;
     const MAX_OUTPUT_SCALE = 2.5;
 
@@ -62,7 +61,6 @@
         }
     }
 
-    runtime.PdfLocatorPreview = {
+export const AuditKingPdfLocatorPreview = {
         renderSlotPreview
     };
-})();

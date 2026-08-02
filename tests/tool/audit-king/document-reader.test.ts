@@ -1,28 +1,16 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createAuditKingDocumentReader } from "../../../src/tool/app/audit-king/document-reader";
 
 describe("audit-king document reader", () => {
-  let reader: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts(["tool/app/audit-king/document-reader.js"], {
-      mammoth: {
+  const reader = createAuditKingDocumentReader({
         async extractRawText() {
           return { value: "第一段\n\n第二段" };
         }
-      }
-    });
-    reader = (context.AuditKing as any).DocumentReader;
-  });
+      }, null);
 
   it("builds stable document and block ids without timestamps", async () => {
-    const file = {
-      name: "中国南方航空货运有限公司-机组资格【2024】.docx",
-      async arrayBuffer() {
-        return new ArrayBuffer(0);
-      }
-    };
+    const file = new File([new ArrayBuffer(0)], "中国南方航空货运有限公司-机组资格【2024】.docx");
 
     const documentItem = await reader.readDocxFile(file, 0);
 

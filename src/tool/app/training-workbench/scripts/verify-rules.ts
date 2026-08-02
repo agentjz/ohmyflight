@@ -1,51 +1,9 @@
-const fs = require("fs");
-const path = require("path");
-const vm = require("vm");
+import { TrainingToolConfig as Config } from "./config";
+import type { TrainingProjectRule } from "./models";
+import { TrainingToolRuleEngine as RuleEngine } from "./rule-engine";
+import { TrainingToolUtils as Utils } from "./utils";
 
-type VerifyRulesContext = {
-  console: Console;
-  Date: DateConstructor;
-  Math: Math;
-  Set: SetConstructor;
-  Map: MapConstructor;
-  Array: ArrayConstructor;
-  Object: ObjectConstructor;
-  String: StringConstructor;
-  Number: NumberConstructor;
-  Boolean: BooleanConstructor;
-  RegExp: RegExpConstructor;
-  window: VerifyRulesContext;
-  globalThis: VerifyRulesContext;
-  TrainingTool: Record<string, any>;
-};
-
-const context = {
-  console,
-  Date,
-  Math,
-  Set,
-  Map,
-  Array,
-  Object,
-  String,
-  Number,
-  Boolean,
-  RegExp
-} as VerifyRulesContext;
-context.window = context;
-context.globalThis = context;
-
-vm.createContext(context);
-
-["config.js", "utils.js", "rule-engine.js"].forEach((fileName) => {
-  const filePath = path.join(__dirname, fileName);
-  const source = fs.readFileSync(filePath, "utf8");
-  vm.runInContext(source, context, { filename: fileName });
-});
-
-const { Config, Utils, RuleEngine } = context.TrainingTool;
-
-function getRule(projectName) {
+function getRule(projectName: string): TrainingProjectRule {
   const rule = Config.PROJECT_RULES.find((item) => item.canonical === projectName);
   if (!rule) {
     throw new Error(`未找到规则：${projectName}`);
@@ -53,21 +11,21 @@ function getRule(projectName) {
   return rule;
 }
 
-function makeDate(text) {
-  return Utils.parseDate(text);
+function makeDate(text: string): Date {
+  return Utils.parseDate(text)!;
 }
 
-function formatDate(value) {
+function formatDate(value: Date | null): string {
   return Utils.formatDate(value);
 }
 
-function assertEqual(actual, expected, label, failures) {
+function assertEqual(actual: unknown, expected: unknown, label: string, failures: string[]): void {
   if (actual !== expected) {
     failures.push(`${label}: 期望 ${expected}，实际 ${actual}`);
   }
 }
 
-function runComputeExpiryCases(failures) {
+function runComputeExpiryCases(failures: string[]): void {
   const cases = [
     { project: "应急训练", oldExpiry: "", trainingDate: "2000-01-01", expected: "2002-02-28" },
     { project: "应急训练", oldExpiry: "2002-02-28", trainingDate: "2001-12-01", expected: "2004-02-29" },
@@ -92,7 +50,7 @@ function runComputeExpiryCases(failures) {
   });
 }
 
-function runUpdateJudgementCases(failures) {
+function runUpdateJudgementCases(failures: string[]): void {
   const cases = [
     { project: "应急训练", oldExpiry: "", trainingDate: "2024-01-10", expected: "首次无旧值" },
     { project: "危险品", oldExpiry: "2027-06-15", trainingDate: "2027-03-15", expected: "命中窗口" },
@@ -112,7 +70,7 @@ function runUpdateJudgementCases(failures) {
   });
 }
 
-function runUpdateOutcomeCases(failures) {
+function runUpdateOutcomeCases(failures: string[]): void {
   const today = makeDate("2026-04-01");
   const cases = [
     { oldExpiry: "", newExpiry: "2026-05-01", expected: "已更新" },
@@ -128,7 +86,7 @@ function runUpdateOutcomeCases(failures) {
   });
 }
 
-function runScheduleCases(failures) {
+function runScheduleCases(failures: string[]): void {
   const cases = [
     { project: "危险品", oldExpiry: "2027-06-15", stageStart: "2027-06-15", stageEnd: "2027-06-30", expected: "已过期" },
     { project: "危险品", oldExpiry: "2027-06-15", stageStart: "2027-03-15", stageEnd: "2027-03-31", expected: "命中窗口" },
@@ -151,8 +109,8 @@ function runScheduleCases(failures) {
   });
 }
 
-function main() {
-  const failures = [];
+function main(): void {
+  const failures: string[] = [];
   runComputeExpiryCases(failures);
   runUpdateJudgementCases(failures);
   runUpdateOutcomeCases(failures);

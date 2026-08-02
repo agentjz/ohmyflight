@@ -37,6 +37,7 @@ description: ohmyflight 培训皇帝/培训工作台专属开发引导。用于�
 - `scheduled-distribution.ts`、`annual-training-stats.ts`、`crm-annual.ts`：各自维护独立统计口径，不并入排班判断。
 - `simulation-schedule.ts`：只维护浏览器内模拟记录。
 - `app-*.ts`：页面接线、状态、渲染、图表和交互，不承载培训规则。
+- `app.ts` 是培训主页唯一生产入口，`rule-reference.ts` 是规则速查页唯一入口；内部模块通过局部 runtime 接口显式连接，不注册浏览器全局命名空间。
 
 只有当一个文件同时出现不同业务口径、独立状态生命周期或独立外部边界时才拆分。不要因为文件超过 300 行就机械拆开，也不要把规则计算重新塞回页面渲染文件。
 

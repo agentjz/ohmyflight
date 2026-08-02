@@ -1,62 +1,26 @@
 const ROSTER_PATH = "../../../template/机组花名册.xlsx";
 
-type CrewRosterEntry = {
-    id: string;
-    name: string;
-    department: string;
-    techInfo: string;
-    techLevel: string;
-};
+import type * as XlsxRuntime from "xlsx-js-style";
 
-type CrewMatchResult = CrewRosterEntry & {
-    pos: number;
-};
+import { createCrewMatchNameIdExporter } from "./export";
+import { parseRosterRows } from "./logic";
+import type { CrewExportOptions, CrewMatchResult, CrewRosterEntry, Html2CanvasApi } from "./models";
+import {
+    clearTableEditor,
+    getCurrentTableExportResults,
+    getTableCustomColumns,
+    initializeTableEditor,
+    setTableResults
+} from "./table-editor";
 
-type CrewCustomColumn = {
-    id: string;
-    header: string;
-    valuesByEmployeeId: Record<string, string>;
-};
-
-type CrewExportOptions = {
-    includeTechLevel?: boolean;
-};
-
-type CrewMatchNameIdLogicApi = {
-    parseRosterRows: (rows: unknown[][]) => CrewRosterEntry[];
-};
-
-type CrewMatchNameIdExporterApi = {
-    buildExcelWorkbook: (
-        entries: CrewRosterEntry[],
-        customColumns: CrewCustomColumn[],
-        options?: CrewExportOptions
-    ) => import("xlsx-js-style").WorkBook;
-    exportExcel: (
-        entries: CrewRosterEntry[],
-        customColumns: CrewCustomColumn[],
-        options?: CrewExportOptions
-    ) => void;
-    exportImage: (
-        entries: CrewRosterEntry[],
-        customColumns: CrewCustomColumn[],
-        imageTitle: string,
-        options?: CrewExportOptions
-    ) => Promise<void>;
-};
-
-type CrewMatchNameIdTableEditorApi = {
-    initialize: () => void;
-    setResults: (results: CrewMatchResult[]) => void;
-    clear: () => void;
-    getCurrentExportResults: () => CrewMatchResult[];
-    getCustomColumns: () => CrewCustomColumn[];
-};
+const XLSX = window.XLSX as unknown as typeof XlsxRuntime;
+const html2canvas = (window as unknown as { html2canvas?: Html2CanvasApi }).html2canvas;
+const exporter = createCrewMatchNameIdExporter(XLSX, html2canvas);
 
 let employeeData: CrewRosterEntry[] = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-    getTableEditorApi().initialize();
+    initializeTableEditor();
     void loadDefaultRoster();
 });
 
@@ -64,41 +28,6 @@ function requireElement<T extends HTMLElement>(id: string, Type: { new(): T }): 
     const element = document.getElementById(id);
     if (!(element instanceof Type)) throw new Error(`页面缺少必要元素：${id}`);
     return element;
-}
-
-function getRuntime() {
-    return globalThis as typeof globalThis & {
-        XLSX?: typeof import("xlsx-js-style");
-        CrewMatchNameIdLogic?: CrewMatchNameIdLogicApi;
-        CrewMatchNameIdExporter?: CrewMatchNameIdExporterApi;
-        CrewMatchNameIdTableEditor?: CrewMatchNameIdTableEditorApi;
-    };
-}
-
-function getLogicApi(): CrewMatchNameIdLogicApi {
-    const logic = getRuntime().CrewMatchNameIdLogic;
-    if (!logic || typeof logic.parseRosterRows !== "function") {
-        throw new Error("缺少 CrewMatchNameIdLogic，请确认 logic.js 已先于 main.js 加载。");
-    }
-    return logic;
-}
-
-function getExporterApi(): CrewMatchNameIdExporterApi {
-    const exporter = getRuntime().CrewMatchNameIdExporter;
-    if (!exporter) throw new Error("缺少名单导出组件，请刷新页面后重试。");
-    return exporter;
-}
-
-function getTableEditorApi(): CrewMatchNameIdTableEditorApi {
-    const editor = getRuntime().CrewMatchNameIdTableEditor;
-    if (!editor) throw new Error("缺少名单编辑组件，请刷新页面后重试。");
-    return editor;
-}
-
-function getXlsxApi(): typeof import("xlsx-js-style") {
-    const xlsx = getRuntime().XLSX;
-    if (!xlsx) throw new Error("Excel 组件未加载，请刷新页面后重试。");
-    return xlsx;
 }
 
 async function loadDefaultRoster(): Promise<void> {
@@ -116,11 +45,10 @@ async function loadDefaultRoster(): Promise<void> {
 
 function parseExcelData(data: Uint8Array, fileName: string): void {
     try {
-        const XLSX = getXlsxApi();
         const workbook = XLSX.read(data, { type: "array" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
-        employeeData = getLogicApi().parseRosterRows(rows);
+        employeeData = parseRosterRows(rows);
         showFileStatus(`已加载: ${fileName}（${employeeData.length} 条数据）`, "success");
         requireElement("searchBtn", HTMLButtonElement).disabled = false;
     } catch (error) {
@@ -154,13 +82,13 @@ function executeSearch(): void {
         .map((employee) => ({ ...employee, pos: text.indexOf(employee.name) }))
         .filter((employee) => employee.pos !== -1)
         .sort((left, right) => left.pos - right.pos);
-    getTableEditorApi().setResults(results);
+    setTableResults(results);
 }
 
 function clearCurrentList(): void {
     requireElement("textInput", HTMLTextAreaElement).value = "";
     requireElement("imageTitleInput", HTMLInputElement).value = "人员名单";
-    getTableEditorApi().clear();
+    clearTableEditor();
     requireElement("textInput", HTMLTextAreaElement).focus();
 }
 
@@ -176,7 +104,7 @@ function bindCopyButton(
     valueSelector: (employee: CrewMatchResult) => string
 ): void {
     requireElement(buttonId, HTMLButtonElement).addEventListener("click", function () {
-        const results = getTableEditorApi().getCurrentExportResults();
+        const results = getCurrentTableExportResults();
         if (!results.length) {
             alert("没有可复制的数据，请先查询匹配。");
             return;
@@ -223,22 +151,20 @@ bindCopyButton("copyIdBtn", "复制员工号列", (employee) => employee.id);
 bindCopyButton("copyNameBtn", "复制姓名列", (employee) => employee.name);
 
 requireElement("exportExcelBtn", HTMLButtonElement).addEventListener("click", () => {
-    const editor = getTableEditorApi();
-    const results = editor.getCurrentExportResults();
+    const results = getCurrentTableExportResults();
     if (!results.length) {
         alert("没有可导出的数据，请先查询匹配。");
         return;
     }
     try {
-        getExporterApi().exportExcel(results, editor.getCustomColumns(), getExportOptions());
+        exporter.exportExcel(results, getTableCustomColumns(), getExportOptions());
     } catch (error) {
         alert(error instanceof Error ? error.message : String(error));
     }
 });
 
 requireElement("exportImageBtn", HTMLButtonElement).addEventListener("click", async function () {
-    const editor = getTableEditorApi();
-    const results = editor.getCurrentExportResults();
+    const results = getCurrentTableExportResults();
     if (!results.length) {
         alert("没有可导出的数据，请先查询匹配。");
         return;
@@ -247,9 +173,9 @@ requireElement("exportImageBtn", HTMLButtonElement).addEventListener("click", as
     this.disabled = true;
     this.textContent = "生成中...";
     try {
-        await getExporterApi().exportImage(
+        await exporter.exportImage(
             results,
-            editor.getCustomColumns(),
+            getTableCustomColumns(),
             requireElement("imageTitleInput", HTMLInputElement).value,
             getExportOptions()
         );

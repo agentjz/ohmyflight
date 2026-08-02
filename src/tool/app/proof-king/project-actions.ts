@@ -1,6 +1,17 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
-    const archive = (window as any).OhMyFlightProjectArchive;
+import type { createProjectArchive } from "../../project-archive";
+import type { createExcelReport } from "./excel-report";
+import type {
+    ProofProjectActionsContext,
+    ProofProjectBuildInput,
+    ProofProjectReadResult
+} from "./models";
+import type { createProjectPackage } from "./project-package";
+
+export function createProjectActions(
+    archive: ReturnType<typeof createProjectArchive>,
+    ProjectPackage: ReturnType<typeof createProjectPackage>,
+    excelReport: ReturnType<typeof createExcelReport>
+) {
 
     function bind(context: ProofProjectActionsContext): void {
         const input = element<HTMLInputElement>("projectInput");
@@ -11,7 +22,7 @@
             if (!file) return;
             try {
                 context.setMessage(`正在校验项目包：${file.name}`, "info");
-                const restored = await runtime.ProjectPackage.read(file) as ProofProjectReadResult;
+                const restored = await ProjectPackage.read(file) as ProofProjectReadResult;
                 await context.restoreProject(restored);
             } catch (error) {
                 context.setMessage(error instanceof Error ? error.message : String(error), "danger");
@@ -22,12 +33,12 @@
             const project = context.getProjectInput();
             if (!project) return context.setMessage("请先完成两本手册的比对。", "danger");
             try {
-                const workbook = runtime.ExcelReport.buildWorkbookBytes(
+                const workbook = excelReport.buildWorkbookBytes(
                     project.comparison,
                     project.comparison.events,
                     project.decisions
                 ) as Uint8Array;
-                const bytes = await runtime.ProjectPackage.build({
+                const bytes = await ProjectPackage.build({
                     ...project,
                     workbook,
                     onProgress: (message: string, completed: number, total: number) => {
@@ -53,5 +64,5 @@
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     }
 
-    runtime.ProjectActions = { bind };
-})();
+    return { bind };
+}

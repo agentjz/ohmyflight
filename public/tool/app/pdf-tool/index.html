@@ -93,8 +93,8 @@
             </div>
             <div id="mergeList"></div>
             <div id="mergeActions" class="hidden">
-                <button class="btn btn-primary" onclick="doMerge()">合并PDF</button>
-                <button class="btn btn-outline-secondary ms-2" onclick="clearMergeList()">清空</button>
+                <button class="btn btn-primary" id="mergeButton">合并PDF</button>
+                <button class="btn btn-outline-secondary ms-2" id="clearMergeButton">清空</button>
             </div>
             <div id="mergeStatus" class="status-bar hidden"></div>
         </div>
@@ -126,10 +126,10 @@
                         </select>
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-primary btn-sm" onclick="doPdf2Img()">开始转换</button>
+                        <button class="btn btn-primary btn-sm" id="pdf2imgButton">开始转换</button>
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-outline-secondary btn-sm" onclick="clearPdf2ImgList()">清空</button>
+                        <button class="btn btn-outline-secondary btn-sm" id="clearPdf2imgButton">清空</button>
                     </div>
                 </div>
             </div>
@@ -145,8 +145,8 @@
             </div>
             <div id="img2pdfList"></div>
             <div id="img2pdfActions" class="hidden">
-                <button class="btn btn-primary" onclick="doImg2Pdf()">生成PDF</button>
-                <button class="btn btn-outline-secondary ms-2" onclick="clearImg2PdfList()">清空</button>
+                <button class="btn btn-primary" id="img2pdfButton">生成PDF</button>
+                <button class="btn btn-outline-secondary ms-2" id="clearImg2pdfButton">清空</button>
             </div>
             <div id="img2pdfStatus" class="status-bar hidden"></div>
         </div>
@@ -184,11 +184,6 @@
 <script src="../../../libs/pdf.min.js"></script>
 <script src="../../../libs/pdf-lib.min.js"></script>
 <script src="../../../libs/jszip.min.js"></script>
-<script src="shared.js"></script>
-<script src="extract.js"></script>
-<script src="merge.js"></script>
-<script src="pdf-to-image.js"></script>
-<script src="image-to-pdf.js"></script>
-<script src="main.js"></script>
+<script type="module" src="./app.js"></script>
 </body>
 </html>

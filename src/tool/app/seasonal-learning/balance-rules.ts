@@ -1,5 +1,9 @@
-(function () {
-    const BalanceFilter = window.SeasonalLearningBalanceFilter;
+import { SeasonalLearningBalanceFilter as BalanceFilter } from "./balance-filter";
+import type {
+    SeasonalLearningBalanceGroupDefinition,
+    SeasonalLearningBalanceHookDefinition,
+    SeasonalLearningPerson
+} from "./models";
 
     const HOOKS: SeasonalLearningBalanceHookDefinition[] = [
         {
@@ -7,14 +11,14 @@
             label: "美线带队",
             priority: 200,
             defaultEnabled: true,
-            matches: (person) => person.isUsLineLeader
+            matches: (person: SeasonalLearningPerson) => person.isUsLineLeader
         },
         {
             id: "leader",
             label: "带队机长",
             priority: 100,
             defaultEnabled: true,
-            matches: (person) => person.isLeader
+            matches: (person: SeasonalLearningPerson) => person.isLeader
         }
     ].sort((left, right) => right.priority - left.priority);
 
@@ -51,10 +55,9 @@
         };
     }
 
-    window.SeasonalLearningBalanceRules = {
+export const SeasonalLearningBalanceRules = {
         HOOKS,
         DEFAULT_ENABLED_HOOK_IDS,
         normalizeEnabledHookIds,
         resolveBalanceGroup
     };
-})();

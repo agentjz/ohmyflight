@@ -1,20 +1,12 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createManualReader } from "../../../src/tool/app/proof-king/manual-reader";
+import { manualProofHooks } from "../../../src/tool/app/proof-king/special-rules";
+
+const reader = createManualReader({ mammoth: null, pdfjsLib: null, hooks: manualProofHooks });
+const noisePhrase = manualProofHooks.ignoredNoisePhrases?.[0] || "";
 
 describe("校对之王文档读取", () => {
-    let reader: any;
-    let noisePhrase: string;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts([
-            "tool/app/proof-king/special-rules.js",
-            "tool/app/proof-king/manual-reader.js"
-        ]);
-        reader = (context as any).ManualProof.ManualReader;
-        noisePhrase = (context as any).ManualProofHooks.ignoredNoisePhrases[0];
-    });
-
     it("Word 全文按稳定原文单元读取并保留当前标题", () => {
         const units = reader.splitWordUnits("3.1 总则\n本章规定训练要求。\n检查程序\n保存记录。", "my");
         expect(units).toHaveLength(4);

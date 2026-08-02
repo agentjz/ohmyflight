@@ -1,83 +1,19 @@
-type CrewExportEntry = {
-    id: string;
-    name: string;
-    department: string;
-    techInfo: string;
-    techLevel: string;
-};
+import type * as XlsxRuntime from "xlsx-js-style";
 
-type CrewExportColumn = {
-    header: string;
-    valuesByEmployeeId: Record<string, string>;
-};
+import { buildExportRows, resolveImageTitle } from "./logic";
+import type {
+    CrewExportColumn,
+    CrewExportOptions,
+    CrewMatchNameIdExporterApi,
+    CrewRosterEntry,
+    Html2CanvasApi,
+    StyledCrewCell
+} from "./models";
 
-type CrewExportOptions = {
-    includeTechLevel?: boolean;
-};
-
-type CrewExportLogicApi = {
-    buildExportRows: (
-        entries: CrewExportEntry[],
-        customColumns?: CrewExportColumn[],
-        options?: CrewExportOptions
-    ) => string[][];
-    resolveImageTitle: (value: unknown) => string;
-};
-
-type CrewMatchNameIdExporterApi = {
-    buildExcelWorkbook: (
-        entries: CrewExportEntry[],
-        customColumns: CrewExportColumn[],
-        options?: CrewExportOptions
-    ) => import("xlsx-js-style").WorkBook;
-    exportExcel: (
-        entries: CrewExportEntry[],
-        customColumns: CrewExportColumn[],
-        options?: CrewExportOptions
-    ) => void;
-    exportImage: (
-        entries: CrewExportEntry[],
-        customColumns: CrewExportColumn[],
-        imageTitle: string,
-        options?: CrewExportOptions
-    ) => Promise<void>;
-};
-
-type Html2CanvasApi = (
-    element: HTMLElement,
-    options?: {
-        backgroundColor?: string;
-        logging?: boolean;
-        scale?: number;
-        useCORS?: boolean;
-        windowWidth?: number;
-    }
-) => Promise<HTMLCanvasElement>;
-
-type StyledCrewCell = import("xlsx-js-style").CellObject & {
-    s?: Record<string, unknown>;
-};
-
-function getExportRuntime() {
-    return globalThis as typeof globalThis & {
-        XLSX?: typeof import("xlsx-js-style");
-        html2canvas?: Html2CanvasApi;
-        CrewMatchNameIdLogic?: CrewExportLogicApi;
-        CrewMatchNameIdExporter?: CrewMatchNameIdExporterApi;
-    };
-}
-
-function requireExportLogic(): CrewExportLogicApi {
-    const logic = getExportRuntime().CrewMatchNameIdLogic;
-    if (!logic) throw new Error("缺少名单导出逻辑，请刷新页面后重试。");
-    return logic;
-}
-
-function requireXlsx(): typeof import("xlsx-js-style") {
-    const xlsx = getExportRuntime().XLSX;
-    if (!xlsx) throw new Error("Excel 导出组件未加载，请刷新页面后重试。");
-    return xlsx;
-}
+export function createCrewMatchNameIdExporter(
+    XLSX: typeof XlsxRuntime,
+    html2canvas: Html2CanvasApi | undefined
+): CrewMatchNameIdExporterApi {
 
 function applyWorksheetStyle(
     worksheet: import("xlsx-js-style").WorkSheet,
@@ -85,7 +21,6 @@ function applyWorksheetStyle(
     columnCount: number,
     options: CrewExportOptions
 ): void {
-    const XLSX = requireXlsx();
     const border = {
         top: { style: "thin", color: { rgb: "C8D2CD" } },
         bottom: { style: "thin", color: { rgb: "C8D2CD" } },
@@ -137,12 +72,11 @@ function applyWorksheetStyle(
 }
 
 function buildExcelWorkbook(
-    entries: CrewExportEntry[],
+    entries: CrewRosterEntry[],
     customColumns: CrewExportColumn[],
     options: CrewExportOptions = {}
 ): import("xlsx-js-style").WorkBook {
-    const XLSX = requireXlsx();
-    const rows = requireExportLogic().buildExportRows(entries, customColumns, options);
+    const rows = buildExportRows(entries, customColumns, options);
     const worksheet = XLSX.utils.aoa_to_sheet(rows);
     applyWorksheetStyle(worksheet, rows.length, rows[0]?.length || 0, options);
 
@@ -152,11 +86,10 @@ function buildExcelWorkbook(
 }
 
 function exportExcel(
-    entries: CrewExportEntry[],
+    entries: CrewRosterEntry[],
     customColumns: CrewExportColumn[],
     options: CrewExportOptions = {}
 ): void {
-    const XLSX = requireXlsx();
     XLSX.writeFile(
         buildExcelWorkbook(entries, customColumns, options),
         `姓名匹配员工号_${formatLocalDate(new Date())}.xlsx`
@@ -280,17 +213,15 @@ function downloadBlob(blob: Blob, fileName: string): void {
 }
 
 async function exportImage(
-    entries: CrewExportEntry[],
+    entries: CrewRosterEntry[],
     customColumns: CrewExportColumn[],
     imageTitle: string,
     options: CrewExportOptions = {}
 ): Promise<void> {
-    const html2canvas = getExportRuntime().html2canvas;
     if (!html2canvas) throw new Error("图片导出组件未加载，请刷新页面后重试。");
 
-    const logic = requireExportLogic();
-    const rows = logic.buildExportRows(entries, customColumns, options);
-    const title = logic.resolveImageTitle(imageTitle);
+    const rows = buildExportRows(entries, customColumns, options);
+    const title = resolveImageTitle(imageTitle);
     const surface = buildImageSurface(rows, title, options);
     document.body.appendChild(surface);
 
@@ -320,8 +251,9 @@ function formatLocalDate(date: Date): string {
     return `${year}-${month}-${day}`;
 }
 
-getExportRuntime().CrewMatchNameIdExporter = {
-    buildExcelWorkbook,
-    exportExcel,
-    exportImage
-};
+    return {
+        buildExcelWorkbook,
+        exportExcel,
+        exportImage
+    };
+}

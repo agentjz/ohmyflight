@@ -1,38 +1,76 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const RuleEngine = window.TrainingTool.RuleEngine;
-  const TrainingRecordPolicy = window.TrainingTool.TrainingRecordPolicy;
-  const TrainingIgnoreList = window.TrainingTool.TrainingIgnoreList;
-  const WorkbenchStatus = window.TrainingTool.WorkbenchStatus;
+import { TrainingToolRuleEngine } from "./rule-engine";
+import { TrainingToolTrainingIgnoreList } from "./training-ignore-list";
+import { TrainingToolTrainingRecordPolicy } from "./training-record-policy";
+import { TrainingToolUtils } from "./utils";
+import { TrainingToolWorkbenchStatus } from "./workbench-status";
+import type {
+  TrainingAssessmentFilters,
+  TrainingAssessmentOptions,
+  TrainingAssessmentRow,
+  TrainingChartData,
+  TrainingChartValueRow,
+  TrainingExtraProjectRow,
+  TrainingMonthChartRow,
+  TrainingPersonRiskRow,
+  TrainingProjectChartRow,
+  TrainingProjectGroup,
+  TrainingProjectRule,
+  TrainingProjectSummaryRow,
+  TrainingRecordState,
+  TrainingStatsCard,
+  TrainingSummaryData,
+  TrainingToolAnalysis,
+  TrainingToolProjectAnalysis,
+  TrainingToolSheetInfo,
+  TrainingToolSheetRow,
+  TrainingVisibleStatusBucket,
+  TrainingWorkbenchResult,
+  TrainingWindowInfo
+} from "./models";
+
+const Utils = TrainingToolUtils;
+  const RuleEngine = TrainingToolRuleEngine;
+  const TrainingRecordPolicy = TrainingToolTrainingRecordPolicy;
+  const TrainingIgnoreList = TrainingToolTrainingIgnoreList;
+  const WorkbenchStatus = TrainingToolWorkbenchStatus;
   const STATUSES = WorkbenchStatus.STATUSES;
   const DEFAULT_VISIBLE_STATUSES = WorkbenchStatus.DEFAULT_VISIBLE_STATUSES;
   const VISIBLE_STATUS_FIELDS = WorkbenchStatus.VISIBLE_STATUS_FIELDS;
 
-  type AssessmentFilters = {
-    projects?: string[];
-    statuses?: string[];
-    months?: string[];
-    searchText?: string;
-    pressureYear?: number | string;
+  type AssessmentFilters = TrainingAssessmentFilters;
+  type ExtraProjectRow = TrainingExtraProjectRow;
+
+  type AssessmentCandidate = { employeeId: string; name: string; expiry: Date };
+  type CandidateMatch = {
+    rowNumber: number;
+    source: string;
+    trainingDate: Date | null;
+    trainingDateText: string;
+    recorded: boolean;
+    recordState: TrainingRecordState;
+    covered: boolean;
+    dueDate?: Date | null;
+    reason: string;
+  };
+  type CandidateSource = { sheetInfo: TrainingToolSheetInfo; rows: TrainingToolSheetRow[]; sheetName: string };
+  type SchedulingNeed = {
+    status: string;
+    dueDate: Date;
+    dueMonth: string;
+    windowInfo: TrainingWindowInfo;
+    reason: string;
+  };
+  type SummaryOptions = {
+    analysis?: Pick<TrainingToolAnalysis, "projects">;
+    baseRows?: Array<{ projectName: string }>;
   };
 
-  type ExtraProjectRow = {
-    projectName: string;
-    employeeId?: string;
-    name?: string;
-    trainingStartDate?: string | Date;
-    trainingEndDate?: string | Date;
-    remark?: string;
-    source?: string;
-    id?: string;
-  };
-
-  function getRowTrainingDate(row, sheetInfo) {
+  function getRowTrainingDate(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): Date | null {
     return Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训开始日期"))
       || Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训结束日期"));
   }
 
-  function createExtraSheetInfo(project) {
+  function createExtraSheetInfo(project: TrainingToolProjectAnalysis): TrainingToolSheetInfo & { project: TrainingToolProjectAnalysis } {
     const headers = [
       "员工号",
       "姓名",
@@ -54,7 +92,7 @@
     };
   }
 
-  function buildExtraRows(project, extraProjectRows: ExtraProjectRow[] = []) {
+  function buildExtraRows(project: TrainingToolProjectAnalysis, extraProjectRows: ExtraProjectRow[] = []): { sheetInfo: TrainingToolSheetInfo; rows: TrainingToolSheetRow[] } {
     const sheetInfo = createExtraSheetInfo(project);
     const rows = (extraProjectRows || [])
       .filter((item) => Utils.normalizeProjectName(item.projectName) === project.canonical)
@@ -83,7 +121,7 @@
     };
   }
 
-  function samePerson(candidate, row, sheetInfo) {
+  function samePerson(candidate: AssessmentCandidate, row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): boolean {
     const rowEmployeeId = Utils.normalizeText(Utils.getValueByHeader(row, sheetInfo, "员工号"));
     const rowName = Utils.normalizeText(Utils.getValueByHeader(row, sheetInfo, "姓名"));
 
@@ -98,7 +136,7 @@
     return candidate.name === rowName;
   }
 
-  function addMonths(value, months) {
+  function addMonths(value: Date, months: number): Date {
     const totalMonth = value.getMonth() + months;
     const year = value.getFullYear() + Math.floor(totalMonth / 12);
     const month = ((totalMonth % 12) + 12) % 12 + 1;
@@ -106,24 +144,24 @@
     return Utils.makeDate(year, month, day);
   }
 
-  function firstDayOfMonth(value) {
+  function firstDayOfMonth(value: Date): Date {
     return Utils.makeDate(value.getFullYear(), value.getMonth() + 1, 1);
   }
 
-  function monthEnd(value) {
+  function monthEnd(value: Date): Date {
     return Utils.makeDate(value.getFullYear(), value.getMonth() + 1, new Date(value.getFullYear(), value.getMonth() + 1, 0).getDate());
   }
 
-  function createTodayDate() {
+  function createTodayDate(): Date {
     return RuleEngine.createTodayDate();
   }
 
-  function getDefaultStageEnd(today) {
+  function getDefaultStageEnd(today: Date): Date {
     return monthEnd(addMonths(today, 1));
   }
 
-  function buildCandidateMatches(project, candidate, extraProjectRows: ExtraProjectRow[] = []) {
-    const sources: any[] = [];
+  function buildCandidateMatches(project: TrainingToolProjectAnalysis, candidate: AssessmentCandidate, extraProjectRows: ExtraProjectRow[] = []): CandidateMatch[] {
+    const sources: CandidateSource[] = [];
     if (project.sheetInfo && project.sheetInfo.rows) {
       sources.push({
         sheetInfo: project.sheetInfo,
@@ -146,7 +184,7 @@
       .map((row) => {
         const trainingDate = getRowTrainingDate(row, sourceInfo.sheetInfo);
         const recordState = TrainingRecordPolicy.classify(row, sourceInfo.sheetInfo);
-        const coverage = recordState.active
+        const coverage: { covered: boolean; dueDate?: Date | null; reason: string } = recordState.active
           ? RuleEngine.evaluatePlanCoverage(project.rule, trainingDate, candidate.expiry)
           : {
             covered: false,
@@ -171,11 +209,11 @@
       });
   }
 
-  function getNoWindowRecommendationStart(expiry) {
+  function getNoWindowRecommendationStart(expiry: Date): Date {
     return firstDayOfMonth(addMonths(expiry, -2));
   }
 
-  function classifySchedulingNeed(rule, stageStart, stageEnd, expiry) {
+  function classifySchedulingNeed(rule: TrainingProjectRule, stageStart: Date, stageEnd: Date, expiry: Date): SchedulingNeed {
     const windowInfo = RuleEngine.getWindowInfo(rule, expiry);
     const coverageInfo = RuleEngine.evaluatePlanCoverage(rule, expiry, expiry);
     const dueDate = coverageInfo.dueDate || expiry;
@@ -233,8 +271,8 @@
     };
   }
 
-  function buildAssessmentRows(analysis, project, stageStart, stageEnd, extraProjectRows: ExtraProjectRow[] = []) {
-    const rows: any[] = [];
+  function buildAssessmentRows(analysis: TrainingToolAnalysis, project: TrainingToolProjectAnalysis, stageStart: Date, stageEnd: Date, extraProjectRows: ExtraProjectRow[] = []): TrainingAssessmentRow[] {
+    const rows: TrainingAssessmentRow[] = [];
 
     analysis.peopleInfo.rows.forEach((row) => {
       const employeeId = Utils.normalizeText(row.cells[analysis.peopleIndex.employeeColumnIndex]);
@@ -321,7 +359,7 @@
     return rows;
   }
 
-  function sortRows(rows) {
+  function sortRows(rows: TrainingAssessmentRow[]): TrainingAssessmentRow[] {
     rows.sort((left, right) => {
       const leftRank = WorkbenchStatus.rankOfStatus(left.status);
       const rightRank = WorkbenchStatus.rankOfStatus(right.status);
@@ -333,10 +371,10 @@
     return rows;
   }
 
-  function buildRows(analysis, options: { today?: Date; stageEnd?: Date; extraProjectRows?: ExtraProjectRow[] } = {}) {
+  function buildRows(analysis: TrainingToolAnalysis, options: TrainingAssessmentOptions = {}): { stageStart: Date; stageEnd: Date; rows: TrainingAssessmentRow[] } {
     const stageStart = options.today || createTodayDate();
     const stageEnd = options.stageEnd || getDefaultStageEnd(stageStart);
-    const rows: any[] = [];
+    const rows: TrainingAssessmentRow[] = [];
     const extraProjectRows = options.extraProjectRows || [];
 
     analysis.projects
@@ -352,7 +390,7 @@
     };
   }
 
-  function normalizeFilterSet(values) {
+  function normalizeFilterSet(values: string[] | undefined): Set<string> {
     return new Set(
       (Array.isArray(values) ? values : [])
         .map((value) => Utils.normalizeText(value))
@@ -360,7 +398,7 @@
     );
   }
 
-  function includesSearch(row, searchText) {
+  function includesSearch(row: TrainingAssessmentRow, searchText: unknown): boolean {
     const keyword = Utils.normalizeText(searchText);
     if (!keyword) return true;
     return [
@@ -375,7 +413,7 @@
     ].some((value) => Utils.normalizeText(value).includes(keyword));
   }
 
-  function filterRows(rows, filters: AssessmentFilters = {}) {
+  function filterRows(rows: TrainingAssessmentRow[], filters: AssessmentFilters = {}): TrainingAssessmentRow[] {
     const projectSet = normalizeFilterSet(filters.projects);
     const statusSet = normalizeFilterSet(filters.statuses);
     const monthSet = normalizeFilterSet(filters.months);
@@ -390,14 +428,14 @@
     });
   }
 
-  function countRows(rows) {
+  function countRows(rows: TrainingAssessmentRow[]): Record<string, number> {
     return rows.reduce((acc, row) => {
       acc[row.status] = (acc[row.status] || 0) + 1;
       return acc;
-    }, {});
+    }, {} as Record<string, number>);
   }
 
-  function buildStatsCards(rows) {
+  function buildStatsCards(rows: TrainingAssessmentRow[]): TrainingStatsCard[] {
     const counts = countRows(rows);
     return [
       {
@@ -439,12 +477,12 @@
     ];
   }
 
-  function uniqueSortedText(values, sort = true): string[] {
+  function uniqueSortedText(values: unknown[], sort = true): string[] {
     const result = [...new Set(values.map((value) => String(value || "")).filter(Boolean))] as string[];
     return sort ? result.sort((left, right) => left.localeCompare(right)) : result;
   }
 
-  function buildFilterOptions(rows) {
+  function buildFilterOptions(rows: TrainingAssessmentRow[]): TrainingWorkbenchResult["filterOptions"] {
     return {
       projects: uniqueSortedText(rows.map((row) => row.projectName)),
       statuses: uniqueSortedText(rows.map((row) => row.status), false),
@@ -452,7 +490,7 @@
     };
   }
 
-  function buildStatusChartRows(rows) {
+  function buildStatusChartRows(rows: TrainingAssessmentRow[]): TrainingChartValueRow[] {
     const counts = countRows(rows);
     return VISIBLE_STATUS_FIELDS.map((item) => ({
       name: item.status,
@@ -460,8 +498,8 @@
     }));
   }
 
-  function buildProjectChartRows(rows) {
-    const projectMap = new Map();
+  function buildProjectChartRows(rows: TrainingAssessmentRow[]): TrainingProjectChartRow[] {
+    const projectMap = new Map<string, TrainingProjectChartRow>();
     rows.forEach((row) => {
       if (!WorkbenchStatus.isDefaultVisible(row.status)) return;
       if (!projectMap.has(row.projectName)) {
@@ -470,7 +508,7 @@
         }));
       }
       const item = projectMap.get(row.projectName);
-      WorkbenchStatus.incrementVisibleStatusBucket(item, row.status);
+      WorkbenchStatus.incrementVisibleStatusBucket(item!, row.status);
     });
     return [...projectMap.values()].sort((left, right) => {
       const leftTotal = VISIBLE_STATUS_FIELDS.reduce((total, item) => total + left[item.field], 0);
@@ -479,42 +517,42 @@
     });
   }
 
-  function createStatusBucket(label) {
+  function createStatusBucket(label: string): TrainingMonthChartRow {
     return {
       label,
       ...WorkbenchStatus.createVisibleStatusBucket()
     };
   }
 
-  function incrementStatusBucket(item, status) {
+  function incrementStatusBucket(item: TrainingVisibleStatusBucket, status: string): void {
     WorkbenchStatus.incrementVisibleStatusBucket(item, status);
   }
 
-  function normalizePressureYear(value, fallbackDate) {
+  function normalizePressureYear(value: unknown, fallbackDate?: Date | null): number {
     const year = Number(value);
     if (Number.isInteger(year) && year >= 2000 && year <= 2100) return year;
     if (fallbackDate && fallbackDate.getFullYear) return fallbackDate.getFullYear();
     return createTodayDate().getFullYear();
   }
 
-  function buildYearMonthKeys(year) {
+  function buildYearMonthKeys(year: number): string[] {
     return Array.from({ length: 12 }, (_, index) => `${year}-${String(index + 1).padStart(2, "0")}`);
   }
 
-  function buildMonthChartRows(rows, options: { pressureYear?: number | string; stageStart?: Date } = {}) {
+  function buildMonthChartRows(rows: TrainingAssessmentRow[], options: { pressureYear?: number | string; stageStart?: Date | null } = {}): TrainingMonthChartRow[] {
     const year = normalizePressureYear(options.pressureYear, options.stageStart);
     const monthMap = new Map(buildYearMonthKeys(year).map((monthKey) => [monthKey, createStatusBucket(monthKey)]));
 
     rows.forEach((row) => {
       if (!WorkbenchStatus.isDefaultVisible(row.status)) return;
       if (!monthMap.has(row.dueMonth)) return;
-      incrementStatusBucket(monthMap.get(row.dueMonth), row.status);
+      incrementStatusBucket(monthMap.get(row.dueMonth)!, row.status);
     });
 
     return [...monthMap.values()];
   }
 
-  function createProjectSummaryItem(projectName) {
+  function createProjectSummaryItem(projectName: string): TrainingProjectSummaryRow {
     return {
       projectName,
       ...WorkbenchStatus.createVisibleStatusBucket(),
@@ -530,19 +568,16 @@
     };
   }
 
-  function incrementProjectSummary(item, row) {
+  function incrementProjectSummary(item: TrainingProjectSummaryRow, row: TrainingAssessmentRow): void {
     const status = row.status;
     WorkbenchStatus.incrementVisibleStatusBucket(item, status);
     if (item.rowsByStatus[status]) item.rowsByStatus[status].push(row);
     item.total += 1;
   }
 
-  function buildProjectSummaryRows(rows, options = {}) {
-    const summaryOptions = options as {
-      analysis?: { projects?: Array<{ canonical?: string }> };
-      baseRows?: Array<{ projectName: string }>;
-    };
-    const projectMap = new Map();
+  function buildProjectSummaryRows(rows: TrainingAssessmentRow[], options: SummaryOptions = {}): TrainingProjectSummaryRow[] {
+    const summaryOptions = options;
+    const projectMap = new Map<string, TrainingProjectSummaryRow>();
     if (summaryOptions.analysis && summaryOptions.analysis.projects) {
       summaryOptions.analysis.projects.forEach((project) => {
         if (project && project.canonical && !projectMap.has(project.canonical)) {
@@ -562,7 +597,7 @@
       if (!projectMap.has(row.projectName)) {
         projectMap.set(row.projectName, createProjectSummaryItem(row.projectName));
       }
-      incrementProjectSummary(projectMap.get(row.projectName), row);
+      incrementProjectSummary(projectMap.get(row.projectName)!, row);
     });
     return [...projectMap.values()].sort((left, right) => {
       return right.total - left.total
@@ -575,8 +610,8 @@
     });
   }
 
-  function buildProjectGroups(rows) {
-    const groupMap = new Map();
+  function buildProjectGroups(rows: TrainingAssessmentRow[]): TrainingProjectGroup[] {
+    const groupMap = new Map<string, Omit<TrainingProjectGroup, "total">>();
     rows.forEach((row) => {
       if (!WorkbenchStatus.isDefaultVisible(row.status)) return;
       const key = `${row.projectName}@@${row.status}`;
@@ -587,7 +622,7 @@
           rows: []
         });
       }
-      groupMap.get(key).rows.push(row);
+      groupMap.get(key)!.rows.push(row);
     });
     return [...groupMap.values()]
       .map((group) => ({
@@ -603,12 +638,12 @@
       });
   }
 
-  function parseDisplayDate(value) {
+  function parseDisplayDate(value: unknown): Date | null {
     return Utils.parseDate(value);
   }
 
-  function buildPersonRiskRows(rows) {
-    const personMap = new Map();
+  function buildPersonRiskRows(rows: TrainingAssessmentRow[]): TrainingPersonRiskRow[] {
+    const personMap = new Map<string, TrainingPersonRiskRow>();
     rows.forEach((row) => {
       if (!WorkbenchStatus.isDefaultVisible(row.status)) return;
       const key = row.employeeId || row.name;
@@ -623,7 +658,7 @@
           items: []
         });
       }
-      const item = personMap.get(key);
+      const item = personMap.get(key)!;
       WorkbenchStatus.incrementVisibleStatusBucket(item, row.status);
       item.total += 1;
       item.items.push({
@@ -656,7 +691,7 @@
     });
   }
 
-  function buildSummaryData(rows, options = {}) {
+  function buildSummaryData(rows: TrainingAssessmentRow[], options: SummaryOptions = {}): TrainingSummaryData {
     return {
       projectSummaryRows: buildProjectSummaryRows(rows, options),
       projectGroups: buildProjectGroups(rows),
@@ -664,7 +699,7 @@
     };
   }
 
-  function buildChartData(rows, options: { pressureYear?: number | string; stageStart?: Date } = {}) {
+  function buildChartData(rows: TrainingAssessmentRow[], options: { pressureYear?: number | string; stageStart?: Date | null } = {}): TrainingChartData {
     return {
       statusRows: buildStatusChartRows(rows),
       projectRows: buildProjectChartRows(rows),
@@ -672,7 +707,7 @@
     };
   }
 
-  function buildResult(analysis, options: { today?: Date; stageEnd?: Date; filters?: AssessmentFilters; pressureYear?: number | string; extraProjectRows?: ExtraProjectRow[] } = {}) {
+  function buildResult(analysis: TrainingToolAnalysis, options: TrainingAssessmentOptions = {}): TrainingWorkbenchResult {
     const assessment = buildRows(analysis, options);
     const allRows = assessment.rows;
     const detailRows = filterRows(allRows, options.filters || {});
@@ -698,7 +733,7 @@
     };
   }
 
-  function viewFromRows(baseResult, filters: AssessmentFilters = {}) {
+  function viewFromRows(baseResult: TrainingWorkbenchResult, filters: AssessmentFilters = {}): TrainingWorkbenchResult {
     const allRows = baseResult.allDetailRows || baseResult.detailRows || [];
     const detailRows = filterRows(allRows, filters);
     const hasExplicitStatusFilter = normalizeFilterSet(filters.statuses).size > 0;
@@ -720,8 +755,7 @@
       filterOptions: baseResult.filterOptions || buildFilterOptions(allRows)
     };
   }
-
-  window.TrainingTool.ScheduleAssessment = {
+  export const TrainingToolScheduleAssessment = {
     STATUSES,
     DEFAULT_VISIBLE_STATUSES,
     buildRows,
@@ -732,4 +766,3 @@
     buildChartData,
     buildSummaryData
   };
-})();

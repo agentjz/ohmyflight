@@ -1,10 +1,7 @@
-(function () {
-  const projectNames = Object.freeze([
+const projectNames = Object.freeze([
     "英语能力",
     "汉语能力"
   ]);
-
-  window.TrainingTool.TrainingCalendarExclusions = Object.freeze({
+  export const TrainingToolTrainingCalendarExclusions = Object.freeze({
     projectNames
   });
-})();

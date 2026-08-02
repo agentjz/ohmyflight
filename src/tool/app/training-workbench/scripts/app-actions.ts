@@ -1,12 +1,21 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const Scanner = window.TrainingTool.Scanner;
-  const Validity = window.TrainingTool.Validity;
-  const WorkbenchExport = window.TrainingTool.WorkbenchExport;
-  const CrmExport = window.TrainingTool.CrmExport;
-  const WorkbookHealth = window.TrainingTool.WorkbookHealth;
-  const ReportSheet = window.TrainingTool.ReportSheet;
-  const runtime = window.TrainingToolApp;
+import { TrainingToolCrmExport } from "./crm-export";
+import type { TrainingToolAppRuntime, TrainingToolWorkbook } from "./models";
+import { TrainingToolReportSheet } from "./report-sheet";
+import { TrainingToolScanner } from "./scanner";
+import { TrainingToolUtils } from "./utils";
+import { TrainingToolValidity } from "./validity";
+import { TrainingToolWorkbenchExport } from "./workbench-export";
+import { TrainingToolWorkbookHealth } from "./workbook-health";
+import { TrainingXlsx as XLSX } from "./browser-vendors";
+
+export function installTrainingAppActions(runtime: TrainingToolAppRuntime): void {
+const Utils = TrainingToolUtils;
+  const Scanner = TrainingToolScanner;
+  const Validity = TrainingToolValidity;
+  const WorkbenchExport = TrainingToolWorkbenchExport;
+  const CrmExport = TrainingToolCrmExport;
+  const WorkbookHealth = TrainingToolWorkbookHealth;
+  const ReportSheet = TrainingToolReportSheet;
   const COPY = runtime.copy;
   const state = runtime.state;
   const elements = runtime.elements;
@@ -15,7 +24,7 @@
   const projects = runtime.projects;
   const workbenchController = runtime.workbenchController;
 
-  async function handleWorkbookChange(event) {
+  async function handleWorkbookChange(event: Event): Promise<void> {
     const target = event.target;
     if (!(target instanceof HTMLInputElement)) {
       return;
@@ -186,15 +195,15 @@
     }
 
     try {
-      window.XLSX.writeFile(state.pendingExport, state.pendingExportName);
+      XLSX.writeFile(state.pendingExport, state.pendingExportName);
       controls.setStatus(`${state.pendingExportLabel}已导出：${state.pendingExportName}`);
     } catch (error) {
       controls.setStatus(Utils.errorMessage(error, "导出 Excel 失败。"), true);
     }
   }
 
-  function writeWorkbook(workbook, fileName, successLabel) {
-    window.XLSX.writeFile(workbook, fileName);
+  function writeWorkbook(workbook: TrainingToolWorkbook, fileName: string, successLabel: string): void {
+    XLSX.writeFile(workbook, fileName);
     controls.setStatus(`${successLabel}已导出：${fileName}`);
   }
 
@@ -259,4 +268,4 @@
     handleExportWorkbenchSelection,
     handleExportCrmMissing
   };
-})();
+}

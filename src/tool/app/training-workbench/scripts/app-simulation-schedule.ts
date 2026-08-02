@@ -1,7 +1,10 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const SimulationSchedule = window.TrainingTool.SimulationSchedule;
-  const runtime = window.TrainingToolApp;
+import { TrainingToolSimulationSchedule } from "./simulation-schedule";
+import type { TrainingSimulationRecordInput, TrainingToolAppRuntime } from "./models";
+import { TrainingToolUtils } from "./utils";
+
+export function installTrainingAppSimulationSchedule(runtime: TrainingToolAppRuntime): void {
+const Utils = TrainingToolUtils;
+  const SimulationSchedule = TrainingToolSimulationSchedule;
   const state = runtime.state;
   const elements = runtime.elements;
 
@@ -73,7 +76,7 @@
     if (runtime.controls) runtime.controls.refreshButtons();
   }
 
-  function buildRecordsFromSelection() {
+  function buildRecordsFromSelection(): TrainingSimulationRecordInput[] {
     if (!state.workbenchSelection || !state.workbenchSelection.rows || !state.workbenchSelection.rows.length) {
       throw new Error("请先点击项目风险矩阵中的数字，打开人员明细。");
     }
@@ -99,7 +102,7 @@
       }));
   }
 
-  function refreshWorkbenchWithSimulation(message) {
+  function refreshWorkbenchWithSimulation(message: string): void {
     syncState();
     if (state.analysis && runtime.workbenchController) {
       runtime.workbenchController.refreshWorkbenchResult(message);
@@ -123,7 +126,7 @@
     refreshWorkbenchWithSimulation("已清空模拟排班记录。");
   }
 
-  function handleRemove(event) {
+  function handleRemove(event: Event): void {
     const target = event.target;
     if (!(target instanceof HTMLButtonElement)) return;
     if (target.dataset.role !== "remove-simulation") return;
@@ -144,4 +147,4 @@
     handleRemove,
     clearRecords
   };
-})();
+}

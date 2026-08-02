@@ -1,7 +1,10 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const ScheduleGapCheck = window.TrainingTool.ScheduleGapCheck;
-  const runtime = window.TrainingToolApp;
+import { TrainingToolScheduleGapCheck } from "./schedule-gap-check";
+import type { TrainingToolAppRuntime, TrainingToolScheduleGapCheckResult, TrainingToolScheduleGapCheckRow } from "./models";
+import { TrainingToolUtils } from "./utils";
+
+export function installTrainingAppScheduleGapCheck(runtime: TrainingToolAppRuntime): void {
+const Utils = TrainingToolUtils;
+  const ScheduleGapCheck = TrainingToolScheduleGapCheck;
   const state = runtime.state;
   const elements = runtime.elements;
 
@@ -106,4 +109,4 @@
     rebuild,
     clear
   };
-})();
+}

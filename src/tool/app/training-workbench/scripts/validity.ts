@@ -1,15 +1,42 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const RuleEngine = window.TrainingTool.RuleEngine;
-  const TrainingRecordPolicy = window.TrainingTool.TrainingRecordPolicy;
+import { TrainingToolRuleEngine } from "./rule-engine";
+import { TrainingToolTrainingRecordPolicy } from "./training-record-policy";
+import { TrainingToolUtils } from "./utils";
+import type {
+  TrainingToolAnalysis,
+  TrainingToolPeopleIndex,
+  TrainingToolPeopleInfo,
+  TrainingToolProjectAnalysis,
+  TrainingToolRecordedInfo,
+  TrainingToolSheetRow,
+  TrainingToolUpdatedRowEntry,
+  TrainingToolWorkbook,
+  TrainingValidityDetailRow,
+  TrainingValidityResult,
+  TrainingValiditySkippedRow
+} from "./models";
 
-  function resolvePeopleRow(updateRow, updateInfo, peopleInfo, peopleIndex) {
+const Utils = TrainingToolUtils;
+  const RuleEngine = TrainingToolRuleEngine;
+  const TrainingRecordPolicy = TrainingToolTrainingRecordPolicy;
+
+  type ResolvedPeopleRow =
+    | { error: string }
+    | { rowIndex: number; row: TrainingToolSheetRow; matchedBy: string; error?: undefined };
+
+  type ValidityRowToProcess = {
+    row: TrainingToolSheetRow;
+    startDate: Date | null;
+    endDate: Date | null;
+    rowMonthKey: string;
+  };
+
+  function resolvePeopleRow(updateRow: TrainingToolSheetRow, updateInfo: TrainingToolRecordedInfo, peopleInfo: TrainingToolPeopleInfo, peopleIndex: TrainingToolPeopleIndex): ResolvedPeopleRow {
     const name = Utils.normalizeText(Utils.getValueByHeader(updateRow, updateInfo, "姓名"));
     const employeeId = Utils.normalizeText(Utils.getValueByHeader(updateRow, updateInfo, "员工号"));
     const nameMatches = name ? (peopleIndex.byName.get(name) || []) : [];
 
     if (nameMatches.length === 1) {
-      const targetRow = peopleInfo.rows[nameMatches[0]];
+      const targetRow = peopleInfo.rows[nameMatches[0]]!;
       const targetEmployeeId = Utils.normalizeText(targetRow.cells[peopleIndex.employeeColumnIndex]);
       if (employeeId && targetEmployeeId && targetEmployeeId !== employeeId) {
         return {
@@ -28,13 +55,13 @@
         return { error: "人员信息表中存在重名，且项目 sheet 的更新记录缺少员工号，无法唯一定位。" };
       }
       const narrowed = nameMatches.filter((index) => {
-        const targetRow = peopleInfo.rows[index];
+        const targetRow = peopleInfo.rows[index]!;
         return Utils.normalizeText(targetRow.cells[peopleIndex.employeeColumnIndex]) === employeeId;
       });
       if (narrowed.length === 1) {
         return {
           rowIndex: narrowed[0],
-          row: peopleInfo.rows[narrowed[0]],
+          row: peopleInfo.rows[narrowed[0]]!,
           matchedBy: "姓名 + 员工号"
         };
       }
@@ -45,7 +72,7 @@
     if (idMatches.length === 1) {
       return {
         rowIndex: idMatches[0],
-        row: peopleInfo.rows[idMatches[0]],
+        row: peopleInfo.rows[idMatches[0]]!,
         matchedBy: "员工号二次验证"
       };
     }
@@ -56,25 +83,25 @@
     return { error: "未在人员信息表中找到对应人员。" };
   }
 
-  function registerUpdatedRow(updatedRowMap, rowNumber, columnIndex, record) {
+  function registerUpdatedRow(updatedRowMap: Map<number, TrainingToolUpdatedRowEntry>, rowNumber: number, columnIndex: number, record: TrainingValidityDetailRow): void {
     const current = updatedRowMap.get(rowNumber) || {
       rowNumber,
       employeeId: record.employeeId,
       name: record.name,
-      columns: new Set(),
-      records: []
+      columns: new Set<number>(),
+      records: [] as TrainingValidityDetailRow[]
     };
     current.columns.add(columnIndex);
     current.records.push(record);
     updatedRowMap.set(rowNumber, current);
   }
 
-  function normalizeProjectNames(projectNames) {
+  function normalizeProjectNames(projectNames: string | string[]): string[] {
     const names = Array.isArray(projectNames) ? projectNames : [projectNames];
     return [...new Set(names.map((name) => Utils.normalizeText(name)).filter(Boolean))];
   }
 
-  function resolveSelectedProjects(analysis, projectNames) {
+  function resolveSelectedProjects(analysis: TrainingToolAnalysis, projectNames: string | string[]): TrainingToolProjectAnalysis[] {
     const selectedNames = normalizeProjectNames(projectNames);
     if (!selectedNames.length) {
       throw new Error("请先选择培训类型。");
@@ -95,7 +122,7 @@
     });
   }
 
-  function buildRowsToProcess(project, monthKey) {
+  function buildRowsToProcess(project: TrainingToolProjectAnalysis, monthKey: string): ValidityRowToProcess[] {
     return project.validityUpdateInfo.rows
       .map((row) => ({
         row,
@@ -112,7 +139,7 @@
       });
   }
 
-  function buildSkippedRow(projectName, name, status, reason) {
+  function buildSkippedRow(projectName: string, name: string, status: string, reason: string): TrainingValiditySkippedRow {
     return {
       projectName,
       name,
@@ -121,15 +148,15 @@
     };
   }
 
-  function buildValidityUpdate(workbook, analysis, projectNames, monthKey) {
+  function buildValidityUpdate(workbook: TrainingToolWorkbook, analysis: TrainingToolAnalysis, projectNames: string | string[], monthKey: string): TrainingValidityResult {
     const peopleInfo = analysis.peopleInfo;
-    const peopleSheet = workbook.Sheets[peopleInfo.name];
+    const peopleSheet = workbook.Sheets[peopleInfo.name]!;
     const selectedProjects = resolveSelectedProjects(analysis, projectNames);
     const today = RuleEngine.createTodayDate();
 
-    const detailRows: any[] = [];
-    const skippedRows: any[] = [];
-    const updatedRowMap = new Map();
+    const detailRows: TrainingValidityDetailRow[] = [];
+    const skippedRows: TrainingValiditySkippedRow[] = [];
+    const updatedRowMap = new Map<number, TrainingToolUpdatedRowEntry>();
     let matchedRecordedCount = 0;
     let updatedCount = 0;
     let unchangedCount = 0;
@@ -172,8 +199,9 @@
           skippedCount += 1;
           return;
         }
+        const matchedTarget = target as Extract<ResolvedPeopleRow, { row: TrainingToolSheetRow }>;
 
-        const oldRaw = target.row.cells[project.peopleColumnIndex];
+        const oldRaw = matchedTarget.row.cells[project.peopleColumnIndex];
         const oldExpiry = Utils.parseDate(oldRaw);
         const oldExpiryText = Utils.formatDate(oldExpiry) || Utils.normalizeText(oldRaw) || "无";
         const computed = RuleEngine.computeExpiry(project.rule, item.startDate, oldExpiry);
@@ -181,7 +209,7 @@
         const outcome = RuleEngine.evaluateUpdateResult(oldExpiry, computed.newExpiry, today);
         const newExpiryText = Utils.formatDate(computed.newExpiry);
         const reasonParts = [
-          `匹配方式：${target.matchedBy}`,
+          `匹配方式：${matchedTarget.matchedBy}`,
           computed.reason,
           outcome.reason
         ].filter(Boolean);
@@ -214,11 +242,11 @@
           return;
         }
 
-        Utils.writeDateCell(peopleSheet, target.row.rowNumber, project.peopleColumnIndex, computed.newExpiry);
-        target.row.cells[project.peopleColumnIndex] = Utils.cloneDate(computed.newExpiry);
+        Utils.writeDateCell(peopleSheet, matchedTarget.row.rowNumber, project.peopleColumnIndex, computed.newExpiry);
+        matchedTarget.row.cells[project.peopleColumnIndex] = Utils.cloneDate(computed.newExpiry);
         updatedCount += 1;
 
-        registerUpdatedRow(updatedRowMap, target.row.rowNumber, project.peopleColumnIndex, {
+        registerUpdatedRow(updatedRowMap, matchedTarget.row.rowNumber, project.peopleColumnIndex, {
           projectName: project.canonical,
           sheetName: project.sheetName,
           rowNumber: row.rowNumber,
@@ -255,8 +283,6 @@
       updatedRecords: detailRows.filter((row) => row.result === "已更新")
     };
   }
-
-  window.TrainingTool.Validity = {
+  export const TrainingToolValidity = {
     buildValidityUpdate
   };
-})();

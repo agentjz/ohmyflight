@@ -1,7 +1,8 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { TrainingToolCrmAnnual as CrmAnnual } from "../../../src/tool/app/training-workbench/scripts/crm-annual";
+import { TrainingToolScanner as Scanner } from "../../../src/tool/app/training-workbench/scripts/scanner";
 
 function makeDate(year: number, month: number, day: number) {
   return new Date(year, month - 1, day, 12, 0, 0, 0);
@@ -44,28 +45,8 @@ function buildWorkbook() {
 }
 
 describe("crm annual check", () => {
-  let Scanner: any;
-  let CrmAnnual: any;
-
   beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/training-workbench/scripts/config.js",
-      "tool/app/training-workbench/scripts/utils.js",
-      "tool/app/training-workbench/scripts/crm-instructors.js",
-      "tool/app/training-workbench/scripts/training-record-policy.js",
-      "tool/app/training-workbench/scripts/scanner.js",
-      "tool/app/training-workbench/scripts/crm-annual.js"
-    ], {
-      XLSX
-    });
-
-    const trainingTool = context.TrainingTool as {
-      Scanner: any;
-      CrmAnnual: any;
-    };
-
-    Scanner = trainingTool.Scanner;
-    CrmAnnual = trainingTool.CrmAnnual;
+    vi.stubGlobal("XLSX", XLSX);
   });
 
   it("checks CRM by calendar year from the exact CRM sheet only", () => {

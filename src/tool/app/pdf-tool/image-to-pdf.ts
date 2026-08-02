@@ -1,13 +1,7 @@
-(function () {
-  const runtime = window.PdfTool || (window.PdfTool = {} as PdfToolRuntimeRegistry);
-  const PDFDocument = PDFLib.PDFDocument;
+import type { PdfToolDependencies, PdfToolImageToPdfFile } from "./models";
+import * as tools from "./shared";
 
-  function initImageToPdf(): void {
-    const shared = runtime.shared;
-    if (!shared) {
-      throw new Error("PDF tool shared runtime is unavailable");
-    }
-    const tools: PdfToolSharedApi = shared;
+export function initImageToPdf({ PDFDocument }: PdfToolDependencies): void {
 
     const state = {
       images: [] as PdfToolImageToPdfFile[],
@@ -15,6 +9,12 @@
     };
 
     tools.setupUpload("img2pdfUpload", "img2pdfInput", addFiles, true);
+    tools.getElement<HTMLElement>("img2pdfList").addEventListener("click", (event) => {
+      const button = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>("button[data-file-id]");
+      if (button) removeImg2PdfFile(Number.parseInt(button.dataset.fileId || "", 10));
+    });
+    tools.getElement<HTMLButtonElement>("img2pdfButton").addEventListener("click", () => void doImg2Pdf());
+    tools.getElement<HTMLButtonElement>("clearImg2pdfButton").addEventListener("click", clearImg2PdfList);
 
     async function addFiles(files: File[]): Promise<void> {
       for (const file of files) {
@@ -45,7 +45,7 @@
             <div class="file-name">${image.name}</div>
             <div class="file-meta">${tools.formatSize(image.size)}</div>
           </div>
-          <button class="btn btn-sm btn-outline-danger" onclick="removeImg2PdfFile(${image.id})">×</button>
+          <button class="btn btn-sm btn-outline-danger" data-file-id="${image.id}">×</button>
         </div>
       `).join("");
 
@@ -91,7 +91,7 @@
         }
 
         const pdfBytes = await pdfDoc.save();
-        tools.download(new Blob([pdfBytes], { type: "application/pdf" }), `images_${state.images.length}pages.pdf`);
+        tools.download(new Blob([new Uint8Array(pdfBytes)], { type: "application/pdf" }), `images_${state.images.length}pages.pdf`);
         status.textContent = `已生成 ${state.images.length} 页 PDF`;
       } catch (error) {
         status.className = "status-bar error";
@@ -99,12 +99,4 @@
       }
     }
 
-    Object.assign(window, {
-      removeImg2PdfFile,
-      clearImg2PdfList,
-      doImg2Pdf
-    });
-  }
-
-  runtime.initImageToPdf = initImageToPdf;
-})();
+}

@@ -1,13 +1,13 @@
+import { initBase64 } from "./base64";
+import { initCompress } from "./compress";
+import { initConvert } from "./convert";
+import { initCrop } from "./crop";
+import { initResize } from "./resize";
+
 document.addEventListener("DOMContentLoaded", () => {
-  const runtime = window.ImageTool;
-
-  if (!runtime?.initConvert || !runtime.initCompress || !runtime.initResize || !runtime.initCrop || !runtime.initBase64) {
-    throw new Error("Image tool runtime failed to initialize");
-  }
-
-  runtime.initConvert();
-  runtime.initCompress();
-  runtime.initResize();
-  runtime.initCrop();
-  runtime.initBase64();
+  initConvert();
+  initCompress();
+  initResize();
+  initCrop();
+  initBase64();
 });

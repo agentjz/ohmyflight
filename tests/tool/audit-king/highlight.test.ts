@@ -1,15 +1,8 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { AuditKingHighlight as highlight } from "../../../src/tool/app/audit-king/highlight";
 
 describe("audit-king highlight", () => {
-  let highlight: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts(["tool/app/audit-king/highlight.js"]);
-        highlight = (context.AuditKing as any).Highlight;
-    });
-
   it("keeps overlapping manual keywords visible", () => {
     const segments = highlight.buildHighlightSegments("ABCD", [
       { checkItemId: "kw-1", color: "#f59e0b", start: 0, end: 3 },

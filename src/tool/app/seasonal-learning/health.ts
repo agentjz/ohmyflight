@@ -1,5 +1,10 @@
-(function () {
-    const Data = window.SeasonalLearningData;
+import { SeasonalLearningData as Data } from "./data";
+import type {
+    SeasonalLearningHealthLevel,
+    SeasonalLearningHealthPerson,
+    SeasonalLearningHealthResult
+} from "./models";
+
     const ACTUAL_REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
     const TOTAL_REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份"];
 
@@ -195,5 +200,4 @@
         return result;
     }
 
-    window.SeasonalLearningHealth = { buildWorkbookHealth };
-})();
+export const SeasonalLearningHealth = { buildWorkbookHealth };

@@ -1,6 +1,6 @@
 // 生成应用运行时：表单数据收集和通用工具
 
-const GeneratedAppRuntimeForm = {
+export const GeneratedAppRuntimeForm = {
     generate: () => `
 // 收集表单数据
 function collectFormData() {

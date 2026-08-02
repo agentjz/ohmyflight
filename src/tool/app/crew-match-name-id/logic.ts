@@ -1,30 +1,4 @@
-type CrewRosterEntry = {
-    id: string;
-    name: string;
-    department: string;
-    techInfo: string;
-    techLevel: string;
-};
-
-type CrewExportColumn = {
-    header: string;
-    valuesByEmployeeId: Record<string, string>;
-};
-
-type CrewExportOptions = {
-    includeTechLevel?: boolean;
-};
-
-type CrewMatchNameIdLogicApi = {
-    parseRosterRows: (rows: unknown[][]) => CrewRosterEntry[];
-    extractTechLevel: (techInfo: unknown) => string;
-    buildExportRows: (
-        entries: CrewRosterEntry[],
-        customColumns?: CrewExportColumn[],
-        options?: CrewExportOptions
-    ) => string[][];
-    resolveImageTitle: (value: unknown) => string;
-};
+import type { CrewExportColumn, CrewExportOptions, CrewRosterEntry } from "./models";
 
 function normalizeText(value: unknown): string {
     if (value === null || value === undefined) return "";
@@ -51,7 +25,7 @@ function findRequiredHeaderIndex(headers: unknown[], keyword: string): number {
     return index;
 }
 
-function extractTechLevel(techInfo: unknown): string {
+export function extractTechLevel(techInfo: unknown): string {
     const raw = normalizeText(techInfo);
     if (!raw) return "";
 
@@ -77,7 +51,7 @@ function extractTechLevel(techInfo: unknown): string {
     return "";
 }
 
-function parseRosterRows(rows: unknown[][]): CrewRosterEntry[] {
+export function parseRosterRows(rows: unknown[][]): CrewRosterEntry[] {
     if (!Array.isArray(rows) || rows.length === 0) return [];
 
     const headerRow = Array.isArray(rows[0]) ? rows[0] : [];
@@ -118,7 +92,7 @@ function parseRosterRows(rows: unknown[][]): CrewRosterEntry[] {
     return parsed;
 }
 
-function buildExportRows(
+export function buildExportRows(
     entries: CrewRosterEntry[],
     customColumns: CrewExportColumn[] = [],
     options: CrewExportOptions = {}
@@ -143,20 +117,6 @@ function buildExportRows(
 
     return [headers, ...rows];
 }
-
-function resolveImageTitle(value: unknown): string {
+export function resolveImageTitle(value: unknown): string {
     return normalizeText(value) || "人员名单";
 }
-
-const CrewMatchNameIdLogic: CrewMatchNameIdLogicApi = {
-    parseRosterRows,
-    extractTechLevel,
-    buildExportRows,
-    resolveImageTitle
-};
-
-const runtime = globalThis as typeof globalThis & {
-    CrewMatchNameIdLogic?: CrewMatchNameIdLogicApi;
-};
-
-runtime.CrewMatchNameIdLogic = CrewMatchNameIdLogic;

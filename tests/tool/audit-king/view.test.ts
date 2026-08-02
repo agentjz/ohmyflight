@@ -1,6 +1,6 @@
-import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createAuditKingView } from "../../../src/tool/app/audit-king/view";
 
 function createElement() {
   return {
@@ -16,14 +16,14 @@ describe("audit-king current check item view", () => {
 
   beforeAll(() => {
     const document = { getElementById(id: string) { return elements[id] || null; } };
-    const context = loadBrowserScripts(["tool/app/audit-king/view.js"], { document });
-    (context.AuditKing as any).SearchEngine = {
+    vi.stubGlobal("document", document);
+    const SearchEngine = {
       filterMatches(matches: any[], filters: any) {
         return matches.filter((match) => (filters.checkItemId === "all" || match.checkItemId === filters.checkItemId)
           && (filters.documentId === "all" || match.documentId === filters.documentId));
       }
     };
-    (context.AuditKing as any).Highlight = {
+    const Highlight = {
       buildHighlightSegments(text: string, ranges: any[]) {
         if (!ranges.length) return [{ text, keywordIds: [], evidenceIds: [], colors: [] }];
         const range = ranges[0];
@@ -37,7 +37,11 @@ describe("audit-king current check item view", () => {
         return { text: "前文训练要求后文", matchStart: 2, matchEnd: 6, truncatedStart: false, truncatedEnd: false, windowStart: 0, windowEnd: 8 };
       }
     };
-    view = (context.AuditKing as any).View;
+    view = createAuditKingView({
+      SearchEngine,
+      Highlight,
+      PdfLocatorView: { renderPdfLocator() {} }
+    } as any);
   });
 
   beforeEach(() => {

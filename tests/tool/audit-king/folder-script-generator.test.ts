@@ -1,17 +1,8 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { AuditKingFolderScriptGenerator as generator } from "../../../src/tool/app/audit-king/folder-script-generator";
 
 describe("audit-king folder script generator", () => {
-    let generator: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts([
-            "tool/app/audit-king/folder-script-generator.js"
-        ]);
-        generator = (context.AuditKing as any).FolderScriptGenerator;
-    });
-
     it("builds one folder name for each number in a full X.X-X.X range", () => {
         expect(generator.buildFolderRanges({
             rangeText: "1.1-1.4"

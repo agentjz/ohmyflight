@@ -1,5 +1,12 @@
-(function () {
-    function renderFocusSheets(
+import type {
+    FocusCrewCategory,
+    FocusCrewCategoryConfigEntry,
+    FocusCrewCategoryTotals,
+    FocusCrewJsonRow,
+    FocusSheetInfo
+} from "./models";
+
+export function renderFocusSheets(
         container: HTMLElement,
         focusSheets: FocusSheetInfo[],
         categoryConfig: Record<FocusCrewCategory, FocusCrewCategoryConfigEntry>
@@ -60,8 +67,7 @@
         
         container.innerHTML = html;
     }
-
-    function renderPreview(table: HTMLTableElement, columns: string[], rows: FocusCrewJsonRow[]) {
+export function renderPreview(table: HTMLTableElement, columns: string[], rows: FocusCrewJsonRow[]): void {
         let html = '<thead><tr>';
         columns.forEach((col, i) => { 
             html += '<th title="列索引:' + i + '">' + col + '</th>'; 
@@ -80,7 +86,7 @@
         table.innerHTML = html;
     }
 
-    function renderSelectors(idSelect: HTMLSelectElement, nameSelect: HTMLSelectElement, columns: string[]) {
+export function renderSelectors(idSelect: HTMLSelectElement, nameSelect: HTMLSelectElement, columns: string[]): void {
         idSelect.innerHTML = '<option value="">请选择...</option>';
         nameSelect.innerHTML = '<option value="">请选择...</option>';
         
@@ -100,7 +106,7 @@
         });
     }
 
-    function displayStats(
+export function displayStats(
         statsDiv: HTMLElement,
         totalFocus: number,
         matchedCategories: FocusCrewCategoryTotals,
@@ -123,11 +129,3 @@
         
         statsDiv.innerHTML = html;
     }
-
-    window.FocusCrewView = {
-        renderFocusSheets,
-        renderPreview,
-        renderSelectors,
-        displayStats
-    };
-})();

@@ -1,16 +1,9 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createAuditKingPdfLocatorModel } from "../../../src/tool/app/audit-king/pdf-locator-model";
 
 describe("audit-king pdf locator model", () => {
-    let model: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts([
-            "tool/app/audit-king/pdf-locator-model.js"
-        ]);
-        model = (context.AuditKing as any).PdfLocatorModel;
-    });
+    const model = createAuditKingPdfLocatorModel();
 
     it("normalizes text without losing business numbers and latin terms", () => {
         const normalized = model.normalizeLocatorText("7.5.4 飞行经历：具备 D 类机长资格，不少于 1000 小时；ICAO 四级。");
@@ -248,8 +241,8 @@ describe("audit-king pdf locator model", () => {
             endPage: ""
         }], [document]);
 
-        expect(slots[0].result.startPage).toBe(50);
-        expect(slots[0].result.endPage).toBe(51);
+        expect(slots[0]!.result!.startPage).toBe(50);
+        expect(slots[0]!.result!.endPage).toBe(51);
         expect(slots[0].startPage).toBe(49);
         expect(slots[0].endPage).toBe(52);
     });
@@ -278,8 +271,8 @@ describe("audit-king pdf locator model", () => {
             endPage: ""
         }], [document]);
 
-        expect(slots[0].result.startPage).toBe(1);
-        expect(slots[0].result.endPage).toBe(1);
+        expect(slots[0]!.result!.startPage).toBe(1);
+        expect(slots[0]!.result!.endPage).toBe(1);
         expect(slots[0].startPage).toBe(1);
         expect(slots[0].endPage).toBe(2);
     });
@@ -306,8 +299,8 @@ describe("audit-king pdf locator model", () => {
             endPage: ""
         }], [document], { expandContextPages: false });
 
-        expect(slots[0].result.startPage).toBe(2);
-        expect(slots[0].result.endPage).toBe(2);
+        expect(slots[0]!.result!.startPage).toBe(2);
+        expect(slots[0]!.result!.endPage).toBe(2);
         expect(slots[0].startPage).toBe(2);
         expect(slots[0].endPage).toBe(2);
     });
@@ -428,7 +421,7 @@ describe("audit-king pdf locator model", () => {
             startPage: 1,
             endPage: 2
         });
-        expect(restored.slots[0].result.pdfId).toBe("new-training-id");
+        expect(restored.slots[0]!.result!.pdfId).toBe("new-training-id");
     });
 });
 

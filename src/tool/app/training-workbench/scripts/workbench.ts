@@ -1,21 +1,21 @@
-(function () {
-  const ScheduleAssessment = window.TrainingTool.ScheduleAssessment;
+import { TrainingToolScheduleAssessment } from "./schedule-assessment";
+import type { TrainingAssessmentFilters, TrainingAssessmentOptions, TrainingAssessmentRow, TrainingToolAnalysis, TrainingWorkbenchResult } from "./models";
 
-  function buildWorkbench(analysis, options = {}) {
+const ScheduleAssessment = TrainingToolScheduleAssessment;
+
+  function buildWorkbench(analysis: TrainingToolAnalysis, options: TrainingAssessmentOptions = {}): TrainingWorkbenchResult {
     return ScheduleAssessment.buildResult(analysis, options);
   }
 
-  function filterWorkbenchRows(rows, filters = {}) {
+  function filterWorkbenchRows(rows: TrainingAssessmentRow[], filters: TrainingAssessmentFilters = {}): TrainingAssessmentRow[] {
     return ScheduleAssessment.filterRows(rows, filters);
   }
 
-  function viewFromRows(baseResult, filters = {}) {
+  function viewFromRows(baseResult: TrainingWorkbenchResult, filters: TrainingAssessmentFilters = {}): TrainingWorkbenchResult {
     return ScheduleAssessment.viewFromRows(baseResult, filters);
   }
-
-  window.TrainingTool.Workbench = {
+  export const TrainingToolWorkbench = {
     buildWorkbench,
     filterWorkbenchRows,
     viewFromRows
   };
-})();

@@ -1,24 +1,25 @@
-(function () {
-    const runtime = window.HotelBillCheck || (window.HotelBillCheck = {});
-    const hyperlinkStyle = {
+import { buildProofLinkColumns, getProofColumnCount } from "./logic";
+import type { HotelBillContext } from "./models";
+import { getSelectedCols } from "./view";
+
+const hyperlinkStyle = {
         font: { color: { rgb: "0000FF" }, underline: true }
     };
 
-    function makeHyperlinkCell(url: string, display: string): Record<string, unknown> {
+export function makeHyperlinkCell(url: string, display: string): Record<string, unknown> {
         return {
             f: '=HYPERLINK("' + url + '","' + display + '")',
             t: 'str',
             s: hyperlinkStyle
         };
     }
-
-    function exportExcel(context: HotelBillContext): void {
+export function exportExcel(context: HotelBillContext, selectColumns: (type: string) => number[] = getSelectedCols): void {
         if (context.state.matchResults.length === 0) return;
 
-        const billDisplayCols = runtime.View.getSelectedCols('bill') as number[];
-        const checkinDisplayCols = runtime.View.getSelectedCols('checkin') as number[];
-        const proofColumnCount = context.logic.getProofColumnCount(context.state.matchResults, context.state.checkinColumns, context.state.checkinHyperlinks);
-        const worksheet: Record<string, any> = {};
+        const billDisplayCols = selectColumns('bill');
+        const checkinDisplayCols = selectColumns('checkin');
+        const proofColumnCount = getProofColumnCount(context.state.matchResults, context.state.checkinColumns, context.state.checkinHyperlinks);
+        const worksheet: import("xlsx-js-style").WorkSheet = {};
         const colCount = 1 + billDisplayCols.length + checkinDisplayCols.length + proofColumnCount;
 
         let col = 0;
@@ -29,7 +30,7 @@
         checkinDisplayCols.forEach(index => {
             worksheet[context.XLSX.utils.encode_cell({ r: 0, c: col++ })] = { v: '[登记] ' + context.state.checkinColumns[index], t: 's' };
         });
-        context.logic.buildProofLinkColumns(context.state.matchResults[0], proofColumnCount, context.state.checkinColumns, context.state.checkinHyperlinks).forEach(proofColumn => {
+        buildProofLinkColumns(context.state.matchResults[0], proofColumnCount, context.state.checkinColumns, context.state.checkinHyperlinks).forEach(proofColumn => {
             worksheet[context.XLSX.utils.encode_cell({ r: 0, c: col++ })] = { v: proofColumn.header, t: 's' };
         });
 
@@ -58,7 +59,7 @@
                 });
             }
 
-            context.logic.buildProofLinkColumns(result, proofColumnCount, context.state.checkinColumns, context.state.checkinHyperlinks).forEach(proofColumn => {
+            buildProofLinkColumns(result, proofColumnCount, context.state.checkinColumns, context.state.checkinHyperlinks).forEach(proofColumn => {
                 worksheet[context.XLSX.utils.encode_cell({ r: row, c: currentColumn++ })] = proofColumn.link
                     ? makeHyperlinkCell(proofColumn.link.url, proofColumn.link.display)
                     : { v: '', t: 's' };
@@ -72,9 +73,3 @@
         context.XLSX.utils.book_append_sheet(workbook, worksheet, '对比结果');
         context.XLSX.writeFile(workbook, '账单对比结果.xlsx');
     }
-
-    runtime.ExportActions = {
-        exportExcel,
-        makeHyperlinkCell
-    };
-})();

@@ -1,6 +1,6 @@
 // 生成应用运行时：Word 渲染和文件下载
 
-const GeneratedAppRuntimeExport = {
+export const GeneratedAppRuntimeExport = {
     generate: () => `
 function renderWord(data, outputType) {
     const zip = new PizZip(templateData);

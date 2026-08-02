@@ -7,7 +7,7 @@
     "lib": ["ES2020", "DOM"],
     "types": ["node", "vitest/globals"],
     "strict": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "skipLibCheck": true,
     "allowJs": false,
     "resolveJsonModule": true,

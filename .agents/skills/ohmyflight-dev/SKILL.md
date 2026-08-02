@@ -11,7 +11,7 @@ description: ohmyflight 仓库内新增或修改工具的一般开发流程，�
 
 - 先读 `AGENTS.md`，再看仓库里同类型的成熟 app，不要从零臆造结构。
 - 前端 Excel 工具优先参考 `crew-flight-stats`、`hotel-bill-check`、`focus-crew`。
-- 文本解析工具优先参考 `crew-extract-id`、`crew-match-name-id`。
+- 文本解析工具优先参考 `crew-match-name-id`、`text-joiner`。
 - 大型前端模块优先参考 `training-workbench`。
 - Python 工具优先参考 `lock-entry-helper`、`flight-stats-helper`、`oa-read-helper`。
 - 工具入口看 `src/tool/tools-data.ts`，页面放 `public/tool/app/<tool>/`，源码放 `src/tool/app/<tool>/`。
@@ -21,6 +21,8 @@ description: ohmyflight 仓库内新增或修改工具的一般开发流程，�
 - 具体业务规则写进 `spec/dev/<tool>/`，用户操作方法写进 `spec/user/<tool>/manual.md`，不要写进 skill。
 - 代码、测试、文档三位一体同步；三者有一个还在描述旧事实，任务就没完成。
 - 业务逻辑和页面渲染分开：解析、统计、规则判断放可测试的逻辑模块，页面只负责上传、展示、导出和状态提示。
+- 浏览器内部模块使用标准 ESM 显式导入导出；每个 HTML 页面只连接一个应用入口，不通过 `window.*` 注册表或脚本标签顺序装配内部模块。
+- 稳定业务测试直接导入 `src/` 模块；生产页面启动、第三方 UMD 接线和重型关键流程由 `npm.cmd run test:browser` 使用真实 Chromium 验证，页面或浏览器 API 的专项改动再补有针对性的生产构建实测。
 - Excel 和文本处理优先按表头、字段名、结构化数据定位，不要写死文件名、sheet 名、列号或示例值，除非 spec 明确要求。
 - 输出给人核对的文件必须保留必要结果、口径和异常说明，不要堆无用噪音。
 
@@ -40,6 +42,7 @@ description: ohmyflight 仓库内新增或修改工具的一般开发流程，�
 npm.cmd run build
 npm.cmd run typecheck
 npm.cmd test
+npm.cmd run verify
 ```
 
 如果只验证某个测试文件，可先跑：

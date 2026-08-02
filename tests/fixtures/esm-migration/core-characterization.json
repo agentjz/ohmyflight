@@ -1,0 +1,28 @@
+{
+  "crewFlightStats": {
+    "rosterRows": [
+      ["员工号", "姓名"],
+      ["001", "张三"],
+      ["002", " 李四 "],
+      ["003", ""]
+    ],
+    "parsedNames": ["张三", "李四"]
+  },
+  "textJoiner": {
+    "input": "张鑫豪，付杰明、蓝锦坚；周桐 / 朱灿仪。",
+    "separator": "、",
+    "items": ["张鑫豪", "付杰明", "蓝锦坚", "周桐", "朱灿仪"],
+    "text": "张鑫豪、付杰明、蓝锦坚、周桐、朱灿仪"
+  },
+  "pdfStamp": {
+    "range": "1, 3-5, 5, 0, 99, a, 8-6",
+    "pageCount": 8,
+    "pages": [1, 3, 4, 5, 6, 7, 8]
+  },
+  "heavyWorkflowResultSha256": {
+    "training-workbench": "36f72df2caa826ef9d27246f90503da605437ba0ff5dc94a2496703ef6a86434",
+    "seasonal-learning": "926d9695af95e4b6216dc0599eb4430fac9f0163484919ffee3902746eacdda3",
+    "audit-king": "123d95246be4bfb6ca84baf8090085de514468ea159485553f13ef684fdeacbd",
+    "proof-king": "eee5043dceb616b950ce2feb312425e97be943ebe461e306175db910efbce4ad"
+  }
+}

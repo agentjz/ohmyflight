@@ -1,5 +1,29 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import { AuditKingCheckItemStore } from "./check-item-store";
+import type {
+    AuditKingAuditEvidence,
+    AuditKingCheckItem,
+    AuditKingCheckItemSource,
+    AuditKingDocument,
+    AuditKingEvidenceEntry,
+    AuditKingEvidenceGroup,
+    AuditKingImportedCheckItem,
+    AuditKingManualEvidence,
+    AuditKingPdfLocatorResult,
+    AuditKingSearchResult,
+    AuditKingStateModel,
+    AuditKingTextBlock,
+    AuditProjectRestoreInput
+} from "./models";
+import type { createAuditKingPdfLocatorModel } from "./pdf-locator-model";
+import type { createAuditKingSearchEngine } from "./search-engine";
+import { AuditKingSourceLocator } from "./source-locator";
+
+interface AuditKingStateDependencies {
+    SearchEngine?: ReturnType<typeof createAuditKingSearchEngine>;
+    PdfLocatorModel?: ReturnType<typeof createAuditKingPdfLocatorModel>;
+}
+
+export function createAuditKingState({ SearchEngine, PdfLocatorModel }: AuditKingStateDependencies = {}) {
     const DEFAULT_DETAIL_CONTEXT_LENGTH = 2000;
     const DETAIL_CONTEXT_STEP = 2000;
 
@@ -15,8 +39,8 @@
             documentFilterId: "all",
             currentMatchIndex: 0,
             currentDetailContextLength: DEFAULT_DETAIL_CONTEXT_LENGTH,
-            pdfLocator: runtime.PdfLocatorModel?.createState
-                ? runtime.PdfLocatorModel.createState()
+            pdfLocator: PdfLocatorModel?.createState
+                ? PdfLocatorModel.createState()
                 : {
                     documents: [], results: [], slots: [], selectedSlotId: "", expandContextPages: true,
                     summary: { trusted: 0, review: 0, miss: 0, skip: 0 }
@@ -37,8 +61,8 @@
     }
 
     function rebuildDocumentIndex(state: AuditKingStateModel): void {
-        state.documentIndex = runtime.SearchEngine?.buildDocumentIndex
-            ? runtime.SearchEngine.buildDocumentIndex(getEnabledDocuments(state))
+        state.documentIndex = SearchEngine?.buildDocumentIndex
+            ? SearchEngine.buildDocumentIndex(getEnabledDocuments(state))
             : null;
     }
 
@@ -47,7 +71,7 @@
         input: Partial<AuditKingImportedCheckItem> = {},
         options: { afterCheckItemId?: string } = {}
     ): AuditKingCheckItem {
-        const item = runtime.CheckItemStore.createCheckItem(input, state.checkItems.length);
+        const item = AuditKingCheckItemStore.createCheckItem(input, state.checkItems.length);
         const afterIndex = options.afterCheckItemId
             ? state.checkItems.findIndex((candidate) => candidate.id === options.afterCheckItemId)
             : -1;
@@ -58,12 +82,12 @@
     }
 
     function replaceCheckItems(state: AuditKingStateModel, imported: AuditKingImportedCheckItem[]): void {
-        state.checkItems = imported.map((item, index) => runtime.CheckItemStore.createCheckItem(item, index));
-        if (runtime.SourceLocator?.resolveCheckItemSources) {
-            state.checkItems = runtime.SourceLocator.resolveCheckItemSources(state.checkItems, state.checklistBlocks);
+        state.checkItems = imported.map((item, index) => AuditKingCheckItemStore.createCheckItem(item, index));
+        if (AuditKingSourceLocator.resolveCheckItemSources) {
+            state.checkItems = AuditKingSourceLocator.resolveCheckItemSources(state.checkItems, state.checklistBlocks);
         }
-        if (runtime.SourceLocator?.resolveCheckItemEvidences) {
-            state.checkItems = runtime.SourceLocator.resolveCheckItemEvidences(state.checkItems, state.documents);
+        if (AuditKingSourceLocator.resolveCheckItemEvidences) {
+            state.checkItems = AuditKingSourceLocator.resolveCheckItemEvidences(state.checkItems, state.documents);
         }
         state.currentCheckItemId = state.checkItems[0]?.id || "all";
         state.currentMatchIndex = 0;
@@ -114,15 +138,15 @@
 
     function setChecklistBlocks(state: AuditKingStateModel, blocks: AuditKingTextBlock[]): void {
         state.checklistBlocks = [...blocks];
-        if (runtime.SourceLocator?.resolveCheckItemSources) {
-            state.checkItems = runtime.SourceLocator.resolveCheckItemSources(state.checkItems, state.checklistBlocks);
+        if (AuditKingSourceLocator.resolveCheckItemSources) {
+            state.checkItems = AuditKingSourceLocator.resolveCheckItemSources(state.checkItems, state.checklistBlocks);
         }
     }
 
     function setDocuments(state: AuditKingStateModel, documents: AuditKingDocument[]): void {
         state.documents = documents.map((documentItem) => ({ ...documentItem, enabled: documentItem.enabled !== false }));
-        if (runtime.SourceLocator?.resolveCheckItemEvidences) {
-            state.checkItems = runtime.SourceLocator.resolveCheckItemEvidences(state.checkItems, state.documents);
+        if (AuditKingSourceLocator.resolveCheckItemEvidences) {
+            state.checkItems = AuditKingSourceLocator.resolveCheckItemEvidences(state.checkItems, state.documents);
         }
         rebuildDocumentIndex(state);
         if (state.documentFilterId !== "all" && !getEnabledDocuments(state).some((item) => item.id === state.documentFilterId)) {
@@ -168,7 +192,7 @@
 
     function normalizeManualEvidence(item: AuditKingCheckItem, evidence: AuditKingManualEvidence): AuditKingManualEvidence {
         return {
-            id: evidence.id || runtime.CheckItemStore.nextId("manual-evidence"),
+            id: evidence.id || AuditKingCheckItemStore.nextId("manual-evidence"),
             sourceType: evidence.sourceType || "",
             documentId: evidence.documentId || "",
             documentName: String(evidence.documentName || "").trim(),
@@ -206,7 +230,7 @@
         const item = state.checkItems.find((candidate) => candidate.id === checkItemId);
         if (!item) throw new Error("检查项不存在。");
         const evidence = {
-            id: runtime.CheckItemStore.nextId("audit-evidence"),
+            id: AuditKingCheckItemStore.nextId("audit-evidence"),
             content: content.trim(),
             note: note.trim(),
             sourceEvidenceId
@@ -254,8 +278,8 @@
         setDocuments(state, input.documents);
         replaceCheckItems(state, input.checkItems);
         state.pdfLocator.documents = [...input.locatorDocuments];
-        state.pdfLocator.slots = runtime.PdfLocatorModel?.rebindWorkspaceSlotsToDocuments
-            ? runtime.PdfLocatorModel.rebindWorkspaceSlotsToDocuments(input.pdfWorkspace.slots, state.pdfLocator.documents)
+        state.pdfLocator.slots = PdfLocatorModel?.rebindWorkspaceSlotsToDocuments
+            ? PdfLocatorModel.rebindWorkspaceSlotsToDocuments(input.pdfWorkspace.slots, state.pdfLocator.documents)
             : [...input.pdfWorkspace.slots];
         state.pdfLocator.selectedSlotId = state.pdfLocator.slots.some((slot) => slot.id === input.pdfWorkspace.selectedSlotId)
             ? input.pdfWorkspace.selectedSlotId
@@ -264,8 +288,8 @@
         state.pdfLocator.results = state.pdfLocator.slots
             .map((slot) => slot.result)
             .filter((result): result is AuditKingPdfLocatorResult => result !== undefined);
-        state.pdfLocator.summary = runtime.PdfLocatorModel?.summarizeResults
-            ? runtime.PdfLocatorModel.summarizeResults(state.pdfLocator.results)
+        state.pdfLocator.summary = PdfLocatorModel?.summarizeResults
+            ? PdfLocatorModel.summarizeResults(state.pdfLocator.results)
             : state.pdfLocator.results.reduce((summary, result) => {
                 summary[result.status] += 1;
                 return summary;
@@ -280,7 +304,7 @@
         resetMatchDetailContext(state);
     }
 
-    runtime.State = {
+    return {
         createState, resetMatchDetailContext, expandMatchDetailContext,
         addCheckItem, replaceCheckItems, updateCheckItem, removeCheckItem, moveCheckItemToPosition,
         updateCheckItemSource, clearCheckItemSource,
@@ -289,4 +313,4 @@
         addManualEvidence, removeManualEvidence, adoptManualEvidence,
         addAuditEvidence, updateAuditEvidence, removeAuditEvidence, buildEvidenceGroups, restoreProject
     };
-})();
+}

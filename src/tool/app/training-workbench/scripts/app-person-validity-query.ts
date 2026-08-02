@@ -1,7 +1,10 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const PersonValidityQuery = window.TrainingTool.PersonValidityQuery;
-  const runtime = window.TrainingToolApp;
+import { TrainingToolPersonValidityQuery } from "./person-validity-query";
+import type { TrainingToolAppRuntime, TrainingToolPersonValidityItem, TrainingToolPersonValidityRecord } from "./models";
+import { TrainingToolUtils } from "./utils";
+
+export function installTrainingAppPersonValidityQuery(runtime: TrainingToolAppRuntime): void {
+const Utils = TrainingToolUtils;
+  const PersonValidityQuery = TrainingToolPersonValidityQuery;
   const state = runtime.state;
   const elements = runtime.elements;
 
@@ -141,4 +144,4 @@
     rebuild,
     handleSearch
   };
-})();
+}

@@ -1,13 +1,7 @@
-(function () {
-  const runtime = window.PdfTool || (window.PdfTool = {} as PdfToolRuntimeRegistry);
-  const PDFDocument = PDFLib.PDFDocument;
+import type { PdfToolDependencies, PdfToolMergeFile } from "./models";
+import * as tools from "./shared";
 
-  function initMerge(): void {
-    const shared = runtime.shared;
-    if (!shared) {
-      throw new Error("PDF tool shared runtime is unavailable");
-    }
-    const tools: PdfToolSharedApi = shared;
+export function initMerge({ PDFDocument }: PdfToolDependencies): void {
 
     const state = {
       files: [] as PdfToolMergeFile[],
@@ -15,6 +9,12 @@
     };
 
     tools.setupUpload("mergeUpload", "mergeInput", addMergeFiles, true);
+    tools.getElement<HTMLElement>("mergeList").addEventListener("click", (event) => {
+      const button = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>("button[data-file-id]");
+      if (button) removeMergeFile(Number.parseInt(button.dataset.fileId || "", 10));
+    });
+    tools.getElement<HTMLButtonElement>("mergeButton").addEventListener("click", () => void doMerge());
+    tools.getElement<HTMLButtonElement>("clearMergeButton").addEventListener("click", clearMergeList);
 
     async function addMergeFiles(files: File[]): Promise<void> {
       for (const file of files) {
@@ -49,7 +49,7 @@
             <div class="file-name">${file.name}</div>
             <div class="file-meta">${file.pageCount}页 · ${tools.formatSize(file.size)}</div>
           </div>
-          <button class="btn btn-sm btn-outline-danger" onclick="removeMergeFile(${file.id})">×</button>
+          <button class="btn btn-sm btn-outline-danger" data-file-id="${file.id}">×</button>
         </div>
       `).join("");
 
@@ -91,7 +91,7 @@
         }
 
         const bytes = await merged.save();
-        tools.download(new Blob([bytes], { type: "application/pdf" }), `merged_${state.files.length}files.pdf`);
+        tools.download(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), `merged_${state.files.length}files.pdf`);
         status.textContent = `已合并 ${state.files.length} 个文件，共 ${totalPages} 页`;
       } catch (error) {
         status.className = "status-bar error";
@@ -99,12 +99,4 @@
       }
     }
 
-    Object.assign(window, {
-      removeMergeFile,
-      clearMergeList,
-      doMerge
-    });
-  }
-
-  runtime.initMerge = initMerge;
-})();
+}

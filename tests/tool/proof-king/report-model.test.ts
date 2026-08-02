@@ -1,15 +1,10 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { ManualProofReportModel } from "../../../src/tool/app/proof-king/report-model";
+
+const report: any = ManualProofReportModel;
 
 describe("校对之王 Word 报告模型", () => {
-    let report: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts(["tool/app/proof-king/report-model.js"]);
-        report = (context as any).ManualProof.ReportModel;
-    });
-
     it("只在报告层从稳定事件标题整理章节编号和红删蓝增", () => {
         const rows = report.buildRows([{
             kind: "modified",

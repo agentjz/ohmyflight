@@ -1,6 +1,16 @@
-(function () {
-    const runtime = window as SessionBillRuntime;
-    const XLSX = runtime.XLSX;
+import type * as XlsxRuntime from "xlsx-js-style";
+
+import type {
+    SessionBillCompareResult,
+    SessionBillLogicApi,
+    SessionBillSheet,
+    SessionBillSheetRow,
+    SessionBillSourceEntry,
+    SessionBillStatus,
+    SessionBillWorkbook
+} from "./models";
+
+export function createSessionBillLogic(XLSX: typeof XlsxRuntime): SessionBillLogicApi {
 
     const SESSION_HEADERS = ["学员", "教员", "检查员"];
     const BILL_SHEETS = ["全动", "理论"];
@@ -350,7 +360,7 @@
         return `场次账单核对_${stamp}.xlsx`;
     }
 
-    runtime.SessionBillLogic = {
+    return {
         splitNames,
         analyzeSessionWorkbook,
         analyzeBillWorkbook,
@@ -358,4 +368,4 @@
         buildExportWorkbook,
         buildOutputFileName
     };
-})();
+}

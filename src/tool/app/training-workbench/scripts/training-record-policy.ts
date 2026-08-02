@@ -1,5 +1,7 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
+import { TrainingToolUtils } from "./utils";
+import type { TrainingRecordState, TrainingToolSheetInfo, TrainingToolSheetRow, TrainingValidityRecordState } from "./models";
+
+const Utils = TrainingToolUtils;
 
   const HEADERS = {
     infoEntered: "培训信息是否录入",
@@ -13,31 +15,31 @@
     cancelKeyword: "取消"
   };
 
-  function getInfoEnteredText(row, sheetInfo) {
+  function getInfoEnteredText(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): string {
     return Utils.normalizeText(Utils.getValueByHeader(row, sheetInfo, HEADERS.infoEntered));
   }
 
-  function getRemarkText(row, sheetInfo) {
+  function getRemarkText(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): string {
     return Utils.normalizeText(Utils.getValueByHeader(row, sheetInfo, HEADERS.remark));
   }
 
-  function getMachineViewText(row, sheetInfo) {
+  function getMachineViewText(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): string {
     return Utils.normalizeText(Utils.getValueByHeader(row, sheetInfo, HEADERS.machineView));
   }
 
-  function isRecorded(row, sheetInfo) {
+  function isRecorded(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): boolean {
     return getInfoEnteredText(row, sheetInfo) === VALUES.recorded;
   }
 
-  function isMarkedForValidityUpdate(row, sheetInfo) {
+  function isMarkedForValidityUpdate(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): boolean {
     return getMachineViewText(row, sheetInfo).toUpperCase() === VALUES.machineUpdate;
   }
 
-  function isCancelled(row, sheetInfo) {
+  function isCancelled(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): boolean {
     return getRemarkText(row, sheetInfo).includes(VALUES.cancelKeyword);
   }
 
-  function classify(row, sheetInfo) {
+  function classify(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): TrainingRecordState {
     const recorded = isRecorded(row, sheetInfo);
     const cancelled = isCancelled(row, sheetInfo);
 
@@ -73,7 +75,7 @@
     };
   }
 
-  function classifyForValidityUpdate(row, sheetInfo) {
+  function classifyForValidityUpdate(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): TrainingValidityRecordState {
     const markedForUpdate = isMarkedForValidityUpdate(row, sheetInfo);
     const cancelled = isCancelled(row, sheetInfo);
 
@@ -108,8 +110,7 @@
       reason: markedForUpdate ? "" : "机器看不是“Y”，本次不参与有效期更新。"
     };
   }
-
-  window.TrainingTool.TrainingRecordPolicy = {
+  export const TrainingToolTrainingRecordPolicy = {
     getInfoEnteredText,
     getMachineViewText,
     getRemarkText,
@@ -119,4 +120,3 @@
     classify,
     classifyForValidityUpdate
   };
-})();

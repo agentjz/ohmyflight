@@ -1,6 +1,8 @@
-(function () {
-  const items: JobskillItem[] = Array.isArray(window.JOBSKILL_ITEMS) ? window.JOBSKILL_ITEMS : [];
-  const searchEngine = window.JobskillSearch;
+import "../tool/support-shell";
+import type { JobskillItem, JobskillSearchResult } from "./models";
+import * as searchEngine from "./search";
+import { jobskillItems as items } from "./skills-data";
+
   const list = requireElement("skillList", HTMLElement);
   const content = requireElement("content", HTMLElement);
   const sidebarMenu = requireElement("sidebarMenu", HTMLElement);
@@ -246,4 +248,3 @@
 
   renderFullList();
   loadSkill();
-})();

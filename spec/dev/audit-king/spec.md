@@ -37,7 +37,7 @@
 - 每本 PDF 构建连续 1、2、3 页候选窗口；依据按有意义片段、顺序和窗口密度评分。
 - 覆盖不足或有效片段少于两个时保持未命中；自动结果只是人工确认候选。
 - 自动命中默认可向前后各扩一页但不得越界，用户可改页码、预览、保存工作区 JSON 和导出 PDF。
-- 业务忽略行或弱片段规则默认为空，只允许通过 `AuditKing.PdfLocatorHooks` 外部注入。
+- 业务忽略行或弱片段规则默认为空，只允许通过 `createAuditKingPdfLocatorModel` 的显式 `locatorHooks` 参数注入。
 
 ## 完整项目包
 
@@ -53,7 +53,8 @@
 ## 代码与验证
 
 - 页面：`public/tool/app/audit-king/index.html`
-- 主模型与状态：`src/tool/app/audit-king/types.ts`、`state.ts`
+- 页面入口：`src/tool/app/audit-king/main.ts`，生产页面只加载一个 ESM 应用包。
+- 主模型与状态：`src/tool/app/audit-king/models.ts`、`state.ts`
 - 文档与检索：`document-reader.ts`、`search-engine.ts`、`source-locator.ts`
 - 工作簿与导出：`check-item-workbook.ts`、`export.ts`
 - PDF 工作区：`pdf-locator-*.ts`

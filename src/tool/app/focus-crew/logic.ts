@@ -1,7 +1,19 @@
-type FocusCrewWorkbook = import("xlsx-js-style").WorkBook;
-type FocusCrewWorksheet = import("xlsx-js-style").WorkSheet;
+import type * as XlsxRuntime from "xlsx-js-style";
 
-(function () {
+import type {
+    FocusCrewCategory,
+    FocusCrewCategoryConfigEntry,
+    FocusCrewCategoryTotals,
+    FocusCrewCollectResult,
+    FocusCrewHighlightResult,
+    FocusCrewJsonRow,
+    FocusCrewLogicApi,
+    FocusCrewWorkbook,
+    FocusCrewWorksheet,
+    FocusSheetInfo
+} from "./models";
+
+export function createFocusCrewLogic(XLSX: typeof XlsxRuntime): FocusCrewLogicApi {
     const CATEGORY_CONFIG: Record<FocusCrewCategory, FocusCrewCategoryConfigEntry> = {
         '重点关注': { priority: 1, color: 'F6DADF', label: '重点' },
         '一般关注': { priority: 2, color: 'E4E0F1', label: '一般' },
@@ -23,10 +35,6 @@ type FocusCrewWorksheet = import("xlsx-js-style").WorkSheet;
         return null;
     }
 
-    function getXlsx() {
-        return (globalThis as typeof globalThis & { XLSX: typeof import("xlsx-js-style") }).XLSX;
-    }
-
     function parseFocusWorkbook(workbook: FocusCrewWorkbook): FocusSheetInfo[] {
         const focusSheets: FocusSheetInfo[] = [];
 
@@ -35,7 +43,7 @@ type FocusCrewWorksheet = import("xlsx-js-style").WorkSheet;
             if (!category) return;
 
             const sheet = workbook.Sheets[sheetName];
-            const rows = getXlsx().utils.sheet_to_json<FocusCrewJsonRow>(sheet, { header: 1, raw: false });
+            const rows = XLSX.utils.sheet_to_json<FocusCrewJsonRow>(sheet, { header: 1, raw: false });
             if (rows.length < 2) return;
 
             const columns = (rows[1] || []).map((cell, index) => cell ? String(cell) : '列' + (index + 1));
@@ -108,19 +116,19 @@ type FocusCrewWorksheet = import("xlsx-js-style").WorkSheet;
         scheduleNameCol: number,
         focusData: Record<string, FocusCrewCategory[]>
     ): FocusCrewHighlightResult {
-        const resultWorkbook = getXlsx().utils.book_new();
+        const resultWorkbook = XLSX.utils.book_new();
         const matchedCategories: FocusCrewCategoryTotals = {};
         const sheetMatchCounts: Record<string, number> = {};
 
         scheduleWorkbook.SheetNames.forEach(sheetName => {
             const sourceSheet = scheduleWorkbook.Sheets[sheetName];
-            const range = getXlsx().utils.decode_range(sourceSheet['!ref'] || 'A1');
+            const range = XLSX.utils.decode_range(sourceSheet['!ref'] || 'A1');
             const newSheet: FocusCrewWorksheet = {};
             let matchCount = 0;
 
             for (let rowIndex = 0; rowIndex <= range.e.r; rowIndex++) {
                 for (let colIndex = 0; colIndex <= range.e.c; colIndex++) {
-                    const addr = getXlsx().utils.encode_cell({ r: rowIndex, c: colIndex });
+                    const addr = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
                     const sourceCell = sourceSheet[addr];
                     if (!sourceCell) continue;
 
@@ -149,7 +157,7 @@ type FocusCrewWorksheet = import("xlsx-js-style").WorkSheet;
             if (sourceSheet['!cols']) newSheet['!cols'] = sourceSheet['!cols'];
             if (sourceSheet['!rows']) newSheet['!rows'] = sourceSheet['!rows'];
 
-            getXlsx().utils.book_append_sheet(resultWorkbook, newSheet, sheetName);
+            XLSX.utils.book_append_sheet(resultWorkbook, newSheet, sheetName);
             sheetMatchCounts[sheetName] = matchCount;
         });
 
@@ -160,13 +168,11 @@ type FocusCrewWorksheet = import("xlsx-js-style").WorkSheet;
         };
     }
 
-    const api: FocusCrewLogicApi = {
+    return {
         CATEGORY_CONFIG,
         detectCategory,
         parseFocusWorkbook,
         collectFocusData,
         buildHighlightedWorkbook
     };
-
-    window.FocusCrewLogic = api;
-})();
+}

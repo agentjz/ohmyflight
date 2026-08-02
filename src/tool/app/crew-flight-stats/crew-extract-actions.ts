@@ -1,8 +1,9 @@
-(function () {
-    const runtime = window.CrewFlightStatsApp || (window.CrewFlightStatsApp = {});
-    const INITIAL_ROWS = 10;
+import { extractNamesInTextOrder } from "./logic";
+import type { CrewFlightStatsContext } from "./models";
 
-    function createCrewRow(): HTMLTableRowElement {
+const INITIAL_ROWS = 10;
+
+export function createCrewRow(): HTMLTableRowElement {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td style="padding: 4px; border: 1px solid #d0d7de;">
@@ -16,9 +17,8 @@
             </td>
         `;
         return row;
-    }
-
-    function initCrewTable(context: CrewFlightStatsContext): void {
+}
+export function initCrewTable(context: CrewFlightStatsContext): void {
         context.elements.crewTableBody.innerHTML = '';
         for (let index = 0; index < INITIAL_ROWS; index++) {
             context.elements.crewTableBody.appendChild(createCrewRow());
@@ -37,11 +37,10 @@
             if (!input || !result) return;
             const text = input.value.trim();
             if (text) {
-                result.value = context.logic.extractNamesInTextOrder(text, context.state.rosterNames).join(' ');
+                result.value = extractNamesInTextOrder(text, context.state.rosterNames).join(' ');
             }
         });
     }
-
     function clearAll(context: CrewFlightStatsContext): void {
         context.elements.crewTableBody.querySelectorAll('tr').forEach(row => {
             const input = row.querySelector<HTMLInputElement>('.crew-input');
@@ -51,7 +50,7 @@
         });
     }
 
-    function bindCrewExtractActions(context: CrewFlightStatsContext): void {
+export function bindCrewExtractActions(context: CrewFlightStatsContext): void {
         initCrewTable(context);
         context.elements.extractAllBtn.addEventListener('click', () => extractAll(context));
         context.elements.clearAllBtn.addEventListener('click', () => clearAll(context));
@@ -80,10 +79,3 @@
             }
         });
     }
-
-    runtime.CrewExtractActions = {
-        bindCrewExtractActions,
-        createCrewRow,
-        initCrewTable
-    };
-})();

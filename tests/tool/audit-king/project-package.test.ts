@@ -1,19 +1,17 @@
 import { webcrypto } from "node:crypto";
 
 import JSZip from "jszip";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createProjectArchive } from "../../../src/tool/project-archive";
+import { createAuditKingProjectPackage } from "../../../src/tool/app/audit-king/project-package";
 
 describe("审计之王项目包", () => {
     let projectPackage: any;
 
     beforeAll(() => {
-        const context = loadBrowserScripts([
-            "tool/project-archive.js",
-            "tool/app/audit-king/project-package.js"
-        ], { JSZip, Blob, File, Uint8Array, ArrayBuffer, crypto: webcrypto, TextEncoder, TextDecoder });
-        projectPackage = (context as any).AuditKing.ProjectPackage;
+        vi.stubGlobal("crypto", webcrypto);
+        projectPackage = createAuditKingProjectPackage(createProjectArchive(JSZip));
     });
 
     it("携带检查单、普通手册、PDF工作区文件、检查项和槽位", async () => {

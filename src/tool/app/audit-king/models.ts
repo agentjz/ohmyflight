@@ -1,4 +1,4 @@
-interface AuditKingTextBlock {
+export interface AuditKingTextBlock {
     id: string;
     documentId: string;
     documentName: string;
@@ -8,7 +8,7 @@ interface AuditKingTextBlock {
     pageNumber?: number;
 }
 
-interface AuditKingDocument {
+export interface AuditKingDocument {
     id: string;
     name: string;
     blocks: AuditKingTextBlock[];
@@ -18,7 +18,7 @@ interface AuditKingDocument {
     sourceFile: File;
 }
 
-interface AuditKingCheckItemSource {
+export interface AuditKingCheckItemSource {
     blockId?: string;
     blockIndex?: number;
     start?: number;
@@ -28,7 +28,7 @@ interface AuditKingCheckItemSource {
     afterText?: string;
 }
 
-interface AuditKingManualEvidence {
+export interface AuditKingManualEvidence {
     id?: string;
     sourceType?: "summary" | "selection" | "";
     documentId?: string;
@@ -48,14 +48,14 @@ interface AuditKingManualEvidence {
     note?: string;
 }
 
-interface AuditKingAuditEvidence {
+export interface AuditKingAuditEvidence {
     id: string;
     content: string;
     note: string;
     sourceEvidenceId?: string;
 }
 
-interface AuditKingCheckItem {
+export interface AuditKingCheckItem {
     id: string;
     code: string;
     name: string;
@@ -67,7 +67,7 @@ interface AuditKingCheckItem {
     auditEvidences: AuditKingAuditEvidence[];
 }
 
-interface AuditKingImportedCheckItem {
+export interface AuditKingImportedCheckItem {
     id?: string;
     order?: number;
     code?: string;
@@ -80,7 +80,7 @@ interface AuditKingImportedCheckItem {
     auditEvidences?: AuditKingAuditEvidence[];
 }
 
-interface AuditKingMatch {
+export interface AuditKingMatch {
     id: string;
     checkItemId: string;
     keywordText: string;
@@ -98,12 +98,12 @@ interface AuditKingMatch {
     blockText: string;
 }
 
-interface AuditKingSearchResult {
+export interface AuditKingSearchResult {
     matches: AuditKingMatch[];
     countsByCheckItem: Record<string, number>;
 }
 
-interface AuditKingIndexedBlock extends AuditKingTextBlock {
+export interface AuditKingIndexedBlock extends AuditKingTextBlock {
     looseText: string;
     looseOffsetMap: Array<{
         originalStart: number;
@@ -112,14 +112,14 @@ interface AuditKingIndexedBlock extends AuditKingTextBlock {
     }>;
 }
 
-interface AuditKingDocumentIndex {
+export interface AuditKingDocumentIndex {
     documents: AuditKingDocument[];
     blocks: AuditKingIndexedBlock[];
     grams: Record<string, number[]>;
     flexIndex: any;
 }
 
-interface AuditKingHighlightRange {
+export interface AuditKingHighlightRange {
     checkItemId: string;
     color: string;
     start: number;
@@ -128,35 +128,35 @@ interface AuditKingHighlightRange {
     evidenceId?: string;
 }
 
-interface AuditKingEvidenceEntry {
+export interface AuditKingEvidenceEntry {
     content: string;
     note: string;
 }
 
-interface AuditKingEvidenceGroup {
+export interface AuditKingEvidenceGroup {
     id: string;
     title: string;
     items: AuditKingEvidenceEntry[];
 }
 
-interface AuditKingImportedAuditGroup {
+export interface AuditKingImportedAuditGroup {
     code: string;
     name: string;
     items: AuditKingEvidenceEntry[];
 }
 
-interface AuditKingFolderScriptConfig {
+export interface AuditKingFolderScriptConfig {
     rangeText: string;
 }
 
-interface AuditKingPdfLocatorPage {
+export interface AuditKingPdfLocatorPage {
     pdfId: string;
     pdfName: string;
     pageNumber: number;
     text: string;
 }
 
-interface AuditKingPdfLocatorDocument {
+export interface AuditKingPdfLocatorDocument {
     id: string;
     name: string;
     pageCount: number;
@@ -166,14 +166,14 @@ interface AuditKingPdfLocatorDocument {
     sourceFile: File;
 }
 
-interface AuditKingPdfLocatorTarget {
+export interface AuditKingPdfLocatorTarget {
     sequence: string;
     title?: string;
     content: string;
     note?: string;
 }
 
-interface AuditKingPdfLocatorResult {
+export interface AuditKingPdfLocatorResult {
     sequence: string;
     title: string;
     content: string;
@@ -192,12 +192,12 @@ interface AuditKingPdfLocatorResult {
     comparisons?: AuditKingPdfLocatorSegmentComparison[];
 }
 
-interface AuditKingPdfLocatorSegmentComparison {
+export interface AuditKingPdfLocatorSegmentComparison {
     text: string;
     matched: boolean;
 }
 
-interface AuditKingPdfLocatorSlot {
+export interface AuditKingPdfLocatorSlot {
     id: string;
     sequence: string;
     title: string;
@@ -211,7 +211,7 @@ interface AuditKingPdfLocatorSlot {
     result?: AuditKingPdfLocatorResult;
 }
 
-interface AuditKingPdfLocatorWorkspaceSnapshot {
+export interface AuditKingPdfLocatorWorkspaceSnapshot {
     version: number;
     exportedAt: string;
     selectedSlotId: string;
@@ -219,7 +219,7 @@ interface AuditKingPdfLocatorWorkspaceSnapshot {
     slots: AuditKingPdfLocatorSlot[];
 }
 
-interface AuditKingPdfLocatorExportTask {
+export interface AuditKingPdfLocatorExportTask {
     slotId: string;
     sequence: string;
     title: string;
@@ -231,7 +231,7 @@ interface AuditKingPdfLocatorExportTask {
     skippedReason?: string;
 }
 
-interface AuditKingPdfLocatorState {
+export interface AuditKingPdfLocatorState {
     documents: AuditKingPdfLocatorDocument[];
     results: AuditKingPdfLocatorResult[];
     slots: AuditKingPdfLocatorSlot[];
@@ -240,7 +240,7 @@ interface AuditKingPdfLocatorState {
     summary: { trusted: number; review: number; miss: number; skip: number };
 }
 
-interface AuditKingStateModel {
+export interface AuditKingStateModel {
     checklistFile: File | null;
     checklistBlocks: AuditKingTextBlock[];
     documents: AuditKingDocument[];
@@ -254,13 +254,13 @@ interface AuditKingStateModel {
     pdfLocator: AuditKingPdfLocatorState;
 }
 
-interface AuditProjectSourceMetadata {
+export interface AuditProjectSourceMetadata {
     path: string;
     name: string;
     type: string;
 }
 
-interface AuditProjectSnapshot {
+export interface AuditProjectSnapshot {
     version: number;
     sources: {
         checklist: AuditProjectSourceMetadata;
@@ -279,7 +279,7 @@ interface AuditProjectSnapshot {
     };
 }
 
-interface AuditProjectBuildInput {
+export interface AuditProjectBuildInput {
     checklistFile: File;
     manualFiles: File[];
     locatorFiles: File[];
@@ -292,7 +292,7 @@ interface AuditProjectBuildInput {
     onProgress?: (message: string, completed: number, total: number) => void;
 }
 
-interface AuditProjectReadResult {
+export interface AuditProjectReadResult {
     state: AuditProjectSnapshot;
     checklistFile: File;
     manualFiles: File[];
@@ -300,19 +300,7 @@ interface AuditProjectReadResult {
     workbook: Uint8Array;
 }
 
-interface AuditKingAppContext {
-    runtime: Record<string, any>;
-    state: AuditKingStateModel;
-    getElement<T extends HTMLElement>(id: string): T;
-    recomputeSearch(): void;
-    refresh(message?: string, type?: "info" | "success" | "error"): void;
-    getFilteredMatches(): AuditKingMatch[];
-    getCurrentFilteredMatch(): AuditKingMatch | null;
-    focusMatch(index: number): void;
-    formatLocalDate(date: Date): string;
-}
-
-interface AuditProjectRestoreInput {
+export interface AuditProjectRestoreInput {
     checklistFile: File;
     checklistBlocks: AuditKingTextBlock[];
     documents: AuditKingDocument[];
@@ -321,14 +309,3 @@ interface AuditProjectRestoreInput {
     pdfWorkspace: AuditProjectSnapshot["pdfWorkspace"];
     view: AuditProjectSnapshot["view"];
 }
-
-interface Window {
-    AuditKing: Record<string, any>;
-    FlexSearch: any;
-    mammoth: any;
-    pdfjsLib: any;
-    PDFLib: any;
-    JSZip: any;
-}
-
-declare const JSZip: any;

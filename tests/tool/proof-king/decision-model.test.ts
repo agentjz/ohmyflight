@@ -1,15 +1,8 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { ManualProofDecisions as decisions } from "../../../src/tool/app/proof-king/decision-model";
 
 describe("校对之王人工决定", () => {
-    let decisions: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts(["tool/app/proof-king/decision-model.js"]);
-        decisions = (context as any).ManualProof.Decisions;
-    });
-
     it("区分待处理、纳入报告和不纳入并支持批量更新", () => {
         const events = [{ id: "revision-1" }, { id: "revision-2" }, { id: "revision-3" }];
         let state = decisions.normalize(events, { "revision-2": "included", missing: "excluded" });

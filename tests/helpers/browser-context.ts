@@ -2,6 +2,8 @@ import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import vm from "node:vm";
 
+import { siteVisibility } from "../../src/site-visibility";
+import { tools } from "../../src/tool/tools-data";
 import { projectRoot, resolveFromDist, resolveFromRoot } from "./paths";
 
 type BrowserSandbox = Record<string, unknown> & {
@@ -136,7 +138,7 @@ export function createBrowserContext(overrides: Record<string, unknown> = {}) {
   return sandbox;
 }
 
-export function runBrowserScript(relativePath: string, context: BrowserSandbox, trailer = "") {
+function runBrowserVendor(relativePath: string, context: BrowserSandbox) {
   ensureDistFresh();
   const filename = resolveFromDist(relativePath);
   if (!fs.existsSync(filename)) {
@@ -147,38 +149,29 @@ export function runBrowserScript(relativePath: string, context: BrowserSandbox, 
     });
   }
   const source = fs.readFileSync(filename, "utf8");
-  return vm.runInContext(`${source}\n${trailer}`, context, { filename });
+  return vm.runInContext(source, context, { filename });
 }
 
-export function loadBrowserScripts(relativePaths: string[], overrides: Record<string, unknown> = {}) {
+export function loadBrowserVendor(relativePath: string, overrides: Record<string, unknown> = {}) {
   const context = createBrowserContext(overrides);
-  relativePaths.forEach((relativePath) => {
-    runBrowserScript(relativePath, context);
-  });
+  runBrowserVendor(relativePath, context);
   return context;
 }
 
 export function loadToolsData() {
-  const context = createBrowserContext();
-  runBrowserScript("tool/tools-data.js", context, "globalThis.__tools = tools;");
-  return context.__tools;
+  return tools;
 }
 
 export function loadSiteVisibility(): SiteVisibilityConfig {
-  const context = createBrowserContext();
-  runBrowserScript("site-visibility.js", context, "globalThis.__siteVisibility = siteVisibility;");
-  if (!context.__siteVisibility) throw new Error("站点可见性配置未注册。");
-  return context.__siteVisibility;
+  return siteVisibility;
 }
 
 export function loadSkillsData() {
-  const context = createBrowserContext();
-  runBrowserScript("tool/skills-data.js", context, "globalThis.__skills = skills;");
-  return context.__skills;
+  ensureDistFresh();
+  return JSON.parse(fs.readFileSync(resolveFromDist("tool", "skills-data.json"), "utf8")) as SkillItem[];
 }
 
 export function loadManualsData() {
-  const context = createBrowserContext();
-  runBrowserScript("tool/manuals-data.js", context, "globalThis.__manuals = manuals;");
-  return context.__manuals;
+  ensureDistFresh();
+  return JSON.parse(fs.readFileSync(resolveFromDist("tool", "manuals-data.json"), "utf8")) as ManualItem[];
 }

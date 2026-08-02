@@ -1,10 +1,19 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type {
+    AuditKingCheckItem,
+    AuditKingDocument,
+    AuditKingDocumentIndex,
+    AuditKingIndexedBlock,
+    AuditKingMatch,
+    AuditKingSearchResult,
+    AuditKingTextBlock
+} from "./models";
+import { AuditKingTextNormalizer as TextNormalizer } from "./text-normalizer";
+
+export function createAuditKingSearchEngine(FlexSearch: any) {
     const GRAM_SIZE = 2;
 
     function requireNormalizer() {
-        if (!runtime.TextNormalizer) throw new Error("AuditKing.TextNormalizer is not loaded.");
-        return runtime.TextNormalizer;
+        return TextNormalizer;
     }
 
     function createCounts(items: AuditKingCheckItem[]): Record<string, number> {
@@ -16,7 +25,7 @@
     }
 
     function createFlexIndex(): any {
-        const IndexCtor = window.FlexSearch?.Index;
+        const IndexCtor = FlexSearch?.Index;
         return IndexCtor ? new IndexCtor({ tokenize: "full", cache: false }) : null;
     }
 
@@ -167,5 +176,5 @@
         ));
     }
 
-    runtime.SearchEngine = { buildDocumentIndex, searchIndex, searchDocuments, filterMatches };
-})();
+    return { buildDocumentIndex, searchIndex, searchDocuments, filterMatches };
+}

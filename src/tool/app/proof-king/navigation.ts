@@ -1,5 +1,11 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
+import type {
+    RevisionCategoryCount,
+    RevisionChapterGroup,
+    RevisionEvent,
+    RevisionKind,
+    RevisionNavigationEvent,
+    VirtualWindow
+} from "./models";
     const rowHeight = 118;
     const overscan = 4;
 
@@ -189,7 +195,7 @@
         }[kind];
     }
 
-    runtime.Navigation = {
+export const ManualProofNavigation = {
         rowHeight,
         filterEvents,
         categoryCounts,
@@ -200,4 +206,3 @@
         calculateWindow,
         label
     };
-})();

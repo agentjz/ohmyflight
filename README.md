@@ -40,7 +40,6 @@
 | PDF 加水印 | ✅ | 在 PDF 每页统一位置添加图片水印。 |
 | 图片工具 | ✅ | 转换、压缩、裁剪、缩放和 Base64 互转。 |
 | 文本拼接助手 | ✅ | 清除换行与常见分隔符，按指定字符重新拼接。 |
-| 提取员工号 | ✅ | 从混杂文本提取六位员工号并去重。 |
 | 人员结构统计 | ✅ | 按报告口径统计人员结构并生成报告。 |
 
 ## 开源协议与贡献
@@ -52,3 +51,21 @@
 ## 目前
 
 服务于：南货航飞行部、中国南方航空货运有限公司。
+
+## 开发与构建
+
+浏览器源码位于 `src/`，使用标准 ESM 显式依赖；每个页面由一个应用入口构建，第三方浏览器库继续从 `public/libs/` 本地加载。生产产物输出到 `dist/`。
+
+Windows 下可直接运行 `start_index.py` 构建并打开本地站点；脚本在本机 `4567` 端口成功启动服务后打开页面，端口被占用时会直接报告错误。
+
+```powershell
+npm.cmd ci
+python -m pip install -r requirements.txt
+python -m playwright install chromium
+npm.cmd run build
+npm.cmd run typecheck
+npm.cmd test
+npm.cmd run verify
+```
+
+`npm.cmd run verify` 覆盖类型检查、TypeScript/Python 全量测试、真实 Chromium 页面与脱敏重型流程、连续双构建和本地第三方完整性。真实 Excel 性能回放使用 `npm.cmd run test:performance -- --training-workbook <培训表> --seasonal-workbook <换季表>`；输入和原始结果不提交。构建与恢复约定见 [`spec/dev/esm-delivery/delivery.md`](./spec/dev/esm-delivery/delivery.md)。

@@ -1,27 +1,18 @@
 // HTML页面生成器
 // 根据配置组合生成完整、可离线运行的 HTML 文件
 
-declare const GeneratedAppScript: {
-    generate(config: WordTemplateAppConfig, templateFileName: string): string;
-};
+import { GeneratedAppScript } from "./generated-app-script";
+import { GeneratedAppShell } from "./generated-app-shell";
+import type { WordTemplateAppConfig, WordTemplateFieldConfig } from "./models";
 
-declare const GeneratedAppShell: {
-    generate(input: {
-        appName: string;
-        templateFileName: string;
-        formHtml: string;
-        jsCode: string;
-    }): string;
-};
-
-const HtmlGenerator = {
-    generate: (config, appName, templateFileName) => {
+export const HtmlGenerator = {
+    generate: (config: WordTemplateAppConfig, appName: string, templateFileName: string): string => {
         const formHtml = HtmlGenerator.generateFormHtml(config);
         const jsCode = GeneratedAppScript.generate(config, templateFileName);
         return GeneratedAppShell.generate({appName, templateFileName, formHtml, jsCode});
     },
 
-    generateFormHtml: (config) => {
+    generateFormHtml: (config: WordTemplateAppConfig): string => {
         let html = '';
 
         config.fields.forEach(field => {
@@ -55,29 +46,31 @@ const HtmlGenerator = {
         return html;
     },
 
-    textField: (field) => `
+    textField: (field: WordTemplateFieldConfig): string => `
             <div class="form-group">
                 <label>${field.label}${field.required ? '<span class="required">*</span>' : ''}</label>
                 <input type="text" id="${field.name}" placeholder="${field.placeholder || ''}" value="${field.defaultValue || ''}">
             </div>
 `,
 
-    textareaField: (field) => `
+    textareaField: (field: WordTemplateFieldConfig): string => `
             <div class="form-group">
                 <label>${field.label}${field.required ? '<span class="required">*</span>' : ''}</label>
                 <textarea id="${field.name}" placeholder="${field.placeholder || ''}" rows="${field.rows || 3}">${field.defaultValue || ''}</textarea>
             </div>
 `,
 
-    dateField: (field) => `
+    dateField: (field: WordTemplateFieldConfig): string => `
             <div class="form-group">
                 <label>${field.label}${field.required ? '<span class="required">*</span>' : ''}</label>
                 <input type="date" id="${field.name}">
             </div>
 `,
 
-    booleanField: (field) => {
-        const isYesDefault = field.defaultValue === '是' || field.defaultValue === 'true' || field.defaultValue === true;
+    booleanField: (field: WordTemplateFieldConfig): string => {
+        const isYesDefault = field.defaultValue === '是'
+            || field.defaultValue === 'true'
+            || (field.defaultValue as unknown) === true;
         return `
             <div class="form-group">
                 <label>${field.label}${field.required ? '<span class="required">*</span>' : ''}</label>
@@ -89,7 +82,7 @@ const HtmlGenerator = {
 `;
     },
 
-    radioField: (field) => {
+    radioField: (field: WordTemplateFieldConfig): string => {
         const options = (field.options || '').split(',').map(o => o.trim()).filter(o => o);
         const optionsHtml = options.map((opt, i) =>
             `<label><input type="radio" name="${field.name}" value="${opt}" ${(field.defaultValue === opt) || (i === 0 && !field.defaultValue) ? 'checked' : ''}> ${opt}</label>`
@@ -105,7 +98,7 @@ const HtmlGenerator = {
 `;
     },
 
-    checkboxField: (field) => {
+    checkboxField: (field: WordTemplateFieldConfig): string => {
         const options = (field.options || '').split(',').map(o => o.trim()).filter(o => o);
         const defaults = (field.defaultValue || '').split(',').map(o => o.trim());
         const optionsHtml = options.map(opt =>
@@ -122,7 +115,7 @@ const HtmlGenerator = {
 `;
     },
 
-    loopField: (field, subFields) => {
+    loopField: (field: WordTemplateFieldConfig, subFields: WordTemplateFieldConfig[]): string => {
         const headerHtml = subFields.map(sf => `<th>${sf.label}</th>`).join('');
 
         return `

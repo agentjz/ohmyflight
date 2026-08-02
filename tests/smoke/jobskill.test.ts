@@ -3,16 +3,14 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../helpers/browser-context";
+import { jobskillItems } from "../../src/jobskill/skills-data";
+import { markdownToText, search } from "../../src/jobskill/search";
 import { resolveFromDist } from "../helpers/paths";
 
 type PublishedJobskillItem = readonly [name: string, relativePath: string];
 
 function loadPublishedItems(): PublishedJobskillItem[] {
-  const context = loadBrowserScripts(["jobskill/skills-data.js"]);
-  const windowObject = context.window as Record<string, unknown> | undefined;
-  const items = windowObject?.JOBSKILL_ITEMS;
-  return Array.isArray(items) ? items as PublishedJobskillItem[] : [];
+  return jobskillItems;
 }
 
 function localMarkdownImages(markdown: string): string[] {
@@ -78,19 +76,12 @@ describe("jobskill subsite", () => {
   });
 
   it("searches business text and returns a readable context", () => {
-    const context = loadBrowserScripts(["jobskill/search.js"]);
-    const engine = (context.window as { JobskillSearch?: {
-      markdownToText(markdown: string): string;
-      search(sources: Array<{ name: string; path: string; markdown: string }>, value: string): Array<{ name: string; snippet: string }>;
-    } } | undefined)?.JobskillSearch;
-    expect(engine).toBeDefined();
-
     const item = loadPublishedItems().find(([name]) => name === "资质录入、统计与发布");
     expect(item).toBeDefined();
     const [name, relativePath] = item!;
     const markdown = fs.readFileSync(resolveFromDist("jobskill", relativePath), "utf8");
-    const searchableText = engine!.markdownToText(markdown);
-    const results = engine!.search([{ name, path: relativePath, markdown }], "重航");
+    const searchableText = markdownToText(markdown);
+    const results = search([{ name, path: relativePath, markdown }], "重航");
 
     expect(searchableText).not.toContain("description:");
     expect(searchableText).toContain("资质录入、统计与发布");

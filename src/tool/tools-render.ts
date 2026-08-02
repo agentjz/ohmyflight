@@ -1,4 +1,9 @@
-const allToolRows: ToolItem[] = Array.isArray(tools) ? tools : [];
+import { siteVisibility } from "../site-visibility";
+import "./home-pattern-gate";
+import type { ToolCategory, ToolHomepageState, ToolItem } from "./models";
+import { announcement, tools } from "./tools-data";
+
+const allToolRows: ToolItem[] = tools;
 const categoryLabels: Record<ToolCategory, string> = {
     heavy: "重型",
     light: "轻型",

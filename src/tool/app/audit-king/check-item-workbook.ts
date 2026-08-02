@@ -1,5 +1,12 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type {
+    AuditKingAuditEvidence,
+    AuditKingCheckItem,
+    AuditKingCheckItemSource,
+    AuditKingImportedCheckItem,
+    AuditKingManualEvidence
+} from "./models";
+
+export function createAuditKingCheckItemWorkbook(XLSX: typeof import("xlsx-js-style")) {
     const itemHeaders = [
         "序号", "检查编号", "检查项名称", "关键词", "启用", "颜色",
         "检查单段落", "检查单段落序号", "来源起点", "来源终点", "来源文本", "来源前文", "来源后文"
@@ -132,5 +139,5 @@
         });
     }
 
-    runtime.CheckItemWorkbook = { itemHeaders, manualHeaders, auditHeaders, buildWorkbook, parseWorkbook };
-})();
+    return { itemHeaders, manualHeaders, auditHeaders, buildWorkbook, parseWorkbook };
+}

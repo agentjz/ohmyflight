@@ -1,5 +1,6 @@
-(function () {
-    const runtime = window.PdfStampApp || (window.PdfStampApp = {});
+import { tryShowEditor } from "./canvas-actions";
+import type { PdfStampAppContext } from "./models";
+import { addRule } from "./rule-actions";
 
     function setupUploadArea(
         context: PdfStampAppContext,
@@ -28,12 +29,11 @@
             target.value = '';
         };
     }
-
     async function handlePdfFile(context: PdfStampAppContext, file: File): Promise<void> {
         context.showStatus('加载 PDF...', 'info', 0);
         try {
             context.state.pdfArrayBuffer = await file.arrayBuffer();
-            const task = window.pdfjsLib.getDocument({ data: context.state.pdfArrayBuffer.slice(0) });
+            const task = context.pdfjsLib.getDocument({ data: context.state.pdfArrayBuffer.slice(0) });
             task.onProgress = (progress: { loaded: number; total: number }) => {
                 if (progress.total > 0) {
                     context.showStatus('加载 PDF... ' + Math.round(progress.loaded / progress.total * 100) + '%', 'info', progress.loaded / progress.total * 100);
@@ -48,7 +48,7 @@
             (area.querySelector('p') as HTMLElement).textContent = file.name;
             (area.querySelector('small') as HTMLElement).textContent = context.state.pageCount + ' 页';
             context.showStatus('PDF 已加载: ' + file.name + ' (' + context.state.pageCount + ' 页)', 'success');
-            await runtime.CanvasActions.tryShowEditor(context);
+            await tryShowEditor(context);
         } catch (error) {
             context.showStatus('PDF 加载失败: ' + (error instanceof Error ? error.message : String(error)), 'error');
         }
@@ -67,10 +67,10 @@
                 (area.querySelector('small') as HTMLElement).textContent = image.naturalWidth + ' x ' + image.naturalHeight + ' px';
                 context.showStatus('图片已加载', 'success');
                 if (context.state.rules.length === 0) {
-                    runtime.RuleActions.addRule(context);
+                    addRule(context);
                 }
                 context.updateExportBtn();
-                void runtime.CanvasActions.tryShowEditor(context);
+                void tryShowEditor(context);
             };
             image.src = dataUrl;
         } catch (error) {
@@ -78,14 +78,7 @@
         }
     }
 
-    function bindUploads(context: PdfStampAppContext): void {
+export function bindUploads(context: PdfStampAppContext): void {
         setupUploadArea(context, 'pdfUpload', 'pdfInput', file => handlePdfFile(context, file));
         setupUploadArea(context, 'imgUpload', 'imgInput', file => handleImgFile(context, file));
     }
-
-    runtime.UploadActions = {
-        bindUploads,
-        handleImgFile,
-        handlePdfFile
-    };
-})();

@@ -1,13 +1,4 @@
-type TextJoinerPageLogic = {
-    join: (input: string, separator?: string) => {
-        items: string[];
-        text: string;
-    };
-};
-
-const textJoinerLogic = (globalThis as typeof globalThis & {
-    TextJoinerLogic: TextJoinerPageLogic;
-}).TextJoinerLogic;
+import { join } from "./logic";
 
 function requireTextJoinerElement<T extends HTMLElement>(id: string, Type: { new(): T }): T {
     const element = document.getElementById(id);
@@ -24,7 +15,7 @@ const clearButton = requireTextJoinerElement("clearButton", HTMLButtonElement);
 const copyButton = requireTextJoinerElement("copyButton", HTMLButtonElement);
 
 function renderJoinedText(): void {
-    const result = textJoinerLogic.join(inputText.value, outputSeparator.value);
+    const result = join(inputText.value, outputSeparator.value);
     outputText.value = result.text;
     resultStatus.textContent = `${result.items.length} 项`;
     copyButton.disabled = result.text.length === 0;

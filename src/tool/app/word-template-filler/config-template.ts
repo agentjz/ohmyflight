@@ -1,7 +1,9 @@
 // 配置模板生成器
 // 生成Excel配置模板供用户下载
 
-function downloadConfigTemplate() {
+import type { WordTemplateXlsxApi } from "./models";
+
+export function downloadConfigTemplate(xlsx: WordTemplateXlsxApi): void {
     // Sheet1: 字段配置（空白模板）
     const fieldConfigData = [
         ['字段名', '显示名称', '类型', '选项', '默认值', '必填', '提示', '格式', '子表', '行数'],
@@ -187,37 +189,37 @@ function downloadConfigTemplate() {
     ];
 
     // 创建工作簿
-    const wb = XLSX.utils.book_new();
+    const wb = xlsx.utils.book_new();
 
     // Sheet1: 字段配置
-    const ws1 = XLSX.utils.aoa_to_sheet(fieldConfigData);
+    const ws1 = xlsx.utils.aoa_to_sheet(fieldConfigData);
     ws1['!cols'] = [
         { wch: 15 }, { wch: 15 }, { wch: 10 }, { wch: 30 },
         { wch: 10 }, { wch: 6 }, { wch: 20 }, { wch: 18 }, { wch: 12 }, { wch: 6 }
     ];
-    XLSX.utils.book_append_sheet(wb, ws1, '字段配置');
+    xlsx.utils.book_append_sheet(wb, ws1, '字段配置');
 
     // Sheet2: 使用说明
-    const ws2 = XLSX.utils.aoa_to_sheet(helpData);
+    const ws2 = xlsx.utils.aoa_to_sheet(helpData);
     ws2['!cols'] = [{ wch: 50 }, { wch: 15 }, { wch: 50 }, { wch: 30 }];
-    XLSX.utils.book_append_sheet(wb, ws2, '使用说明');
+    xlsx.utils.book_append_sheet(wb, ws2, '使用说明');
 
     // Sheet3: 示例-请假申请
-    const ws3 = XLSX.utils.aoa_to_sheet(exampleMainData);
+    const ws3 = xlsx.utils.aoa_to_sheet(exampleMainData);
     ws3['!cols'] = [
         { wch: 60 }, { wch: 15 }, { wch: 12 }, { wch: 35 },
         { wch: 10 }, { wch: 6 }, { wch: 25 }, { wch: 18 }, { wch: 12 }, { wch: 6 }
     ];
-    XLSX.utils.book_append_sheet(wb, ws3, '示例-Helldivers2');
+    xlsx.utils.book_append_sheet(wb, ws3, '示例-Helldivers2');
 
     // Sheet4: 示例-列表类型
-    const ws4 = XLSX.utils.aoa_to_sheet(exampleLoopData);
+    const ws4 = xlsx.utils.aoa_to_sheet(exampleLoopData);
     ws4['!cols'] = [
         { wch: 60 }, { wch: 15 }, { wch: 12 }, { wch: 35 },
         { wch: 10 }, { wch: 6 }, { wch: 25 }, { wch: 18 }, { wch: 12 }, { wch: 6 }
     ];
-    XLSX.utils.book_append_sheet(wb, ws4, '示例-GTA5抢劫');
+    xlsx.utils.book_append_sheet(wb, ws4, '示例-GTA5抢劫');
 
     // 导出文件
-    XLSX.writeFile(wb, 'Word模板配置.xlsx');
+    xlsx.writeFile(wb, 'Word模板配置.xlsx');
 }

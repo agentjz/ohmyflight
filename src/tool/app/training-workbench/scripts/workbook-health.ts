@@ -1,12 +1,23 @@
-(function () {
-  const Config = window.TrainingTool.Config;
-  const Utils = window.TrainingTool.Utils;
-  const TrainingRecordPolicy = window.TrainingTool.TrainingRecordPolicy;
-  const CrmAnnual = window.TrainingTool.CrmAnnual;
+import { TrainingToolConfig } from "./config";
+import { TrainingToolCrmAnnual } from "./crm-annual";
+import { TrainingToolTrainingRecordPolicy } from "./training-record-policy";
+import { TrainingToolUtils } from "./utils";
+import type {
+  TrainingToolAnalysis,
+  TrainingToolProjectAnalysis,
+  TrainingToolSheetInfo,
+  TrainingToolSheetRow,
+  TrainingToolWorkbook
+} from "./models";
+
+const Config = TrainingToolConfig;
+  const Utils = TrainingToolUtils;
+  const TrainingRecordPolicy = TrainingToolTrainingRecordPolicy;
+  const CrmAnnual = TrainingToolCrmAnnual;
 
   type HealthLevel = "error" | "warning" | "info";
 
-  interface WorkbookHealthResult {
+  export interface WorkbookHealthResult {
     items: Array<{
       level: HealthLevel;
       levelLabel: string;
@@ -57,17 +68,19 @@
     result.summary[level] += 1;
   }
 
-  function hasHeader(sheetInfo, headerName) {
-    return sheetInfo && sheetInfo.headerMap && sheetInfo.headerMap.has(Utils.normalizeText(headerName));
+  type TrainingScanner = Pick<typeof import("./scanner").TrainingToolScanner, "readSheetInfo">;
+
+  function hasHeader(sheetInfo: TrainingToolSheetInfo | null | undefined, headerName: unknown): boolean {
+    return (sheetInfo && sheetInfo.headerMap && sheetInfo.headerMap.has(Utils.normalizeText(headerName))) as boolean;
   }
 
-  function getRowPersonLabel(row, sheetInfo) {
+  function getRowPersonLabel(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): string {
     const employeeId = Utils.normalizeText(Utils.getValueByHeader(row, sheetInfo, "员工号"));
     const name = Utils.normalizeText(Utils.getValueByHeader(row, sheetInfo, "姓名"));
     return [employeeId, name].filter(Boolean).join(" / ") || `第${row.rowNumber}行`;
   }
 
-  function checkPeopleSheet(result, analysis) {
+  function checkPeopleSheet(result: WorkbookHealthResult, analysis: TrainingToolAnalysis): void {
     const peopleInfo = analysis.peopleInfo;
     addItem(result, "info", "人员信息表", `识别到人员信息表“${peopleInfo.name}”，共 ${peopleInfo.rows.length} 行。`);
 
@@ -83,7 +96,7 @@
       }
     });
 
-    const employeeRows = new Map();
+    const employeeRows = new Map<string, number[]>();
     peopleInfo.rows.forEach((row) => {
       const employeeId = Utils.normalizeText(Utils.getValueByHeader(row, peopleInfo, "员工号"));
       const name = Utils.normalizeText(Utils.getValueByHeader(row, peopleInfo, "姓名"));
@@ -103,7 +116,7 @@
     });
   }
 
-  function checkProjectSheetRows(result, project) {
+  function checkProjectSheetRows(result: WorkbookHealthResult, project: TrainingToolProjectAnalysis): void {
     const sheetInfo = project.sheetInfo;
     if (!sheetInfo) return;
 
@@ -131,7 +144,7 @@
     });
   }
 
-  function checkProjects(result, analysis) {
+  function checkProjects(result: WorkbookHealthResult, analysis: TrainingToolAnalysis): void {
     const expectedNames = Config.PROJECT_RULES
       .filter((rule) => rule.enabled)
       .map((rule) => rule.canonical);
@@ -249,7 +262,7 @@
     });
   }
 
-  function checkCrm(result, workbook, analysis, scanner, yearValue) {
+  function checkCrm(result: WorkbookHealthResult, workbook: TrainingToolWorkbook, analysis: TrainingToolAnalysis, scanner: TrainingScanner, yearValue: unknown): void {
     const year = CrmAnnual.normalizeYear(yearValue || new Date().getFullYear());
     const crmLikeSheets = workbook.SheetNames.filter((name) => Utils.normalizeText(name).includes("CRM"));
     const hasExactCrm = workbook.Sheets[CrmAnnual.CRM_SHEET_NAME];
@@ -298,7 +311,7 @@
     }
   }
 
-  function checkIgnoredSheets(result, workbook, analysis) {
+  function checkIgnoredSheets(result: WorkbookHealthResult, workbook: TrainingToolWorkbook, analysis: TrainingToolAnalysis): void {
     const usedSheets = new Set([
       analysis.peopleInfo.name,
       ...analysis.projects.map((project) => project.sheetName).filter(Boolean),
@@ -311,8 +324,8 @@
       });
   }
 
-  function buildWorkbookHealth(workbook, analysis, scanner, options = {}) {
-    const healthOptions = options as { crmYear?: unknown };
+  function buildWorkbookHealth(workbook: TrainingToolWorkbook | null, analysis: TrainingToolAnalysis | null, scanner: TrainingScanner, options: { crmYear?: unknown } = {}): WorkbookHealthResult {
+    const healthOptions = options;
     const result = createResult();
     if (!workbook || !analysis) {
       addItem(result, "error", "工作簿", "未导入可检查的工作簿。");
@@ -327,8 +340,6 @@
 
     return result;
   }
-
-  window.TrainingTool.WorkbookHealth = {
+  export const TrainingToolWorkbookHealth = {
     buildWorkbookHealth
   };
-})();

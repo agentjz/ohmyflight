@@ -1,6 +1,6 @@
 // 生成应用的内联样式
 
-const GeneratedAppStyles = {
+export const GeneratedAppStyles = {
     generate: () => `
         * {
             margin: 0;

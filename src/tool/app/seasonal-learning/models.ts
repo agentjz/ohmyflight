@@ -1,6 +1,6 @@
-type SeasonalLearningCategory = "leader" | "captain" | "firstOfficer";
+export type SeasonalLearningCategory = "leader" | "captain" | "firstOfficer";
 
-interface SeasonalLearningPerson {
+export interface SeasonalLearningPerson {
     sequence: string | number;
     originalOrder: number;
     sourceRow: number;
@@ -19,27 +19,27 @@ interface SeasonalLearningPerson {
     adjustmentNotes: string[];
 }
 
-interface SeasonalLearningRemovedPerson {
+export interface SeasonalLearningRemovedPerson {
     employeeId: string;
     name: string;
     department: string;
     period: number | null;
 }
 
-interface SeasonalLearningPreviousState {
+export interface SeasonalLearningPreviousState {
     people: SeasonalLearningPerson[];
     periodDates: Record<number, string>;
     periodCount: number;
     scheduleReady: boolean;
 }
 
-interface SeasonalLearningImportResult extends SeasonalLearningPreviousState {
+export interface SeasonalLearningImportResult extends SeasonalLearningPreviousState {
     mode: "pending" | "actual" | "reimport";
     addedEmployeeIds: string[];
     removedPeople: SeasonalLearningRemovedPerson[];
 }
 
-interface SeasonalLearningDimensionReport {
+export interface SeasonalLearningDimensionReport {
     counts: number[];
     minimum: number;
     maximum: number;
@@ -47,7 +47,7 @@ interface SeasonalLearningDimensionReport {
     outlierPeriods: number[];
 }
 
-interface SeasonalLearningBalanceReport {
+export interface SeasonalLearningBalanceReport {
     balanced: boolean;
     pendingCount: number;
     operationalPendingCount: number;
@@ -55,20 +55,20 @@ interface SeasonalLearningBalanceReport {
     groups: SeasonalLearningBalanceGroupReport[];
 }
 
-type SeasonalLearningBalanceGroupKind = "hook" | "technical";
+export type SeasonalLearningBalanceGroupKind = "hook" | "technical";
 
-interface SeasonalLearningBalanceGroupDefinition {
+export interface SeasonalLearningBalanceGroupDefinition {
     id: string;
     label: string;
     kind: SeasonalLearningBalanceGroupKind;
     priority: number;
 }
 
-interface SeasonalLearningBalanceGroupReport extends SeasonalLearningDimensionReport, SeasonalLearningBalanceGroupDefinition {
+export interface SeasonalLearningBalanceGroupReport extends SeasonalLearningDimensionReport, SeasonalLearningBalanceGroupDefinition {
     memberCount: number;
 }
 
-interface SeasonalLearningBalanceHookDefinition {
+export interface SeasonalLearningBalanceHookDefinition {
     id: string;
     label: string;
     priority: number;
@@ -76,7 +76,7 @@ interface SeasonalLearningBalanceHookDefinition {
     matches(person: SeasonalLearningPerson): boolean;
 }
 
-interface SeasonalLearningBalanceRulesApi {
+export interface SeasonalLearningBalanceRulesApi {
     HOOKS: SeasonalLearningBalanceHookDefinition[];
     DEFAULT_ENABLED_HOOK_IDS: string[];
     normalizeEnabledHookIds(enabledHookIds?: readonly string[]): string[];
@@ -86,7 +86,7 @@ interface SeasonalLearningBalanceRulesApi {
     ): SeasonalLearningBalanceGroupDefinition | null;
 }
 
-interface SeasonalLearningPeriodSummary {
+export interface SeasonalLearningPeriodSummary {
     period: number;
     date: string;
     total: number;
@@ -97,30 +97,30 @@ interface SeasonalLearningPeriodSummary {
     issues: string[];
 }
 
-interface SeasonalLearningAdjustmentEvent {
+export interface SeasonalLearningAdjustmentEvent {
     employeeId: string;
     name: string;
     type: "move";
     text: string;
 }
 
-interface SeasonalLearningOperationResult {
+export interface SeasonalLearningOperationResult {
     people: SeasonalLearningPerson[];
     events: SeasonalLearningAdjustmentEvent[];
 }
 
-interface SeasonalLearningAllocationGroupInput {
+export interface SeasonalLearningAllocationGroupInput {
     id: string;
     count: number;
 }
 
-interface SeasonalLearningAllocationResult {
+export interface SeasonalLearningAllocationResult {
     groupCounts: Record<string, number[]>;
     neutralCounts: number[];
     totalCounts: number[];
 }
 
-interface SeasonalLearningAllocationApi {
+export interface SeasonalLearningAllocationApi {
     buildDynamicQuotas(
         groups: SeasonalLearningAllocationGroupInput[],
         neutralCount: number,
@@ -128,39 +128,39 @@ interface SeasonalLearningAllocationApi {
     ): SeasonalLearningAllocationResult;
 }
 
-interface SeasonalLearningBalanceFilterEntry {
+export interface SeasonalLearningBalanceFilterEntry {
     values: string[];
     reason: string;
 }
 
-type SeasonalLearningBalanceFilterDictionary = Partial<Record<
+export type SeasonalLearningBalanceFilterDictionary = Partial<Record<
     keyof SeasonalLearningPerson,
     SeasonalLearningBalanceFilterEntry
 >>;
 
-interface SeasonalLearningBalanceFilterApi {
+export interface SeasonalLearningBalanceFilterApi {
     BALANCE_FILTERS: SeasonalLearningBalanceFilterDictionary;
     shouldIgnoreOperational(person: SeasonalLearningPerson): boolean;
     getOperationalIgnoreReason(person: SeasonalLearningPerson): string;
 }
 
-type SeasonalLearningHealthLevel = "error" | "warning" | "info";
+export type SeasonalLearningHealthLevel = "error" | "warning" | "info";
 
-interface SeasonalLearningHealthPerson {
+export interface SeasonalLearningHealthPerson {
     employeeId: string;
     name: string;
     identity: string;
     rowNumber: number;
 }
 
-interface SeasonalLearningHealthItem {
+export interface SeasonalLearningHealthItem {
     level: SeasonalLearningHealthLevel;
     area: string;
     message: string;
     detail: string;
 }
 
-interface SeasonalLearningHealthResult {
+export interface SeasonalLearningHealthResult {
     summary: Record<SeasonalLearningHealthLevel, number>;
     items: SeasonalLearningHealthItem[];
     totalCount: number;
@@ -171,7 +171,7 @@ interface SeasonalLearningHealthResult {
     actualUntagged: SeasonalLearningHealthPerson[];
 }
 
-interface SeasonalLearningDataApi {
+export interface SeasonalLearningDataApi {
     parseBusinessDate(value: unknown, options?: { date1904?: boolean }): string;
     normalizeEmployeeId(value: unknown): string;
     readRosterRows(rows: unknown[][], options?: { date1904?: boolean }): SeasonalLearningPerson[];
@@ -186,7 +186,7 @@ interface SeasonalLearningDataApi {
     categoryLabel(category: SeasonalLearningCategory): string;
 }
 
-interface SeasonalLearningLogicApi extends SeasonalLearningDataApi {
+export interface SeasonalLearningLogicApi extends SeasonalLearningDataApi {
     buildInitialSchedule(
         people: SeasonalLearningPerson[],
         periodCount: number,
@@ -211,7 +211,7 @@ interface SeasonalLearningLogicApi extends SeasonalLearningDataApi {
     ): SeasonalLearningOperationResult;
 }
 
-interface SeasonalLearningExportApi {
+export interface SeasonalLearningExportApi {
     buildExportWorkbook(
         sourceWorkbook: import("xlsx-js-style").WorkBook,
         people: SeasonalLearningPerson[],
@@ -220,11 +220,29 @@ interface SeasonalLearningExportApi {
     buildOutputFileName(sourceFileName: string): string;
 }
 
-interface SeasonalLearningHealthApi {
+export interface SeasonalLearningHealthApi {
     buildWorkbookHealth(totalRows: unknown[][], actualRows: unknown[][]): SeasonalLearningHealthResult;
 }
 
-interface SeasonalLearningAppState {
+export interface SeasonalLearningChart {
+    setOption(options: unknown, notMerge?: boolean): void;
+    resize(): void;
+}
+
+export interface SeasonalLearningEchartsApi {
+    init(element: HTMLElement): SeasonalLearningChart;
+}
+
+export interface SeasonalLearningMoveModal {
+    show(): void;
+    hide(): void;
+}
+
+export interface SeasonalLearningModalApi {
+    getOrCreateInstance(element: HTMLElement): SeasonalLearningMoveModal;
+}
+
+export interface SeasonalLearningAppState {
     sourceWorkbook: import("xlsx-js-style").WorkBook | null;
     sourceFileName: string;
     initialized: boolean;
@@ -239,11 +257,13 @@ interface SeasonalLearningAppState {
     pendingMoveIds: string[];
     enabledBalanceHookIds: string[];
     health: SeasonalLearningHealthResult | null;
-    chart: any;
+    chart: SeasonalLearningChart | null;
 }
 
-interface SeasonalLearningAppContext {
-    runtime: Window;
+export interface SeasonalLearningAppContext {
+    xlsx: typeof import("xlsx-js-style");
+    modalApi: SeasonalLearningModalApi | null;
+    echarts: SeasonalLearningEchartsApi | null;
     logic: SeasonalLearningLogicApi;
     rules: SeasonalLearningBalanceRulesApi;
     exporter: SeasonalLearningExportApi;
@@ -258,29 +278,10 @@ interface SeasonalLearningAppContext {
     workbookUses1904Dates(workbook: import("xlsx-js-style").WorkBook): boolean;
 }
 
-interface SeasonalLearningViewApi {
+export interface SeasonalLearningViewApi {
     renderAll(context: SeasonalLearningAppContext): void;
     renderDateControls(context: SeasonalLearningAppContext): void;
     renderChart(context: SeasonalLearningAppContext): void;
     renderHealth(context: SeasonalLearningAppContext): void;
     updateMoveButtons(context: SeasonalLearningAppContext): void;
-}
-
-interface SeasonalLearningAppNamespace {
-    AppContext?: { createAppContext(): SeasonalLearningAppContext };
-    View?: SeasonalLearningViewApi;
-    context?: SeasonalLearningAppContext;
-}
-
-interface Window {
-    XLSX: typeof import("xlsx-js-style");
-    echarts?: any;
-    SeasonalLearningData: SeasonalLearningDataApi;
-    SeasonalLearningBalanceFilter: SeasonalLearningBalanceFilterApi;
-    SeasonalLearningBalanceRules: SeasonalLearningBalanceRulesApi;
-    SeasonalLearningAllocation: SeasonalLearningAllocationApi;
-    SeasonalLearningLogic: SeasonalLearningLogicApi;
-    SeasonalLearningExport: SeasonalLearningExportApi;
-    SeasonalLearningHealth: SeasonalLearningHealthApi;
-    SeasonalLearningApp: SeasonalLearningAppNamespace;
 }

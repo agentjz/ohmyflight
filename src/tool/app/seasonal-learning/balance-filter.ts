@@ -1,4 +1,9 @@
-(function () {
+import type {
+    SeasonalLearningBalanceFilterDictionary,
+    SeasonalLearningBalanceFilterEntry,
+    SeasonalLearningPerson
+} from "./models";
+
     const BALANCE_FILTERS: SeasonalLearningBalanceFilterDictionary = {
         identity: {
             values: ["公司领导"],
@@ -27,9 +32,8 @@
         return Boolean(getOperationalIgnoreReason(person));
     }
 
-    window.SeasonalLearningBalanceFilter = {
+export const SeasonalLearningBalanceFilter = {
         BALANCE_FILTERS,
         shouldIgnoreOperational,
         getOperationalIgnoreReason
     };
-})();

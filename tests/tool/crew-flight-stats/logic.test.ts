@@ -1,15 +1,8 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import * as logic from "../../../src/tool/app/crew-flight-stats/logic";
 
 describe("crew flight stats logic", () => {
-  let logic: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts(["tool/app/crew-flight-stats/logic.js"]);
-    logic = context.CrewFlightStatsLogic;
-  });
-
   it("parses roster names from the second column after the header row", () => {
     expect(logic.parseRosterRows([
       ["员工号", "姓名"],

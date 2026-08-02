@@ -1,5 +1,4 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingFolderScriptConfig } from "./models";
 
     interface FolderRangeEndpoint {
         major: string;
@@ -108,8 +107,7 @@
         ].join("\n");
     }
 
-    runtime.FolderScriptGenerator = {
+export const AuditKingFolderScriptGenerator = {
         buildFolderRanges,
         buildFolderCreatorPython
     };
-})();

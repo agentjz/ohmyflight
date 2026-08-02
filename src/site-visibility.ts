@@ -1,5 +1,15 @@
-// 首页交互和赞助页开关集中维护；工具目录只由 tools-data.ts 决定。
-const siteVisibility: SiteVisibilityConfig = {
+export interface SiteVisibilityConfig {
+    homepage: {
+        patternGate: boolean;
+        announcement: boolean;
+        sponsorEntry: boolean;
+    };
+    sponsorPage: {
+        contributors: boolean;
+    };
+}
+
+export const siteVisibility: SiteVisibilityConfig = {
     homepage: {
         patternGate: false,
         announcement: true,
@@ -9,5 +19,3 @@ const siteVisibility: SiteVisibilityConfig = {
         contributors: false
     }
 };
-
-window.siteVisibility = siteVisibility;

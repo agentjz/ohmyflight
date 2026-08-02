@@ -1,15 +1,10 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createAuditKingExport } from "../../../src/tool/app/audit-king/export";
 
 describe("audit-king evidence export", () => {
-  let exportApi: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts(["tool/app/audit-king/export.js"], { XLSX });
-        exportApi = (context.AuditKing as any).Export;
-    });
+    const exportApi = createAuditKingExport(XLSX);
 
   it("builds an evidence workbook with one row per evidence entry", () => {
     const workbook = exportApi.buildEvidenceWorkbook([

@@ -1,5 +1,4 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingCheckItem, AuditKingImportedCheckItem } from "./models";
     const palette = [
         "#c45d7a", "#22c55e", "#3b82f6", "#ef4444",
         "#8b5cf6", "#14b8a6", "#4f7f99", "#64748b"
@@ -36,5 +35,4 @@
         };
     }
 
-    runtime.CheckItemStore = { createCheckItem, nextId, palette };
-})();
+export const AuditKingCheckItemStore = { createCheckItem, nextId, palette };

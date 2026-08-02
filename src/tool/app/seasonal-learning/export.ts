@@ -1,4 +1,11 @@
-(function () {
+import type {
+    SeasonalLearningExportApi,
+    SeasonalLearningPerson
+} from "./models";
+
+export function createSeasonalLearningExport(
+    xlsx: typeof import("xlsx-js-style")
+): SeasonalLearningExportApi {
     const ACTUAL_SHEET = "换季实际";
     const TOTAL_SHEET = "换季总名单";
     const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份", "调整说明"];
@@ -39,11 +46,11 @@
     }
 
     function buildHeaderMap(sheet: import("xlsx-js-style").WorkSheet): Map<string, number> {
-        const range = sheet["!ref"] ? window.XLSX.utils.decode_range(sheet["!ref"] as string) : null;
+        const range = sheet["!ref"] ? xlsx.utils.decode_range(sheet["!ref"] as string) : null;
         const result = new Map<string, number>();
         if (!range) return result;
         for (let columnIndex = range.s.c; columnIndex <= range.e.c; columnIndex += 1) {
-            const address = window.XLSX.utils.encode_cell({ r: 0, c: columnIndex });
+            const address = xlsx.utils.encode_cell({ r: 0, c: columnIndex });
             const value = (sheet[address] as { v?: unknown } | undefined)?.v;
             const header = String(value ?? "").trim();
             if (header && !result.has(header)) result.set(header, columnIndex);
@@ -63,10 +70,10 @@
         const totalColumn = totalHeaders.get(header);
         const actualAddress = actualColumn === undefined
             ? ""
-            : window.XLSX.utils.encode_cell({ r: person ? 1 : 0, c: actualColumn });
+            : xlsx.utils.encode_cell({ r: person ? 1 : 0, c: actualColumn });
         const totalAddress = totalColumn === undefined
             ? ""
-            : window.XLSX.utils.encode_cell({ r: person ? person.sourceRow - 1 : 0, c: totalColumn });
+            : xlsx.utils.encode_cell({ r: person ? person.sourceRow - 1 : 0, c: totalColumn });
         const actualCell = actualAddress
             ? actualSheet[actualAddress] as { s?: Record<string, unknown> } | undefined
             : undefined;
@@ -101,7 +108,7 @@
         style: Record<string, unknown>,
         type?: "s" | "n" | "d"
     ): void {
-        const address = window.XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex });
+        const address = xlsx.utils.encode_cell({ r: rowIndex, c: columnIndex });
         const resolvedType = type || (typeof value === "number" ? "n" : value instanceof Date ? "d" : "s");
         const cell: Record<string, unknown> = { v: value ?? "", t: resolvedType, s: style };
         if (resolvedType === "d") cell.z = DATE_FORMAT;
@@ -183,7 +190,7 @@
             });
         });
 
-        actual["!ref"] = window.XLSX.utils.encode_range({
+        actual["!ref"] = xlsx.utils.encode_range({
             s: { r: 0, c: 0 },
             e: { r: Math.max(0, people.length), c: HEADERS.length - 1 }
         });
@@ -203,8 +210,8 @@
         return `${base}_换季实际.xlsx`;
     }
 
-    window.SeasonalLearningExport = {
+    return {
         buildExportWorkbook,
         buildOutputFileName
     };
-})();
+}

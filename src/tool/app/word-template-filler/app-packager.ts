@@ -1,19 +1,37 @@
 // 应用打包器
 // 将生成的HTML、Word模板、依赖库打包成zip（完全离线可用）
 
-const AppPackager = {
+import type {
+    WordTemplateAppConfig,
+    WordTemplateDependencies,
+    WordTemplateFieldConfig,
+    WordTemplateXlsxApi
+} from "./models";
+
+type BatchPackageOptions = {
+    batchTemplateFileName: string;
+    hasLoopFields: boolean;
+};
+
+export const AppPackager = {
     BATCH_TITLE_COLUMN: '文件标题',
 
     // 加载库文件内容
-    loadLibFile: async (path) => {
+    loadLibFile: async (path: string): Promise<string> => {
         const resp = await fetch(path);
         if (!resp.ok) throw new Error(`无法加载 ${path}`);
         return await resp.text();
     },
 
     // 打包应用
-    package: async (config, appName, htmlContent, templateFile) => {
-        const zip = new JSZip();
+    package: async (
+        dependencies: WordTemplateDependencies,
+        config: WordTemplateAppConfig,
+        appName: string,
+        htmlContent: string,
+        templateFile: File
+    ): Promise<void> => {
+        const zip = new dependencies.JSZip();
         
         // 生成文件名（去除特殊字符）
         const safeName = appName.replace(/[\\/:*?"<>|]/g, '_');
@@ -29,7 +47,7 @@ const AppPackager = {
         const hasLoopFields = AppPackager.hasLoopFields(config);
         const batchTemplateFileName = `${safeName}_批量导入模板.xlsx`;
         if (!hasLoopFields) {
-            zip.file(batchTemplateFileName, AppPackager.generateBatchTemplateArrayBuffer(config));
+            zip.file(batchTemplateFileName, AppPackager.generateBatchTemplateArrayBuffer(dependencies.XLSX, config));
         }
 
         // 4. 添加依赖库文件
@@ -75,25 +93,28 @@ const AppPackager = {
         URL.revokeObjectURL(url);
     },
     
-    hasLoopFields: (config) => {
+    hasLoopFields: (config: WordTemplateAppConfig): boolean => {
         return config.fields.some(field => field.type === 'loop');
     },
 
-    getBatchFields: (config) => {
+    getBatchFields: (config: WordTemplateAppConfig): WordTemplateFieldConfig[] => {
         return config.fields.filter(field => field.type !== 'loop');
     },
 
-    getBatchHeader: (field) => {
+    getBatchHeader: (field: WordTemplateFieldConfig): string => {
         return field.label || field.name;
     },
 
-    generateBatchTemplateWorkbook: (config) => {
+    generateBatchTemplateWorkbook: (
+        xlsx: WordTemplateXlsxApi,
+        config: WordTemplateAppConfig
+    ): import("xlsx-js-style").WorkBook => {
         const batchFields = AppPackager.getBatchFields(config);
         const headers = [AppPackager.BATCH_TITLE_COLUMN, ...batchFields.map(AppPackager.getBatchHeader)];
-        const workbook = XLSX.utils.book_new();
-        const dataSheet = XLSX.utils.aoa_to_sheet([headers]);
+        const workbook = xlsx.utils.book_new();
+        const dataSheet = xlsx.utils.aoa_to_sheet([headers]);
         dataSheet['!cols'] = headers.map((header, index) => ({ wch: index === 0 ? 24 : Math.max(14, String(header).length + 4) }));
-        XLSX.utils.book_append_sheet(workbook, dataSheet, '批量数据');
+        xlsx.utils.book_append_sheet(workbook, dataSheet, '批量数据');
 
         const helpRows = [
             ['说明', ''],
@@ -113,22 +134,33 @@ const AppPackager = {
                 field.format || ''
             ])
         ];
-        const helpSheet = XLSX.utils.aoa_to_sheet(helpRows);
+        const helpSheet = xlsx.utils.aoa_to_sheet(helpRows);
         helpSheet['!cols'] = [{ wch: 28 }, { wch: 28 }, { wch: 12 }, { wch: 8 }, { wch: 36 }, { wch: 18 }];
-        XLSX.utils.book_append_sheet(workbook, helpSheet, '填写说明');
+        xlsx.utils.book_append_sheet(workbook, helpSheet, '填写说明');
 
         return workbook;
     },
 
-    generateBatchTemplateArrayBuffer: (config) => {
-        return XLSX.write(AppPackager.generateBatchTemplateWorkbook(config), {
+    generateBatchTemplateArrayBuffer: (
+        xlsx: WordTemplateXlsxApi,
+        config: WordTemplateAppConfig
+    ): ArrayBuffer => {
+        return xlsx.write(AppPackager.generateBatchTemplateWorkbook(xlsx, config), {
             bookType: 'xlsx',
             type: 'array'
-        });
+        }) as ArrayBuffer;
     },
 
     // 生成说明文档
-    generateInstructions: (appName, safeName, templateFileName, batchOptions = {batchTemplateFileName: `${safeName}_批量导入模板.xlsx`, hasLoopFields: false}) => {
+    generateInstructions: (
+        appName: string,
+        safeName: string,
+        templateFileName: string,
+        batchOptions: BatchPackageOptions = {
+            batchTemplateFileName: `${safeName}_批量导入模板.xlsx`,
+            hasLoopFields: false
+        }
+    ): string => {
         const batchTemplateLine = batchOptions.hasLoopFields
             ? '- 当前配置包含列表/循环字段，第一版不随包提供批量导入模板'
             : `- ${batchOptions.batchTemplateFileName}    批量导入Excel模板`;
@@ -182,7 +214,7 @@ ${batchTemplateTree}└── libs/
     },
     
     // 生成配置备份
-    generateConfigBackup: (config) => {
+    generateConfigBackup: (config: WordTemplateAppConfig): string => {
         return JSON.stringify(config, null, 2);
     }
 };

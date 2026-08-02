@@ -1,7 +1,16 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const TrainingRecordPolicy = window.TrainingTool.TrainingRecordPolicy;
-  const exclusions = window.TrainingTool.TrainingCalendarExclusions;
+import { TrainingToolTrainingCalendarExclusions } from "./training-calendar-exclusions";
+import { TrainingToolTrainingRecordPolicy } from "./training-record-policy";
+import { TrainingToolUtils } from "./utils";
+import type {
+  TrainingToolAnalysis,
+  TrainingToolSheetInfo,
+  TrainingToolSheetRow,
+  TrainingToolWorkbook
+} from "./models";
+
+const Utils = TrainingToolUtils;
+  const TrainingRecordPolicy = TrainingToolTrainingRecordPolicy;
+  const exclusions = TrainingToolTrainingCalendarExclusions;
 
   const EMERGENCY_PROJECT = "应急训练";
   const SECURITY_PROJECT = "航空安保";
@@ -28,7 +37,7 @@
     ["飞行作风", 7]
   ]);
 
-  interface TrainingCalendarSession {
+  export interface TrainingCalendarSession {
     id: string;
     projectName: string;
     sourceProjects: string[];
@@ -45,11 +54,11 @@
     attendeeNames: Set<string>;
   }
 
-  interface TrainingCalendarOptions {
+  export interface TrainingCalendarOptions {
     today?: unknown;
   }
 
-  interface TrainingCalendarDayEvent extends TrainingCalendarSession {
+  export interface TrainingCalendarDayEvent extends TrainingCalendarSession {
     date: string;
   }
 
@@ -65,7 +74,20 @@
       || compareProjects(left.projectName, right.projectName);
   }
 
-  function normalizeRange(row: TrainingToolSheetRow, sheetInfo: any) {
+  export interface TrainingCalendarReminder extends TrainingCalendarSession {
+    daysUntil: number;
+    message: string;
+  }
+
+  export interface TrainingCalendarResult {
+    sessions: TrainingCalendarSession[];
+    dayEvents: TrainingCalendarDayEvent[];
+    reminders: TrainingCalendarReminder[];
+  }
+
+  type TrainingScanner = Pick<typeof import("./scanner").TrainingToolScanner, "readSheetInfo">;
+
+  function normalizeRange(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo) {
     const parsedStart = Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训开始日期"));
     const parsedEnd = Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训结束日期"));
     const start = parsedStart || parsedEnd;
@@ -200,7 +222,7 @@
     });
   }
 
-  function buildReminders(sessions: TrainingCalendarSession[], todayValue: unknown) {
+  function buildReminders(sessions: TrainingCalendarSession[], todayValue: unknown): TrainingCalendarReminder[] {
     const today = Utils.parseDate(todayValue) || Utils.makeDate(
       new Date().getFullYear(),
       new Date().getMonth() + 1,
@@ -210,7 +232,7 @@
       .filter((session) => session.sourceProjects.some((project) => REMINDER_PROJECTS.has(project)))
       .map((session) => ({
         ...session,
-        daysUntil: Utils.daysBetween(Utils.parseDate(session.startDate), today),
+        daysUntil: Utils.daysBetween(Utils.parseDate(session.startDate)!, today),
         message: REMINDER_MESSAGE
       }))
       .filter((reminder) => reminder.daysUntil >= 0 && reminder.daysUntil <= REMINDER_LEAD_DAYS)
@@ -220,9 +242,9 @@
   function buildCalendar(
     workbook: TrainingToolWorkbook | null,
     analysis: TrainingToolAnalysis | null,
-    scanner: any,
+    scanner: TrainingScanner,
     options: TrainingCalendarOptions = {}
-  ) {
+  ): TrainingCalendarResult {
     const drafts = [
       ...collectProjectDrafts(analysis),
       ...collectCrmDrafts(workbook, scanner)
@@ -274,9 +296,7 @@
       days
     };
   }
-
-  window.TrainingTool.TrainingCalendar = {
+  export const TrainingToolTrainingCalendar = {
     buildCalendar,
     buildMonthView
   };
-})();

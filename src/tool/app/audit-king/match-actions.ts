@@ -1,10 +1,8 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingAppContext } from "./app-context";
 
     function isNodeInside(parent: HTMLElement, node: Node): boolean {
         return node === parent || parent.contains(node);
     }
-
     function getSelectionInsideElement(element: HTMLElement): { start: number; end: number; text: string } | null {
         const selection = window.getSelection();
         if (!selection || selection.rangeCount === 0) return null;
@@ -191,7 +189,7 @@
         context.runtime.View.renderStatus("已解绑手册证据。", "success");
     }
 
-    function bindMatchActions(context: AuditKingAppContext): void {
+export function bindMatchActions(context: AuditKingAppContext): void {
         bindFiltersAndNavigation(context);
 
         document.addEventListener("click", (event) => {
@@ -243,8 +241,3 @@
             context.focusMatch(Number(matchItem.dataset.matchIndex || 0));
         });
     }
-
-    runtime.MatchActions = {
-        bindMatchActions
-    };
-})();

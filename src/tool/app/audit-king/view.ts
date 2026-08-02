@@ -1,5 +1,22 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingHighlight } from "./highlight";
+import type {
+    AuditKingCheckItem,
+    AuditKingHighlightRange,
+    AuditKingManualEvidence,
+    AuditKingMatch,
+    AuditKingStateModel,
+    AuditKingTextBlock
+} from "./models";
+import type { createAuditKingPdfLocatorView } from "./pdf-locator-view";
+import type { createAuditKingSearchEngine } from "./search-engine";
+
+interface AuditKingViewDependencies {
+    Highlight: typeof AuditKingHighlight;
+    SearchEngine: ReturnType<typeof createAuditKingSearchEngine>;
+    PdfLocatorView: ReturnType<typeof createAuditKingPdfLocatorView>;
+}
+
+export function createAuditKingView({ Highlight, SearchEngine, PdfLocatorView }: AuditKingViewDependencies) {
 
     function escapeHtml(value: unknown): string {
         return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -20,8 +37,8 @@
     }
 
     function renderHighlightedText(text: string, ranges: AuditKingHighlightRange[]): string {
-        const segments = runtime.Highlight.buildHighlightSegments(text, ranges);
-        return segments.map((segment: any) => {
+        const segments = Highlight.buildHighlightSegments(text, ranges);
+        return segments.map((segment) => {
             if (!segment.colors.length) return escapeHtml(segment.text);
             const evidenceClass = segment.evidenceIds.length ? " ak-manual-evidence-highlight" : "";
             const style = segment.evidenceIds.length ? "background:#d1e7dd" : `background:${segment.colors[0]}`;
@@ -111,7 +128,7 @@
     }
 
     function filteredMatches(state: AuditKingStateModel): AuditKingMatch[] {
-        return runtime.SearchEngine.filterMatches(state.searchResult.matches, {
+        return SearchEngine.filterMatches(state.searchResult.matches, {
             checkItemId: state.currentCheckItemId,
             documentId: state.documentFilterId
         });
@@ -151,7 +168,7 @@
             return;
         }
         const documentItem = state.documents.find((item) => item.id === match.documentId);
-        const context = runtime.Highlight.buildBlockWindowContext(documentItem?.blocks || [], {
+        const context = Highlight.buildBlockWindowContext(documentItem?.blocks || [], {
             blockId: match.blockId, matchStart: match.start, matchEnd: match.end, targetLength: state.currentDetailContextLength
         });
         const ranges: AuditKingHighlightRange[] = [{
@@ -225,12 +242,12 @@
         renderMatches(state);
         renderManualEvidences(state);
         renderEvidence(state);
-        runtime.PdfLocatorView?.renderPdfLocator(state.pdfLocator);
+        PdfLocatorView.renderPdfLocator(state.pdfLocator);
     }
 
-    runtime.View = {
+    return {
         escapeHtml, getElement, renderStatus, renderHighlightedText, renderAll,
         renderChecklist, focusChecklistHighlight, renderDocuments, renderCheckItems,
         renderMatches, renderMatchDetail, renderManualEvidences, renderEvidence, scrollEvidenceToBottom
     };
-})();
+}

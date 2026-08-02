@@ -1,5 +1,9 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
+import type {
+    RevisionDecision,
+    RevisionDecisionMap,
+    RevisionDecisionSummary,
+    RevisionEvent
+} from "./models";
     const valid = new Set<RevisionDecision>(["pending", "included", "excluded"]);
 
     function normalize(events: Array<Pick<RevisionEvent, "id">>, input: RevisionDecisionMap = {}): RevisionDecisionMap {
@@ -42,5 +46,4 @@
         return { pending: "待处理", included: "纳入报告", excluded: "不纳入" }[decision];
     }
 
-    runtime.Decisions = { normalize, get, set, setMany, summarize, eventsWith, label };
-})();
+export const ManualProofDecisions = { normalize, get, set, setMany, summarize, eventsWith, label };

@@ -37,7 +37,8 @@ describe("user manuals data", () => {
 
     expect(homepage.indexOf("./manuals.html")).toBeGreaterThan(homepage.indexOf("./developer.html"));
     expect(homepage.indexOf("./manuals.html")).toBeLessThan(homepage.indexOf("https://github.com/luckymaomi/ohmyflight"));
-    expect(manualPage).toContain("manuals-data.js");
+    expect(manualPage).toContain("manuals-app.js");
+    expect(manualScript).toContain('fetch("./manuals-data.json")');
     expect(manualScript).toContain('type: "text/markdown;charset=utf-8"');
     expect(manualScript).toContain('link.download = "ohmyflight-用户手册.md"');
   });

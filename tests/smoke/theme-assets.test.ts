@@ -34,7 +34,7 @@ describe("shared theme assets", () => {
       expect(html).toContain('data-default-theme="light"');
       expect(html).toContain("theme.js");
       expect(html).toContain("support-shell.css");
-      expect(html).toContain("support-shell.js");
+      expect(html).toContain('type="module"');
       expect(html).toContain("data-theme-toggle");
     });
   });

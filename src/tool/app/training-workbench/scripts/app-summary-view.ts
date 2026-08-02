@@ -1,8 +1,18 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const ResultStatus = window.TrainingTool.ResultStatus;
-  const WorkbenchStatus = window.TrainingTool.WorkbenchStatus;
-  const runtime = window.TrainingToolApp;
+import { TrainingToolResultStatus } from "./result-status";
+import type {
+  TrainingAssessmentRow,
+  TrainingProjectSummaryRow,
+  TrainingSummaryData,
+  TrainingToolAppRuntime,
+  TrainingVisibleStatusField
+} from "./models";
+import { TrainingToolUtils } from "./utils";
+import { TrainingToolWorkbenchStatus } from "./workbench-status";
+
+export function installTrainingAppSummaryView(runtime: TrainingToolAppRuntime): void {
+const Utils = TrainingToolUtils;
+  const ResultStatus = TrainingToolResultStatus;
+  const WorkbenchStatus = TrainingToolWorkbenchStatus;
   const elements = runtime.elements;
 
   const STATUS_KEYS = WorkbenchStatus.VISIBLE_STATUS_FIELDS.map((item) => ({
@@ -10,15 +20,17 @@
     label: item.status
   }));
 
-  let currentSummaryRows: any[] = [];
+  type StatusKey = { field: TrainingVisibleStatusField; label: string };
+
+  let currentSummaryRows: TrainingProjectSummaryRow[] = [];
   let selectedProject = "";
   let selectedStatus = "";
 
-  function personKey(row) {
+  function personKey(row: TrainingAssessmentRow): string {
     return `${row.projectName}@@${row.status}@@${row.employeeId || ""}@@${row.name || ""}`;
   }
 
-  function getSelectedKeySet(rows) {
+  function getSelectedKeySet(rows: TrainingAssessmentRow[]): Set<string> {
     const availableKeys = new Set((rows || []).map(personKey));
     const selectedKeys = new Set(
       (runtime.state.workbenchSelectedPersonKeys || []).filter((key) => availableKeys.has(key))
@@ -27,17 +39,17 @@
     return selectedKeys;
   }
 
-  function badge(status) {
+  function badge(status: string): string {
     return `<span class="badge ${Utils.escapeHtml(ResultStatus.badgeToneForWorkbenchStatus(status))}">${Utils.escapeHtml(status)}</span>`;
   }
 
-  function getRowsBySelection(projectName, status) {
+  function getRowsBySelection(projectName: string, status: string): TrainingAssessmentRow[] {
     const project = currentSummaryRows.find((row) => row.projectName === projectName);
     if (!project || !project.rowsByStatus) return [];
     return project.rowsByStatus[status] || [];
   }
 
-  function findDefaultSelection(rows) {
+  function findDefaultSelection(rows: TrainingProjectSummaryRow[]): { projectName: string; status: string } {
     for (const row of rows || []) {
       for (const statusItem of STATUS_KEYS) {
         if (row[statusItem.field] > 0) {
@@ -51,7 +63,7 @@
     return { projectName: "", status: "" };
   }
 
-  function renderSelectedPeople(projectName, status) {
+  function renderSelectedPeople(projectName: string, status: string): void {
     const rows = getRowsBySelection(projectName, status);
     runtime.state.workbenchSelection = projectName && status
       ? { projectName, status, rows }
@@ -117,7 +129,7 @@
     `;
   }
 
-  function renderCountButton(row, statusItem) {
+  function renderCountButton(row: TrainingProjectSummaryRow, statusItem: StatusKey): string {
     const count = row[statusItem.field] || 0;
     const selected = selectedProject === row.projectName && selectedStatus === statusItem.label;
     return `
@@ -131,7 +143,7 @@
     `;
   }
 
-  function renderProjectSummary(rows) {
+  function renderProjectSummary(rows: TrainingProjectSummaryRow[]): void {
     currentSummaryRows = rows || [];
     if (!currentSummaryRows.length) {
       selectedProject = "";
@@ -159,8 +171,8 @@
     renderSelectedPeople(selectedProject, selectedStatus);
   }
 
-  function renderWorkbenchSummary(summaryData) {
-    const data = summaryData || {};
+  function renderWorkbenchSummary(summaryData: TrainingSummaryData | null): void {
+    const data = (summaryData || {}) as Partial<TrainingSummaryData>;
     renderProjectSummary(data.projectSummaryRows || []);
   }
 
@@ -209,4 +221,4 @@
     renderWorkbenchSummary,
     personKey
   };
-})();
+}

@@ -1,5 +1,4 @@
-(function () {
-  window.TrainingTool.CrmInstructors = {
+export const TrainingToolCrmInstructors = {
     names: [
       "张雨",
       "车有路",
@@ -8,4 +7,3 @@
       "陈进军"
     ]
   };
-})();

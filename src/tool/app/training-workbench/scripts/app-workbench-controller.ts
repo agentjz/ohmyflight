@@ -1,14 +1,17 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const Workbench = window.TrainingTool.Workbench;
-  const runtime = window.TrainingToolApp;
+import { TrainingToolUtils } from "./utils";
+import type { TrainingToolAnalysis, TrainingToolAppRuntime, TrainingWorkbenchResult } from "./models";
+import { TrainingToolWorkbench } from "./workbench";
+
+export function installTrainingAppWorkbenchController(runtime: TrainingToolAppRuntime): void {
+const Utils = TrainingToolUtils;
+  const Workbench = TrainingToolWorkbench;
   const state = runtime.state;
   const elements = runtime.elements;
   const renderers = runtime.renderers;
   const selection = runtime.selection;
   const controls = runtime.controls;
 
-  function buildCurrentWorkbenchResult(analysis) {
+  function buildCurrentWorkbenchResult(analysis: TrainingToolAnalysis): TrainingWorkbenchResult {
     const range = selection.getWorkbenchRange();
     if (!range) {
       throw new Error("请确认排班总览评估日期区间，开始日期不能晚于结束日期。");
@@ -77,4 +80,4 @@
     handleWorkbenchRangeChange,
     handleWorkbenchFilterChange
   };
-})();
+}

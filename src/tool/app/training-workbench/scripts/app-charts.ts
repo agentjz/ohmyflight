@@ -1,29 +1,40 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const WorkbenchStatus = window.TrainingTool.WorkbenchStatus;
-  const runtime = window.TrainingToolApp;
+import { TrainingToolUtils } from "./utils";
+import type {
+  TrainingAnnualTrainingStatsDistribution,
+  TrainingChartData,
+  TrainingCrmAnnualResult,
+  TrainingScheduledDistributionResult,
+  TrainingToolAppRuntime
+} from "./models";
+import { TrainingToolWorkbenchStatus } from "./workbench-status";
+import { getTrainingEcharts } from "./browser-vendors";
+import type { TrainingChartInstance, TrainingChartOption, TrainingEchartsApi } from "./browser-vendors";
+
+export function installTrainingAppCharts(runtime: TrainingToolAppRuntime): void {
+const Utils = TrainingToolUtils;
+  const WorkbenchStatus = TrainingToolWorkbenchStatus;
   const elements = runtime.elements;
-  let workbenchStatusChart: any = null;
-  let workbenchProjectChart: any = null;
-  let workbenchMonthChart: any = null;
-  let scheduledDistributionDateChart: any = null;
-  let annualTrainingDateChart: any = null;
-  let crmParticipationChart: any = null;
-  let crmMonthlyChart: any = null;
-  let crmRoleChart: any = null;
+  let workbenchStatusChart: TrainingChartInstance | null = null;
+  let workbenchProjectChart: TrainingChartInstance | null = null;
+  let workbenchMonthChart: TrainingChartInstance | null = null;
+  let scheduledDistributionDateChart: TrainingChartInstance | null = null;
+  let annualTrainingDateChart: TrainingChartInstance | null = null;
+  let crmParticipationChart: TrainingChartInstance | null = null;
+  let crmMonthlyChart: TrainingChartInstance | null = null;
+  let crmRoleChart: TrainingChartInstance | null = null;
   let resizeFrameId = 0;
 
-  function getEcharts() {
-    return window.echarts || null;
+  function getEcharts(): TrainingEchartsApi | null {
+    return getTrainingEcharts();
   }
 
-  function getOrCreateChart(element, currentChart) {
+  function getOrCreateChart(element: HTMLElement, currentChart: TrainingChartInstance | null): TrainingChartInstance {
     const echarts = getEcharts();
-    if (!echarts) return null;
+    if (!echarts) return null as unknown as TrainingChartInstance;
     return currentChart || echarts.init(element);
   }
 
-  function getCssColor(name, fallback) {
+  function getCssColor(name: string, fallback: string): string {
     const value = window.getComputedStyle
       ? window.getComputedStyle(document.documentElement).getPropertyValue(name).trim()
       : "";
@@ -69,7 +80,7 @@
     };
   }
 
-  function withChartTheme(option) {
+  function withChartTheme(option: TrainingChartOption): TrainingChartOption {
     const theme = getChartTheme();
     return {
       textStyle: theme.textStyle,
@@ -91,11 +102,11 @@
     };
   }
 
-  function renderChartEmpty(element, message) {
+  function renderChartEmpty(element: HTMLElement, message: string): void {
     element.innerHTML = `<div class="empty-block">${Utils.escapeHtml(message)}</div>`;
   }
 
-  function renderWorkbenchCharts(chartData) {
+  function renderWorkbenchCharts(chartData: TrainingChartData | null): void {
     const echarts = getEcharts();
     if (!echarts) {
       renderChartEmpty(elements.workbenchStatusChart, "图表库未加载。");
@@ -184,7 +195,7 @@
     workbenchMonthChart.resize();
   }
 
-  function renderScheduledDistributionCharts(summary) {
+  function renderScheduledDistributionCharts(summary: TrainingScheduledDistributionResult["summary"] | null): void {
     const echarts = getEcharts();
     if (!echarts) {
       renderChartEmpty(elements.scheduledDistributionDateChart, "图表库未加载。");
@@ -223,7 +234,7 @@
     scheduledDistributionDateChart.resize();
   }
 
-  function renderAnnualTrainingCharts(summary) {
+  function renderAnnualTrainingCharts(summary: TrainingAnnualTrainingStatsDistribution["summary"] | null): void {
     const echarts = getEcharts();
     if (!echarts) {
       renderChartEmpty(elements.annualTrainingDateChart, "图表库未加载。");
@@ -257,7 +268,7 @@
     annualTrainingDateChart.resize();
   }
 
-  function renderCrmCharts(result) {
+  function renderCrmCharts(result: TrainingCrmAnnualResult | null): void {
     const echarts = getEcharts();
     if (!echarts) {
       renderChartEmpty(elements.crmParticipationChart, "图表库未加载。");
@@ -274,7 +285,7 @@
     crmMonthlyChart = getOrCreateChart(elements.crmMonthlyChart, crmMonthlyChart);
     crmRoleChart = getOrCreateChart(elements.crmRoleChart, crmRoleChart);
     const chartColors = getChartColors();
-    const colorForCrmKind = (kind) => (kind === "missing" ? chartColors.danger : chartColors.ok);
+    const colorForCrmKind = (kind: string | undefined): string => (kind === "missing" ? chartColors.danger : chartColors.ok);
 
     crmParticipationChart.setOption(withChartTheme({
       tooltip: { trigger: "item" },
@@ -319,7 +330,7 @@
           ...getChartTheme().textStyle
         },
         itemStyle: {
-          color(params) {
+          color(params: { dataIndex: number }) {
             const item = monthlyRows[params.dataIndex];
             return colorForCrmKind(item && item.kind);
           }
@@ -332,7 +343,7 @@
       tooltip: {
         trigger: "axis",
         axisPointer: { type: "shadow" },
-        valueFormatter(value) {
+        valueFormatter(value: unknown) {
           return `${value}人`;
         }
       },
@@ -356,7 +367,7 @@
           label: {
             show: true,
             ...getChartTheme().textStyle,
-            formatter(params) {
+            formatter(params: { value: unknown }) {
               return params.value ? `${params.value}` : "";
             }
           },
@@ -370,7 +381,7 @@
           label: {
             show: true,
             ...getChartTheme().textStyle,
-            formatter(params) {
+            formatter(params: { value: unknown }) {
               return params.value ? `${params.value}` : "";
             }
           },
@@ -384,7 +395,7 @@
     crmRoleChart.resize();
   }
 
-  function refreshRenderedCharts() {
+  function refreshRenderedCharts(): void {
     const state = runtime.state;
     if (state.workbenchResult && state.workbenchResult.chartData) {
       renderWorkbenchCharts(state.workbenchResult.chartData);
@@ -429,4 +440,4 @@
     renderCrmCharts,
     refreshRenderedCharts
   };
-})();
+}

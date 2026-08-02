@@ -1,5 +1,19 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
+import type {
+    LocalManual,
+    ManualProofHookConfig,
+    ManualRole,
+    ManualUnit,
+    PdfLineRecord,
+    WorkerManual
+} from "./models";
+
+type ManualReaderDependencies = {
+    mammoth: { extractRawText(input: { arrayBuffer: ArrayBuffer }): Promise<{ value?: string }> } | null;
+    pdfjsLib: any;
+    hooks: ManualProofHookConfig;
+};
+
+export function createManualReader(dependencies: ManualReaderDependencies) {
 
     function makeManualId(role: ManualRole, file: File): string {
         const name = (file.name || "manual").replace(/[^0-9a-zA-Z\u4e00-\u9fff-]+/g, "-");
@@ -13,10 +27,10 @@
     }
 
     async function readWord(file: File, role: ManualRole): Promise<LocalManual> {
-        if (!window.mammoth?.extractRawText) throw new Error("页面缺少 Word 文字读取组件。 ");
+        if (!dependencies.mammoth?.extractRawText) throw new Error("页面缺少 Word 文字读取组件。 ");
         const id = makeManualId(role, file);
         const data = await file.arrayBuffer();
-        const extracted = await window.mammoth.extractRawText({ arrayBuffer: data });
+        const extracted = await dependencies.mammoth.extractRawText({ arrayBuffer: data });
         const units = splitWordUnits(extracted.value || "", id);
         if (!units.length) throw new Error(`${file.name} 未提取到可比对文字。`);
         return { id, role, name: file.name, format: "docx", units, sourceFile: file };
@@ -56,11 +70,11 @@
         role: ManualRole,
         requestedRange: { startPage: number | ""; endPage: number | "" }
     ): Promise<LocalManual> {
-        if (!window.pdfjsLib) throw new Error("页面缺少 PDF 读取组件。 ");
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = "../../../libs/pdf.worker.min.js";
+        if (!dependencies.pdfjsLib) throw new Error("页面缺少 PDF 读取组件。 ");
+        dependencies.pdfjsLib.GlobalWorkerOptions.workerSrc = "../../../libs/pdf.worker.min.js";
         const id = makeManualId(role, file);
         const data = await file.arrayBuffer();
-        const pdfDocument = await window.pdfjsLib.getDocument({ data }).promise;
+        const pdfDocument = await dependencies.pdfjsLib.getDocument({ data }).promise;
         const range = normalizePdfRange(requestedRange.startPage, requestedRange.endPage, pdfDocument.numPages);
         const pages: PdfLineRecord[][] = [];
         for (let pageNumber = range.start; pageNumber <= range.end; pageNumber += 1) {
@@ -223,7 +237,7 @@
 
     function configuredIgnoredNoiseLines(): Set<string> {
         return new Set(
-            (window.ManualProofHooks?.ignoredNoisePhrases || [])
+            (dependencies.hooks.ignoredNoisePhrases || [])
                 .map((phrase) => normalizeLine(String(phrase)))
                 .filter(Boolean)
         );
@@ -253,7 +267,7 @@
         };
     }
 
-    runtime.ManualReader = {
+    return {
         readManual,
         splitWordUnits,
         groupPdfItemsIntoLines,
@@ -263,4 +277,4 @@
         normalizePdfRange,
         toWorkerManual
     };
-})();
+}

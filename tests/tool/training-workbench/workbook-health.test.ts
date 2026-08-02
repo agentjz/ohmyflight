@@ -1,7 +1,8 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { TrainingToolScanner as Scanner } from "../../../src/tool/app/training-workbench/scripts/scanner";
+import { TrainingToolWorkbookHealth as WorkbookHealth } from "../../../src/tool/app/training-workbench/scripts/workbook-health";
 
 function makeDate(year: number, month: number, day: number) {
   return new Date(year, month - 1, day, 12, 0, 0, 0);
@@ -68,29 +69,8 @@ function buildSecurityTsaWorkbook(
 }
 
 describe("workbook health", () => {
-  let Scanner: any;
-  let WorkbookHealth: any;
-
   beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/training-workbench/scripts/config.js",
-      "tool/app/training-workbench/scripts/utils.js",
-      "tool/app/training-workbench/scripts/crm-instructors.js",
-      "tool/app/training-workbench/scripts/training-record-policy.js",
-      "tool/app/training-workbench/scripts/scanner.js",
-      "tool/app/training-workbench/scripts/crm-annual.js",
-      "tool/app/training-workbench/scripts/workbook-health.js"
-    ], {
-      XLSX
-    });
-
-    const trainingTool = context.TrainingTool as {
-      Scanner: any;
-      WorkbookHealth: any;
-    };
-
-    Scanner = trainingTool.Scanner;
-    WorkbookHealth = trainingTool.WorkbookHealth;
+    vi.stubGlobal("XLSX", XLSX);
   });
 
   it("reports current workbook structure and data health without duplicating business rules", () => {

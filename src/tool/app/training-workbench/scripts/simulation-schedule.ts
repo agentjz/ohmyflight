@@ -1,10 +1,12 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
+import { TrainingToolUtils } from "./utils";
+import type { TrainingSimulationRecord, TrainingSimulationRecordInput } from "./models";
+
+const Utils = TrainingToolUtils;
 
   let sequence = 1;
-  let records: any[] = [];
+  let records: TrainingSimulationRecord[] = [];
 
-  function normalizeRecord(input) {
+  function normalizeRecord(input: TrainingSimulationRecordInput): TrainingSimulationRecord {
     const projectName = Utils.normalizeProjectName(input.projectName);
     const employeeId = Utils.normalizeText(input.employeeId);
     const name = Utils.normalizeText(input.name);
@@ -15,7 +17,7 @@
     if (!employeeId && !name) throw new Error("模拟排班人员缺少员工号和姓名。");
     if (!trainingStartDate) throw new Error("请选择可解析的模拟培训开始日期。");
     if (!trainingEndDate) throw new Error("请选择可解析的模拟培训结束日期。");
-    if (Utils.parseDate(trainingStartDate) > Utils.parseDate(trainingEndDate)) {
+    if (Utils.parseDate(trainingStartDate)! > Utils.parseDate(trainingEndDate)!) {
       throw new Error("模拟培训开始日期不能晚于结束日期。");
     }
 
@@ -32,36 +34,35 @@
     };
   }
 
-  function add(record) {
+  function add(record: TrainingSimulationRecordInput): TrainingSimulationRecord {
     const normalized = normalizeRecord(record);
     records.push(normalized);
     return normalized;
   }
 
-  function addMany(nextRecords) {
+  function addMany(nextRecords: TrainingSimulationRecordInput[] | null | undefined): TrainingSimulationRecord[] {
     return (nextRecords || []).map(add);
   }
 
-  function remove(id) {
+  function remove(id: unknown): boolean {
     const targetId = Utils.normalizeText(id);
     const before = records.length;
     records = records.filter((record) => record.id !== targetId);
     return before !== records.length;
   }
 
-  function clear() {
+  function clear(): void {
     records = [];
   }
 
-  function list() {
+  function list(): TrainingSimulationRecord[] {
     return records.map((record) => ({ ...record }));
   }
 
-  function toExtraProjectRows() {
+  function toExtraProjectRows(): TrainingSimulationRecord[] {
     return list();
   }
-
-  window.TrainingTool.SimulationSchedule = {
+  export const TrainingToolSimulationSchedule = {
     add,
     addMany,
     remove,
@@ -69,4 +70,3 @@
     list,
     toExtraProjectRows
   };
-})();

@@ -1,5 +1,6 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
+import { TrainingToolUtils } from "./utils";
+
+const Utils = TrainingToolUtils;
 
   const IGNORED_PERSON_PROJECTS = [
     {
@@ -34,7 +35,7 @@
     }
   ];
 
-  const ignoreMap = new Map();
+  const ignoreMap = new Map<string, { name: string; projects: Set<string>; reason: string }>();
   IGNORED_PERSON_PROJECTS.forEach((item) => {
     const name = Utils.normalizeText(item.name);
     const projects = new Set(item.projects.map((projectName) => Utils.normalizeProjectName(projectName)));
@@ -45,7 +46,7 @@
     });
   });
 
-  function getIgnoreReason(person, projectName) {
+  function getIgnoreReason(person: { name?: string; employeeId?: string } | null | undefined, projectName: unknown): string {
     const name = Utils.normalizeText(person && person.name);
     const canonicalProjectName = Utils.normalizeProjectName(projectName);
     if (!name || !canonicalProjectName) return "";
@@ -55,13 +56,11 @@
     return item.reason;
   }
 
-  function shouldIgnore(person, projectName) {
+  function shouldIgnore(person: { name?: string; employeeId?: string } | null | undefined, projectName: unknown): boolean {
     return Boolean(getIgnoreReason(person, projectName));
   }
-
-  window.TrainingTool.TrainingIgnoreList = {
+  export const TrainingToolTrainingIgnoreList = {
     IGNORED_PERSON_PROJECTS,
     shouldIgnore,
     getIgnoreReason
   };
-})();

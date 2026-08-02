@@ -1,8 +1,16 @@
-(function () {
-    const Data = window.SeasonalLearningData;
-    const Allocation = window.SeasonalLearningAllocation;
-    const BalanceFilter = window.SeasonalLearningBalanceFilter;
-    const BalanceRules = window.SeasonalLearningBalanceRules;
+import { SeasonalLearningAllocation as Allocation } from "./allocation";
+import { SeasonalLearningBalanceFilter as BalanceFilter } from "./balance-filter";
+import { SeasonalLearningBalanceRules as BalanceRules } from "./balance-rules";
+import { SeasonalLearningData as Data } from "./data";
+import type {
+    SeasonalLearningAdjustmentEvent,
+    SeasonalLearningBalanceGroupDefinition,
+    SeasonalLearningBalanceReport,
+    SeasonalLearningDimensionReport,
+    SeasonalLearningOperationResult,
+    SeasonalLearningPeriodSummary,
+    SeasonalLearningPerson
+} from "./models";
 
     interface ResolvedPeopleGroup {
         definition: SeasonalLearningBalanceGroupDefinition;
@@ -217,11 +225,10 @@
         return { people: output, events };
     }
 
-    window.SeasonalLearningLogic = {
+export const SeasonalLearningLogic = {
         ...Data,
         buildInitialSchedule,
         checkBalance,
         buildPeriodSummaries,
         movePeople
     };
-})();

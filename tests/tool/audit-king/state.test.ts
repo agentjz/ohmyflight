@@ -1,18 +1,9 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createAuditKingState } from "../../../src/tool/app/audit-king/state";
 
 describe("audit-king check item state", () => {
-  let stateApi: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/audit-king/check-item-store.js",
-      "tool/app/audit-king/source-locator.js",
-      "tool/app/audit-king/state.js"
-    ]);
-    stateApi = (context.AuditKing as any).State;
-  });
+  const stateApi = createAuditKingState();
 
   it("keeps code, name and keyword as independent user-maintained fields", () => {
     const state = stateApi.createState();
@@ -73,8 +64,8 @@ describe("audit-king check item state", () => {
       text: "进入训练前应满足资格要求。"
     });
 
-    const adopted = stateApi.adoptManualEvidence(state, item.id, candidate.id);
-    const duplicate = stateApi.adoptManualEvidence(state, item.id, candidate.id);
+    const adopted = stateApi.adoptManualEvidence(state, item.id, candidate.id!);
+    const duplicate = stateApi.adoptManualEvidence(state, item.id, candidate.id!);
 
     expect(adopted.content).toBe("进入训练前应满足资格要求。");
     expect(duplicate.id).toBe(adopted.id);
@@ -122,7 +113,7 @@ describe("audit-king check item state", () => {
       view: { currentCheckItemId: "item-stable", documentFilterId: "doc-1" }
     });
 
-    expect(state.checklistFile.name).toBe("检查单.docx");
+    expect(state.checklistFile!.name).toBe("检查单.docx");
     expect(state.checkItems[0].id).toBe("item-stable");
     expect(state.currentCheckItemId).toBe("item-stable");
     expect(state.documentFilterId).toBe("doc-1");

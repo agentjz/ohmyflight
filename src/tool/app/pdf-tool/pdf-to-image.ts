@@ -1,12 +1,7 @@
-(function () {
-  const runtime = window.PdfTool || (window.PdfTool = {} as PdfToolRuntimeRegistry);
+import type { PdfToolDependencies, PdfToolPdfToImageFile } from "./models";
+import * as tools from "./shared";
 
-  function initPdfToImage(): void {
-    const shared = runtime.shared;
-    if (!shared) {
-      throw new Error("PDF tool shared runtime is unavailable");
-    }
-    const tools: PdfToolSharedApi = shared;
+export function initPdfToImage({ JSZip, pdfjsLib }: PdfToolDependencies): void {
 
     const state = {
       files: [] as PdfToolPdfToImageFile[],
@@ -14,6 +9,12 @@
     };
 
     tools.setupUpload("pdf2imgUpload", "pdf2imgInput", addFiles, true);
+    tools.getElement<HTMLElement>("pdf2imgList").addEventListener("click", (event) => {
+      const button = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>("button[data-file-id]");
+      if (button) removePdf2ImgFile(Number.parseInt(button.dataset.fileId || "", 10));
+    });
+    tools.getElement<HTMLButtonElement>("pdf2imgButton").addEventListener("click", () => void doPdf2Img());
+    tools.getElement<HTMLButtonElement>("clearPdf2imgButton").addEventListener("click", clearPdf2ImgList);
 
     async function addFiles(files: File[]): Promise<void> {
       for (const file of files) {
@@ -42,7 +43,7 @@
             <div class="file-name">${file.name}</div>
             <div class="file-meta">${tools.formatSize(file.size)}</div>
           </div>
-          <button class="btn btn-sm btn-outline-danger" onclick="removePdf2ImgFile(${file.id})">×</button>
+          <button class="btn btn-sm btn-outline-danger" data-file-id="${file.id}">×</button>
         </div>
       `).join("");
 
@@ -131,12 +132,4 @@
       }
     }
 
-    Object.assign(window, {
-      removePdf2ImgFile,
-      clearPdf2ImgList,
-      doPdf2Img
-    });
-  }
-
-  runtime.initPdfToImage = initPdfToImage;
-})();
+}

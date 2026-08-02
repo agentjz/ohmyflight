@@ -1,6 +1,12 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
-    const archive = (window as any).OhMyFlightProjectArchive;
+import type { createProjectArchive } from "../../project-archive";
+import type {
+    AuditProjectBuildInput,
+    AuditProjectReadResult,
+    AuditProjectSnapshot,
+    AuditProjectSourceMetadata
+} from "./models";
+
+export function createAuditKingProjectPackage(archive: ReturnType<typeof createProjectArchive>) {
     const schemaVersion = 1;
     const statePath = "state/audit-project.json";
     const workbookPath = "reports/check-items.xlsx";
@@ -66,7 +72,10 @@
         return { path: entry.path, name: file.name, type: file.type };
     }
 
-    async function sourceFile(restored: any, source: AuditProjectSourceMetadata): Promise<File> {
+    async function sourceFile(
+        restored: Awaited<ReturnType<typeof archive.read>>,
+        source: AuditProjectSourceMetadata
+    ): Promise<File> {
         return restored.file(source.path, source.name, source.type);
     }
 
@@ -85,5 +94,5 @@
         }
     }
 
-    runtime.ProjectPackage = { schemaVersion, build, read, validateState };
-})();
+    return { schemaVersion, build, read, validateState };
+}

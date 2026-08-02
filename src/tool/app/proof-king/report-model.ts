@@ -1,5 +1,11 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
+import type {
+    DiffSegment,
+    ManualRole,
+    ReportTextRun,
+    RevisionEvent,
+    RevisionReportGroup,
+    RevisionReportRow
+} from "./models";
 
     function buildRows(events: RevisionEvent[]): RevisionReportRow[] {
         return events.map(buildRow);
@@ -69,5 +75,4 @@
         }));
     }
 
-    runtime.ReportModel = { buildRows, buildGroups, sectionNumber, diffRuns };
-})();
+export const ManualProofReportModel = { buildRows, buildGroups, sectionNumber, diffRuns };

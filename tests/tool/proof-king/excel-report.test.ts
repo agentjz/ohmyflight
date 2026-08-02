@@ -1,29 +1,20 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createExcelReport } from "../../../src/tool/app/proof-king/excel-report";
+
+const XLSX = {
+    utils: {
+        book_new: () => ({ SheetNames: [] as string[], Sheets: {} as Record<string, unknown> }),
+        aoa_to_sheet: (rows: unknown[][]) => ({ rows }),
+        book_append_sheet: (book: any, sheet: any, name: string) => {
+            book.SheetNames.push(name);
+            book.Sheets[name] = sheet;
+        }
+    }
+};
+const report: any = createExcelReport(XLSX as unknown as typeof import("xlsx-js-style"));
 
 describe("校对之王 Excel 报告", () => {
-    let report: any;
-
-    beforeAll(() => {
-        const XLSX = {
-            utils: {
-                book_new: () => ({ SheetNames: [] as string[], Sheets: {} as Record<string, unknown> }),
-                aoa_to_sheet: (rows: unknown[][]) => ({ rows }),
-                book_append_sheet: (book: any, sheet: any, name: string) => {
-                    book.SheetNames.push(name);
-                    book.Sheets[name] = sheet;
-                }
-            }
-        };
-        const context = loadBrowserScripts([
-            "tool/app/proof-king/navigation.js",
-            "tool/app/proof-king/report-model.js",
-            "tool/app/proof-king/excel-report.js"
-        ], { XLSX });
-        report = (context as any).ManualProof.ExcelReport;
-    });
-
     it("按修订事件导出完整双侧原文", () => {
         const comparison = {
             summary: {

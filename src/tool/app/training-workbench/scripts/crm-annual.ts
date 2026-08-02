@@ -1,22 +1,88 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const TrainingRecordPolicy = window.TrainingTool.TrainingRecordPolicy;
-  const CrmInstructors = window.TrainingTool.CrmInstructors;
+import { TrainingToolCrmInstructors } from "./crm-instructors";
+import { TrainingToolTrainingRecordPolicy } from "./training-record-policy";
+import { TrainingToolUtils } from "./utils";
+import type {
+  TrainingToolAnalysis,
+  TrainingToolSheetInfo,
+  TrainingToolSheetRow,
+  TrainingToolWorkbook
+} from "./models";
+
+const Utils = TrainingToolUtils;
+  const TrainingRecordPolicy = TrainingToolTrainingRecordPolicy;
+  const CrmInstructors = TrainingToolCrmInstructors;
 
   const CRM_SHEET_NAME = "CRM";
   const ROLE_ORDER = ["教员", "机长", "副驾驶", "未识别"];
 
-  function normalizeYear(value) {
+  export interface CrmPersonBasics {
+    employeeId: string;
+    name: string;
+    department: string;
+    techInfo: string;
+    operation: string;
+    remark: string;
+  }
+
+  export interface CrmRecord {
+    employeeId: string;
+    name: string;
+    key: string;
+    trainingDate: Date | null;
+    trainingDateText: string;
+    instructor: string;
+    remark: string;
+    rowNumber: number;
+    active: boolean;
+  }
+
+  export interface CrmDuplicateRow {
+    employeeId: string;
+    name: string;
+    department: string;
+    techInfo: string;
+    count: number;
+    records: CrmRecord[];
+    rowNumbers: number[];
+    dates: string[];
+    instructors: string[];
+  }
+
+  export interface CrmRoleRow {
+    role: string;
+    required: number;
+    attended: number;
+    missing: number;
+    attendedRate: number;
+  }
+
+  export interface CrmAnnualResult {
+    year: number;
+    hasCrmSheet: boolean;
+    requiredPeople: CrmPersonBasics[];
+    attendedPeople: CrmPersonBasics[];
+    missingPeople: CrmPersonBasics[];
+    records: CrmRecord[];
+    participationRows: Array<{ name: string; value: number; kind: string }>;
+    monthlyRows: Array<{ label: string; count: number; kind: string }>;
+    roleRows: CrmRoleRow[];
+    duplicateRows: CrmDuplicateRow[];
+    stats: { required: number; attended: number; missing: number; instructors: number; duplicates: number };
+  }
+
+  type TrainingScanner = Pick<typeof import("./scanner").TrainingToolScanner, "readSheetInfo">;
+
+  function normalizeYear(value: unknown): number {
     const text = Utils.normalizeText(value);
     const year = Number(text);
     return Number.isInteger(year) && year >= 2000 && year <= 2100 ? year : new Date().getFullYear();
   }
 
-  function getCurrentYear() {
+  function getCurrentYear(): number {
     return new Date().getFullYear();
   }
 
-  function getPersonBasics(row, peopleInfo) {
+  function getPersonBasics(row: TrainingToolSheetRow, peopleInfo: TrainingToolSheetInfo): CrmPersonBasics {
     return {
       employeeId: Utils.normalizeText(Utils.getValueByHeader(row, peopleInfo, "员工号")),
       name: Utils.normalizeText(Utils.getValueByHeader(row, peopleInfo, "姓名")),
@@ -27,7 +93,7 @@
     };
   }
 
-  function classifyRole(techInfo) {
+  function classifyRole(techInfo: unknown): string {
     const text = Utils.normalizeText(techInfo);
     if (text.includes("飞行教员") || text.includes("教员")) return "教员";
     if (text.includes("机长")) return "机长";
@@ -35,11 +101,11 @@
     return "未识别";
   }
 
-  function buildInstructorSet() {
+  function buildInstructorSet(): Set<string> {
     return new Set((CrmInstructors.names || []).map((name) => Utils.normalizeText(name)).filter(Boolean));
   }
 
-  function buildRequiredPeople(analysis) {
+  function buildRequiredPeople(analysis: TrainingToolAnalysis | null): CrmPersonBasics[] {
     if (!analysis || !analysis.peopleInfo || !analysis.peopleInfo.rows) return [];
     const instructorSet = buildInstructorSet();
     return analysis.peopleInfo.rows
@@ -48,25 +114,25 @@
       .filter((person) => !instructorSet.has(person.name));
   }
 
-  function getCrmSheetInfo(workbook, scanner) {
+  function getCrmSheetInfo(workbook: TrainingToolWorkbook | null, scanner: TrainingScanner): TrainingToolSheetInfo | null {
     if (!workbook || !workbook.Sheets || !workbook.Sheets[CRM_SHEET_NAME]) return null;
     return scanner.readSheetInfo(workbook, CRM_SHEET_NAME);
   }
 
-  function getTrainingDate(row, sheetInfo) {
+  function getTrainingDate(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): Date | null {
     return Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训开始日期"))
       || Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训结束日期"));
   }
 
-  function dateBelongsToYear(dateValue, year) {
-    return Boolean(dateValue) && dateValue.getFullYear() === year;
+  function dateBelongsToYear(dateValue: Date | null, year: number): boolean {
+    return Boolean(dateValue) && dateValue!.getFullYear() === year;
   }
 
-  function collectPersonKeys(person) {
+  function collectPersonKeys(person: { employeeId?: string; name?: string }): string[] {
     return [person.employeeId, person.name].map((value) => Utils.normalizeText(value)).filter(Boolean);
   }
 
-  function buildCrmRecord(row, sheetInfo) {
+  function buildCrmRecord(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): CrmRecord {
     const trainingDate = getTrainingDate(row, sheetInfo);
     const name = Utils.normalizeText(Utils.getValueByHeader(row, sheetInfo, "姓名"));
     const employeeId = Utils.normalizeText(Utils.getValueByHeader(row, sheetInfo, "员工号"));
@@ -83,7 +149,7 @@
     };
   }
 
-  function buildValidRecords(sheetInfo, year) {
+  function buildValidRecords(sheetInfo: TrainingToolSheetInfo | null, year: number): CrmRecord[] {
     if (!sheetInfo || !sheetInfo.rows) return [];
     return sheetInfo.rows
       .map((row) => buildCrmRecord(row, sheetInfo))
@@ -92,21 +158,21 @@
       .filter((record) => dateBelongsToYear(record.trainingDate, year));
   }
 
-  function buildParticipationRows(attendedCount, missingCount) {
+  function buildParticipationRows(attendedCount: number, missingCount: number): Array<{ name: string; value: number; kind: string }> {
     return [
       { name: "已参加", value: attendedCount, kind: "attended" },
       { name: "未参加", value: missingCount, kind: "missing" }
     ];
   }
 
-  function findEarliestRecordForPerson(person, records) {
+  function findEarliestRecordForPerson(person: CrmPersonBasics, records: CrmRecord[]): CrmRecord | null {
     const keys = new Set(collectPersonKeys(person));
     return (records || [])
       .filter((record) => collectPersonKeys(record).some((key) => keys.has(key)))
-      .sort((left, right) => left.trainingDate - right.trainingDate)[0] || null;
+      .sort((left, right) => (left.trainingDate as unknown as number) - (right.trainingDate as unknown as number))[0] || null;
   }
 
-  function findRecordsForPerson(person, records) {
+  function findRecordsForPerson(person: CrmPersonBasics, records: CrmRecord[]): CrmRecord[] {
     const keys = new Set(collectPersonKeys(person));
     return (records || [])
       .filter((record) => collectPersonKeys(record).some((key) => keys.has(key)))
@@ -117,8 +183,8 @@
       });
   }
 
-  function buildDuplicateRows(requiredPeople, records) {
-    const peopleByKey = new Map();
+  function buildDuplicateRows(requiredPeople: CrmPersonBasics[], records: CrmRecord[]): CrmDuplicateRow[] {
+    const peopleByKey = new Map<string, CrmPersonBasics>();
     (requiredPeople || []).forEach((person) => {
       collectPersonKeys(person).forEach((key) => {
         if (!peopleByKey.has(key)) {
@@ -127,7 +193,7 @@
       });
     });
 
-    const recordGroups = new Map();
+    const recordGroups = new Map<string, CrmRecord[]>();
     (records || []).forEach((record) => {
       const key = record.employeeId || record.name;
       if (!key) return;
@@ -138,15 +204,15 @@
 
     return [...recordGroups.entries()]
       .map(([key, personRecords]) => {
-        const person = peopleByKey.get(key) || personRecords[0] || {};
+        const person = (peopleByKey.get(key) || personRecords[0]!) as CrmPersonBasics;
         const sortedRecords = [...personRecords].sort((left, right) => {
           const leftTime = left.trainingDate ? left.trainingDate.getTime() : 0;
           const rightTime = right.trainingDate ? right.trainingDate.getTime() : 0;
           return leftTime - rightTime || left.rowNumber - right.rowNumber;
         });
         return {
-          employeeId: person.employeeId || personRecords[0].employeeId,
-          name: person.name || personRecords[0].name,
+          employeeId: person.employeeId || personRecords[0]!.employeeId,
+          name: person.name || personRecords[0]!.name,
           department: person.department || "",
           techInfo: person.techInfo || "",
           count: sortedRecords.length,
@@ -160,7 +226,7 @@
       .sort((left, right) => right.count - left.count || left.name.localeCompare(right.name, "zh-Hans-CN"));
   }
 
-  function buildMonthlyRows(records, missingCount, attendedPeople = []) {
+  function buildMonthlyRows(records: CrmRecord[], missingCount: number, attendedPeople: CrmPersonBasics[] = []): Array<{ label: string; count: number; kind: string }> {
     const monthlyCounts = Array.from({ length: 12 }, (_, index) => ({
       label: `${index + 1}月`,
       count: 0,
@@ -169,8 +235,8 @@
 
     attendedPeople.forEach((person) => {
       const record = findEarliestRecordForPerson(person, records);
-      if (!record.trainingDate) return;
-      const index = record.trainingDate.getMonth();
+      if (!record!.trainingDate) return;
+      const index = record!.trainingDate.getMonth();
       if (index >= 0 && index < 12) {
         monthlyCounts[index].count += 1;
       }
@@ -182,10 +248,10 @@
     ];
   }
 
-  function buildRoleRows(requiredPeople, attendedPeople, missingPeople) {
+  function buildRoleRows(requiredPeople: CrmPersonBasics[], attendedPeople: CrmPersonBasics[], missingPeople: CrmPersonBasics[]): CrmRoleRow[] {
     const attendedKeys = new Set(attendedPeople.flatMap((person) => collectPersonKeys(person)));
     const missingKeys = new Set(missingPeople.flatMap((person) => collectPersonKeys(person)));
-    const roleMap = new Map(ROLE_ORDER.map((role) => [role, {
+    const roleMap = new Map<string, CrmRoleRow>(ROLE_ORDER.map((role) => [role, {
       role,
       required: 0,
       attended: 0,
@@ -211,16 +277,16 @@
       item.attendedRate = item.required ? item.attended / item.required : 0;
     });
 
-    return ROLE_ORDER.map((role) => roleMap.get(role));
+    return ROLE_ORDER.map((role) => roleMap.get(role)!);
   }
 
-  function buildAnnualCheck(workbook, analysis, scanner, yearValue) {
+  function buildAnnualCheck(workbook: TrainingToolWorkbook | null, analysis: TrainingToolAnalysis | null, scanner: TrainingScanner, yearValue: unknown): CrmAnnualResult {
     const year = normalizeYear(yearValue || getCurrentYear());
     const crmSheet = getCrmSheetInfo(workbook, scanner);
     const requiredPeople = buildRequiredPeople(analysis);
     const records = buildValidRecords(crmSheet, year);
     const attendedKeys = new Set(records.flatMap((record) => collectPersonKeys(record)));
-    const hasAttended = (person) => collectPersonKeys(person).some((key) => attendedKeys.has(key));
+    const hasAttended = (person: CrmPersonBasics): boolean => collectPersonKeys(person).some((key) => attendedKeys.has(key));
     const attendedPeople = requiredPeople.filter(hasAttended);
     const missingPeople = requiredPeople.filter((person) => !hasAttended(person));
     const participationRows = buildParticipationRows(attendedPeople.length, missingPeople.length);
@@ -248,8 +314,7 @@
       }
     };
   }
-
-  window.TrainingTool.CrmAnnual = {
+  export const TrainingToolCrmAnnual = {
     CRM_SHEET_NAME,
     normalizeYear,
     classifyRole,
@@ -261,4 +326,3 @@
     buildRoleRows,
     buildAnnualCheck
   };
-})();

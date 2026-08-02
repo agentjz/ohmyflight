@@ -1,13 +1,14 @@
-(function () {
-  function normalizeQuery(value: string): string {
+import type { JobskillSearchResult, JobskillSearchSource } from "./models";
+
+  export function normalizeQuery(value: string): string {
     return value.trim().replace(/\s+/g, " ").toLocaleLowerCase("zh-CN");
   }
 
-  function stripFrontmatter(markdown: string): string {
+  export function stripFrontmatter(markdown: string): string {
     return markdown.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "");
   }
 
-  function markdownToText(markdown: string): string {
+  export function markdownToText(markdown: string): string {
     return stripFrontmatter(markdown)
       .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
       .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
@@ -29,7 +30,7 @@
     return `${start > 0 ? "..." : ""}${text.slice(start, end)}${end < text.length ? "..." : ""}`;
   }
 
-  function search(sources: JobskillSearchSource[], value: string): JobskillSearchResult[] {
+  export function search(sources: JobskillSearchSource[], value: string): JobskillSearchResult[] {
     const query = normalizeQuery(value);
     if (!query) return [];
 
@@ -40,6 +41,3 @@
       return [{ ...source, snippet: makeSnippet(text, query) }];
     });
   }
-
-  window.JobskillSearch = { normalizeQuery, stripFrontmatter, markdownToText, search };
-})();

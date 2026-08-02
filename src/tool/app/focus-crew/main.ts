@@ -1,30 +1,10 @@
-type FocusCrewWorkbook = import("xlsx-js-style").WorkBook;
-type FocusCrewCategory = '重点关注' | '一般关注' | '预防性关注' | '三新人员（不上会）' | '长期关注';
-type FocusCrewJsonRow = unknown[];
+import type * as XlsxRuntime from "xlsx-js-style";
 
-interface FocusSheetInfo {
-    name: string;
-    category: FocusCrewCategory;
-    columns: string[];
-    data: FocusCrewJsonRow[];
-}
+import { createFocusCrewLogic } from "./logic";
+import type { FocusCrewElements, FocusCrewJsonRow, FocusCrewWorkbook, FocusSheetInfo } from "./models";
+import { displayStats, renderFocusSheets, renderPreview, renderSelectors } from "./view";
 
-interface FocusCrewElements {
-    scheduleFile: HTMLInputElement;
-    focusFile: HTMLInputElement;
-    highlightBtn: HTMLButtonElement;
-    exportBtn: HTMLButtonElement;
-    scheduleStatus: HTMLElement;
-    focusStatus: HTMLElement;
-    scheduleConfigSection: HTMLElement;
-    focusConfigSection: HTMLElement;
-    focusSheetsConfig: HTMLElement;
-    schedulePreview: HTMLTableElement;
-    scheduleIdCol: HTMLSelectElement;
-    scheduleNameCol: HTMLSelectElement;
-    actionSection: HTMLElement;
-    resultStats: HTMLElement;
-}
+const XLSX = window.XLSX as unknown as typeof XlsxRuntime;
 
 let scheduleWorkbook: FocusCrewWorkbook | null = null;
 let focusWorkbook: FocusCrewWorkbook | null = null;
@@ -50,9 +30,8 @@ const elements: FocusCrewElements = {
     resultStats: requireElement('resultStats', HTMLElement)
 };
 
-const logic = window.FocusCrewLogic;
+const logic = createFocusCrewLogic(XLSX);
 const CATEGORY_CONFIG = logic.CATEGORY_CONFIG;
-const view = window.FocusCrewView;
 
 document.addEventListener('DOMContentLoaded', function() {
     elements.scheduleFile.addEventListener('change', handleScheduleFile);
@@ -123,8 +102,8 @@ function loadSchedulePreview() {
     scheduleColumns = (json[0] || []).map((c, i) => c ? String(c) : '列' + (i+1));
     scheduleData = json;
     
-    view.renderPreview(elements.schedulePreview, scheduleColumns, json.slice(0, 6));
-    view.renderSelectors(elements.scheduleIdCol, elements.scheduleNameCol, scheduleColumns);
+    renderPreview(elements.schedulePreview, scheduleColumns, json.slice(0, 6));
+    renderSelectors(elements.scheduleIdCol, elements.scheduleNameCol, scheduleColumns);
     
     elements.scheduleConfigSection.style.display = 'block';
     checkReady();
@@ -140,7 +119,7 @@ function loadFocusPreview() {
         return;
     }
     
-    view.renderFocusSheets(elements.focusSheetsConfig, focusSheets, CATEGORY_CONFIG);
+    renderFocusSheets(elements.focusSheetsConfig, focusSheets, CATEGORY_CONFIG);
     
     showStatus('focusStatus', '已加载 ' + focusSheets.length + ' 个关注类别工作表', 'success');
     
@@ -203,7 +182,7 @@ function doHighlight() {
         console.log('工作表 [' + sheetName + '] 匹配到 ' + highlightResult.sheetMatchCounts[sheetName] + ' 人');
     });
     
-    view.displayStats(elements.resultStats, focusNames.length, highlightResult.matchedCategories, CATEGORY_CONFIG);
+    displayStats(elements.resultStats, focusNames.length, highlightResult.matchedCategories, CATEGORY_CONFIG);
     elements.exportBtn.disabled = false;
 }
 

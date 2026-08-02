@@ -1,9 +1,9 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { createBrowserContext, runBrowserScript } from "../../helpers/browser-context";
-
-let logic: any;
+import { createAppContext } from "../../../src/tool/app/hotel-bill-check/app-context";
+import { exportExcel } from "../../../src/tool/app/hotel-bill-check/export-actions";
+import * as logic from "../../../src/tool/app/hotel-bill-check/logic";
 
 function localDateKey(date: Date | null) {
   if (!date) return "";
@@ -14,58 +14,37 @@ function localDateKey(date: Date | null) {
   ].join("-");
 }
 
-function exportHotelBillWorkbook() {
-  let exportedWorkbook: any = null;
+function exportHotelBillWorkbook(): { workbook: XLSX.WorkBook; fileName: string } {
+  let exportedWorkbook: XLSX.WorkBook | null = null;
   let exportedFileName = "";
-  const runtimeXlsx = Object.create(XLSX);
-  runtimeXlsx.writeFile = (workbook: any, fileName: string) => {
-    exportedWorkbook = workbook;
-    exportedFileName = fileName;
-  };
-  const document = {
-    addEventListener() {},
-    querySelectorAll() {
-      return [];
+  const runtimeXlsx = Object.assign(Object.create(XLSX), {
+    writeFile(workbook: XLSX.WorkBook, fileName: string): void {
+      exportedWorkbook = workbook;
+      exportedFileName = fileName;
+    }
+  }) as typeof XLSX;
+  const appContext = createAppContext(runtimeXlsx);
+  appContext.state.checkinColumns = ["姓名", "入住证明", "补充文件", "备注"];
+  appContext.state.checkinHyperlinks = {
+    0: {
+      1: { url: "https://example.test/proof-a", display: "证明A" },
+      2: { url: "https://example.test/proof-b", display: "证明B" }
+    },
+    1: {
+      1: { url: "https://example.test/proof-c", display: "证明C" }
     }
   };
-  const context = createBrowserContext({ document, XLSX: runtimeXlsx });
+  appContext.state.matchResults = [
+    { status: "matched", billRow: [], billIdx: 0, checkinRow: ["张三"], checkinIdx: 0 },
+    { status: "matched", billRow: [], billIdx: 1, checkinRow: ["李四"], checkinIdx: 1 }
+  ];
+  exportExcel(appContext, () => []);
 
-  runBrowserScript("tool/app/hotel-bill-check/logic.js", context);
-  runBrowserScript("tool/app/hotel-bill-check/app-context.js", context);
-  runBrowserScript("tool/app/hotel-bill-check/view.js", context);
-  runBrowserScript(
-    "tool/app/hotel-bill-check/export-actions.js",
-    context,
-    `
-const appContext = HotelBillCheck.AppContext.createAppContext();
-appContext.state.checkinColumns = ["姓名", "入住证明", "补充文件", "备注"];
-appContext.state.checkinHyperlinks = {
-  0: {
-    1: { url: "https://example.test/proof-a", display: "证明A" },
-    2: { url: "https://example.test/proof-b", display: "证明B" }
-  },
-  1: {
-    1: { url: "https://example.test/proof-c", display: "证明C" }
-  }
-};
-appContext.state.matchResults = [
-  { status: "matched", billRow: [], billIdx: 0, checkinRow: ["张三"], checkinIdx: 0 },
-  { status: "matched", billRow: [], billIdx: 1, checkinRow: ["李四"], checkinIdx: 1 }
-];
-HotelBillCheck.ExportActions.exportExcel(appContext);
-`
-  );
-
+  if (!exportedWorkbook) throw new Error("未生成酒店账单导出工作簿");
   return { workbook: exportedWorkbook, fileName: exportedFileName };
 }
 
 describe("hotel bill check export", () => {
-  beforeAll(() => {
-    const context = createBrowserContext();
-    runBrowserScript("tool/app/hotel-bill-check/logic.js", context);
-    logic = context.HotelBillLogic;
-  });
-
   it("parses common hotel date formats to day precision", () => {
     expect(localDateKey(logic.parseDate("20260102"))).toBe("2026-01-02");
     expect(localDateKey(logic.parseDate("01/02/26 12:30"))).toBe("2026-01-02");
@@ -91,7 +70,7 @@ describe("hotel bill check export", () => {
       tolerance: 1
     });
 
-    expect(output.results.map((row: any) => row.status)).toEqual(["matched", "duplicate", "unmatched"]);
+    expect(output.results.map(row => row.status)).toEqual(["matched", "duplicate", "unmatched"]);
     expect(output.results[0].checkinIdx).toBe(0);
     expect(output.results[1].checkinIdx).toBe(0);
   });

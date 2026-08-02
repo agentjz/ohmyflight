@@ -1,6 +1,4 @@
-(function () {
-    const runtime = window as SessionBillRuntime;
-    const namespace = runtime.SessionBillCheck || (runtime.SessionBillCheck = {});
+import type { SessionBillAppContext, SessionBillSourceEntry, SessionBillStatus } from "./models";
 
     function renderFileInfo(context: SessionBillAppContext): void {
         const state = context.state;
@@ -15,7 +13,6 @@
             <div>${context.escapeHtml(billText)}</div>
         `;
     }
-
     function renderSummary(context: SessionBillAppContext): void {
         const summary = context.state.result?.summary;
         const cards = summary
@@ -50,7 +47,7 @@
             return;
         }
 
-        const echarts = context.runtime.echarts;
+        const echarts = context.echarts;
         if (!echarts) throw new Error("ECharts 未加载。");
 
         chartElement.innerHTML = "";
@@ -83,7 +80,7 @@
         return count > 1 ? `${first} 等 ${count} 条` : first;
     }
 
-    function renderTable(context: SessionBillAppContext): void {
+    export function renderTable(context: SessionBillAppContext): void {
         const rows = context.filteredRows();
         const body = context.getElement<HTMLTableSectionElement>("resultBody");
         context.getElement<HTMLSpanElement>("rowCount").textContent = String(rows.length);
@@ -148,7 +145,7 @@
         `).join("")}</ol>`;
     }
 
-    function renderSelectedDetail(context: SessionBillAppContext): void {
+    export function renderSelectedDetail(context: SessionBillAppContext): void {
         const panel = context.getElement<HTMLDivElement>("selectedDetail");
         if (!context.state.result || !context.state.selectedKey) {
             panel.innerHTML = '<div class="empty-block compact">点击上方姓名行后，这里显示该人的场次和账单来源明细。</div>';
@@ -181,7 +178,7 @@
         `;
     }
 
-    function renderAll(context: SessionBillAppContext): void {
+    export function renderAll(context: SessionBillAppContext): void {
         renderFileInfo(context);
         renderSummary(context);
         renderCharts(context);
@@ -189,10 +186,3 @@
         renderSelectedDetail(context);
         context.getElement<HTMLButtonElement>("exportButton").disabled = !context.state.result;
     }
-
-    namespace.View = {
-        renderAll,
-        renderSelectedDetail,
-        renderTable
-    };
-})();

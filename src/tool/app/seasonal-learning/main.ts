@@ -1,5 +1,19 @@
-(function () {
-    const namespace = window.SeasonalLearningApp;
+import { createAppContext } from "./app-context";
+import type {
+    SeasonalLearningAppContext,
+    SeasonalLearningEchartsApi,
+    SeasonalLearningModalApi,
+    SeasonalLearningMoveModal,
+    SeasonalLearningOperationResult,
+    SeasonalLearningPerson,
+    SeasonalLearningPreviousState
+} from "./models";
+import { SeasonalLearningView } from "./view";
+
+const browserWindow = window as typeof window & {
+    bootstrap?: { Modal?: SeasonalLearningModalApi };
+    echarts?: SeasonalLearningEchartsApi;
+};
 
     function previousState(context: SeasonalLearningAppContext): SeasonalLearningPreviousState | null {
         if (!context.state.initialized) return null;
@@ -23,7 +37,7 @@
 
         context.setStatus("正在读取换季名单…");
         context.state.health = null;
-        namespace.View?.renderHealth(context);
+        SeasonalLearningView.renderHealth(context);
         try {
             const stateBeforeImport = previousState(context);
             const datesBeforeImport = { ...context.state.periodDates };
@@ -31,7 +45,7 @@
             const totalRows = context.sheetRows(workbook, "换季总名单");
             const actualRows = context.sheetRows(workbook, "换季实际");
             context.state.health = context.health.buildWorkbookHealth(totalRows, actualRows);
-            namespace.View?.renderHealth(context);
+            SeasonalLearningView.renderHealth(context);
             const requestedPeriodCount = Number(context.getElement<HTMLInputElement>("periodCount").value);
             const result = context.logic.buildImportResult(
                 totalRows,
@@ -74,7 +88,7 @@
                 || (context.state.health?.summary.warning || 0) > 0;
             context.setStatus(message, needsAttention ? "warning" : "success");
             context.setActionMessage("");
-            namespace.View?.renderAll(context);
+            SeasonalLearningView.renderAll(context);
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             context.setStatus(`导入失败：${message}`, "danger");
@@ -93,20 +107,12 @@
         context.state.people = operation.people;
         context.state.adjustmentLog.push(...operation.events.map((event) => event.text));
         context.setActionMessage(operation.events.map((event) => event.text).join("；"), "success");
-        namespace.View?.renderAll(context);
+        SeasonalLearningView.renderAll(context);
     }
 
-    interface MoveModalInstance {
-        show(): void;
-        hide(): void;
-    }
-
-    function moveModal(context: SeasonalLearningAppContext): MoveModalInstance {
-        const modalApi = (window as typeof window & {
-            bootstrap?: { Modal?: { getOrCreateInstance(element: HTMLElement): MoveModalInstance } };
-        }).bootstrap?.Modal;
-        if (!modalApi) throw new Error("移动弹窗组件未加载。");
-        return modalApi.getOrCreateInstance(context.getElement<HTMLElement>("moveModal"));
+    function moveModal(context: SeasonalLearningAppContext): SeasonalLearningMoveModal {
+        if (!context.modalApi) throw new Error("移动弹窗组件未加载。");
+        return context.modalApi.getOrCreateInstance(context.getElement<HTMLElement>("moveModal"));
     }
 
     function openMoveModal(context: SeasonalLearningAppContext, scope: string): void {
@@ -164,7 +170,7 @@
                 context.state.people,
                 context.state.periodDates
             );
-            window.XLSX.writeFile(workbook, context.exporter.buildOutputFileName(context.state.sourceFileName));
+            context.xlsx.writeFile(workbook, context.exporter.buildOutputFileName(context.state.sourceFileName));
             context.setActionMessage("已导出换季实际工作簿。", "success");
         } catch (error) {
             context.setActionMessage(error instanceof Error ? error.message : String(error), "danger");
@@ -180,7 +186,7 @@
             );
             context.state.scheduleReady = true;
             context.setActionMessage("均衡负载已生成初版；后续均衡检查不会改动人员期次。", "success");
-            namespace.View?.renderAll(context);
+            SeasonalLearningView.renderAll(context);
             return;
         }
 
@@ -215,7 +221,7 @@
                 Array.from({ length: value }, (_, index) => [index + 1, context.state.periodDates[index + 1] || ""])
             );
             input.value = String(value);
-            namespace.View?.renderDateControls(context);
+            SeasonalLearningView.renderDateControls(context);
             renderTargetOptions(context);
         });
         context.getElement<HTMLDivElement>("dateControls").addEventListener("change", (event) => {
@@ -223,7 +229,7 @@
             if (!(input instanceof HTMLInputElement) || !input.classList.contains("period-date")) return;
             const period = Number(input.dataset.period);
             context.state.periodDates[period] = input.value;
-            namespace.View?.renderAll(context);
+            SeasonalLearningView.renderAll(context);
         });
         context.getElement<HTMLDivElement>("balanceRuleControls").addEventListener("change", (event) => {
             const input = event.target;
@@ -233,12 +239,12 @@
                     .querySelectorAll<HTMLInputElement>(".balance-hook-checkbox:checked")
             ).map((checkbox) => checkbox.value);
             context.state.enabledBalanceHookIds = context.rules.normalizeEnabledHookIds(selected);
-            namespace.View?.renderAll(context);
+            SeasonalLearningView.renderAll(context);
         });
         context.getElement<HTMLElement>("workspace").addEventListener("change", (event) => {
             const input = event.target;
             if (input instanceof HTMLInputElement && input.classList.contains("person-checkbox")) {
-                namespace.View?.updateMoveButtons(context);
+                SeasonalLearningView.updateMoveButtons(context);
             }
         });
         context.getElement<HTMLElement>("workspace").addEventListener("click", (event) => {
@@ -254,18 +260,19 @@
         context.getElement<HTMLButtonElement>("exportButton").addEventListener("click", () => exportWorkbook(context));
         window.addEventListener("resize", () => context.state.chart?.resize());
         window.addEventListener("ohmyflight:themechange", () => {
-            if (context.state.initialized) namespace.View?.renderChart(context);
+            if (context.state.initialized) SeasonalLearningView.renderChart(context);
         });
     }
 
     function init(): void {
-        if (!namespace.AppContext || !namespace.View) throw new Error("换季学习页面初始化失败。");
-        const context = namespace.AppContext.createAppContext();
-        namespace.context = context;
+        const context = createAppContext({
+            xlsx: window.XLSX,
+            modalApi: browserWindow.bootstrap?.Modal || null,
+            echarts: browserWindow.echarts || null
+        });
         bindEvents(context);
         renderTargetOptions(context);
-        namespace.View.renderAll(context);
+        SeasonalLearningView.renderAll(context);
     }
 
     document.addEventListener("DOMContentLoaded", init);
-})();

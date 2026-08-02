@@ -1,15 +1,9 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import * as logic from "../../../src/tool/app/pdf-stamp/logic";
+import type { PdfStampRule } from "../../../src/tool/app/pdf-stamp/models";
 
 describe("pdf stamp logic", () => {
-  let logic: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts(["tool/app/pdf-stamp/logic.js"]);
-    logic = context.PdfStampLogic;
-  });
-
   it("parses page ranges with de-duplication and bounds", () => {
     expect(logic.parsePageRange("1, 3-5, 5, 0, 99, a, 8-6", 8)).toEqual([1, 3, 4, 5, 6, 7, 8]);
   });
@@ -119,9 +113,9 @@ describe("pdf stamp logic", () => {
       logic.createRule(2, 1, { mode: "range", rangeStr: "2,4" })
     ];
 
-    expect(logic.buildExportPlan(rules, 4).map((page: any) => ({
+    expect(logic.buildExportPlan(rules, 4).map(page => ({
       pageNum: page.pageNum,
-      ruleIds: page.rules.map((rule: any) => rule.id)
+      ruleIds: page.rules.map((rule: PdfStampRule) => rule.id)
     }))).toEqual([
       { pageNum: 1, ruleIds: [1] },
       { pageNum: 2, ruleIds: [2] },

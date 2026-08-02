@@ -1,5 +1,6 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingEvidenceGroup } from "./models";
+
+export function createAuditKingExport(XLSX: typeof import("xlsx-js-style")) {
 
     function buildEvidenceRows(groups: AuditKingEvidenceGroup[]): Array<Array<string | number>> {
         return [
@@ -18,5 +19,5 @@
         return workbook;
     }
 
-    runtime.Export = { buildEvidenceRows, buildEvidenceWorkbook };
-})();
+    return { buildEvidenceRows, buildEvidenceWorkbook };
+}

@@ -1,14 +1,8 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import * as logic from "../../../src/tool/app/text-joiner/logic";
 
 describe("text-joiner logic", () => {
-  let logic: any;
-
-  beforeAll(() => {
-    logic = loadBrowserScripts(["tool/app/text-joiner/logic.js"]).TextJoinerLogic;
-  });
-
   it("joins multiline names without spacing by default", () => {
     const result = logic.join("张鑫豪\n付杰明\n蓝锦坚\n周桐\n朱灿仪");
 

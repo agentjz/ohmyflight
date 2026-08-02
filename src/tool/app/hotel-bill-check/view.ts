@@ -1,13 +1,12 @@
-(function () {
-    const runtime = window.HotelBillCheck || (window.HotelBillCheck = {});
+import { getProofLinks } from "./logic";
+import type { HotelBillContext, HotelBillWorkbookRow } from "./models";
 
-    function showStatus(context: HotelBillContext, id: string, message: string, type: string): void {
+export function showStatus(context: HotelBillContext, id: string, message: string, type: string): void {
         const element = context.getElement(id);
         element.textContent = message;
         element.className = 'status status-' + type;
     }
-
-    function renderPreview(context: HotelBillContext, type: string, columns: string[], rows: HotelBillWorkbookRow[]): void {
+export function renderPreview(context: HotelBillContext, type: string, columns: string[], rows: HotelBillWorkbookRow[]): void {
         const table = context.getElement(type + 'Preview');
         let html = '<thead><tr>';
         columns.forEach(column => { html += '<th>' + column + '</th>'; });
@@ -24,7 +23,7 @@
         table.innerHTML = html;
     }
 
-    function renderColumnSelectors(context: HotelBillContext, type: string, columns: string[]): void {
+export function renderColumnSelectors(context: HotelBillContext, type: string, columns: string[]): void {
         const nameSelect = context.getInput(type + 'NameCol');
         const dateSelect = context.getInput(type + 'DateCol');
 
@@ -48,7 +47,7 @@
         });
     }
 
-    function renderDisplayCols(context: HotelBillContext, type: string, columns: string[]): void {
+export function renderDisplayCols(context: HotelBillContext, type: string, columns: string[]): void {
         const container = context.getElement(type + 'DisplayCols');
         container.innerHTML = '';
 
@@ -64,12 +63,12 @@
         });
     }
 
-    function getSelectedCols(type: string): number[] {
+export function getSelectedCols(type: string): number[] {
         return Array.from(document.querySelectorAll<HTMLInputElement>('input[name="' + type + '_display"]:checked'))
             .map(checkbox => Number.parseInt(checkbox.value, 10));
     }
 
-    function renderResults(context: HotelBillContext): void {
+export function renderResults(context: HotelBillContext): void {
         const billDisplayCols = getSelectedCols('bill');
         const checkinDisplayCols = getSelectedCols('checkin');
         const matched = context.state.matchResults.filter(row => row.status === 'matched').length;
@@ -108,7 +107,7 @@
             }
 
             bodyHtml += '<td>';
-            context.logic.getProofLinks(result, context.state.checkinColumns, context.state.checkinHyperlinks).forEach(link => {
+            getProofLinks(result, context.state.checkinColumns, context.state.checkinHyperlinks).forEach(link => {
                 bodyHtml += '<a href="' + link.url + '" target="_blank" class="proof-link">' + link.display + '</a> ';
             });
             bodyHtml += '</td></tr>';
@@ -117,13 +116,3 @@
         context.getElement('resultBody').innerHTML = bodyHtml;
         context.getElement('resultSection').style.display = 'block';
     }
-
-    runtime.View = {
-        getSelectedCols,
-        renderColumnSelectors,
-        renderDisplayCols,
-        renderPreview,
-        renderResults,
-        showStatus
-    };
-})();

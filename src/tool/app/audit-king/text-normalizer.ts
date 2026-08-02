@@ -1,5 +1,3 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
 
     type LooseIndexItem = {
         originalStart: number;
@@ -50,9 +48,8 @@
         return buildLooseIndex(value).normalized;
     }
 
-    runtime.TextNormalizer = {
+export const AuditKingTextNormalizer = {
         normalizeExact,
         normalizeLoose,
         buildLooseIndex
     };
-})();

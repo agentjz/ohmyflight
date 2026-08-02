@@ -1,55 +1,6 @@
-type PersonnelRawRow = Record<string, unknown>;
+import type { PersonnelRecord, PersonnelStatItem, PersonnelStatSection, PersonnelStructureResult } from "./models";
 
-type PersonnelRecord = {
-    employeeId: string;
-    name: string;
-    techInfo: string;
-    origin: string;
-    inspectorQualification: string;
-    qualifications: Record<string, boolean>;
-};
-
-type PersonnelStatItem = {
-    label: string;
-    count: number;
-    denominator: number;
-    percent: string;
-    rule: string;
-    isSubset: boolean;
-};
-
-type PersonnelStatClosure = {
-    total: number;
-    denominator: number;
-    closed: boolean;
-};
-
-type PersonnelStatSection = {
-    title: string;
-    denominatorLabel: string;
-    items: PersonnelStatItem[];
-    closure: PersonnelStatClosure;
-};
-
-type PersonnelStructureResult = {
-    structureCrewCount: number;
-    captainOrAboveCount: number;
-    firstOfficerCount: number;
-    sections: PersonnelStatSection[];
-    warnings: string[];
-    unrecognized: {
-        techInfo: string[];
-        origin: string[];
-    };
-};
-
-type PersonnelStructureStatsApi = {
-    parseRows: (rows: unknown[][]) => PersonnelRecord[];
-    calculate: (records: PersonnelRecord[]) => PersonnelStructureResult;
-    REQUIRED_HEADERS: string[];
-};
-
-const REQUIRED_HEADERS = [
+export const REQUIRED_HEADERS = [
     "姓名",
     "技术信息",
     "RAMA",
@@ -133,7 +84,7 @@ function valueByHeader(row: unknown[], headerMap: Map<string, number>, header: s
     return index === undefined ? undefined : row[index];
 }
 
-function parseRows(rows: unknown[][]): PersonnelRecord[] {
+export function parseRows(rows: unknown[][]): PersonnelRecord[] {
     if (!Array.isArray(rows) || rows.length === 0) return [];
 
     const headerRowIndex = findHeaderRowIndex(rows);
@@ -264,7 +215,6 @@ function makeItem(
         isSubset
     };
 }
-
 function balancePercentages(items: PersonnelStatItem[], denominator: number): PersonnelStatItem[] {
     if (!items.length || denominator <= 0) {
         return items.map((item) => ({ ...item, percent: "0%" }));
@@ -516,7 +466,7 @@ function uniqueSorted(values: string[]): string[] {
     return Array.from(new Set(values.filter(Boolean))).sort((left, right) => left.localeCompare(right, "zh-Hans-CN"));
 }
 
-function calculate(records: PersonnelRecord[]): PersonnelStructureResult {
+export function calculate(records: PersonnelRecord[]): PersonnelStructureResult {
     const structureCrew = records.filter(isStructureCrew);
     const captainBase = records.filter((record) => isTeacher(record) || isCaptain(record));
     const captainOrAbove = records.filter(isCaptainOrAbove);
@@ -665,15 +615,3 @@ function calculate(records: PersonnelRecord[]): PersonnelStructureResult {
         }
     };
 }
-
-const PersonnelStructureStats: PersonnelStructureStatsApi = {
-    parseRows,
-    calculate,
-    REQUIRED_HEADERS
-};
-
-const runtime = globalThis as typeof globalThis & {
-    PersonnelStructureStats?: PersonnelStructureStatsApi;
-};
-
-runtime.PersonnelStructureStats = PersonnelStructureStats;

@@ -1,16 +1,14 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import * as logic from "../../../src/tool/app/personnel-structure-stats/logic";
+import type {
+  PersonnelStatItem,
+  PersonnelStatSection,
+  PersonnelStructureResult
+} from "../../../src/tool/app/personnel-structure-stats/models";
 
 describe("personnel structure stats", () => {
-  let logic: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts(["tool/app/personnel-structure-stats/logic.js"]);
-    logic = context.PersonnelStructureStats;
-  });
-
-  function buildRows() {
+  function buildRows(): unknown[][] {
     return [
       ["姓名", "员工号", "技术信息", "原单位", "检查员资格", "RAMA", "REUO", "RWAS", "EAMA", "EEUO", "EWAS", "是否运行"],
       ["教员甲", "100001", "777:飞行教员A", "总队777", "公司检查员", 1, 1, 1, 1, 1, 1, "否"],
@@ -24,26 +22,28 @@ describe("personnel structure stats", () => {
     ];
   }
 
-  function section(result: any, title: string) {
-    const found = result.sections.find((item: any) => item.title === title);
+  function section(result: PersonnelStructureResult, title: string): PersonnelStatSection {
+    const found = result.sections.find(item => item.title === title);
     expect(found).toBeTruthy();
+    if (!found) throw new Error(`未找到统计表：${title}`);
     return found;
   }
 
-  function itemOf(result: any, title: string, label: string) {
-    const found = section(result, title).items.find((item: any) => item.label === label);
+  function itemOf(result: PersonnelStructureResult, title: string, label: string): PersonnelStatItem {
+    const found = section(result, title).items.find(item => item.label === label);
     expect(found).toBeTruthy();
+    if (!found) throw new Error(`未找到统计项：${title}/${label}`);
     return found;
   }
 
-  function countOf(result: any, title: string, label: string) {
+  function countOf(result: PersonnelStructureResult, title: string, label: string): number {
     return itemOf(result, title, label).count;
   }
 
-  function categoryPercentTotal(sectionValue: any) {
+  function categoryPercentTotal(sectionValue: PersonnelStatSection): number {
     return sectionValue.items
-      .filter((item: any) => !item.isSubset)
-      .reduce((total: number, item: any) => total + Number.parseInt(item.percent, 10), 0);
+      .filter(item => !item.isSubset)
+      .reduce((total, item) => total + Number.parseInt(item.percent, 10), 0);
   }
 
   it("parses personnel rows without management or run-state requirements", () => {
@@ -78,7 +78,7 @@ describe("personnel structure stats", () => {
     expect(result.structureCrewCount).toBe(8);
     expect(result.captainOrAboveCount).toBe(5);
     expect(result.firstOfficerCount).toBe(3);
-    expect(result.sections.map((item: any) => item.title)).toEqual([
+    expect(result.sections.map(item => item.title)).toEqual([
       "教员、机长、副驾驶占比",
       "机长含以上各级别占比",
       "机长航线资格占比",
@@ -112,7 +112,7 @@ describe("personnel structure stats", () => {
   it("keeps every section count and category percentage closed", () => {
     const result = logic.calculate(logic.parseRows(buildRows()));
 
-    result.sections.forEach((sectionValue: any) => {
+    result.sections.forEach(sectionValue => {
       expect(sectionValue.closure.closed, sectionValue.title).toBe(true);
       expect(sectionValue.closure.total, sectionValue.title).toBe(sectionValue.closure.denominator);
       if (sectionValue.title !== "人员居住情况") {
@@ -122,11 +122,11 @@ describe("personnel structure stats", () => {
 
     const residence = section(result, "人员居住情况");
     const captainResidencePercent = residence.items
-      .filter((item: any) => item.label.startsWith("机长"))
-      .reduce((total: number, item: any) => total + Number.parseInt(item.percent, 10), 0);
+      .filter(item => item.label.startsWith("机长"))
+      .reduce((total, item) => total + Number.parseInt(item.percent, 10), 0);
     const firstOfficerResidencePercent = residence.items
-      .filter((item: any) => item.label.startsWith("副驾驶"))
-      .reduce((total: number, item: any) => total + Number.parseInt(item.percent, 10), 0);
+      .filter(item => item.label.startsWith("副驾驶"))
+      .reduce((total, item) => total + Number.parseInt(item.percent, 10), 0);
     expect(captainResidencePercent).toBe(100);
     expect(firstOfficerResidencePercent).toBe(100);
   });

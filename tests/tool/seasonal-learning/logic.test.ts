@@ -1,6 +1,10 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { SeasonalLearningBalanceRules } from "../../../src/tool/app/seasonal-learning/balance-rules";
+import { SeasonalLearningLogic } from "../../../src/tool/app/seasonal-learning/logic";
+
+const logic: any = SeasonalLearningLogic;
+const rules: any = SeasonalLearningBalanceRules;
 
 const ACTUAL_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
 const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份"];
@@ -68,21 +72,6 @@ function technicalRosterRows(groups: Array<{
 }
 
 describe("seasonal learning logic", () => {
-  let logic: any;
-  let rules: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/seasonal-learning/data.js",
-      "tool/app/seasonal-learning/balance-filter.js",
-      "tool/app/seasonal-learning/balance-rules.js",
-      "tool/app/seasonal-learning/allocation.js",
-      "tool/app/seasonal-learning/logic.js"
-    ]);
-    logic = context.SeasonalLearningLogic;
-    rules = context.SeasonalLearningBalanceRules;
-  });
-
   it("parses Excel dates as unambiguous business dates", () => {
     expect(logic.parseBusinessDate(new Date(2026, 8, 28, 12))).toBe("2026-09-28");
     expect(logic.parseBusinessDate(46393)).toBe("2027-01-06");

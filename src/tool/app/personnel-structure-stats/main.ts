@@ -1,64 +1,20 @@
-type PersonnelWorkbook = import("xlsx-js-style").WorkBook;
-type PersonnelWorksheet = import("xlsx-js-style").WorkSheet;
+import type * as XlsxRuntime from "xlsx-js-style";
 
-type PersonnelStatItem = {
-    label: string;
-    count: number;
-    denominator: number;
-    percent: string;
-    rule: string;
-    isSubset: boolean;
-};
+import { calculate, parseRows, REQUIRED_HEADERS } from "./logic";
+import type {
+    PersonnelStructureElements,
+    PersonnelStructureResult,
+    PersonnelWorkbook,
+    PersonnelWorksheet
+} from "./models";
 
-type PersonnelStatClosure = {
-    total: number;
-    denominator: number;
-    closed: boolean;
-};
-
-type PersonnelStatSection = {
-    title: string;
-    denominatorLabel: string;
-    items: PersonnelStatItem[];
-    closure: PersonnelStatClosure;
-};
-
-type PersonnelStructureResult = {
-    structureCrewCount: number;
-    captainOrAboveCount: number;
-    firstOfficerCount: number;
-    sections: PersonnelStatSection[];
-    warnings: string[];
-    unrecognized: {
-        techInfo: string[];
-        origin: string[];
-    };
-};
-
-type PersonnelStructureStatsApi = {
-    parseRows: (rows: unknown[][]) => unknown[];
-    calculate: (records: unknown[]) => PersonnelStructureResult;
-    REQUIRED_HEADERS: string[];
-};
-
-type Elements = {
-    fileInput: HTMLInputElement;
-    sheetSelect: HTMLSelectElement;
-    analyzeBtn: HTMLButtonElement;
-    exportBtn: HTMLButtonElement;
-    fileStatus: HTMLElement;
-    summary: HTMLElement;
-    resultSection: HTMLElement;
-    resultTables: HTMLElement;
-    warningSection: HTMLElement;
-    warningList: HTMLElement;
-};
+const XLSX = window.XLSX as unknown as typeof XlsxRuntime;
 
 let workbook: PersonnelWorkbook | null = null;
 let sourceFileName = "人员结构统计";
 let currentResult: PersonnelStructureResult | null = null;
 
-const elements: Elements = {
+const elements: PersonnelStructureElements = {
     fileInput: requireElement("fileInput", HTMLInputElement),
     sheetSelect: requireElement("sheetSelect", HTMLSelectElement),
     analyzeBtn: requireElement("analyzeBtn", HTMLButtonElement),
@@ -79,18 +35,6 @@ function requireElement<T extends HTMLElement>(id: string, Type: { new(): T }): 
     return element;
 }
 
-function getLogicApi(): PersonnelStructureStatsApi {
-    const runtime = globalThis as typeof globalThis & {
-        PersonnelStructureStats?: PersonnelStructureStatsApi;
-    };
-
-    if (!runtime.PersonnelStructureStats) {
-        throw new Error("缺少 PersonnelStructureStats，请确认 logic.js 已加载。");
-    }
-
-    return runtime.PersonnelStructureStats;
-}
-
 function escapeHtml(value: unknown): string {
     return String(value ?? "")
         .replace(/&/g, "&amp;")
@@ -99,7 +43,7 @@ function escapeHtml(value: unknown): string {
         .replace(/"/g, "&quot;");
 }
 
-function showStatus(message: string, type: "success" | "error" | "hint" | "loading") {
+function showStatus(message: string, type: "success" | "error" | "hint" | "loading"): void {
     elements.fileStatus.textContent = message;
     elements.fileStatus.className = `status status-${type}`;
 }
@@ -122,14 +66,14 @@ function readSelectedRows(): unknown[][] {
     return XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: false, defval: "" });
 }
 
-function renderSheetOptions(sheetNames: string[]) {
+function renderSheetOptions(sheetNames: string[]): void {
     elements.sheetSelect.innerHTML = sheetNames
         .map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
         .join("");
     elements.sheetSelect.disabled = sheetNames.length <= 1;
 }
 
-async function handleFileChange(event: Event) {
+async function handleFileChange(event: Event): Promise<void> {
     const target = event.target;
     if (!(target instanceof HTMLInputElement)) return;
     const file = target.files?.[0];
@@ -155,12 +99,11 @@ async function handleFileChange(event: Event) {
     }
 }
 
-function handleAnalyze() {
+function handleAnalyze(): void {
     try {
         const rows = readSelectedRows();
-        const api = getLogicApi();
-        const records = api.parseRows(rows);
-        const result = api.calculate(records);
+        const records = parseRows(rows);
+        const result = calculate(records);
         currentResult = result;
         renderResult(result);
         elements.exportBtn.disabled = false;
@@ -173,7 +116,7 @@ function handleAnalyze() {
     }
 }
 
-function renderResult(result: PersonnelStructureResult) {
+function renderResult(result: PersonnelStructureResult): void {
     elements.summary.innerHTML = `
         <div class="summary-item">
             <span class="summary-label">结构统计人员</span>
@@ -279,7 +222,7 @@ function buildRuleRows(result: PersonnelStructureResult): unknown[][] {
     return [
         ["规则", "说明"],
         ["输入", "上传任意 xlsx/xls，按表头识别字段，不绑定文件名、sheet 名或列位置。"],
-        ["必要表头", getLogicApi().REQUIRED_HEADERS.join("、")],
+        ["必要表头", REQUIRED_HEADERS.join("、")],
         ["结构统计人员", "教员、普通机长、转机型机长、普通副驾驶、转机型副驾驶。"],
         ["转机型机长", "技术信息为划转机长；航线资格和报务不包含转机型。"],
         ["转机型副驾驶", "技术信息为划转副驾驶；级别包含转机型，报务不包含转机型。"],
@@ -305,11 +248,11 @@ function buildUnrecognizedRows(result: PersonnelStructureResult): unknown[][] {
     return rows;
 }
 
-function applySheetWidth(sheet: PersonnelWorksheet, widths: number[]) {
+function applySheetWidth(sheet: PersonnelWorksheet, widths: number[]): void {
     sheet["!cols"] = widths.map((wch) => ({ wch }));
 }
 
-function handleExport() {
+function handleExport(): void {
     if (!currentResult) return;
 
     const output = XLSX.utils.book_new();

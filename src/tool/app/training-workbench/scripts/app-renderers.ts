@@ -1,18 +1,41 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const runtime = window.TrainingToolApp;
+import { TrainingToolAnnualTrainingStats } from "./annual-training-stats";
+import { TrainingToolCrmAnnual } from "./crm-annual";
+import { TrainingToolScanner } from "./scanner";
+import { TrainingToolScheduledDistribution } from "./scheduled-distribution";
+import { TrainingToolUtils } from "./utils";
+import type {
+  TrainingAnnualTrainingStatsDistribution,
+  TrainingCrmAnnualResult,
+  TrainingScheduledDistributionResult,
+  TrainingStatsCard,
+  TrainingToolAppRuntime,
+  TrainingToolProjectAnalysis,
+  TrainingValidityResult,
+  TrainingWorkbenchResult
+} from "./models";
+
+export function installTrainingAppRenderers(runtime: TrainingToolAppRuntime): void {
+const Utils = TrainingToolUtils;
   const COPY = runtime.copy;
   const state = runtime.state;
   const elements = runtime.elements;
   const charts = runtime.charts;
   const resultTable = runtime.resultTable;
   const summaryView = runtime.summaryView;
-  const ScheduledDistribution = window.TrainingTool.ScheduledDistribution;
-  const AnnualTrainingStats = window.TrainingTool.AnnualTrainingStats;
-  const CrmAnnual = window.TrainingTool.CrmAnnual;
-  const Scanner = window.TrainingTool.Scanner;
+  const ScheduledDistribution = TrainingToolScheduledDistribution;
+  const AnnualTrainingStats = TrainingToolAnnualTrainingStats;
+  const CrmAnnual = TrainingToolCrmAnnual;
+  const Scanner = TrainingToolScanner;
 
-  function renderWorkbookOverview() {
+  type ProjectGroupElements = {
+    groupElement: HTMLElement;
+    selectAllElement: HTMLInputElement;
+    summaryElement: HTMLElement;
+    listElement: HTMLElement;
+  };
+  type RenderStatCard = Pick<TrainingStatsCard, "label" | "value"> & Partial<Pick<TrainingStatsCard, "tone" | "hint">>;
+
+  function renderWorkbookOverview(): void {
     if (!state.analysis) {
       elements.workbookOverview.innerHTML = `<div class="empty-block">${COPY.defaultOverview}</div>`;
       return;
@@ -48,7 +71,7 @@
     `;
   }
 
-  function renderWorkbookHealth() {
+  function renderWorkbookHealth(): void {
     const health = state.workbookHealth;
     if (!health) {
       elements.workbookHealthPanel.innerHTML = `<div class="empty-block">导入文件后，这里会显示 Excel 健康检查结果。</div>`;
@@ -84,7 +107,7 @@
     `;
   }
 
-  function renderValiditySheetOptions() {
+  function renderValiditySheetOptions(): void {
     const options = state.analysis
       ? [`<option value="${Utils.escapeHtml(state.analysis.peopleInfo.name)}">${Utils.escapeHtml(state.analysis.peopleInfo.name)}</option>`]
       : ['<option value="">请先导入文件</option>'];
@@ -93,7 +116,7 @@
     elements.updateValiditySheetSelect.disabled = !state.analysis;
   }
 
-  function renderProjectCheckboxGroup(kind, projects, selectedNames) {
+  function renderProjectCheckboxGroup(kind: string, projects: TrainingToolProjectAnalysis[], selectedNames: string[]): void {
     const groupElements = getProjectGroupElements(kind);
     const { groupElement, selectAllElement, summaryElement, listElement } = groupElements;
 
@@ -139,7 +162,7 @@
     }).join("");
   }
 
-  function getProjectGroupElements(kind) {
+  function getProjectGroupElements(kind: string): ProjectGroupElements {
     if (kind === "update") {
       return {
         groupElement: elements.updateProjectGroup,
@@ -151,7 +174,7 @@
     throw new Error(`未知培训类型选择区域：${kind}`);
   }
 
-  function renderSelectOptions(selectElement, values, emptyLabel) {
+  function renderSelectOptions(selectElement: HTMLSelectElement, values: string[], emptyLabel: string): void {
     const currentValue = selectElement.value;
     selectElement.innerHTML = [
       `<option value="">${Utils.escapeHtml(emptyLabel)}</option>`,
@@ -162,7 +185,7 @@
     }
   }
 
-  function renderWorkbenchFilterOptions(result) {
+  function renderWorkbenchFilterOptions(result: TrainingWorkbenchResult | null): void {
     const options = result && result.filterOptions
       ? result.filterOptions
       : { projects: [], statuses: [], months: [] };
@@ -171,7 +194,7 @@
     renderSelectOptions(elements.workbenchMonthSelect, options.months, "全部月份");
   }
 
-  function renderScheduledDistributionOptions(distribution) {
+  function renderScheduledDistributionOptions(distribution: TrainingScheduledDistributionResult | null): void {
     const projectOptions = distribution && distribution.filterOptions ? distribution.filterOptions.projects : [];
     const monthOptions = distribution && distribution.filterOptions ? distribution.filterOptions.months : [];
     renderSelectOptions(elements.scheduledDistributionProjectSelect, projectOptions, "全部培训类型");
@@ -180,7 +203,7 @@
     elements.scheduledDistributionMonthSelect.disabled = !state.analysis || !monthOptions.length;
   }
 
-  function renderAnnualTrainingOptions(distribution) {
+  function renderAnnualTrainingOptions(distribution: TrainingAnnualTrainingStatsDistribution | null): void {
     const projectOptions = distribution && distribution.filterOptions ? distribution.filterOptions.projects : [];
     const yearOptions = distribution && distribution.filterOptions ? distribution.filterOptions.years : [];
     const monthOptions = distribution && distribution.filterOptions ? distribution.filterOptions.months : [];
@@ -192,7 +215,7 @@
     elements.annualTrainingMonthSelect.disabled = !state.analysis || !monthOptions.length;
   }
 
-  function renderProjectCards() {
+  function renderProjectCards(): void {
     if (!state.analysis || !state.analysis.projects.length) {
       elements.projectCards.innerHTML = `<div class="empty-block">${COPY.defaultProjectCards}</div>`;
       return;
@@ -225,7 +248,7 @@
     }).join("");
   }
 
-  function renderStats(cards) {
+  function renderStats(cards: RenderStatCard[] | null): void {
     if (!cards || !cards.length) {
       elements.statsGrid.innerHTML = `
         <article class="stat-card">
@@ -245,7 +268,7 @@
     `).join("");
   }
 
-  function renderScheduledDistribution() {
+  function renderScheduledDistribution(): void {
     if (!state.analysis) {
       state.scheduledDistribution = null;
       renderScheduledDistributionOptions(null);
@@ -264,7 +287,7 @@
     elements.scheduledDistributionSummary.textContent = `当前筛选已排培训 ${distribution.summary.total} 人次。`;
   }
 
-  function renderAnnualTrainingStats() {
+  function renderAnnualTrainingStats(): void {
     if (!state.analysis) {
       state.annualTrainingStats = null;
       state.annualTrainingStatsView = null;
@@ -286,7 +309,7 @@
     elements.annualTrainingSummary.textContent = `当前筛选已培训 ${distribution.summary.total} 人次，涉及 ${distribution.summary.projectCount} 个项目。`;
   }
 
-  function renderCrmStats(result) {
+  function renderCrmStats(result: TrainingCrmAnnualResult | null): void {
     if (!result) {
       elements.crmStatsGrid.innerHTML = `
         <article class="stat-card">
@@ -313,7 +336,7 @@
     `).join("");
   }
 
-  function renderCrmDuplicates(result) {
+  function renderCrmDuplicates(result: TrainingCrmAnnualResult | null): void {
     if (!result) {
       elements.crmDuplicateSummary.textContent = "导入总表后显示当前年份 CRM 重复安排人员。";
       elements.crmDuplicateBody.innerHTML = `<tr><td class="empty-block" colspan="6">导入总表后显示 CRM 重复安排人员。</td></tr>`;
@@ -346,7 +369,7 @@
     `).join("");
   }
 
-  function renderCrmAnnual() {
+  function renderCrmAnnual(): void {
     if (!state.workbook || !state.analysis) {
       state.crmAnnualResult = null;
       elements.crmYearInput.disabled = true;
@@ -400,7 +423,7 @@
     `).join("");
   }
 
-  function renderResultPlaceholders() {
+  function renderResultPlaceholders(): void {
     renderStats(null);
     charts.renderWorkbenchCharts(null);
     summaryView.renderWorkbenchSummary(null);
@@ -416,28 +439,29 @@
     elements.resultSummary.textContent = COPY.defaultResultSummary;
   }
 
-  function renderActionResult(kind, result) {
+  function renderActionResult(kind: "workbench" | "validity", result: TrainingWorkbenchResult | TrainingValidityResult): void {
     elements.resultSummary.textContent = result.summaryText;
     renderStats(result.statsCards);
 
     if (kind === "workbench") {
-      charts.renderWorkbenchCharts(result.chartData);
-      summaryView.renderWorkbenchSummary(result.summaryData);
+      const workbenchResult = result as TrainingWorkbenchResult;
+      charts.renderWorkbenchCharts(workbenchResult.chartData);
+      summaryView.renderWorkbenchSummary(workbenchResult.summaryData);
       renderScheduledDistribution();
       renderAnnualTrainingStats();
       elements.detailTableTitle.textContent = "排班总览明细";
       resultTable.renderTable(
         elements.detailTableHead,
         elements.detailTableBody,
-        result.displayColumns || result.detailColumns,
-        resultTable.toWorkbenchDetailRows(result.detailRows),
+        workbenchResult.displayColumns || workbenchResult.detailColumns,
+        resultTable.toWorkbenchDetailRows(workbenchResult.detailRows),
         "当前没有需要展示的人员项目记录。"
       );
       resultTable.renderTable(
         elements.skippedTableHead,
         elements.skippedTableBody,
-        result.skippedColumns,
-        result.skippedRows,
+        workbenchResult.skippedColumns,
+        workbenchResult.skippedRows,
         "排班总览没有额外提示。"
       );
       resultTable.renderSkippedSummary(0);
@@ -449,10 +473,11 @@
     charts.renderWorkbenchCharts(null);
 
     if (kind === "validity") {
+      const validityResult = result as TrainingValidityResult;
       elements.detailTableTitle.textContent = "更新明细";
-      resultTable.renderTable(elements.detailTableHead, elements.detailTableBody, result.detailColumns, resultTable.toValidityDetailRows(result.detailRows), "本次没有生成更新明细。");
-      resultTable.renderTable(elements.skippedTableHead, elements.skippedTableBody, result.skippedColumns, resultTable.toValiditySkippedRows(result.skippedRows), "本次没有跳过记录。");
-      resultTable.renderSkippedSummary(result.skippedRows.length);
+      resultTable.renderTable(elements.detailTableHead, elements.detailTableBody, validityResult.detailColumns, resultTable.toValidityDetailRows(validityResult.detailRows), "本次没有生成更新明细。");
+      resultTable.renderTable(elements.skippedTableHead, elements.skippedTableBody, validityResult.skippedColumns, resultTable.toValiditySkippedRows(validityResult.skippedRows), "本次没有跳过记录。");
+      resultTable.renderSkippedSummary(validityResult.skippedRows.length);
       return;
     }
 
@@ -472,4 +497,4 @@
     renderResultPlaceholders,
     renderActionResult
   };
-})();
+}

@@ -1,6 +1,6 @@
 // 生成应用运行时：日期和文本格式化
 
-const GeneratedAppRuntimeDate = {
+export const GeneratedAppRuntimeDate = {
     generate: () => `
 // 日期格式化
 function padDatePart(value) {

@@ -1,7 +1,10 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createSessionBillLogic } from "../../../src/tool/app/session-bill-check/logic";
+import type { SessionBillCompareRow } from "../../../src/tool/app/session-bill-check/models";
+
+const logic = createSessionBillLogic(XLSX);
 
 function buildWorkbook(sheets: Record<string, unknown[][]>) {
   const workbook = XLSX.utils.book_new();
@@ -12,15 +15,6 @@ function buildWorkbook(sheets: Record<string, unknown[][]>) {
 }
 
 describe("session bill check logic", () => {
-  let logic: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/session-bill-check/logic.js"
-    ], { XLSX });
-    logic = context.SessionBillLogic;
-  });
-
   it("splits session names by Chinese and English comma and trims spaces", () => {
     expect(logic.splitNames("李宁, 刘镇毓，Shim Jae Hoon")).toEqual([
       "李宁",
@@ -66,15 +60,15 @@ describe("session bill check logic", () => {
       billSheetNames: bill.sheetNames
     });
 
-    const byName = new Map<string, any>(result.rows.map((row: any) => [row.name, row]));
-    expect(byName.get("Shim Jae Hoon").status).toBe("一致");
-    expect(byName.get("Shim Jae Hoon").sessionCount).toBe(1);
-    expect(byName.get("Shim Jae Hoon").billCount).toBe(1);
-    expect(byName.get("Shim Jae Hoon").matchedNames).toBe("Shim Jae Hoon / SHIM Jae Hoon");
+    const byName = new Map<string, SessionBillCompareRow>(result.rows.map(row => [row.name, row]));
+    expect(byName.get("Shim Jae Hoon")?.status).toBe("一致");
+    expect(byName.get("Shim Jae Hoon")?.sessionCount).toBe(1);
+    expect(byName.get("Shim Jae Hoon")?.billCount).toBe(1);
+    expect(byName.get("Shim Jae Hoon")?.matchedNames).toBe("Shim Jae Hoon / SHIM Jae Hoon");
     expect(session.entries[0].rowNumber).toBe(4);
-    expect(byName.get("李宁").status).toBe("一致");
-    expect(byName.get("王强").status).toBe("一致");
-    expect(byName.get("账单多的人").status).toBe("仅账单有");
+    expect(byName.get("李宁")?.status).toBe("一致");
+    expect(byName.get("王强")?.status).toBe("一致");
+    expect(byName.get("账单多的人")?.status).toBe("仅账单有");
     expect(result.summary.sessionTotal).toBe(6);
     expect(result.summary.billTotal).toBe(7);
     expect(result.summary.mismatchNames).toBe(1);
@@ -82,8 +76,8 @@ describe("session bill check logic", () => {
 
   it("exports the expected workbook sheets", () => {
     const result = logic.compareEntries(
-      [{ name: "A", source: "场次", sheetName: "Sheet1", rowNumber: 2 }],
-      [{ name: "B", source: "账单", sheetName: "全动", rowNumber: 2 }]
+      [{ name: "A", matchName: "a", source: "场次", sheetName: "Sheet1", rowNumber: 2 }],
+      [{ name: "B", matchName: "b", source: "账单", sheetName: "全动", rowNumber: 2 }]
     );
     const workbook = logic.buildExportWorkbook(result);
     expect(workbook.SheetNames).toEqual(["核对汇总", "姓名差异明细", "场次拆分明细", "账单姓名明细"]);

@@ -1,15 +1,15 @@
-(function () {
-    const runtime = window.PdfStampApp || (window.PdfStampApp = {});
+import type { PdfStampAppContext, PdfStampResizeDirection } from "./models";
+import { renderRules } from "./rule-actions";
 
-    async function tryShowEditor(context: PdfStampAppContext): Promise<void> {
+export async function tryShowEditor(context: PdfStampAppContext): Promise<void> {
         if (!context.state.pdfDoc) return;
         context.getElement<HTMLElement>('editorSection').classList.remove('hidden');
         context.updateExportBtn();
         await renderPage(context);
         updateOverlay(context);
     }
-
-    async function renderPage(context: PdfStampAppContext): Promise<void> {
+export async function renderPage(context: PdfStampAppContext): Promise<void> {
+        if (!context.state.pdfDoc) return;
         const page = await context.state.pdfDoc.getPage(context.state.currentPage);
         const viewportBase = page.getViewport({ scale: 1 });
         context.state.pageWidth = viewportBase.width;
@@ -28,7 +28,7 @@
         if (context.state.previewMode) renderPreviewOverlays(context);
     }
 
-    function updateOverlay(context: PdfStampAppContext): void {
+export function updateOverlay(context: PdfStampAppContext): void {
         const overlay = context.getElement<HTMLElement>('imgOverlay');
         if (context.state.previewMode) {
             overlay.classList.add('hidden');
@@ -61,7 +61,7 @@
         image.style.opacity = style.opacity;
     }
 
-    function renderPreviewOverlays(context: PdfStampAppContext): void {
+export function renderPreviewOverlays(context: PdfStampAppContext): void {
         clearPreviewOverlays();
         if (!context.state.imgDataUrl) return;
         const wrap = context.getElement<HTMLElement>('canvasWrap');
@@ -85,7 +85,7 @@
         }
     }
 
-    function clearPreviewOverlays(): void {
+export function clearPreviewOverlays(): void {
         document.querySelectorAll('#canvasWrap .preview-overlay').forEach(element => element.remove());
     }
 
@@ -187,7 +187,7 @@
             overlay.style.top = style.topPx + 'px';
             overlay.style.width = style.widthPx + 'px';
             overlay.style.height = style.heightPx + 'px';
-            runtime.RuleActions.renderRules(context);
+            renderRules(context);
         }
 
         function onEnd(): void {
@@ -208,20 +208,10 @@
         }
     }
 
-    function bindCanvasActions(context: PdfStampAppContext): void {
+export function bindCanvasActions(context: PdfStampAppContext): void {
         context.getElement<HTMLButtonElement>('prevPage').addEventListener('click', () => { void changePage(context, -1); });
         context.getElement<HTMLButtonElement>('nextPage').addEventListener('click', () => { void changePage(context, 1); });
         context.getElement<HTMLInputElement>('pageJump').addEventListener('change', () => { void onPageJump(context); });
         context.getElement<HTMLInputElement>('previewMode').addEventListener('change', () => onPreviewToggle(context));
         setupDrag(context);
     }
-
-    runtime.CanvasActions = {
-        bindCanvasActions,
-        clearPreviewOverlays,
-        renderPage,
-        renderPreviewOverlays,
-        tryShowEditor,
-        updateOverlay
-    };
-})();

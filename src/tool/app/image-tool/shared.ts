@@ -1,11 +1,10 @@
-(function () {
-  const runtime = window.ImageTool || (window.ImageTool = {} as ImageToolRuntimeRegistry);
+import type { ImageToolImageItem } from "./models";
 
-  function getElement<T extends HTMLElement>(id: string): T {
+export function getElement<T extends HTMLElement>(id: string): T {
     return document.getElementById(id) as T;
   }
 
-  function getCanvasContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+export function getCanvasContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Canvas 2D context unavailable");
@@ -13,17 +12,17 @@
     return context;
   }
 
-  function formatSize(bytes: number): string {
+export function formatSize(bytes: number): string {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
-  function getBaseName(filename: string): string {
+export function getBaseName(filename: string): string {
     return filename.replace(/\.[^/.]+$/, "");
   }
 
-  function downloadBlob(blob: Blob, filename: string): void {
+export function downloadBlob(blob: Blob, filename: string): void {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -31,8 +30,7 @@
     link.click();
     URL.revokeObjectURL(url);
   }
-
-  function setObjectUrl(element: HTMLImageElement, value: Blob | File | null): void {
+export function setObjectUrl(element: HTMLImageElement, value: Blob | File | null): void {
     const previous = element.dataset.objectUrl;
     if (previous) URL.revokeObjectURL(previous);
     if (!value) {
@@ -45,22 +43,22 @@
     element.src = url;
   }
 
-  function clearImageItems(images: ImageToolImageItem[]): void {
+export function clearImageItems(images: ImageToolImageItem[]): void {
     images.forEach((image) => URL.revokeObjectURL(image.url));
     images.length = 0;
   }
 
-  function removeImageItem(images: ImageToolImageItem[], index: number): void {
+export function removeImageItem(images: ImageToolImageItem[], index: number): void {
     const [removed] = images.splice(index, 1);
     if (removed) URL.revokeObjectURL(removed.url);
   }
 
-  function clearRenderedResults(container: HTMLElement): void {
+export function clearRenderedResults(container: HTMLElement): void {
     container.querySelectorAll<HTMLImageElement>("img[data-object-url]").forEach((image) => setObjectUrl(image, null));
     container.replaceChildren();
   }
 
-  function setupUpload(
+export function setupUpload(
     areaId: string,
     inputId: string,
     handler: (files: File[]) => void,
@@ -88,7 +86,7 @@
     };
   }
 
-  function renderImageList(
+export function renderImageList(
     images: ImageToolImageItem[],
     listEl: HTMLElement,
     optionsEl: HTMLElement,
@@ -115,7 +113,7 @@
     });
   }
 
-  function renderResultItem(container: HTMLElement, blob: Blob, text: string, filename: string): void {
+export function renderResultItem(container: HTMLElement, blob: Blob, text: string, filename: string): void {
     const item = document.createElement("div");
     item.className = "result-item";
     item.innerHTML = `
@@ -129,19 +127,3 @@
     downloadButton.onclick = () => downloadBlob(blob, filename);
     container.appendChild(item);
   }
-
-  runtime.shared = {
-    getElement,
-    getCanvasContext,
-    formatSize,
-    getBaseName,
-    downloadBlob,
-    setObjectUrl,
-    clearImageItems,
-    removeImageItem,
-    clearRenderedResults,
-    setupUpload,
-    renderImageList,
-    renderResultItem
-  };
-})();

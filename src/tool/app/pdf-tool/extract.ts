@@ -1,13 +1,8 @@
-(function () {
-  const runtime = window.PdfTool || (window.PdfTool = {} as PdfToolRuntimeRegistry);
-  const PDFDocument = PDFLib.PDFDocument;
+import type { PdfToolDependencies, PdfToolExtractFile } from "./models";
+import * as tools from "./shared";
 
-  function initExtract(): void {
-    const shared = runtime.shared;
-    if (!shared) {
-      throw new Error("PDF tool shared runtime is unavailable");
-    }
-    const tools: PdfToolSharedApi = shared;
+export function initExtract(dependencies: PdfToolDependencies): void {
+    const { BootstrapModal, PDFDocument, pdfjsLib } = dependencies;
 
     const state = {
       files: [] as PdfToolExtractFile[],
@@ -15,6 +10,19 @@
     };
 
     tools.setupUpload("extractUpload", "extractInput", addExtractFiles, true);
+    tools.getElement<HTMLElement>("extractFileList").addEventListener("click", (event) => {
+      const button = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>("button[data-action][data-file-id]");
+      if (!button) return;
+      const fileId = Number.parseInt(button.dataset.fileId || "", 10);
+      if (Number.isNaN(fileId)) return;
+      const action = button.dataset.action;
+      if (action === "remove") removeExtractFile(fileId);
+      else if (action === "apply-range") applyExtractRange(fileId);
+      else if (action === "select-all") extractSelectAll(fileId);
+      else if (action === "select-none") extractSelectNone(fileId);
+      else if (action === "load-preview") void startRenderPreview(fileId);
+      else if (action === "extract") void doExtract(fileId);
+    });
 
     async function addExtractFiles(files: File[]): Promise<void> {
       const autoLoad = tools.getElement<HTMLInputElement>("autoLoadPreview").checked;
@@ -75,17 +83,17 @@
           <div class="card-header">
             <div class="file-title">${file.name}</div>
             <span class="badge bg-secondary">${file.pageCount}页</span>
-            <button class="btn btn-sm btn-outline-danger" onclick="removeExtractFile(${file.id})">×</button>
+            <button class="btn btn-sm btn-outline-danger" data-action="remove" data-file-id="${file.id}">×</button>
           </div>
           <div class="controls">
             <input type="text" id="extractRange_${file.id}" class="form-control form-control-sm" style="width:200px" placeholder="页码如: 1,3,5-10">
-            <button class="btn btn-sm btn-outline-secondary" onclick="applyExtractRange(${file.id})">应用范围</button>
-            <button class="btn btn-sm btn-outline-secondary" onclick="extractSelectAll(${file.id})">全选</button>
-            <button class="btn btn-sm btn-outline-secondary" onclick="extractSelectNone(${file.id})">清空</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="apply-range" data-file-id="${file.id}">应用范围</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="select-all" data-file-id="${file.id}">全选</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="select-none" data-file-id="${file.id}">清空</button>
             <span class="text-muted small" id="extractCount_${file.id}"></span>
-            <button class="btn btn-sm btn-outline-primary" id="loadPreviewBtn_${file.id}" onclick="startRenderPreview(${file.id})">加载预览</button>
+            <button class="btn btn-sm btn-outline-primary" id="loadPreviewBtn_${file.id}" data-action="load-preview" data-file-id="${file.id}">加载预览</button>
             <input type="text" id="extractFileName_${file.id}" class="form-control form-control-sm ms-auto" style="width:200px" value="${file.baseName}_提取">
-            <button class="btn btn-sm btn-primary" onclick="doExtract(${file.id})">提取选中页面</button>
+            <button class="btn btn-sm btn-primary" data-action="extract" data-file-id="${file.id}">提取选中页面</button>
           </div>
           <div id="extractGrid_${file.id}" class="preview-grid"></div>
         </div>
@@ -271,7 +279,7 @@
         const customName = customNameInput?.value.trim() || "";
         const filename = customName ? (customName.endsWith(".pdf") ? customName : `${customName}.pdf`) : `${file.baseName}_提取.pdf`;
 
-        tools.download(new Blob([bytes], { type: "application/pdf" }), filename);
+        tools.download(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), filename);
         info.textContent = `${file.name} - 已提取 ${pages.length} 页`;
       } catch (error) {
         info.className = "status-bar error";
@@ -294,22 +302,11 @@
         await page.render({ canvasContext: tools.getCanvasContext(canvas), viewport }).promise;
 
         tools.getElement<HTMLElement>("previewModalTitle").textContent = `${file.name} - 第 ${pageNumber} 页`;
-        const modal = new bootstrap.Modal(tools.getElement<HTMLElement>("previewModal"));
+        const modal = new BootstrapModal(tools.getElement<HTMLElement>("previewModal"));
         modal.show();
       } catch (error) {
         alert(`加载高清预览失败: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
 
-    Object.assign(window, {
-      removeExtractFile,
-      applyExtractRange,
-      startRenderPreview,
-      extractSelectAll,
-      extractSelectNone,
-      doExtract
-    });
-  }
-
-  runtime.initExtract = initExtract;
-})();
+}

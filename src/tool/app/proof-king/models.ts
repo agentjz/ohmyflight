@@ -1,18 +1,18 @@
-type ManualRole = "my" | "reference";
-type ManualFormat = "docx" | "pdf";
-type ManualUnitKind = "paragraph" | "table-row" | "pdf-paragraph";
-type RevisionKind = "reference-added" | "reference-removed" | "modified" | "review";
-type DiffKind = "equal" | "added" | "removed";
-type RevisionDecision = "pending" | "included" | "excluded";
-type RevisionDecisionMap = Record<string, RevisionDecision>;
+export type ManualRole = "my" | "reference";
+export type ManualFormat = "docx" | "pdf";
+export type ManualUnitKind = "paragraph" | "table-row" | "pdf-paragraph";
+export type RevisionKind = "reference-added" | "reference-removed" | "modified" | "review";
+export type DiffKind = "equal" | "added" | "removed";
+export type RevisionDecision = "pending" | "included" | "excluded";
+export type RevisionDecisionMap = Record<string, RevisionDecision>;
 
-interface RevisionDecisionSummary {
+export interface RevisionDecisionSummary {
     pending: number;
     included: number;
     excluded: number;
 }
 
-interface AlignmentMatch {
+export interface AlignmentMatch {
     myStart: number;
     myEnd: number;
     referenceStart: number;
@@ -21,9 +21,7 @@ interface AlignmentMatch {
     similarity: number;
 }
 
-declare function importScripts(...urls: string[]): void;
-
-interface ManualUnit {
+export interface ManualUnit {
     id: string;
     manualId: string;
     index: number;
@@ -33,7 +31,7 @@ interface ManualUnit {
     pageNumber?: number;
 }
 
-interface LocalManual {
+export interface LocalManual {
     id: string;
     role: ManualRole;
     name: string;
@@ -46,13 +44,13 @@ interface LocalManual {
     pdfDocument?: any;
 }
 
-interface WorkerManual {
+export interface WorkerManual {
     id: string;
     name: string;
     units: ManualUnit[];
 }
 
-interface ComparisonSlice {
+export interface ComparisonSlice {
     id: string;
     manualId: string;
     index: number;
@@ -66,12 +64,12 @@ interface ComparisonSlice {
     pageNumber?: number;
 }
 
-interface DiffSegment {
+export interface DiffSegment {
     kind: DiffKind;
     text: string;
 }
 
-interface RevisionContextAnchor {
+export interface RevisionContextAnchor {
     position: "before" | "after";
     mySliceId: string;
     referenceSliceId: string;
@@ -87,7 +85,7 @@ interface RevisionContextAnchor {
     similarity: number;
 }
 
-interface RevisionEvent {
+export interface RevisionEvent {
     id: string;
     kind: RevisionKind;
     title: string;
@@ -108,21 +106,21 @@ interface RevisionEvent {
     reason: string;
 }
 
-interface RevisionNavigationEvent extends RevisionEvent {
+export interface RevisionNavigationEvent extends RevisionEvent {
     viewChapter?: string;
     searchScore?: number;
     matchedSide?: "title" | "my" | "reference" | "both";
     matchedExcerpt?: string;
 }
 
-interface RevisionCategoryCount {
+export interface RevisionCategoryCount {
     kind: RevisionKind | "all";
     label: string;
     total: number;
     matched: number;
 }
 
-interface RevisionSectionGroup {
+export interface RevisionSectionGroup {
     key: string;
     label: string;
     count: number;
@@ -130,19 +128,19 @@ interface RevisionSectionGroup {
     events: RevisionNavigationEvent[];
 }
 
-interface RevisionChapterGroup {
+export interface RevisionChapterGroup {
     key: string;
     label: string;
     count: number;
     sections: RevisionSectionGroup[];
 }
 
-interface ReportTextRun {
+export interface ReportTextRun {
     text: string;
     color: "000000" | "FF0000" | "00B0F0";
 }
 
-interface RevisionReportRow {
+export interface RevisionReportRow {
     kind: RevisionKind;
     chapter: string;
     number: string;
@@ -154,7 +152,7 @@ interface RevisionReportRow {
     referenceRuns: ReportTextRun[];
 }
 
-interface RevisionReportGroup {
+export interface RevisionReportGroup {
     key: string;
     kind: RevisionKind;
     chapter: string;
@@ -163,7 +161,7 @@ interface RevisionReportGroup {
     rows: RevisionReportRow[];
 }
 
-interface ComparisonSummary {
+export interface ComparisonSummary {
     myManualName: string;
     referenceManualName: string;
     mySliceCount: number;
@@ -176,26 +174,26 @@ interface ComparisonSummary {
     reviewCount: number;
 }
 
-interface ManualComparison {
+export interface ManualComparison {
     mySlices: ComparisonSlice[];
     referenceSlices: ComparisonSlice[];
     events: RevisionEvent[];
     summary: ComparisonSummary;
 }
 
-interface ComparisonOptions {
+export interface ComparisonOptions {
     weakPhrases?: string[];
     minimumCandidateSimilarity?: number;
 }
 
-interface ProofProjectManualMetadata {
+export interface ProofProjectManualMetadata {
     path: string;
     name: string;
     type: string;
     range: { startPage: number | ""; endPage: number | "" };
 }
 
-interface ProofProjectViewState {
+export interface ProofProjectViewState {
     filter: RevisionKind | "all";
     query: string;
     selectedId: string;
@@ -204,7 +202,7 @@ interface ProofProjectViewState {
     scrollTop?: number;
 }
 
-interface ProofProjectSnapshot {
+export interface ProofProjectSnapshot {
     version: number;
     manuals: { my: ProofProjectManualMetadata; reference: ProofProjectManualMetadata };
     comparison: ManualComparison;
@@ -212,7 +210,7 @@ interface ProofProjectSnapshot {
     view: ProofProjectViewState;
 }
 
-interface ProofProjectBuildInput {
+export interface ProofProjectBuildInput {
     myFile: File;
     referenceFile: File;
     myRange: { startPage: number | ""; endPage: number | "" };
@@ -224,14 +222,14 @@ interface ProofProjectBuildInput {
     onProgress?: (message: string, completed: number, total: number) => void;
 }
 
-interface ProofProjectReadResult {
+export interface ProofProjectReadResult {
     state: ProofProjectSnapshot;
     myFile: File;
     referenceFile: File;
     workbook: Uint8Array;
 }
 
-interface ProofWorkspaceProjectInput {
+export interface ProofWorkspaceProjectInput {
     myFile: File;
     referenceFile: File;
     myRange: { startPage: number | ""; endPage: number | "" };
@@ -241,24 +239,24 @@ interface ProofWorkspaceProjectInput {
     view: ProofProjectViewState;
 }
 
-interface ProofProjectActionsContext {
+export interface ProofProjectActionsContext {
     getProjectInput(): ProofWorkspaceProjectInput | null;
     restoreProject(result: ProofProjectReadResult): Promise<void>;
     markProjectSaved(): void;
     setMessage(message: string, tone: "secondary" | "info" | "success" | "danger"): void;
 }
 
-interface ManualProofHookConfig {
+export interface ManualProofHookConfig {
     ignoredNoisePhrases?: string[];
 }
 
-interface ComparisonProgress {
+export interface ComparisonProgress {
     phase: string;
     completed: number;
     total: number;
 }
 
-interface ComparisonWorkerRequest {
+export interface ComparisonWorkerRequest {
     type: "compare";
     requestId: number;
     myManual: WorkerManual;
@@ -266,25 +264,25 @@ interface ComparisonWorkerRequest {
     options?: ComparisonOptions;
 }
 
-interface ComparisonWorkerProgress {
+export interface ComparisonWorkerProgress {
     type: "progress";
     requestId: number;
     progress: ComparisonProgress;
 }
 
-interface ComparisonWorkerSuccess {
+export interface ComparisonWorkerSuccess {
     type: "success";
     requestId: number;
     comparison: ManualComparison;
 }
 
-interface ComparisonWorkerFailure {
+export interface ComparisonWorkerFailure {
     type: "failure";
     requestId: number;
     message: string;
 }
 
-interface PdfLineRecord {
+export interface PdfLineRecord {
     pageNumber: number;
     text: string;
     x: number;
@@ -292,19 +290,9 @@ interface PdfLineRecord {
     topRatio: number;
 }
 
-interface VirtualWindow {
+export interface VirtualWindow {
     start: number;
     end: number;
     offsetTop: number;
     totalHeight: number;
-}
-
-interface Window {
-    ManualProof: any;
-    ManualProofHooks?: ManualProofHookConfig;
-    mammoth: any;
-    pdfjsLib: any;
-    XLSX: any;
-    docx: any;
-    JSZip: any;
 }

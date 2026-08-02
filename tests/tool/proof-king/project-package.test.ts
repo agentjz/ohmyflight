@@ -1,21 +1,12 @@
-import { webcrypto } from "node:crypto";
-
 import JSZip from "jszip";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createProjectPackage } from "../../../src/tool/app/proof-king/project-package";
+import { createProjectArchive } from "../../../src/tool/project-archive";
+
+const projectPackage: any = createProjectPackage(createProjectArchive(JSZip));
 
 describe("校对之王项目包", () => {
-    let projectPackage: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts([
-            "tool/project-archive.js",
-            "tool/app/proof-king/project-package.js"
-        ], { JSZip, Blob, File, Uint8Array, ArrayBuffer, crypto: webcrypto, TextEncoder, TextDecoder });
-        projectPackage = (context as any).ManualProof.ProjectPackage;
-    });
-
     it("携带两本原手册、比较快照、人工决定、视图和Excel记录", async () => {
         const bytes = await projectPackage.build({
             myFile: new File(["my-manual"], "my.pdf", { type: "application/pdf" }),

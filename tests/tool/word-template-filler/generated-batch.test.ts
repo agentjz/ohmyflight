@@ -3,62 +3,26 @@ import vm from "node:vm";
 import { describe, expect, it } from "vitest";
 import * as XLSX from "xlsx-js-style";
 
-import { createBrowserContext, runBrowserScript } from "../../helpers/browser-context";
+import { AppPackager } from "../../../src/tool/app/word-template-filler/app-packager";
+import { GeneratedAppScript } from "../../../src/tool/app/word-template-filler/generated-app-script";
+import { HtmlGenerator } from "../../../src/tool/app/word-template-filler/html-generator";
+import type { WordTemplateAppConfig } from "../../../src/tool/app/word-template-filler/models";
+import { createBrowserContext } from "../../helpers/browser-context";
 
-const generatedRuntimeScriptPaths = [
-  "tool/app/word-template-filler/generated-app-runtime-state.js",
-  "tool/app/word-template-filler/generated-app-runtime-template.js",
-  "tool/app/word-template-filler/generated-app-runtime-loop.js",
-  "tool/app/word-template-filler/generated-app-runtime-form.js",
-  "tool/app/word-template-filler/generated-app-runtime-date.js",
-  "tool/app/word-template-filler/generated-app-runtime-batch.js",
-  "tool/app/word-template-filler/generated-app-runtime-export.js",
-  "tool/app/word-template-filler/generated-app-runtime-events.js",
-  "tool/app/word-template-filler/generated-app-script.js"
-];
-
-function loadGeneratedHtml(config: unknown) {
-  const context = createBrowserContext();
-  runBrowserScript("tool/app/word-template-filler/generated-app-styles.js", context);
-  generatedRuntimeScriptPaths.forEach((scriptPath) => runBrowserScript(scriptPath, context));
-  runBrowserScript("tool/app/word-template-filler/generated-app-shell.js", context);
-  runBrowserScript(
-    "tool/app/word-template-filler/html-generator.js",
-    context,
-    `globalThis.__generatedHtml = HtmlGenerator.generate(${JSON.stringify(config)}, "测试应用", "template.docx");`
-  );
-  return context.__generatedHtml as string;
+function loadGeneratedHtml(config: WordTemplateAppConfig): string {
+  return HtmlGenerator.generate(config, "测试应用", "template.docx");
 }
 
-function loadInstructions() {
-  const context = createBrowserContext();
-  runBrowserScript(
-    "tool/app/word-template-filler/app-packager.js",
-    context,
-    `globalThis.__instructions = AppPackager.generateInstructions("测试应用", "测试应用", "template.docx");`
-  );
-  return context.__instructions as string;
+function loadInstructions(): string {
+  return AppPackager.generateInstructions("测试应用", "测试应用", "template.docx");
 }
 
-function buildPackagedBatchTemplate(config: unknown) {
-  const context = createBrowserContext({ XLSX });
-  runBrowserScript(
-    "tool/app/word-template-filler/app-packager.js",
-    context,
-    `globalThis.__workbook = AppPackager.generateBatchTemplateWorkbook(${JSON.stringify(config)});`
-  );
-  return context.__workbook as XLSX.WorkBook;
+function buildPackagedBatchTemplate(config: WordTemplateAppConfig): XLSX.WorkBook {
+  return AppPackager.generateBatchTemplateWorkbook(XLSX, config);
 }
 
-function loadGeneratedRuntime(config: unknown) {
-  const generatorContext = createBrowserContext();
-  generatedRuntimeScriptPaths.forEach((scriptPath, index) => runBrowserScript(
-    scriptPath,
-    generatorContext,
-    index === generatedRuntimeScriptPaths.length - 1
-      ? `globalThis.__runtimeCode = GeneratedAppScript.generate(${JSON.stringify(config)}, "template.docx");`
-      : ""
-  ));
+function loadGeneratedRuntime(config: WordTemplateAppConfig) {
+  const runtimeCode = GeneratedAppScript.generate(config, "template.docx");
 
   const elements = new Map<string, any>();
   const getElement = (id: string) => {
@@ -108,7 +72,7 @@ function loadGeneratedRuntime(config: unknown) {
   });
 
   vm.runInContext(
-    `${generatorContext.__runtimeCode}
+    `${runtimeCode}
 globalThis.__runtime = {
   buildBatchRow,
   formatDate,

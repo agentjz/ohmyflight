@@ -1,5 +1,51 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
+import { ManualProofDecisions as Decisions } from "./decision-model";
+import { createProjectArchive } from "../../project-archive";
+import { createExcelReport } from "./excel-report";
+import { createManualReader } from "./manual-reader";
+import type {
+    ComparisonWorkerFailure,
+    ComparisonWorkerProgress,
+    ComparisonWorkerRequest,
+    ComparisonWorkerSuccess,
+    LocalManual,
+    ManualComparison,
+    ManualProofHookConfig,
+    ManualRole,
+    ProofProjectActionsContext,
+    ProofProjectReadResult,
+    ProofWorkspaceProjectInput,
+    RevisionChapterGroup,
+    RevisionCategoryCount,
+    RevisionDecision,
+    RevisionDecisionMap,
+    RevisionDecisionSummary,
+    RevisionEvent,
+    RevisionKind,
+    RevisionNavigationEvent
+} from "./models";
+import { ManualProofNavigation as Navigation } from "./navigation";
+import { createProjectActions } from "./project-actions";
+import { createProjectPackage } from "./project-package";
+import { ManualProofRevisionNavigationView as RevisionNavigationView } from "./revision-navigation-view";
+import { RevisionReviewView } from "./revision-review-view";
+import { createWordReport } from "./word-report";
+
+type WorkspaceDependencies = {
+    mammoth: { extractRawText(input: { arrayBuffer: ArrayBuffer }): Promise<{ value?: string }> } | null;
+    pdfjsLib: any;
+    xlsx: typeof import("xlsx-js-style");
+    docx: any;
+    JSZip: any;
+    hooks: ManualProofHookConfig;
+};
+
+export function createWorkspace(dependencies: WorkspaceDependencies) {
+    const ManualReader = createManualReader(dependencies);
+    const ExcelReport = createExcelReport(dependencies.xlsx);
+    const WordReport = createWordReport(dependencies.docx);
+    const archive = createProjectArchive(dependencies.JSZip);
+    const ProjectPackage = createProjectPackage(archive);
+    const ProjectActions = createProjectActions(archive, ProjectPackage, ExcelReport);
 
     const state: {
         myManual: LocalManual | null;
@@ -41,7 +87,7 @@
     let navigationFrame: number | null = null;
 
     function bind(): void {
-        reviewView = new runtime.RevisionReviewView();
+        reviewView = new RevisionReviewView();
 
         input("myInput").addEventListener("change", () => void safely(() => loadManual("my")));
         input("referenceInput").addEventListener("change", () => void safely(() => loadManual("reference")));
@@ -49,12 +95,13 @@
         element("reportActions").addEventListener("click", (event) => {
             const target = (event.target as HTMLElement).closest<HTMLElement>("[data-report-format][data-report-scope]");
             if (!target || !state.comparison) return;
-            const included = runtime.Decisions.eventsWith(state.comparison.events, state.decisions, "included") as RevisionEvent[];
-            const events = target.dataset.reportScope === "included" ? included : state.comparison.events;
+            const comparison = state.comparison;
+            const included = Decisions.eventsWith(comparison.events, state.decisions, "included") as RevisionEvent[];
+            const events = target.dataset.reportScope === "included" ? included : comparison.events;
             const scope = target.dataset.reportScope === "included" ? "纳入报告" : "全部";
             if (!events.length) return setMessage(`当前没有可导出的${scope}事件。`, "danger");
-            if (target.dataset.reportFormat === "excel") runtime.ExcelReport.exportWorkbook(state.comparison, events, state.decisions, scope);
-            else void safely(() => runtime.WordReport.exportDocument(state.comparison, events, scope));
+            if (target.dataset.reportFormat === "excel") ExcelReport.exportWorkbook(comparison, events, state.decisions, scope);
+            else void safely(() => WordReport.exportDocument(comparison, events, scope));
         });
         input("eventSearch").addEventListener("input", () => {
             state.query = input("eventSearch").value;
@@ -112,7 +159,7 @@
         element("batchActions").addEventListener("click", (event) => {
             const target = (event.target as HTMLElement).closest<HTMLElement>("[data-batch-decision]");
             if (!target?.dataset.batchDecision || !state.visibleEvents.length) return;
-            state.decisions = runtime.Decisions.setMany(
+            state.decisions = Decisions.setMany(
                 state.decisions,
                 state.visibleEvents.map((item) => item.id),
                 target.dataset.batchDecision as RevisionDecision
@@ -120,7 +167,7 @@
             markDirty();
             applyFilter(false);
         });
-        runtime.ProjectActions.bind({
+        ProjectActions.bind({
             getProjectInput,
             restoreProject,
             markProjectSaved,
@@ -139,7 +186,7 @@
         const file = fileInput.files?.[0];
         if (!file) return;
         setMessage(`正在读取${role === "my" ? "我的手册" : "参考手册"}：${file.name}`, "info");
-        const manual = await runtime.ManualReader.readManual(file, role, pdfRange(role));
+        const manual = await ManualReader.readManual(file, role, pdfRange(role));
         if (role === "my") state.myManual = manual;
         else state.referenceManual = manual;
         clearComparison();
@@ -162,7 +209,7 @@
         clearComparison();
         state.requestId += 1;
         const requestId = state.requestId;
-        const worker = new Worker("comparison-worker.js");
+        const worker = new Worker("comparison-worker.js", { type: "module" });
         state.worker = worker;
         button("compareButton").disabled = true;
         setMessage("正在后台建立原文锚点和顺序对应，页面仍可操作。", "info");
@@ -202,19 +249,19 @@
         worker.postMessage({
             type: "compare",
             requestId,
-            myManual: runtime.ManualReader.toWorkerManual(state.myManual),
-            referenceManual: runtime.ManualReader.toWorkerManual(state.referenceManual)
+            myManual: ManualReader.toWorkerManual(state.myManual),
+            referenceManual: ManualReader.toWorkerManual(state.referenceManual)
         } as ComparisonWorkerRequest);
     }
 
     function applyFilter(resetScroll = true): void {
         const filtered = state.comparison
-            ? runtime.Navigation.filterEvents(state.comparison.events, state.filter, state.query) as RevisionNavigationEvent[]
+            ? Navigation.filterEvents(state.comparison.events, state.filter, state.query) as RevisionNavigationEvent[]
             : [];
         state.visibleEvents = state.onlyIncluded
-            ? runtime.Decisions.eventsWith(filtered, state.decisions, "included") as RevisionNavigationEvent[]
+            ? Decisions.eventsWith(filtered, state.decisions, "included") as RevisionNavigationEvent[]
             : filtered;
-        state.outline = runtime.Navigation.buildOutline(state.visibleEvents, "all", "");
+        state.outline = Navigation.buildOutline(state.visibleEvents, "all", "");
         const chapter = state.outline.find((item) => item.key === state.chapterKey) || state.outline[0];
         state.chapterKey = chapter?.key || "";
         const section = chapter?.sections.find((item) => item.key === state.sectionKey) || chapter?.sections[0];
@@ -269,15 +316,15 @@
     }
 
     function renderFilters(): void {
-        const counts = runtime.Navigation.categoryCounts(
+        const counts = Navigation.categoryCounts(
             state.comparison?.events || [],
             state.query
         ) as RevisionCategoryCount[];
-        runtime.RevisionNavigationView.renderCategories(element("filterBar"), counts, state.filter, !!state.query);
+        RevisionNavigationView.renderCategories(element("filterBar"), counts, state.filter, !!state.query);
     }
 
     function renderOutline(): void {
-        runtime.RevisionNavigationView.renderOutline(
+        RevisionNavigationView.renderOutline(
             element("chapterNavigation"),
             element("chapterCount"),
             element("sectionCount"),
@@ -304,7 +351,7 @@
         if (index < 0) return;
         state.sectionKey = sectionKey;
         state.selectedId = startEventId;
-        element("eventNavigation").scrollTop = index * runtime.Navigation.rowHeight;
+        element("eventNavigation").scrollTop = index * Navigation.rowHeight;
         renderOutline();
         renderNavigation();
         markDirty();
@@ -313,7 +360,7 @@
 
     function renderNavigation(): void {
         const navigation = element("eventNavigation");
-        runtime.RevisionNavigationView.renderEvents(
+        RevisionNavigationView.renderEvents(
             navigation,
             element("eventSpacer"),
             element("eventVisible"),
@@ -351,7 +398,7 @@
     }
 
     function renderDecisionBar(eventId: string): void {
-        const decision = eventId ? runtime.Decisions.get(state.decisions, eventId) as RevisionDecision : "pending";
+        const decision = eventId ? Decisions.get(state.decisions, eventId) as RevisionDecision : "pending";
         element("decisionBar").querySelectorAll<HTMLButtonElement>("[data-decision]").forEach((item) => {
             item.classList.toggle("active", !!eventId && item.dataset.decision === decision);
             item.disabled = !eventId;
@@ -359,7 +406,7 @@
     }
 
     function renderDecisionSummary(): void {
-        const summary = runtime.Decisions.summarize(state.comparison?.events || [], state.decisions) as RevisionDecisionSummary;
+        const summary = Decisions.summarize(state.comparison?.events || [], state.decisions) as RevisionDecisionSummary;
         element("decisionSummary").innerHTML = [
             ["待处理", summary.pending, "pending"],
             ["纳入报告", summary.included, "included"],
@@ -368,7 +415,7 @@
     }
 
     function setDecision(eventId: string, decision: RevisionDecision): void {
-        state.decisions = runtime.Decisions.set(state.decisions, eventId, decision);
+        state.decisions = Decisions.set(state.decisions, eventId, decision);
         markDirty();
         if (state.onlyIncluded && decision !== "included") applyFilter(false);
         else {
@@ -382,7 +429,7 @@
         if (!state.visibleEvents.length || !state.outline.length) return;
         const index = Math.min(
             state.visibleEvents.length - 1,
-            Math.max(0, Math.floor(element("eventNavigation").scrollTop / runtime.Navigation.rowHeight))
+            Math.max(0, Math.floor(element("eventNavigation").scrollTop / Navigation.rowHeight))
         );
         const eventId = state.visibleEvents[index]?.id;
         const activeChapter = state.outline.find((chapter) => chapter.sections.some((section) => (
@@ -420,15 +467,15 @@
     async function restoreProject(result: ProofProjectReadResult): Promise<void> {
         setMessage("正在重建两本手册，请稍候。", "info");
         const [myManual, referenceManual] = await Promise.all([
-            runtime.ManualReader.readManual(result.myFile, "my", result.state.manuals.my.range),
-            runtime.ManualReader.readManual(result.referenceFile, "reference", result.state.manuals.reference.range)
+            ManualReader.readManual(result.myFile, "my", result.state.manuals.my.range),
+            ManualReader.readManual(result.referenceFile, "reference", result.state.manuals.reference.range)
         ]);
         validateRestoredComparison(result.state.comparison, myManual, referenceManual);
         stopWorker();
         state.myManual = myManual;
         state.referenceManual = referenceManual;
         state.comparison = result.state.comparison;
-        state.decisions = runtime.Decisions.normalize(state.comparison.events, result.state.decisions);
+        state.decisions = Decisions.normalize(state.comparison.events, result.state.decisions);
         state.filter = result.state.view.filter || "all";
         state.query = result.state.view.query || "";
         state.selectedId = result.state.view.selectedId || "";
@@ -447,7 +494,7 @@
         renderState();
         if (state.selectedId) await renderSelection();
         else await Promise.all([showInitialManual(myManual), showInitialManual(referenceManual)]);
-        setMessage(`项目已恢复：${state.comparison.events.length} 个修订事件，${runtime.Decisions.summarize(state.comparison.events, state.decisions).included} 个已纳入报告。`, "success");
+        setMessage(`项目已恢复：${state.comparison.events.length} 个修订事件，${Decisions.summarize(state.comparison.events, state.decisions).included} 个已纳入报告。`, "success");
     }
 
     function validateRestoredComparison(comparison: ManualComparison, myManual: LocalManual, referenceManual: LocalManual): void {
@@ -541,5 +588,5 @@
             .replace(/'/g, "&#39;");
     }
 
-    runtime.Workspace = { bind, state };
-})();
+    return { bind, state };
+}

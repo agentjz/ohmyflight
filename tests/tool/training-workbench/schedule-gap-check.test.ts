@@ -1,6 +1,9 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { TrainingToolScheduleGapCheck as gapCheck } from "../../../src/tool/app/training-workbench/scripts/schedule-gap-check";
+import { TrainingToolUtils } from "../../../src/tool/app/training-workbench/scripts/utils";
+import { TrainingToolWorkbench } from "../../../src/tool/app/training-workbench/scripts/workbench";
+import type { TrainingToolAnalysis } from "../../../src/tool/app/training-workbench/scripts/models";
 
 function row(overrides: Record<string, unknown> = {}) {
   return {
@@ -18,19 +21,7 @@ function row(overrides: Record<string, unknown> = {}) {
 }
 
 describe("training workbench schedule gap check", () => {
-  let gapCheck: any;
-  let trainingTool: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/training-workbench/scripts/config.js",
-      "tool/app/training-workbench/scripts/utils.js",
-      "tool/app/training-workbench/scripts/workbench-status.js",
-      "tool/app/training-workbench/scripts/schedule-gap-check.js"
-    ]);
-    trainingTool = (context as any).TrainingTool;
-    gapCheck = trainingTool.ScheduleGapCheck;
-  });
+  const trainingTool = { Workbench: TrainingToolWorkbench, Utils: TrainingToolUtils };
 
   it("uses inclusive 30, 60, and 90 day boundaries and always keeps overdue gaps", () => {
     const rows = [
@@ -51,13 +42,13 @@ describe("training workbench schedule gap check", () => {
 
     const within60 = gapCheck.buildFromRows(rows, "2026-06-01", 60);
     expect(within60.rows.map((item: any) => item.name)).toEqual(["已过期", "基准日", "第30天", "第31天", "第60天"]);
-    expect(within60.rows.at(-1).windowLabel).toBe("31-60 天");
+    expect(within60.rows.at(-1)!.windowLabel).toBe("31-60 天");
 
     const within90 = gapCheck.buildFromRows(rows, "2026-06-01", 90);
     expect(within90.rows.map((item: any) => item.name)).toEqual([
       "已过期", "基准日", "第30天", "第31天", "第60天", "第61天", "第90天"
     ]);
-    expect(within90.rows.at(-1).windowLabel).toBe("61-90 天");
+    expect(within90.rows.at(-1)!.windowLabel).toBe("61-90 天");
   });
 
   it("excludes covered and abnormal rows but keeps schedules that cannot cover the expiry", () => {
@@ -86,7 +77,7 @@ describe("training workbench schedule gap check", () => {
       "同一人/危险品",
       "同一人/TSA"
     ]);
-    expect(result.rows[1].latestCompletionDate).toBe("2026-06-20");
+    expect(result.rows[1]!.latestCompletionDate).toBe("2026-06-20");
     expect(result.summary).toMatchObject({
       peopleCount: 2,
       itemCount: 3,
@@ -100,19 +91,17 @@ describe("training workbench schedule gap check", () => {
   it("builds from the public workbench assessment and forwards simulation rows", () => {
     const simulationRows = [{ id: "simulation-1" }];
     let receivedOptions: any = null;
-    trainingTool.Workbench = {
-      buildWorkbench(_analysis: unknown, options: any) {
+    vi.spyOn(trainingTool.Workbench, "buildWorkbench").mockImplementation((_analysis: unknown, options: any) => {
         receivedOptions = options;
         return {
           allDetailRows: [
             row({ employeeId: "30", name: "仍需安排", dueDate: "2026-07-01" }),
             row({ employeeId: "31", name: "已经覆盖", dueDate: "2026-07-01", status: "正常" })
           ]
-        };
-      }
-    };
+        } as any;
+    });
 
-    const result = gapCheck.build({}, {
+    const result = gapCheck.build({} as TrainingToolAnalysis, {
       baseDate: "2026-06-01",
       horizonDays: 30,
       extraProjectRows: simulationRows

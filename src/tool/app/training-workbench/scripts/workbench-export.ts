@@ -1,7 +1,10 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
+import { TrainingToolUtils } from "./utils";
+import { TrainingXlsx as XLSX } from "./browser-vendors";
+import type { TrainingToolWorkbook, TrainingWorkbenchResult, TrainingWorkbenchSelection } from "./models";
 
-  function buildRows(result) {
+const Utils = TrainingToolUtils;
+
+  function buildRows(result: TrainingWorkbenchResult): unknown[][] {
     return [
       result.detailColumns,
       ...result.detailRows.map((row) => [
@@ -19,7 +22,7 @@
     ];
   }
 
-  function buildSelectionRows(selection) {
+  function buildSelectionRows(selection: TrainingWorkbenchSelection): unknown[][] {
     const rows = selection && selection.rows ? selection.rows : [];
     return [
       ["项目", "状态", "姓名", "员工号", "有效期截止日期", "最晚完成日期", "已排日期", "说明", "来源"],
@@ -37,27 +40,25 @@
     ];
   }
 
-  function appendSheet(workbook, sheetName, rows) {
-    const sheet = window.XLSX.utils.aoa_to_sheet(rows);
+  function appendSheet(workbook: TrainingToolWorkbook, sheetName: string, rows: unknown[][]): void {
+    const sheet = XLSX.utils.aoa_to_sheet(rows);
     sheet["!cols"] = Utils.computeSheetWidths(rows);
     Utils.centerAlignSheet(sheet);
-    window.XLSX.utils.book_append_sheet(workbook, sheet, Utils.sanitizeSheetName(sheetName).slice(0, 31));
+    XLSX.utils.book_append_sheet(workbook, sheet, Utils.sanitizeSheetName(sheetName).slice(0, 31));
   }
 
-  function buildWorkbook(result) {
-    const workbook = window.XLSX.utils.book_new();
+  function buildWorkbook(result: TrainingWorkbenchResult): TrainingToolWorkbook {
+    const workbook = XLSX.utils.book_new();
     appendSheet(workbook, "当前筛选总览", buildRows(result));
     return workbook;
   }
 
-  function buildSelectionWorkbook(selection) {
-    const workbook = window.XLSX.utils.book_new();
+  function buildSelectionWorkbook(selection: TrainingWorkbenchSelection): TrainingToolWorkbook {
+    const workbook = XLSX.utils.book_new();
     appendSheet(workbook, "当前人员明细", buildSelectionRows(selection));
     return workbook;
   }
-
-  window.TrainingTool.WorkbenchExport = {
+  export const TrainingToolWorkbenchExport = {
     buildWorkbook,
     buildSelectionWorkbook
   };
-})();

@@ -1,11 +1,17 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
+import type {
+    ManualComparison,
+    ReportTextRun,
+    RevisionEvent,
+    RevisionReportGroup
+} from "./models";
+import { ManualProofReportModel as ReportModel } from "./report-model";
+
+export function createWordReport(library: any) {
     const headerFill = "D9E2F3";
 
     function buildDocument(comparison: ManualComparison, events: RevisionEvent[] = comparison.events): any {
-        const library = window.docx;
         if (!library?.Document || !library?.Packer) throw new Error("页面缺少 Word 导出组件。 ");
-        const groups = runtime.ReportModel.buildGroups(events) as RevisionReportGroup[];
+        const groups = ReportModel.buildGroups(events) as RevisionReportGroup[];
         const tableRows = [
             new library.TableRow({
                 tableHeader: true,
@@ -57,7 +63,6 @@
     }
 
     function headerCell(value: string): any {
-        const library = window.docx;
         return new library.TableCell({
             shading: { fill: headerFill },
             verticalAlign: library.VerticalAlign.CENTER,
@@ -70,7 +75,6 @@
     }
 
     function textCell(value: string): any {
-        const library = window.docx;
         return new library.TableCell({
             verticalAlign: library.VerticalAlign.TOP,
             margins: cellMargins(),
@@ -79,7 +83,6 @@
     }
 
     function groupedTextCell(value: string, rowSpan: number): any {
-        const library = window.docx;
         return new library.TableCell({
             rowSpan,
             verticalAlign: library.VerticalAlign.CENTER,
@@ -93,7 +96,6 @@
     }
 
     function diffCell(location: string, runs: ReportTextRun[]): any {
-        const library = window.docx;
         return new library.TableCell({
             verticalAlign: library.VerticalAlign.TOP,
             margins: cellMargins(),
@@ -111,7 +113,7 @@
     }
 
     async function exportDocument(comparison: ManualComparison, events = comparison.events, scope = "全部"): Promise<void> {
-        const blob = await window.docx.Packer.toBlob(buildDocument(comparison, events));
+        const blob = await library.Packer.toBlob(buildDocument(comparison, events));
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
@@ -124,5 +126,5 @@
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     }
 
-    runtime.WordReport = { buildDocument, exportDocument };
-})();
+    return { buildDocument, exportDocument };
+}

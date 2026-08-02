@@ -1,7 +1,8 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingDocument, AuditKingTextBlock } from "./models";
 
-    function makeDocumentId(file: File, index: number): string {
+export function createAuditKingDocumentReader(mammoth: any, pdfjsLib: any) {
+
+    function makeDocumentId(file: Pick<File, "name">, index: number): string {
         return `doc-${index + 1}-${file.name.replace(/[^0-9a-zA-Z\u4e00-\u9fff-]+/g, "-")}`;
     }
 
@@ -29,13 +30,13 @@
         return blocks;
     }
 
-    async function readDocxFile(file: File, index = 0): Promise<AuditKingDocument> {
-        if (!window.mammoth?.extractRawText) throw new Error("未加载 mammoth，无法读取 Word 文件。");
-        const result = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+    async function readDocxFile(file: Pick<File, "name" | "arrayBuffer">, index = 0): Promise<AuditKingDocument> {
+        if (!mammoth?.extractRawText) throw new Error("未加载 mammoth，无法读取 Word 文件。");
+        const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
         const id = makeDocumentId(file, index);
         const blocks = splitTextBlocks(result.value || "", id, file.name);
         if (!blocks.length) throw new Error(`${file.name} 未提取到文字。`);
-        return { id, name: file.name, format: "docx", blocks, sourceFile: file };
+        return { id, name: file.name, format: "docx", blocks, sourceFile: file as File };
     }
 
     function joinPdfItems(items: any[]): string {
@@ -84,9 +85,9 @@
     }
 
     async function readPdfFile(file: File, index = 0): Promise<AuditKingDocument> {
-        if (!window.pdfjsLib) throw new Error("未加载 PDF.js，无法读取 PDF 文件。");
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = "../../../libs/pdf.worker.min.js";
-        const pdf = await window.pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+        if (!pdfjsLib) throw new Error("未加载 PDF.js，无法读取 PDF 文件。");
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "../../../libs/pdf.worker.min.js";
+        const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
         const id = makeDocumentId(file, index);
         const blocks: AuditKingTextBlock[] = [];
         for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
@@ -104,5 +105,5 @@
         throw new Error(`${file.name} 不是标准 .docx 或文字型 .pdf 文件。`);
     }
 
-    runtime.DocumentReader = { readFile, readDocxFile, readPdfFile, splitTextBlocks, groupPdfPageItems };
-})();
+    return { readFile, readDocxFile, readPdfFile, splitTextBlocks, groupPdfPageItems };
+}

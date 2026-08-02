@@ -1,4 +1,11 @@
-(function () {
+import type {
+    SeasonalLearningCategory,
+    SeasonalLearningImportResult,
+    SeasonalLearningPerson,
+    SeasonalLearningPreviousState,
+    SeasonalLearningRemovedPerson
+} from "./models";
+
     const ACTUAL_REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
     const TOTAL_REQUIRED_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份"];
 
@@ -328,7 +335,7 @@
         return "副驾驶";
     }
 
-    window.SeasonalLearningData = {
+export const SeasonalLearningData = {
         parseBusinessDate,
         normalizeEmployeeId,
         readRosterRows,
@@ -336,4 +343,3 @@
         formatPeriod,
         categoryLabel
     };
-})();

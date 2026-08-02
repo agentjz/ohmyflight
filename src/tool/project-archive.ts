@@ -1,4 +1,4 @@
-(function () {
+export function createProjectArchive(JSZip: any) {
     type ProjectEntryData = string | Blob | ArrayBuffer | Uint8Array;
     type ProjectEntryInput = {
         path: string;
@@ -31,7 +31,6 @@
         onProgress?: (message: string, completed: number, total: number) => void;
     };
 
-    const runtime = (window as any).OhMyFlightProjectArchive || ((window as any).OhMyFlightProjectArchive = {});
     const manifestPath = "project.json";
 
     async function build(options: BuildOptions): Promise<Uint8Array> {
@@ -181,10 +180,12 @@
         setTimeout(() => URL.revokeObjectURL(url), 0);
     }
 
-    runtime.build = build;
-    runtime.read = read;
-    runtime.safeFileName = safeFileName;
-    runtime.sha256 = sha256;
-    runtime.download = download;
-    runtime.toArrayBuffer = toArrayBuffer;
-})();
+return {
+    build,
+    read,
+    safeFileName,
+    sha256,
+    download,
+    toArrayBuffer
+};
+}

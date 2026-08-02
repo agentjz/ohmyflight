@@ -1,7 +1,9 @@
-(function () {
-    const runtime = window.PdfStampApp || (window.PdfStampApp = {});
+import { updateOverlay } from "./canvas-actions";
+import * as logic from "./logic";
+import type { PdfStampAppContext, PdfStampPdfJsApi, PdfStampPdfLibApi, PdfStampRule, PdfStampState } from "./models";
+import { renderRules } from "./rule-actions";
 
-    function createAppContext(): PdfStampAppContext {
+export function createAppContext(pdfjsLib: PdfStampPdfJsApi, PDFLib: PdfStampPdfLibApi): PdfStampAppContext {
         const state: PdfStampState = {
             pdfArrayBuffer: null,
             pdfDoc: null,
@@ -80,8 +82,8 @@
         }
 
         function refreshRulesAndOverlay(): void {
-            runtime.RuleActions.renderRules(context);
-            runtime.CanvasActions.updateOverlay(context);
+            renderRules(context);
+            updateOverlay(context);
         }
 
         function updateExportBtn(): void {
@@ -100,8 +102,9 @@
         }
 
         const context: PdfStampAppContext = {
-            runtime,
-            logic: window.PdfStampLogic,
+            pdfjsLib,
+            PDFLib,
+            logic,
             state,
             getElement,
             getCanvasContext,
@@ -116,8 +119,3 @@
 
         return context;
     }
-
-    runtime.AppContext = {
-        createAppContext
-    };
-})();

@@ -1,5 +1,14 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
+import { ManualProofDecisions as Decisions } from "./decision-model";
+import type {
+    RevisionCategoryCount,
+    RevisionChapterGroup,
+    RevisionDecision,
+    RevisionDecisionMap,
+    RevisionKind,
+    RevisionNavigationEvent,
+    VirtualWindow
+} from "./models";
+import { ManualProofNavigation as Navigation } from "./navigation";
 
     function renderCategories(
         container: HTMLElement,
@@ -73,7 +82,7 @@
                 : '<div class="navigation-empty">完成比对后显示修订事件。</div>';
             return;
         }
-        const range = runtime.Navigation.calculateWindow(
+        const range = Navigation.calculateWindow(
             navigation.scrollTop,
             navigation.clientHeight,
             events.length
@@ -81,10 +90,10 @@
         spacer.style.height = `${range.totalHeight}px`;
         visible.style.transform = `translateY(${range.offsetTop}px)`;
         visible.innerHTML = events.slice(range.start, range.end).map((event) => {
-            const decision = runtime.Decisions?.get(decisions, event.id) as RevisionDecision || "pending";
+            const decision = Decisions.get(decisions, event.id) as RevisionDecision || "pending";
             return `
             <div role="button" tabindex="0" class="event-row event-${event.kind} decision-${decision}${event.id === selectedId ? " active" : ""}" data-event-id="${escapeHtml(event.id)}">
-                <span class="event-kind">${escapeHtml(runtime.Navigation.label(event.kind))}</span>
+                        <span class="event-kind">${escapeHtml(Navigation.label(event.kind))}</span>
                 <strong>${escapeHtml(event.title)}</strong>
                 <span class="event-decision">
                     <label class="event-include" title="勾选纳入报告；再次点击取消纳入">
@@ -135,5 +144,4 @@
             .replace(/'/g, "&#39;");
     }
 
-    runtime.RevisionNavigationView = { renderCategories, renderOutline, renderEvents };
-})();
+export const ManualProofRevisionNavigationView = { renderCategories, renderOutline, renderEvents };

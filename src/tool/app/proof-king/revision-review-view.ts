@@ -1,17 +1,27 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
+import { ManualProofDocumentContext } from "./document-context";
+import type {
+    DiffSegment,
+    LocalManual,
+    ManualRole,
+    ManualUnit,
+    RevisionContextAnchor,
+    RevisionEvent
+} from "./models";
+import { ManualProofNavigation } from "./navigation";
+import { PdfDocumentView } from "./pdf-document-view";
+import { WordReaderView } from "./word-document-view";
 
     class RevisionReviewView {
-        private readonly myWordView: any;
-        private readonly referenceWordView: any;
-        private readonly myPdfView: any;
-        private readonly referencePdfView: any;
+        private readonly myWordView: WordReaderView;
+        private readonly referenceWordView: WordReaderView;
+        private readonly myPdfView: PdfDocumentView;
+        private readonly referencePdfView: PdfDocumentView;
 
         constructor() {
-            this.myWordView = new runtime.DocumentViews.WordReaderView(element("mySource"));
-            this.referenceWordView = new runtime.DocumentViews.WordReaderView(element("referenceSource"));
-            this.myPdfView = new runtime.DocumentViews.PdfDocumentView(element("mySource"));
-            this.referencePdfView = new runtime.DocumentViews.PdfDocumentView(element("referenceSource"));
+            this.myWordView = new WordReaderView(element("mySource"));
+            this.referenceWordView = new WordReaderView(element("referenceSource"));
+            this.myPdfView = new PdfDocumentView(element("mySource"));
+            this.referencePdfView = new PdfDocumentView(element("referenceSource"));
         }
 
         async showInitial(manual: LocalManual): Promise<void> {
@@ -22,7 +32,7 @@
         }
 
         async show(event: RevisionEvent, myManual: LocalManual, referenceManual: LocalManual): Promise<void> {
-            element("selectionTitle").textContent = `${runtime.Navigation.label(event.kind)} / ${event.title}`;
+            element("selectionTitle").textContent = `${ManualProofNavigation.label(event.kind)} / ${event.title}`;
             element("selectionReason").textContent = event.reason;
             element("myChangeLocation").textContent = selectionLocation(myManual, event, "my");
             element("referenceChangeLocation").textContent = selectionLocation(referenceManual, event, "reference");
@@ -46,7 +56,13 @@
         }
     }
 
-    async function showSource(manual: LocalManual, units: ManualUnit[], wordView: any, pdfView: any, emptyMessage: string): Promise<void> {
+    async function showSource(
+        manual: LocalManual,
+        units: ManualUnit[],
+        wordView: WordReaderView,
+        pdfView: PdfDocumentView,
+        emptyMessage: string
+    ): Promise<void> {
         if (manual.format === "docx") {
             pdfView.reset();
             wordView.show(manual, units.map((unit) => unit.id));
@@ -70,7 +86,7 @@
             return renderAnchoredContext(event, role, eventText, difference);
         }
         if (!eventText) return '<span class="missing-text">无对应原文</span>';
-        const context = runtime.DocumentViews.buildContextWindow(manual, unitIds, eventText);
+        const context = ManualProofDocumentContext.buildContextWindow(manual, unitIds, eventText);
         if (!context) return `<span class="context-focus">${renderDiff(difference)}</span>`;
         return [
             `<span class="context-neighbor">${escapeHtml(context.before)}</span>`,
@@ -136,5 +152,4 @@
         }[character] || character));
     }
 
-    runtime.RevisionReviewView = RevisionReviewView;
-})();
+export { RevisionReviewView };

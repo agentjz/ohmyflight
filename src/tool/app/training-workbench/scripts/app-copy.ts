@@ -1,7 +1,7 @@
-(function () {
-  const runtime = window.TrainingToolApp || (window.TrainingToolApp = {} as TrainingToolAppRuntime);
+import type { TrainingToolAppRuntime } from "./models";
 
-  runtime.copy = {
+export function installTrainingAppCopy(runtime: TrainingToolAppRuntime): void {
+runtime.copy = {
     defaultExportButton: "导出当前预览 Excel",
     defaultOverview: "导入文件后，这里会显示识别到的主表、项目数量和月份范围。",
     defaultProjectCards: "导入文件后显示各项目识别详情。",
@@ -11,4 +11,4 @@
     defaultStatus: "请先导入总培训表文件。",
     defaultWaiting: "等待执行"
   };
-})();
+}

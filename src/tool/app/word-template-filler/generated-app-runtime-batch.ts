@@ -1,6 +1,6 @@
 // 生成应用运行时：批量 Excel 导入和预览
 
-const GeneratedAppRuntimeBatch = {
+export const GeneratedAppRuntimeBatch = {
     generate: () => `
 function getBatchHeader(field) {
     return field.label || field.name;

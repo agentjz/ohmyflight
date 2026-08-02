@@ -1,21 +1,24 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingPdfLocatorDocument, AuditKingPdfLocatorPage } from "./models";
 
-    function makeDocumentId(file: File, index: number): string {
+export function createAuditKingPdfLocatorReader(pdfjsLib: any) {
+
+    type PdfFileInput = Pick<File, "name" | "arrayBuffer">;
+
+    function makeDocumentId(file: PdfFileInput, index: number): string {
         return `pdf-locator-${index + 1}-${file.name.replace(/\W+/g, "-")}`;
     }
 
     function getPdfJs() {
-        if (!window.pdfjsLib) {
+        if (!pdfjsLib) {
             throw new Error("页面缺少 PDF.js，无法读取 PDF。");
         }
-        if (window.pdfjsLib.GlobalWorkerOptions) {
-            window.pdfjsLib.GlobalWorkerOptions.workerSrc = "../../../libs/pdf.worker.min.js";
+        if (pdfjsLib.GlobalWorkerOptions) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = "../../../libs/pdf.worker.min.js";
         }
-        return window.pdfjsLib;
+        return pdfjsLib;
     }
 
-    async function readPdfFile(file: File, index: number): Promise<AuditKingPdfLocatorDocument> {
+    async function readPdfFile(file: PdfFileInput, index: number): Promise<AuditKingPdfLocatorDocument> {
         const pdfjs = getPdfJs();
         const id = makeDocumentId(file, index);
         const buffer = await file.arrayBuffer();
@@ -45,11 +48,11 @@
             arrayBuffer: buffer,
             pdf,
             pages,
-            sourceFile: file
+            sourceFile: file as File
         };
     }
 
-    async function readPdfFiles(files: FileList | File[]): Promise<AuditKingPdfLocatorDocument[]> {
+    async function readPdfFiles(files: FileList | PdfFileInput[]): Promise<AuditKingPdfLocatorDocument[]> {
         const list = Array.from(files || []);
         const documents: AuditKingPdfLocatorDocument[] = [];
         for (let index = 0; index < list.length; index += 1) {
@@ -58,7 +61,7 @@
         return documents;
     }
 
-    runtime.PdfLocatorReader = {
+    return {
         readPdfFiles
     };
-})();
+}

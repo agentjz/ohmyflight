@@ -1,7 +1,13 @@
-(function () {
-    const runtime = window.HotelBillCheck || (window.HotelBillCheck = {});
+import type * as XLSX from "xlsx-js-style";
 
-    function doMatch(context: HotelBillContext): void {
+import { createAppContext } from "./app-context";
+import { exportExcel } from "./export-actions";
+import { handleBillFile, handleCheckinFile, loadBillPreview, loadCheckinPreview } from "./file-actions";
+import { matchRows } from "./logic";
+import type { HotelBillContext } from "./models";
+import { renderResults } from "./view";
+
+function doMatch(context: HotelBillContext): void {
         const billNameCol = Number.parseInt(context.getInput('billNameCol').value, 10);
         const billDateCol = Number.parseInt(context.getInput('billDateCol').value, 10);
         const checkinNameCol = Number.parseInt(context.getInput('checkinNameCol').value, 10);
@@ -13,7 +19,7 @@
             return;
         }
 
-        const matchOutput = context.logic.matchRows({
+        const matchOutput = matchRows({
             billData: context.state.billData,
             checkinData: context.state.checkinData,
             billNameCol,
@@ -24,22 +30,21 @@
         });
 
         context.state.matchResults = matchOutput.results;
-        runtime.View.renderResults(context);
+        renderResults(context);
         context.getButton('exportBtn').disabled = false;
     }
 
-    function bindEvents(context: HotelBillContext): void {
-        context.getInput('billFile').addEventListener('change', event => runtime.FileActions.handleBillFile(context, event));
-        context.getInput('checkinFile').addEventListener('change', event => runtime.FileActions.handleCheckinFile(context, event));
-        context.getInput('billHeaderRow').addEventListener('change', () => runtime.FileActions.loadBillPreview(context));
-        context.getInput('checkinHeaderRow').addEventListener('change', () => runtime.FileActions.loadCheckinPreview(context));
+function bindEvents(context: HotelBillContext): void {
+        context.getInput('billFile').addEventListener('change', event => handleBillFile(context, event));
+        context.getInput('checkinFile').addEventListener('change', event => handleCheckinFile(context, event));
+        context.getInput('billHeaderRow').addEventListener('change', () => loadBillPreview(context));
+        context.getInput('checkinHeaderRow').addEventListener('change', () => loadCheckinPreview(context));
         context.getButton('matchBtn').addEventListener('click', () => doMatch(context));
-        context.getButton('exportBtn').addEventListener('click', () => runtime.ExportActions.exportExcel(context));
+        context.getButton('exportBtn').addEventListener('click', () => exportExcel(context));
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const context: HotelBillContext = runtime.AppContext.createAppContext();
-        runtime.context = context;
+        const xlsx = window.XLSX as unknown as typeof XLSX;
+        const context = createAppContext(xlsx);
         bindEvents(context);
     });
-})();

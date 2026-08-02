@@ -1,16 +1,18 @@
-(function () {
-    const runtime = window.CrewFlightStatsApp || (window.CrewFlightStatsApp = {});
+import type * as XLSX from "xlsx-js-style";
 
-    function requireElement<T extends HTMLElement>(id: string, Type: { new(): T }): T {
-        const element = document.getElementById(id);
-        if (!(element instanceof Type)) {
-            throw new Error(`页面缺少必要元素：${id}`);
-        }
-        return element;
+import { getPeopleInRosterOrder } from "./logic";
+import type { CrewFlightStatsContext, CrewFlightStatsElements, CrewFlightStatsState } from "./models";
+
+function requireElement<T extends HTMLElement>(id: string, Type: { new(): T }): T {
+    const element = document.getElementById(id);
+    if (!(element instanceof Type)) {
+        throw new Error(`页面缺少必要元素：${id}`);
     }
+    return element;
+}
 
-    function createElements(): CrewFlightStatsElements {
-        return {
+function createElements(): CrewFlightStatsElements {
+    return {
             scheduleFile: requireElement('scheduleFile', HTMLInputElement),
             rosterFile: requireElement('rosterFile', HTMLInputElement),
             rosterStatus: requireElement('rosterStatus', HTMLElement),
@@ -31,22 +33,20 @@
             extractAllBtn: requireElement('extractAllBtn', HTMLButtonElement),
             clearAllBtn: requireElement('clearAllBtn', HTMLButtonElement),
             addRowBtn: requireElement('addRowBtn', HTMLButtonElement)
-        };
-    }
+    };
+}
 
-    function createAppContext(): CrewFlightStatsContext {
-        const state: CrewFlightStatsState = {
+export function createAppContext(xlsx: typeof XLSX): CrewFlightStatsContext {
+    const state: CrewFlightStatsState = {
             scheduleWorkbook: null,
             rosterNames: [],
             statsResult: null,
             routes: [],
             selectedSheets: []
-        };
+    };
 
-        const context: CrewFlightStatsContext = {
-            runtime,
-            XLSX: window.XLSX,
-            logic: window.CrewFlightStatsLogic,
+    const context: CrewFlightStatsContext = {
+            XLSX: xlsx,
             elements: createElements(),
             state,
             showStatus(id, msg, type) {
@@ -59,14 +59,9 @@
                 context.elements.analyzeBtn.disabled = !ready;
             },
             getPeopleInRosterOrder() {
-                return context.logic.getPeopleInRosterOrder(context.state.statsResult, context.state.rosterNames);
+                return getPeopleInRosterOrder(context.state.statsResult, context.state.rosterNames);
             }
         };
 
-        return context;
-    }
-
-    runtime.AppContext = {
-        createAppContext
-    };
-})();
+    return context;
+}

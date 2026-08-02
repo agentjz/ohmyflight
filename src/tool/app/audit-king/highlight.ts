@@ -1,5 +1,4 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingHighlightRange, AuditKingTextBlock } from "./models";
 
     type HighlightSegment = {
         text: string;
@@ -118,10 +117,9 @@
         };
     }
 
-    runtime.Highlight = {
+export const AuditKingHighlight = {
         buildHighlightSegments,
         buildContext,
         buildFullContext,
         buildBlockWindowContext
     };
-})();

@@ -1,5 +1,6 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingPdfLocatorDocument, AuditKingPdfLocatorExportTask } from "./models";
+
+export function createAuditKingPdfLocatorExport(PDFLib: any, JSZip: any) {
 
     function download(blob: Blob, filename: string): void {
         const url = URL.createObjectURL(blob);
@@ -15,8 +16,8 @@
         if (!documentItem?.arrayBuffer) {
             throw new Error(`${task.sequence} 缺少 PDF 数据。`);
         }
-        const source = await window.PDFLib.PDFDocument.load(documentItem.arrayBuffer.slice(0));
-        const target = await window.PDFLib.PDFDocument.create();
+        const source = await PDFLib.PDFDocument.load(documentItem.arrayBuffer.slice(0));
+        const target = await PDFLib.PDFDocument.create();
         const pageIndexes: number[] = [];
         for (let pageNumber = task.startPage; pageNumber <= task.endPage; pageNumber += 1) {
             pageIndexes.push(pageNumber - 1);
@@ -59,7 +60,7 @@
         return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}_${pad(date.getHours())}${pad(date.getMinutes())}`;
     }
 
-    runtime.PdfLocatorExport = {
+    return {
         exportTasks
     };
-})();
+}

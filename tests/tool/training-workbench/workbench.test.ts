@@ -1,7 +1,9 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { TrainingToolScanner as Scanner } from "../../../src/tool/app/training-workbench/scripts/scanner";
+import { TrainingToolWorkbench as Workbench } from "../../../src/tool/app/training-workbench/scripts/workbench";
+import { TrainingToolWorkbenchExport as WorkbenchExport } from "../../../src/tool/app/training-workbench/scripts/workbench-export";
 
 function makeDate(year: number, month: number, day: number) {
   return new Date(year, month - 1, day, 12, 0, 0, 0);
@@ -45,35 +47,8 @@ function buildWorkbook() {
 }
 
 describe("training-workbench workbench", () => {
-  let Scanner: any;
-  let Workbench: any;
-  let WorkbenchExport: any;
-
   beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/training-workbench/scripts/config.js",
-      "tool/app/training-workbench/scripts/utils.js",
-      "tool/app/training-workbench/scripts/training-ignore-list.js",
-      "tool/app/training-workbench/scripts/training-record-policy.js",
-      "tool/app/training-workbench/scripts/scanner.js",
-      "tool/app/training-workbench/scripts/rule-engine.js",
-      "tool/app/training-workbench/scripts/workbench-status.js",
-      "tool/app/training-workbench/scripts/schedule-assessment.js",
-      "tool/app/training-workbench/scripts/workbench.js",
-      "tool/app/training-workbench/scripts/workbench-export.js"
-    ], {
-      XLSX
-    });
-
-    const trainingTool = context.TrainingTool as {
-      Scanner: any;
-      Workbench: any;
-      WorkbenchExport: any;
-    };
-
-    Scanner = trainingTool.Scanner;
-    Workbench = trainingTool.Workbench;
-    WorkbenchExport = trainingTool.WorkbenchExport;
+    vi.stubGlobal("XLSX", XLSX);
   });
 
   it("scans current records into operational statuses for daily training monitoring", () => {

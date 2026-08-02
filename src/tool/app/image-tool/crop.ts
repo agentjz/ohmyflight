@@ -1,12 +1,6 @@
-(function () {
-  const runtime = window.ImageTool || (window.ImageTool = {} as ImageToolRuntimeRegistry);
+import * as tools from "./shared";
 
-  function initCrop(): void {
-    const shared = runtime.shared;
-    if (!shared) {
-      throw new Error("Image tool shared runtime is unavailable");
-    }
-    const tools: ImageToolSharedApi = shared;
+export function initCrop(): void {
 
     let cropper: InstanceType<typeof Cropper> | null = null;
     let croppedBlob: Blob | null = null;
@@ -49,7 +43,7 @@
       }
 
       const canvas = cropper.getCroppedCanvas();
-      canvas.toBlob((blob) => {
+      canvas.toBlob((blob: Blob | null) => {
         if (!blob) {
           return;
         }
@@ -73,6 +67,3 @@
       tools.getElement<HTMLElement>("cropResult").classList.add("hidden");
     }
   }
-
-  runtime.initCrop = initCrop;
-})();

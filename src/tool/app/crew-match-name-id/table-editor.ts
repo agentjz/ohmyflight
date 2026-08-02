@@ -1,30 +1,9 @@
 const BASE_RESULT_COL_COUNT = 6;
 
-type CrewTableEntry = {
-    id: string;
-    name: string;
-    department: string;
-    techInfo: string;
-    techLevel: string;
-    pos: number;
-};
+import type { CrewCustomColumn, CrewMatchResult } from "./models";
 
-type CrewTableCustomColumn = {
-    id: string;
-    header: string;
-    valuesByEmployeeId: Record<string, string>;
-};
-
-type CrewMatchNameIdTableEditorApi = {
-    initialize: () => void;
-    setResults: (results: CrewTableEntry[]) => void;
-    clear: () => void;
-    getCurrentExportResults: () => CrewTableEntry[];
-    getCustomColumns: () => CrewTableCustomColumn[];
-};
-
-let tableResults: CrewTableEntry[] = [];
-let tableCustomColumns: CrewTableCustomColumn[] = [];
+let tableResults: CrewMatchResult[] = [];
+let tableCustomColumns: CrewCustomColumn[] = [];
 let tableSelectedEmployeeIds = new Set<string>();
 let nextTableCustomColumnId = 1;
 let tableEmptyMessage = "匹配结果将显示在这里...";
@@ -116,7 +95,7 @@ function addTableCustomColumn(): void {
         alert("请先查询匹配，再新增自定义列。");
         return;
     }
-    const column: CrewTableCustomColumn = {
+    const column: CrewCustomColumn = {
         id: `custom-${nextTableCustomColumnId++}`,
         header: `新增列 ${tableCustomColumns.length + 1}`,
         valuesByEmployeeId: {}
@@ -203,21 +182,21 @@ function bindTableEditorEvents(): void {
     });
 }
 
-function initializeTableEditor(): void {
+export function initializeTableEditor(): void {
     if (tableEditorInitialized) return;
     tableEditorInitialized = true;
     bindTableEditorEvents();
     renderResultTable();
 }
 
-function setTableResults(results: CrewTableEntry[]): void {
+export function setTableResults(results: CrewMatchResult[]): void {
     tableResults = [...results];
     tableSelectedEmployeeIds.clear();
     tableEmptyMessage = results.length ? "" : "未找到匹配的员工";
     renderResultTable();
 }
 
-function clearTableEditor(): void {
+export function clearTableEditor(): void {
     tableResults = [];
     tableCustomColumns = [];
     tableSelectedEmployeeIds = new Set<string>();
@@ -226,7 +205,7 @@ function clearTableEditor(): void {
     renderResultTable();
 }
 
-function getCurrentTableExportResults(): CrewTableEntry[] {
+export function getCurrentTableExportResults(): CrewMatchResult[] {
     const selected = tableResults.filter((employee) => tableSelectedEmployeeIds.has(employee.id));
     return selected.length ? selected : tableResults;
 }
@@ -240,10 +219,6 @@ function escapeTableHtml(value: string): string {
         .replace(/'/g, "&#39;");
 }
 
-(globalThis as typeof globalThis & { CrewMatchNameIdTableEditor?: CrewMatchNameIdTableEditorApi }).CrewMatchNameIdTableEditor = {
-    initialize: initializeTableEditor,
-    setResults: setTableResults,
-    clear: clearTableEditor,
-    getCurrentExportResults: getCurrentTableExportResults,
-    getCustomColumns: () => tableCustomColumns
-};
+export function getTableCustomColumns(): CrewCustomColumn[] {
+    return tableCustomColumns;
+}

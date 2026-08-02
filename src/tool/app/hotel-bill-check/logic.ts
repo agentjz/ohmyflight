@@ -1,56 +1,15 @@
-type HotelBillWorkbookRow = Array<string | number | boolean | Date | null | undefined>;
-type HotelBillHyperlinkInfo = { url: string; display: string };
-type HotelBillHyperlinkMap = Record<number, Record<number, HotelBillHyperlinkInfo>>;
-type HotelBillMatchStatus = 'matched' | 'duplicate' | 'unmatched';
-type HotelBillMatchResult = {
-    status: HotelBillMatchStatus;
-    billRow: HotelBillWorkbookRow;
-    billIdx: number;
-    checkinRow: HotelBillWorkbookRow | null;
-    checkinIdx: number;
-};
-type HotelBillProofLinkColumn = {
-    header: string;
-    link: HotelBillHyperlinkInfo | null;
-};
-type HotelBillMatchInput = {
-    billData: HotelBillWorkbookRow[];
-    checkinData: HotelBillWorkbookRow[];
-    billNameCol: number;
-    billDateCol: number;
-    checkinNameCol: number;
-    checkinDateCol: number;
-    tolerance: number;
-};
-type HotelBillMatchOutput = {
-    results: HotelBillMatchResult[];
-    skippedBillLogs: Array<Record<string, unknown>>;
-    candidateLogs: Array<Record<string, unknown>>;
-};
+import type {
+    HotelBillHyperlinkInfo,
+    HotelBillHyperlinkMap,
+    HotelBillMatchInput,
+    HotelBillMatchOutput,
+    HotelBillMatchResult,
+    HotelBillMatchStatus,
+    HotelBillProofLinkColumn,
+    HotelBillWorkbookRow
+} from "./models";
 
-type HotelBillLogicApi = {
-    parseDate: (value: unknown) => Date | null;
-    matchRows: (input: HotelBillMatchInput) => HotelBillMatchOutput;
-    getProofLinks: (
-        result: HotelBillMatchResult,
-        checkinColumns: string[],
-        checkinHyperlinks: HotelBillHyperlinkMap
-    ) => HotelBillHyperlinkInfo[];
-    getProofColumnCount: (
-        results: HotelBillMatchResult[],
-        checkinColumns: string[],
-        checkinHyperlinks: HotelBillHyperlinkMap
-    ) => number;
-    buildProofLinkColumns: (
-        result: HotelBillMatchResult,
-        columnCount: number,
-        checkinColumns: string[],
-        checkinHyperlinks: HotelBillHyperlinkMap
-    ) => HotelBillProofLinkColumn[];
-};
-
-(function () {
-    function parseDate(value: unknown): Date | null {
+export function parseDate(value: unknown): Date | null {
         if (!value) return null;
 
         let parsed: Date | null = null;
@@ -83,12 +42,11 @@ type HotelBillLogicApi = {
         }
         return null;
     }
-
-    function dayDiff(left: Date, right: Date): number {
+function dayDiff(left: Date, right: Date): number {
         return Math.abs((left.getTime() - right.getTime()) / (1000 * 60 * 60 * 24));
     }
 
-    function matchRows(input: HotelBillMatchInput): HotelBillMatchOutput {
+export function matchRows(input: HotelBillMatchInput): HotelBillMatchOutput {
         const results: HotelBillMatchResult[] = [];
         const matchedCheckinIdx = new Set<number>();
         const skippedBillLogs: Array<Record<string, unknown>> = [];
@@ -157,7 +115,7 @@ type HotelBillLogicApi = {
         return { results, skippedBillLogs, candidateLogs };
     }
 
-    function getProofLinks(
+export function getProofLinks(
         result: HotelBillMatchResult,
         checkinColumns: string[],
         checkinHyperlinks: HotelBillHyperlinkMap
@@ -175,7 +133,7 @@ type HotelBillLogicApi = {
         return proofLinks;
     }
 
-    function getProofColumnCount(
+export function getProofColumnCount(
         results: HotelBillMatchResult[],
         checkinColumns: string[],
         checkinHyperlinks: HotelBillHyperlinkMap
@@ -183,7 +141,7 @@ type HotelBillLogicApi = {
         return Math.max(1, ...results.map(result => getProofLinks(result, checkinColumns, checkinHyperlinks).length));
     }
 
-    function buildProofLinkColumns(
+export function buildProofLinkColumns(
         result: HotelBillMatchResult,
         columnCount: number,
         checkinColumns: string[],
@@ -195,14 +153,3 @@ type HotelBillLogicApi = {
             link: proofLinks[index] || null
         }));
     }
-
-    const api: HotelBillLogicApi = {
-        parseDate,
-        matchRows,
-        getProofLinks,
-        getProofColumnCount,
-        buildProofLinkColumns
-    };
-
-    (globalThis as typeof globalThis & { HotelBillLogic?: HotelBillLogicApi }).HotelBillLogic = api;
-})();

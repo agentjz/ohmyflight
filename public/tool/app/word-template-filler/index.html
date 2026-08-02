@@ -40,7 +40,7 @@
                 <h4 class="card-title mb-1">Word模板填充器</h4>
                 <p class="text-muted mb-0 small">上传配置和模板，生成可独立使用的填写页面</p>
                 <span class="position-absolute end-0 top-50 translate-middle-y me-3" style="font-size:14px;">
-                    <a href="javascript:void(0)" onclick="downloadConfigTemplate()" class="text-decoration-none">下载配置模板</a>
+                    <button type="button" id="downloadConfigTemplateBtn" class="btn btn-link p-0 text-decoration-none">下载配置模板</button>
                 </span>
             </div>
         </div>
@@ -83,21 +83,6 @@
 
     <script src="../../../libs/xlsx.full.min.js"></script>
     <script src="../../../libs/jszip.min.js"></script>
-    <script src="config-template.js"></script>
-    <script src="config-parser.js"></script>
-    <script src="generated-app-styles.js"></script>
-    <script src="generated-app-runtime-state.js"></script>
-    <script src="generated-app-runtime-template.js"></script>
-    <script src="generated-app-runtime-loop.js"></script>
-    <script src="generated-app-runtime-form.js"></script>
-    <script src="generated-app-runtime-date.js"></script>
-    <script src="generated-app-runtime-batch.js"></script>
-    <script src="generated-app-runtime-export.js"></script>
-    <script src="generated-app-runtime-events.js"></script>
-    <script src="generated-app-script.js"></script>
-    <script src="generated-app-shell.js"></script>
-    <script src="html-generator.js"></script>
-    <script src="app-packager.js"></script>
-    <script src="main.js"></script>
+    <script type="module" src="./app.js"></script>
 </body>
 </html>

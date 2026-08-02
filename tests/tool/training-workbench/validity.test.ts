@@ -1,7 +1,9 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { TrainingToolScanner as Scanner } from "../../../src/tool/app/training-workbench/scripts/scanner";
+import { TrainingToolUtils as Utils } from "../../../src/tool/app/training-workbench/scripts/utils";
+import { TrainingToolValidity as Validity } from "../../../src/tool/app/training-workbench/scripts/validity";
 
 function makeDate(year: number, month: number, day: number) {
   return new Date(year, month - 1, day, 12, 0, 0, 0);
@@ -34,39 +36,16 @@ function buildWorkbook() {
 }
 
 describe("validity update", () => {
-  let Scanner: any;
-  let Validity: any;
-  let Utils: any;
-
   beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/training-workbench/scripts/config.js",
-      "tool/app/training-workbench/scripts/utils.js",
-      "tool/app/training-workbench/scripts/training-record-policy.js",
-      "tool/app/training-workbench/scripts/scanner.js",
-      "tool/app/training-workbench/scripts/rule-engine.js",
-      "tool/app/training-workbench/scripts/validity.js"
-    ], {
-      XLSX
-    });
-
-    const trainingTool = context.TrainingTool as {
-      Scanner: any;
-      Validity: any;
-      Utils: any;
-    };
-
-    Scanner = trainingTool.Scanner;
-    Validity = trainingTool.Validity;
-    Utils = trainingTool.Utils;
+    vi.stubGlobal("XLSX", XLSX);
   });
 
   it("updates TSA as an independent project and does not let security rows update TSA", () => {
     const workbook = buildWorkbook();
     const analysis = Scanner.analyzeWorkbook(workbook);
     const tsaProject = analysis.projectMap.get("TSA");
-    expect(tsaProject.peopleHeader).toBe("TSA");
-    expect(tsaProject.sheetName).toBe("TSA");
+    expect(tsaProject!.peopleHeader).toBe("TSA");
+    expect(tsaProject!.sheetName).toBe("TSA");
 
     const securityResult = Validity.buildValidityUpdate(workbook, analysis, ["航空安保"], "2026-05");
     expect(securityResult.updatedRecords.map((row: any) => `${row.projectName}/${row.name}/${row.newExpiry}`)).toEqual([

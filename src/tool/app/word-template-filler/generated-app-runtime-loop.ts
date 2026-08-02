@@ -1,6 +1,6 @@
 // 生成应用运行时：循环列表表单
 
-const GeneratedAppRuntimeLoop = {
+export const GeneratedAppRuntimeLoop = {
     generate: () => `
 // 循环列表管理
 function addLoopRow(fieldName) {

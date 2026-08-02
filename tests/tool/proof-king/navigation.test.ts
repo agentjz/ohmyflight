@@ -1,15 +1,10 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { ManualProofNavigation } from "../../../src/tool/app/proof-king/navigation";
+
+const navigation: any = ManualProofNavigation;
 
 describe("校对之王修订导航", () => {
-    let navigation: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts(["tool/app/proof-king/navigation.js"]);
-        navigation = (context as any).ManualProof.Navigation;
-    });
-
     it("筛选只作用于当前修订事件", () => {
         const events = [
             { kind: "reference-added", title: "新增程序", myText: "", referenceText: "检查程序" },

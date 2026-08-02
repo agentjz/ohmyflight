@@ -10,18 +10,18 @@ import { resolveFromRoot } from "../../helpers/paths";
 
 const appPath = resolveFromRoot("src", "tool", "app", "personnel-structure-stats", "app.py");
 
-function runPython(script: string) {
+function runPython(script: string): string {
   return execFileSync("python", ["-X", "utf8", "-c", script], {
     cwd: resolveFromRoot(),
     encoding: "utf8"
   });
 }
 
-function escapePythonPath(filePath: string) {
+function escapePythonPath(filePath: string): string {
   return filePath.replace(/\\/g, "\\\\");
 }
 
-function sampleRows() {
+function sampleRows(): unknown[][] {
   return [
     ["姓名", "员工号", "技术信息", "原单位", "检查员资格", "RAMA", "REUO", "RWAS", "EAMA", "EEUO", "EWAS", "是否运行"],
     ["教员甲", "100001", "777:飞行教员A", "总队777", "公司检查员", 1, 1, 1, 1, 1, 1, "否"],
@@ -35,13 +35,13 @@ function sampleRows() {
   ];
 }
 
-function createSampleWorkbook(filePath: string) {
+function createSampleWorkbook(filePath: string): void {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(sampleRows()), "人员信息");
   XLSX.writeFile(workbook, filePath);
 }
 
-function createTemplateDocx(filePath: string) {
+function createTemplateDocx(filePath: string): void {
   runPython(`
 from docx import Document
 
@@ -134,7 +134,7 @@ doc.save(path)
 `);
 }
 
-function readDocx(filePath: string) {
+function readDocx(filePath: string): { paragraphs: string[]; tables: string[][][] } {
   return JSON.parse(runPython(`
 import json
 from docx import Document
@@ -147,18 +147,18 @@ print(json.dumps({
         for table in doc.tables
     ],
 }, ensure_ascii=False))
-`));
+`)) as { paragraphs: string[]; tables: string[][][] };
 }
 
-function rowMap(table: string[][], labelColumn = 0) {
+function rowMap(table: string[][], labelColumn = 0): Map<string, string[]> {
   return new Map(table.slice(1).map((row) => [row[labelColumn], row]));
 }
 
-function numberAt(row: string[], column: number) {
+function numberAt(row: string[], column: number): number {
   return Number.parseInt(row[column], 10) || 0;
 }
 
-function percentAt(row: string[]) {
+function percentAt(row: string[]): number {
   return Number.parseInt(row.at(-1) || "", 10) || 0;
 }
 

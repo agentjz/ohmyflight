@@ -1,13 +1,15 @@
-type SessionBillWorkbook = import("xlsx-js-style").WorkBook;
-type SessionBillSheet = import("xlsx-js-style").WorkSheet;
+import type * as XLSX from "xlsx-js-style";
 
-type SessionBillSheetRow = {
+export type SessionBillWorkbook = XLSX.WorkBook;
+export type SessionBillSheet = XLSX.WorkSheet;
+
+export type SessionBillSheetRow = {
     sheetName: string;
     rowNumber: number;
     cells: unknown[];
 };
 
-type SessionBillSourceEntry = {
+export type SessionBillSourceEntry = {
     name: string;
     matchName: string;
     source: "场次" | "账单";
@@ -26,9 +28,9 @@ type SessionBillSourceEntry = {
     amountText?: string;
 };
 
-type SessionBillStatus = "一致" | "场次多" | "账单多" | "仅场次有" | "仅账单有";
+export type SessionBillStatus = "一致" | "场次多" | "账单多" | "仅场次有" | "仅账单有";
 
-type SessionBillCompareRow = {
+export type SessionBillCompareRow = {
     key: string;
     status: SessionBillStatus;
     name: string;
@@ -41,7 +43,7 @@ type SessionBillCompareRow = {
     note: string;
 };
 
-type SessionBillSummary = {
+export type SessionBillSummary = {
     sessionTotal: number;
     sessionUnique: number;
     billTotal: number;
@@ -52,7 +54,7 @@ type SessionBillSummary = {
     statusCounts: Record<SessionBillStatus, number>;
 };
 
-type SessionBillCompareResult = {
+export type SessionBillCompareResult = {
     summary: SessionBillSummary;
     rows: SessionBillCompareRow[];
     sessionEntries: SessionBillSourceEntry[];
@@ -68,48 +70,52 @@ type SessionBillCompareResult = {
     }>;
 };
 
-type SessionBillLogicApi = {
-    splitNames: (value: unknown) => string[];
-    analyzeSessionWorkbook: (workbook: SessionBillWorkbook) => {
-        entries: SessionBillSourceEntry[];
-        sheetName: string;
-        rowCount: number;
-    };
-    analyzeBillWorkbook: (workbook: SessionBillWorkbook) => {
-        entries: SessionBillSourceEntry[];
-        sheetNames: string[];
-        rowCount: number;
-    };
-    compareEntries: (
+export type SessionBillAnalysis = {
+    entries: SessionBillSourceEntry[];
+    sheetName: string;
+    rowCount: number;
+};
+
+export type SessionBillBillAnalysis = {
+    entries: SessionBillSourceEntry[];
+    sheetNames: string[];
+    rowCount: number;
+};
+
+export interface SessionBillLogicApi {
+    splitNames(value: unknown): string[];
+    analyzeSessionWorkbook(workbook: SessionBillWorkbook): SessionBillAnalysis;
+    analyzeBillWorkbook(workbook: SessionBillWorkbook): SessionBillBillAnalysis;
+    compareEntries(
         sessionEntries: SessionBillSourceEntry[],
         billEntries: SessionBillSourceEntry[],
         sourceInfo?: { sessionSheetName?: string; billSheetNames?: string[] }
-    ) => SessionBillCompareResult;
-    buildExportWorkbook: (result: SessionBillCompareResult) => SessionBillWorkbook;
-    buildOutputFileName: () => string;
-};
+    ): SessionBillCompareResult;
+    buildExportWorkbook(result: SessionBillCompareResult): SessionBillWorkbook;
+    buildOutputFileName(): string;
+}
 
-type SessionBillRuntime = Window & {
-    XLSX: typeof import("xlsx-js-style");
-    SessionBillLogic?: SessionBillLogicApi;
-    SessionBillCheck?: Record<string, any>;
-    echarts?: any;
-};
+export interface SessionBillEcharts {
+    init(element: HTMLElement): {
+        setOption(option: unknown): void;
+    };
+}
 
-type SessionBillAppState = {
+export type SessionBillAppState = {
     sessionWorkbook: SessionBillWorkbook | null;
     billWorkbook: SessionBillWorkbook | null;
     sessionFileName: string;
     billFileName: string;
-    sessionAnalysis: ReturnType<SessionBillLogicApi["analyzeSessionWorkbook"]> | null;
-    billAnalysis: ReturnType<SessionBillLogicApi["analyzeBillWorkbook"]> | null;
+    sessionAnalysis: SessionBillAnalysis | null;
+    billAnalysis: SessionBillBillAnalysis | null;
     result: SessionBillCompareResult | null;
     filter: string;
     selectedKey: string;
 };
 
-type SessionBillAppContext = {
-    runtime: SessionBillRuntime;
+export interface SessionBillAppContext {
+    XLSX: typeof XLSX;
+    echarts: SessionBillEcharts | undefined;
     logic: SessionBillLogicApi;
     state: SessionBillAppState;
     getElement<T extends HTMLElement>(id: string): T;
@@ -117,4 +123,4 @@ type SessionBillAppContext = {
     setStatus(message: string, type?: "muted" | "success" | "danger"): void;
     readWorkbook(file: File): Promise<SessionBillWorkbook>;
     filteredRows(): SessionBillCompareRow[];
-};
+}

@@ -12,7 +12,11 @@ from pathlib import Path
 
 
 PORT = 4567
-URL = f"http://localhost:{PORT}/index.html"
+
+
+class LocalThreadingTCPServer(socketserver.ThreadingTCPServer):
+    allow_reuse_address = True
+    daemon_threads = True
 
 
 def build_dist(project_root: Path) -> None:
@@ -32,10 +36,21 @@ def open_browser(url: str) -> None:
     webbrowser.open(url)
 
 
-def serve(directory: Path, port: int) -> None:
+def create_server(
+    directory: Path,
+    port: int,
+) -> LocalThreadingTCPServer:
     handler = partial(http.server.SimpleHTTPRequestHandler, directory=str(directory))
-    with socketserver.TCPServer(("", port), handler) as server:
-        print(f"[ohmyflight] Serving {directory} at http://localhost:{port}/")
+    return LocalThreadingTCPServer(("127.0.0.1", port), handler)
+
+
+def serve(directory: Path, port: int, should_open: bool) -> None:
+    server = create_server(directory, port)
+    with server:
+        url = f"http://localhost:{port}/index.html"
+        print(f"[ohmyflight] Serving {directory} at {url}")
+        if should_open:
+            open_browser(url)
         try:
             server.serve_forever()
         except KeyboardInterrupt:
@@ -69,9 +84,7 @@ def main() -> int:
         if not dist_dir.exists():
             print("[ohmyflight] dist directory not found. Run without --no-build first.", file=sys.stderr)
             return 1
-        if not args.no_open:
-            open_browser(f"http://localhost:{args.port}/index.html")
-        serve(dist_dir, args.port)
+        serve(dist_dir, args.port, should_open=not args.no_open)
         return 0
     except subprocess.CalledProcessError as error:
         print(f"[ohmyflight] Build failed: {error}", file=sys.stderr)

@@ -1,6 +1,17 @@
-(function () {
-  const Config = window.TrainingTool.Config;
-  const Utils = window.TrainingTool.Utils;
+import { TrainingToolConfig } from "./config";
+import { TrainingToolUtils } from "./utils";
+import { TrainingXlsx as XLSX } from "./browser-vendors";
+import type {
+  TrainingToolAnalysis,
+  TrainingToolPeopleInfo,
+  TrainingToolUpdatedRowEntry,
+  TrainingToolWorkbook,
+  TrainingToolWorksheet,
+  TrainingValidityResult
+} from "./models";
+
+const Config = TrainingToolConfig;
+  const Utils = TrainingToolUtils;
   const REPORT_DATE_FORMAT = "yyyy/mm/dd";
 
   const TITLE_STYLE = {
@@ -42,30 +53,30 @@
     fill: { patternType: "solid", fgColor: { rgb: "F5222D" } }
   };
 
-  function removeSheetIfExists(workbook, sheetName) {
+  function removeSheetIfExists(workbook: TrainingToolWorkbook, sheetName: string): void {
     if (!workbook.Sheets[sheetName]) return;
     delete workbook.Sheets[sheetName];
     workbook.SheetNames = workbook.SheetNames.filter((name) => name !== sheetName);
   }
 
-  function insertSheetFirst(workbook, sheetName, sheet) {
+  function insertSheetFirst(workbook: TrainingToolWorkbook, sheetName: string, sheet: TrainingToolWorksheet): void {
     removeSheetIfExists(workbook, sheetName);
     workbook.Sheets[sheetName] = sheet;
     workbook.SheetNames = [sheetName, ...workbook.SheetNames.filter((name) => name !== sheetName)];
   }
 
-  function copyCell(sourceSheet, sourceRowIndex, sourceColumnIndex, targetSheet, targetRowIndex, targetColumnIndex) {
-    const sourceAddress = window.XLSX.utils.encode_cell({ r: sourceRowIndex, c: sourceColumnIndex });
+  function copyCell(sourceSheet: TrainingToolWorksheet, sourceRowIndex: number, sourceColumnIndex: number, targetSheet: TrainingToolWorksheet, targetRowIndex: number, targetColumnIndex: number): void {
+    const sourceAddress = XLSX.utils.encode_cell({ r: sourceRowIndex, c: sourceColumnIndex });
     if (!sourceSheet[sourceAddress]) return;
 
-    const targetAddress = window.XLSX.utils.encode_cell({ r: targetRowIndex, c: targetColumnIndex });
+    const targetAddress = XLSX.utils.encode_cell({ r: targetRowIndex, c: targetColumnIndex });
     targetSheet[targetAddress] = Utils.deepClone(sourceSheet[sourceAddress]);
   }
 
-  function buildUpdatedPeopleSheet(peopleInfo, updatedRowMap) {
+  function buildUpdatedPeopleSheet(peopleInfo: TrainingToolPeopleInfo, updatedRowMap: Map<number, TrainingToolUpdatedRowEntry>): { reportSheet: TrainingToolWorksheet; updatedItems: TrainingToolUpdatedRowEntry[] } {
     const sourceSheet = peopleInfo.sheet;
-    const reportSheet = {};
-    const updatedItems = Array.from(updatedRowMap.values()) as TrainingToolUpdatedRowEntry[];
+    const reportSheet: TrainingToolWorksheet = {};
+    const updatedItems = Array.from(updatedRowMap.values());
     updatedItems.sort((left, right) => left.rowNumber - right.rowNumber);
     const lastColumnIndex = Math.max(peopleInfo.headers.length - 1, 0);
     const lastRowIndex = Math.max(updatedItems.length, 0);
@@ -91,13 +102,13 @@
       }
     });
 
-    reportSheet["!ref"] = window.XLSX.utils.encode_range({
+    reportSheet["!ref"] = XLSX.utils.encode_range({
       s: { r: 0, c: 0 },
       e: { r: lastRowIndex, c: lastColumnIndex }
     });
 
     reportSheet["!autofilter"] = {
-      ref: window.XLSX.utils.encode_range({
+      ref: XLSX.utils.encode_range({
         s: { r: 0, c: 0 },
         e: { r: lastRowIndex, c: lastColumnIndex }
       })
@@ -106,14 +117,14 @@
     return { reportSheet, updatedItems };
   }
 
-  function highlightUpdatedProjectCells(reportSheet, updatedItems) {
+  function highlightUpdatedProjectCells(reportSheet: TrainingToolWorksheet, updatedItems: TrainingToolUpdatedRowEntry[]): void {
     updatedItems.forEach((item, index) => {
       const targetRowIndex = index + 1;
 
       item.columns.forEach((columnIndex) => {
-        const address = window.XLSX.utils.encode_cell({ r: targetRowIndex, c: columnIndex });
+        const address = XLSX.utils.encode_cell({ r: targetRowIndex, c: columnIndex });
         if (!reportSheet[address]) return;
-        reportSheet[address].s = Utils.mergeStyle(reportSheet[address].s, {
+        reportSheet[address].s = Utils.mergeStyle(reportSheet[address].s as Record<string, unknown> | undefined, {
           ...UPDATED_CELL_STYLE,
           numFmt: REPORT_DATE_FORMAT
         });
@@ -123,12 +134,12 @@
     });
   }
 
-  function writeSummaryArea(reportSheet, peopleInfo, updateResult, selectedProjectNames, selectedMonthKeys) {
+  function writeSummaryArea(reportSheet: TrainingToolWorksheet, peopleInfo: TrainingToolPeopleInfo, updateResult: TrainingValidityResult, selectedProjectNames: string[], selectedMonthKeys: string[]): void {
     const bounds = Utils.getSheetBounds(reportSheet);
     const startColumn = Math.max(bounds.endColumn + 2, peopleInfo.headers.length + 2);
     const createdAt = new Date().toLocaleString("zh-CN", { hour12: false });
     const updatedPeopleCount = updateResult.updatedRowMap.size;
-    const updatedItems = Array.from(updateResult.updatedRowMap.values()) as TrainingToolUpdatedRowEntry[];
+    const updatedItems = Array.from(updateResult.updatedRowMap.values());
     const updatedCellCount = updatedItems
       .reduce((total, item) => total + item.columns.size, 0);
 
@@ -155,7 +166,7 @@
     );
   }
 
-  function attachUpdateReportSheet(workbook, analysis, updateResult, selectedProjectNames, selectedMonthKeys) {
+  function attachUpdateReportSheet(workbook: TrainingToolWorkbook, analysis: TrainingToolAnalysis, updateResult: TrainingValidityResult, selectedProjectNames: string[], selectedMonthKeys: string[]): void {
     const { reportSheet, updatedItems } = buildUpdatedPeopleSheet(analysis.peopleInfo, updateResult.updatedRowMap);
 
     highlightUpdatedProjectCells(reportSheet, updatedItems);
@@ -163,8 +174,6 @@
     Utils.centerAlignSheet(reportSheet);
     insertSheetFirst(workbook, Config.REPORT_SHEET_NAME, reportSheet);
   }
-
-  window.TrainingTool.ReportSheet = {
+  export const TrainingToolReportSheet = {
     attachUpdateReportSheet
   };
-})();

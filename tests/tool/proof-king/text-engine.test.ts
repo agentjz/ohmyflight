@@ -1,15 +1,8 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { ManualProofText as text } from "../../../src/tool/app/proof-king/text-engine";
 
 describe("校对之王文本引擎", () => {
-    let text: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts(["tool/app/proof-king/text-engine.js"]);
-        text = (context as any).ManualProofText;
-    });
-
     it("先按标点切句，再为匹配副本去除排版和编号", () => {
         expect(text.splitText("3.1 第一条。第二条；第三条！")).toEqual(["3.1 第一条。", "第二条；", "第三条！"]);
         expect(text.normalize(" 3.1  第一 条。 ")).toBe("第一条");

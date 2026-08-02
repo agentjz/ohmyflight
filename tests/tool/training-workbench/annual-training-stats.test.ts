@@ -1,7 +1,8 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { TrainingToolAnnualTrainingStats as AnnualTrainingStats } from "../../../src/tool/app/training-workbench/scripts/annual-training-stats";
+import { TrainingToolScanner as Scanner } from "../../../src/tool/app/training-workbench/scripts/scanner";
 
 function makeDate(year: number, month: number, day: number) {
   return new Date(year, month - 1, day, 12, 0, 0, 0);
@@ -36,27 +37,8 @@ function buildWorkbook() {
 }
 
 describe("annual training stats", () => {
-  let Scanner: any;
-  let AnnualTrainingStats: any;
-
   beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/training-workbench/scripts/config.js",
-      "tool/app/training-workbench/scripts/utils.js",
-      "tool/app/training-workbench/scripts/training-record-policy.js",
-      "tool/app/training-workbench/scripts/scanner.js",
-      "tool/app/training-workbench/scripts/annual-training-stats.js"
-    ], {
-      XLSX
-    });
-
-    const trainingTool = context.TrainingTool as {
-      Scanner: any;
-      AnnualTrainingStats: any;
-    };
-
-    Scanner = trainingTool.Scanner;
-    AnnualTrainingStats = trainingTool.AnnualTrainingStats;
+    vi.stubGlobal("XLSX", XLSX);
   });
 
   it("counts recorded and non-cancelled project rows by project, year, and month", () => {

@@ -1,7 +1,7 @@
-(function () {
-  const runtime = window.TrainingToolApp || (window.TrainingToolApp = {} as TrainingToolAppRuntime);
+import type { TrainingToolAppRuntime } from "./models";
 
-  runtime.state = {
+export function installTrainingAppState(runtime: TrainingToolAppRuntime): void {
+runtime.state = {
     sourceFileName: "",
     workbook: null,
     analysis: null,
@@ -26,4 +26,4 @@
     personValiditySelectedKey: "",
     updateSelectedProjects: []
   };
-})();
+}

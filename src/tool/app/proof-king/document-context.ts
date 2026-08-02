@@ -1,6 +1,4 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
-    const views = runtime.DocumentViews || (runtime.DocumentViews = {});
+import type { LocalManual, ManualUnit } from "./models";
 
     function buildContextWindow(
         manual: Pick<LocalManual, "units">,
@@ -74,6 +72,4 @@
         return { text, offsets };
     }
 
-    views.buildContextWindow = buildContextWindow;
-    views.findNormalizedRange = findNormalizedRange;
-})();
+export const ManualProofDocumentContext = { buildContextWindow, findNormalizedRange };

@@ -1,8 +1,10 @@
-(function () {
-    const runtime = window.CrewFlightStatsApp || (window.CrewFlightStatsApp = {});
-    const ROSTER_PATH = '../../../template/机组花名册.xlsx';
+import { parseRosterRows } from "./logic";
+import type { CrewFlightStatsContext } from "./models";
+import { displaySheetSelector } from "./view";
 
-    async function loadDefaultRoster(context: CrewFlightStatsContext): Promise<void> {
+const ROSTER_PATH = '../../../template/机组花名册.xlsx';
+
+export async function loadDefaultRoster(context: CrewFlightStatsContext): Promise<void> {
         try {
             context.showStatus('rosterStatus', '正在加载默认花名册...', 'loading');
             const response = await fetch(ROSTER_PATH);
@@ -14,13 +16,12 @@
             context.showStatus('rosterStatus', '请选择机组花名册文件', 'hint');
         }
     }
-
-    function parseRosterData(context: CrewFlightStatsContext, data: Uint8Array, fileName: string): void {
+export function parseRosterData(context: CrewFlightStatsContext, data: Uint8Array, fileName: string): void {
         try {
             const workbook = context.XLSX.read(data, { type: 'array' });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const rows = context.XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
-            context.state.rosterNames = context.logic.parseRosterRows(rows);
+            context.state.rosterNames = parseRosterRows(rows);
             context.showStatus('rosterStatus', `已加载: ${fileName}（${context.state.rosterNames.length} 人）`, 'success');
             context.checkReady();
         } catch (error) {
@@ -28,7 +29,7 @@
         }
     }
 
-    async function handleScheduleFile(context: CrewFlightStatsContext, event: Event): Promise<void> {
+export async function handleScheduleFile(context: CrewFlightStatsContext, event: Event): Promise<void> {
         const target = event.target;
         if (!(target instanceof HTMLInputElement)) return;
         const file = target.files?.[0];
@@ -39,7 +40,7 @@
             context.state.scheduleWorkbook = context.XLSX.read(data, { type: 'array' });
             const sheetNames = context.state.scheduleWorkbook.SheetNames;
             context.showStatus('scheduleStatus', `已加载: ${file.name}（${sheetNames.length} 个工作表）`, 'success');
-            runtime.View.displaySheetSelector(context, sheetNames);
+            displaySheetSelector(context, sheetNames);
             context.checkReady();
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
@@ -47,7 +48,7 @@
         }
     }
 
-    async function handleRosterFile(context: CrewFlightStatsContext, event: Event): Promise<void> {
+export async function handleRosterFile(context: CrewFlightStatsContext, event: Event): Promise<void> {
         const target = event.target;
         if (!(target instanceof HTMLInputElement)) return;
         const file = target.files?.[0];
@@ -56,17 +57,8 @@
         parseRosterData(context, new Uint8Array(buffer), file.name);
     }
 
-    function bindFileActions(context: CrewFlightStatsContext): void {
+export function bindFileActions(context: CrewFlightStatsContext): void {
         context.elements.scheduleFile.addEventListener('change', event => { void handleScheduleFile(context, event); });
         context.elements.rosterFile.addEventListener('change', event => { void handleRosterFile(context, event); });
         void loadDefaultRoster(context);
     }
-
-    runtime.FileActions = {
-        bindFileActions,
-        handleRosterFile,
-        handleScheduleFile,
-        loadDefaultRoster,
-        parseRosterData
-    };
-})();

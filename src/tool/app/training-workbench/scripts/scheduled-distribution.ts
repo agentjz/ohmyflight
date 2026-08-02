@@ -1,8 +1,11 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const TrainingRecordPolicy = window.TrainingTool.TrainingRecordPolicy;
+import { TrainingToolTrainingRecordPolicy } from "./training-record-policy";
+import { TrainingToolUtils } from "./utils";
+import type { TrainingToolAnalysis, TrainingToolSheetInfo, TrainingToolSheetRow } from "./models";
 
-  interface ScheduledDistributionRow {
+const Utils = TrainingToolUtils;
+  const TrainingRecordPolicy = TrainingToolTrainingRecordPolicy;
+
+  export interface ScheduledDistributionRow {
     projectName: string;
     employeeId: string;
     name: string;
@@ -12,7 +15,7 @@
     source: string;
   }
 
-  interface ScheduledDistributionFilters {
+  export interface ScheduledDistributionFilters {
     projectName?: string;
     monthKey?: string;
   }
@@ -23,7 +26,25 @@
     projects: Map<string, number>;
   }
 
-  function getTrainingDate(row: TrainingToolSheetRow, sheetInfo: any) {
+  export interface ScheduledDistributionSummaryRow {
+    label: string;
+    total: number;
+    projectSummary: string;
+  }
+
+  export interface ScheduledDistributionResult {
+    allRows: ScheduledDistributionRow[];
+    rows: ScheduledDistributionRow[];
+    filterOptions: { projects: string[]; months: string[] };
+    summary: {
+      monthRows: ScheduledDistributionSummaryRow[];
+      dateRows: ScheduledDistributionSummaryRow[];
+      projectRows: ScheduledDistributionSummaryRow[];
+      total: number;
+    };
+  }
+
+  function getTrainingDate(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): Date | null {
     return Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训开始日期"))
       || Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训结束日期"));
   }
@@ -69,12 +90,12 @@
     };
   }
 
-  function addToBucket(bucket: ScheduledDistributionBucket, row: ScheduledDistributionRow) {
+  function addToBucket(bucket: ScheduledDistributionBucket, row: ScheduledDistributionRow): void {
     bucket.total += 1;
     bucket.projects.set(row.projectName, (bucket.projects.get(row.projectName) || 0) + 1);
   }
 
-  function finalizeBuckets(map: Map<string, ScheduledDistributionBucket>) {
+  function finalizeBuckets(map: Map<string, ScheduledDistributionBucket>): ScheduledDistributionSummaryRow[] {
     return [...map.values()]
       .map((bucket) => ({
         label: bucket.label,
@@ -87,11 +108,11 @@
       .sort((left, right) => left.label.localeCompare(right.label));
   }
 
-  function uniqueSorted(values: string[]) {
+  function uniqueSorted(values: string[]): string[] {
     return [...new Set(values.filter(Boolean))].sort((left, right) => left.localeCompare(right));
   }
 
-  function filterRows(rows: ScheduledDistributionRow[], filters: ScheduledDistributionFilters = {}) {
+  function filterRows(rows: ScheduledDistributionRow[], filters: ScheduledDistributionFilters = {}): ScheduledDistributionRow[] {
     const projectName = Utils.normalizeText(filters.projectName);
     const monthKey = Utils.normalizeText(filters.monthKey);
     return (rows || []).filter((row) => {
@@ -101,7 +122,7 @@
     });
   }
 
-  function buildSummary(rows: ScheduledDistributionRow[]) {
+  function buildSummary(rows: ScheduledDistributionRow[]): ScheduledDistributionResult["summary"] {
     const monthMap = new Map<string, ScheduledDistributionBucket>();
     const dateMap = new Map<string, ScheduledDistributionBucket>();
     const projectMap = new Map<string, ScheduledDistributionBucket>();
@@ -128,7 +149,7 @@
     };
   }
 
-  function buildDistribution(analysis: TrainingToolAnalysis | null, filters: ScheduledDistributionFilters = {}) {
+  function buildDistribution(analysis: TrainingToolAnalysis | null, filters: ScheduledDistributionFilters = {}): ScheduledDistributionResult {
     const allRows = buildRows(analysis);
     const rows = filterRows(allRows, filters);
     return {
@@ -141,11 +162,9 @@
       summary: buildSummary(rows)
     };
   }
-
-  window.TrainingTool.ScheduledDistribution = {
+  export const TrainingToolScheduledDistribution = {
     buildRows,
     filterRows,
     buildSummary,
     buildDistribution
   };
-})();

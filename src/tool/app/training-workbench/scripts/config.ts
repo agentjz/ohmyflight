@@ -1,5 +1,6 @@
-(function () {
-  const PROJECT_RULES = [
+import type { TrainingProjectRule } from "./models";
+
+const PROJECT_RULES: TrainingProjectRule[] = [
     {
       canonical: "应急训练",
       aliases: ["应急训练", "EP-飞行人员应急复训"],
@@ -82,15 +83,13 @@
     }
   ];
 
-  const PROJECT_ALIAS_LOOKUP = new Map();
+  const PROJECT_ALIAS_LOOKUP = new Map<string, string>();
   PROJECT_RULES.forEach((rule) => {
     [rule.canonical, ...rule.aliases].forEach((alias) => {
       PROJECT_ALIAS_LOOKUP.set(alias, rule.canonical);
     });
   });
-
-  window.TrainingTool = window.TrainingTool || {};
-  window.TrainingTool.Config = {
+  export const TrainingToolConfig = {
     PEOPLE_SHEET_NAME: "人员信息表",
     REPORT_SHEET_NAME: "更新报告",
     GENERATED_SHEET_SUFFIX: "预排（生成）",
@@ -130,4 +129,3 @@
     PROJECT_RULES,
     PROJECT_ALIAS_LOOKUP
   };
-})();

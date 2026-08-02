@@ -1,21 +1,9 @@
-type CrewFlightStatsMap = Record<string, Record<string, number>>;
-
-type CrewFlightSheetRows = {
-    sheetName: string;
-    rows: unknown[][];
-};
-
-type CrewFlightAnalyzeResult = {
-    statsResult: CrewFlightStatsMap;
-    routes: string[];
-    unmatchedCells: string[];
-};
+import type { CrewFlightAnalyzeResult, CrewFlightSheetRows, CrewFlightStatsMap } from "./models";
 
 function normalizeCrewText(value: unknown): string {
     return String(value ?? "").trim();
 }
-
-function parseRosterRows(rows: unknown[][]): string[] {
+export function parseRosterRows(rows: unknown[][]): string[] {
     const names: string[] = [];
     for (let index = 1; index < rows.length; index++) {
         const name = normalizeCrewText(rows[index]?.[1]);
@@ -24,13 +12,13 @@ function parseRosterRows(rows: unknown[][]): string[] {
     return names;
 }
 
-function matchNamesInRosterOrder(cellContent: unknown, rosterNames: string[]): string[] {
+export function matchNamesInRosterOrder(cellContent: unknown, rosterNames: string[]): string[] {
     const content = normalizeCrewText(cellContent);
     if (!content) return [];
     return rosterNames.filter(name => content.includes(name));
 }
 
-function extractNamesInTextOrder(text: unknown, rosterNames: string[]): string[] {
+export function extractNamesInTextOrder(text: unknown, rosterNames: string[]): string[] {
     const content = normalizeCrewText(text);
     if (!content) return [];
 
@@ -41,7 +29,7 @@ function extractNamesInTextOrder(text: unknown, rosterNames: string[]): string[]
         .map(item => item.name);
 }
 
-function analyzeScheduleRows(sheets: CrewFlightSheetRows[], rosterNames: string[]): CrewFlightAnalyzeResult {
+export function analyzeScheduleRows(sheets: CrewFlightSheetRows[], rosterNames: string[]): CrewFlightAnalyzeResult {
     const statsResult: CrewFlightStatsMap = {};
     const routes: string[] = [];
     const unmatchedCells: string[] = [];
@@ -77,7 +65,7 @@ function analyzeScheduleRows(sheets: CrewFlightSheetRows[], rosterNames: string[
     return { statsResult, routes, unmatchedCells };
 }
 
-function getPeopleInRosterOrder(statsResult: CrewFlightStatsMap | null, rosterNames: string[]): string[] {
+export function getPeopleInRosterOrder(statsResult: CrewFlightStatsMap | null, rosterNames: string[]): string[] {
     if (!statsResult) return [];
 
     const people: string[] = [];
@@ -99,21 +87,10 @@ function getPeopleInRosterOrder(statsResult: CrewFlightStatsMap | null, rosterNa
     return people;
 }
 
-function buildCrewFlightExportRows(statsResult: CrewFlightStatsMap, routes: string[], rosterNames: string[]): Array<Array<string | number>> {
+export function buildCrewFlightExportRows(statsResult: CrewFlightStatsMap, routes: string[], rosterNames: string[]): Array<Array<string | number>> {
     const rows: Array<Array<string | number>> = [["加分项", ...routes]];
     getPeopleInRosterOrder(statsResult, rosterNames).forEach(name => {
         rows.push([name, ...routes.map(route => statsResult[name]?.[route] || "")]);
     });
     return rows;
 }
-
-const CrewFlightStatsLogic = {
-    parseRosterRows,
-    matchNamesInRosterOrder,
-    extractNamesInTextOrder,
-    analyzeScheduleRows,
-    getPeopleInRosterOrder,
-    buildCrewFlightExportRows
-};
-
-(globalThis as typeof globalThis & { CrewFlightStatsLogic?: typeof CrewFlightStatsLogic }).CrewFlightStatsLogic = CrewFlightStatsLogic;

@@ -1,7 +1,6 @@
-(function () {
-    const runtime = window.CrewFlightStatsApp || (window.CrewFlightStatsApp = {});
+import type { CrewFlightStatsContext } from "./models";
 
-    function displaySheetSelector(context: CrewFlightStatsContext, sheetNames: string[]): void {
+export function displaySheetSelector(context: CrewFlightStatsContext, sheetNames: string[]): void {
         context.elements.sheetSection.style.display = 'block';
         context.state.selectedSheets = [...sheetNames];
 
@@ -28,8 +27,7 @@
             });
         });
     }
-
-    function renderWarnings(context: CrewFlightStatsContext, unmatchedCells: string[]): void {
+export function renderWarnings(context: CrewFlightStatsContext, unmatchedCells: string[]): void {
         if (unmatchedCells.length > 0) {
             context.elements.warningSection.style.display = 'block';
             context.elements.warningList.innerHTML = unmatchedCells.slice(0, 30).join('<br>') +
@@ -39,7 +37,7 @@
         }
     }
 
-    function displayResult(context: CrewFlightStatsContext): void {
+export function displayResult(context: CrewFlightStatsContext): void {
         if (!context.state.statsResult) return;
 
         context.elements.resultSection.style.display = 'block';
@@ -55,10 +53,3 @@
             return `<tr><td>${name}</td>${cells}</tr>`;
         }).join('');
     }
-
-    runtime.View = {
-        displayResult,
-        displaySheetSelector,
-        renderWarnings
-    };
-})();

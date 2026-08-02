@@ -1,27 +1,11 @@
-import { webcrypto } from "node:crypto";
-
 import JSZip from "jszip";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../helpers/browser-context";
+import { createProjectArchive } from "../../src/tool/project-archive";
+
+const archive = createProjectArchive(JSZip);
 
 describe("项目归档底层", () => {
-    let archive: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts(["tool/project-archive.js"], {
-            JSZip,
-            Blob,
-            File,
-            Uint8Array,
-            ArrayBuffer,
-            crypto: webcrypto,
-            TextEncoder,
-            TextDecoder
-        });
-        archive = (context as any).OhMyFlightProjectArchive;
-    });
-
     it("写入并校验工具类型、状态和原始文件哈希", async () => {
         const bytes = await archive.build({
             tool: "proof-king",

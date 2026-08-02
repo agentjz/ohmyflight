@@ -1,5 +1,12 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type {
+    AuditKingPdfLocatorResult,
+    AuditKingPdfLocatorSegmentComparison,
+    AuditKingPdfLocatorSlot,
+    AuditKingPdfLocatorState
+} from "./models";
+import type { createAuditKingPdfLocatorModel } from "./pdf-locator-model";
+
+export function createAuditKingPdfLocatorView(PdfLocatorModel: ReturnType<typeof createAuditKingPdfLocatorModel>) {
 
     function escapeHtml(value: unknown): string {
         return String(value ?? "")
@@ -125,7 +132,7 @@
             getElement<HTMLElement>("pdfLocatorPreview").innerHTML = `<div class="empty-panel">选择 PDF 和页码后预览。</div>`;
             return;
         }
-        const comparisons = runtime.PdfLocatorModel.buildSlotComparison(slot, state.documents);
+        const comparisons = PdfLocatorModel.buildSlotComparison(slot, state.documents);
         const matched = comparisons.filter((item: AuditKingPdfLocatorSegmentComparison) => item.matched).length;
         detail.innerHTML = `
             <div class="pdf-detail-title">
@@ -159,7 +166,7 @@
         renderSelectedSlot(state);
     }
 
-    runtime.PdfLocatorView = {
+    return {
         renderPdfLocator
     };
-})();
+}

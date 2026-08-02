@@ -1,15 +1,8 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { AuditKingSourceLocator as locator } from "../../../src/tool/app/audit-king/source-locator";
 
 describe("audit-king source locator", () => {
-  let locator: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts(["tool/app/audit-king/source-locator.js"]);
-    locator = (context.AuditKing as any).SourceLocator;
-  });
-
   it("creates a durable checklist source with block index, selected text and context", () => {
     const source = locator.makeSource({
       id: "doc-1-checklist-docx-b7",
@@ -207,7 +200,7 @@ describe("audit-king source locator", () => {
       text: "申请航线运输驾驶员执照规定的资格要求"
     });
     expect(evidence.globalStart).toBeGreaterThan(0);
-    expect(evidence.globalEnd).toBeGreaterThan(evidence.globalStart);
+    expect(evidence.globalEnd).toBeGreaterThan(evidence.globalStart!);
   });
 
   it("does not guess a manual evidence location when the same evidence appears multiple times", () => {

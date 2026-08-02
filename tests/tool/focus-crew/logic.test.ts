@@ -1,7 +1,10 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createFocusCrewLogic } from "../../../src/tool/app/focus-crew/logic";
+import type { FocusSheetInfo } from "../../../src/tool/app/focus-crew/models";
+
+const logic = createFocusCrewLogic(XLSX);
 
 function makeWorkbook(sheets: Record<string, unknown[][]>) {
   const workbook = XLSX.utils.book_new();
@@ -12,13 +15,6 @@ function makeWorkbook(sheets: Record<string, unknown[][]>) {
 }
 
 describe("focus crew logic", () => {
-  let logic: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts(["tool/app/focus-crew/logic.js"], { XLSX });
-    logic = context.FocusCrewLogic;
-  });
-
   it("detects configured focus sheets and reads columns from the second row", () => {
     const workbook = makeWorkbook({
       "重点关注": [
@@ -54,7 +50,7 @@ describe("focus crew logic", () => {
         columns: ["姓名"],
         data: [["说明"], ["姓名"], ["张三"]]
       }
-    ];
+    ] satisfies FocusSheetInfo[];
     const collected = logic.collectFocusData(focusSheets, { 0: 1, 1: 0 });
     const scheduleWorkbook = makeWorkbook({
       "审班": [

@@ -1,15 +1,10 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as XLSX from "xlsx-js-style";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createAuditKingCheckItemWorkbook } from "../../../src/tool/app/audit-king/check-item-workbook";
 
 describe("audit-king check item workbook", () => {
-  let api: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts(["tool/app/audit-king/check-item-workbook.js"], { XLSX });
-    api = (context.AuditKing as any).CheckItemWorkbook;
-  });
+  const api = createAuditKingCheckItemWorkbook(XLSX);
 
   it("round-trips current check items, candidate evidence and audit evidence", () => {
     const workbook = api.buildWorkbook([{
@@ -20,11 +15,12 @@ describe("audit-king check item workbook", () => {
     }]);
 
     const parsed = api.parseWorkbook(workbook);
+    const firstItem = parsed[0]!;
 
-    expect(parsed[0]).toMatchObject({ code: "1.1", name: "进入条件", keyword: "进入机长训练", enabled: true });
-    expect(parsed[0].source).toMatchObject({ blockId: "c-b1", start: 2, end: 8 });
-    expect(parsed[0].manualEvidences[0]).toMatchObject({ id: "m-1", documentName: "手册.pdf", pageNumber: 7, text: "应满足资格要求" });
-    expect(parsed[0].auditEvidences[0]).toMatchObject({ content: "应满足资格要求", note: "已复核", sourceEvidenceId: "m-1" });
+    expect(firstItem).toMatchObject({ code: "1.1", name: "进入条件", keyword: "进入机长训练", enabled: true });
+    expect(firstItem.source).toMatchObject({ blockId: "c-b1", start: 2, end: 8 });
+    expect(firstItem.manualEvidences![0]!).toMatchObject({ id: "m-1", documentName: "手册.pdf", pageNumber: 7, text: "应满足资格要求" });
+    expect(firstItem.auditEvidences![0]!).toMatchObject({ content: "应满足资格要求", note: "已复核", sourceEvidenceId: "m-1" });
   });
 
   it("keeps missing code and name empty instead of inferring them", () => {

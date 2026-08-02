@@ -1,6 +1,4 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
-    const views = runtime.DocumentViews || (runtime.DocumentViews = {});
+import type { LocalManual } from "./models";
 
     class WordReaderView {
         private manualId = "";
@@ -76,6 +74,4 @@
         return Math.max(0, Math.round(currentScrollTop + targetOffset - (containerHeight - targetHeight) / 2));
     }
 
-    views.WordReaderView = WordReaderView;
-    views.calculateCenteredScrollTop = calculateCenteredScrollTop;
-})();
+export { WordReaderView, calculateCenteredScrollTop };

@@ -1,7 +1,9 @@
-(function () {
-  const WorkbenchStatus = window.TrainingTool.WorkbenchStatus;
+import { TrainingToolWorkbenchStatus } from "./workbench-status";
+import type { TrainingBadgeTone } from "./models";
 
-  function makeBadgeCell(text, tone) {
+const WorkbenchStatus = TrainingToolWorkbenchStatus;
+
+  function makeBadgeCell(text: unknown, tone: TrainingBadgeTone): { type: "badge"; text: unknown; tone: TrainingBadgeTone } {
     return {
       type: "badge",
       text,
@@ -9,7 +11,7 @@
     };
   }
 
-  function badgeToneForUpdateJudgement(value) {
+  function badgeToneForUpdateJudgement(value: unknown): TrainingBadgeTone {
     switch (value) {
       case "命中窗口":
         return "warn";
@@ -24,7 +26,7 @@
     }
   }
 
-  function badgeToneForUpdateResult(value) {
+  function badgeToneForUpdateResult(value: unknown): TrainingBadgeTone {
     switch (value) {
       case "已更新":
         return "ok";
@@ -38,7 +40,7 @@
     }
   }
 
-  function badgeToneForSkippedStatus(value) {
+  function badgeToneForSkippedStatus(value: unknown): TrainingBadgeTone {
     switch (value) {
       case "日期异常":
       case "匹配失败":
@@ -58,15 +60,13 @@
     }
   }
 
-  function badgeToneForWorkbenchStatus(value) {
+  function badgeToneForWorkbenchStatus(value: string): TrainingBadgeTone {
     return WorkbenchStatus.badgeToneForWorkbenchStatus(value);
   }
-
-  window.TrainingTool.ResultStatus = {
+  export const TrainingToolResultStatus = {
     makeBadgeCell,
     badgeToneForUpdateJudgement,
     badgeToneForUpdateResult,
     badgeToneForSkippedStatus,
     badgeToneForWorkbenchStatus
   };
-})();

@@ -1,7 +1,7 @@
-(function () {
-  const runtime = window.TrainingToolApp || (window.TrainingToolApp = {} as TrainingToolAppRuntime);
+import type { TrainingToolAppRuntime } from "./models";
 
-  function requireElement<T extends Element>(id: string, Type: { new(): T }): T {
+export function installTrainingAppElements(runtime: TrainingToolAppRuntime): void {
+function requireElement<T extends Element>(id: string, Type: { new(): T }): T {
     const element = document.getElementById(id);
     if (!(element instanceof Type)) {
       throw new Error(`页面缺少必要元素：${id}`);
@@ -92,4 +92,4 @@
     skippedTableBody: requireElement("skippedTableBody", HTMLTableSectionElement),
     projectCards: requireElement("projectCards", HTMLElement)
   };
-})();
+}

@@ -1,7 +1,8 @@
-// 九宫格编号从左到右、从上到下为 1-9；当前图案是最下面三个点连成横线。
+import { siteVisibility } from "../site-visibility";
+
 const HOME_ACCESS_PATTERN = [7, 8, 9];
 
-function appendHomePatternNode(sequence: number[], node: number): number[] {
+export function appendHomePatternNode(sequence: number[], node: number): number[] {
     if (!Number.isInteger(node) || node < 1 || node > 9 || sequence.includes(node)) return [...sequence];
 
     const next = [...sequence];
@@ -29,14 +30,14 @@ function getHomePatternIntermediateNode(from: number, to: number): number | unde
     return middleNode === from || middleNode === to ? undefined : middleNode;
 }
 
-function matchesHomeAccessPattern(sequence: number[]): boolean {
+export function matchesHomeAccessPattern(sequence: number[]): boolean {
     if (sequence.length !== HOME_ACCESS_PATTERN.length) return false;
     const forward = HOME_ACCESS_PATTERN.every((node, index) => sequence[index] === node);
     const backward = HOME_ACCESS_PATTERN.every((node, index) => sequence[sequence.length - 1 - index] === node);
     return forward || backward;
 }
 
-window.HomePatternGateLogic = {
+export const homePatternLogic = {
     enabled: siteVisibility.homepage.patternGate === true,
     pattern: [...HOME_ACCESS_PATTERN],
     appendNode: appendHomePatternNode,

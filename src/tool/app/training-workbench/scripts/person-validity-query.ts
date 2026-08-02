@@ -1,18 +1,20 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
+import { TrainingToolUtils } from "./utils";
+import type { TrainingToolAnalysis, TrainingToolPeopleInfo } from "./models";
+
+const Utils = TrainingToolUtils;
   const FIRST_VALIDITY_HEADER = "熟练检查";
   const LAST_VALIDITY_HEADER = "体检合格证";
 
   type ValidityState = "valid" | "expired" | "text" | "empty";
 
-  interface PersonValidityItem {
+  export interface PersonValidityItem {
     name: string;
     value: string;
     state: ValidityState;
     stateLabel: string;
   }
 
-  interface PersonValidityRecord {
+  export interface PersonValidityRecord {
     key: string;
     rowNumber: number;
     employeeId: string;
@@ -22,13 +24,13 @@
     validities: PersonValidityItem[];
   }
 
-  interface PersonValidityIndex {
+  export interface PersonValidityIndex {
     people: PersonValidityRecord[];
     byEmployeeId: Map<string, PersonValidityRecord[]>;
     byName: Map<string, PersonValidityRecord[]>;
   }
 
-  function validityColumns(peopleInfo: TrainingToolPeopleInfo): Array<{ name: string; index: number }> {
+  function validityColumns(peopleInfo: Pick<TrainingToolPeopleInfo, "headers" | "headerMap">): Array<{ name: string; index: number }> {
     const start = Utils.findHeaderIndex(peopleInfo, FIRST_VALIDITY_HEADER);
     const end = Utils.findHeaderIndex(peopleInfo, LAST_VALIDITY_HEADER);
     if (start < 0 || end < start) {
@@ -72,7 +74,10 @@
     target.set(key, values);
   }
 
-  function buildIndex(analysis: TrainingToolAnalysis, todayValue: unknown = new Date()): PersonValidityIndex {
+  function buildIndex(
+    analysis: { peopleInfo: Pick<TrainingToolPeopleInfo, "name" | "headers" | "headerMap" | "rows"> },
+    todayValue: unknown = new Date()
+  ): PersonValidityIndex {
     const peopleInfo = analysis.peopleInfo;
     const columns = validityColumns(peopleInfo);
     const today = Utils.parseDate(todayValue) || new Date();
@@ -117,11 +122,9 @@
       || person.name.toLocaleLowerCase("zh-CN").includes(normalizedQuery)
     ));
   }
-
-  window.TrainingTool.PersonValidityQuery = {
+  export const TrainingToolPersonValidityQuery = {
     FIRST_VALIDITY_HEADER,
     LAST_VALIDITY_HEADER,
     buildIndex,
     search
   };
-})();

@@ -1,4 +1,8 @@
-(function () {
+import type {
+    SeasonalLearningAllocationGroupInput,
+    SeasonalLearningAllocationResult
+} from "./models";
+
     function validateCount(value: number, label: string): void {
         if (!Number.isInteger(value) || value < 0) {
             throw new Error(`${label}人数必须是非负整数。`);
@@ -46,5 +50,4 @@
         return { groupCounts, neutralCounts, totalCounts };
     }
 
-    window.SeasonalLearningAllocation = { buildDynamicQuotas };
-})();
+export const SeasonalLearningAllocation = { buildDynamicQuotas };

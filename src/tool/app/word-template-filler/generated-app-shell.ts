@@ -1,8 +1,6 @@
 // 生成应用的 HTML 骨架
 
-declare const GeneratedAppStyles: {
-    generate(): string;
-};
+import { GeneratedAppStyles } from "./generated-app-styles";
 
 type GeneratedAppShellInput = {
     appName: string;
@@ -11,7 +9,7 @@ type GeneratedAppShellInput = {
     jsCode: string;
 };
 
-const GeneratedAppShell = {
+export const GeneratedAppShell = {
     generate: ({appName, templateFileName, formHtml, jsCode}: GeneratedAppShellInput) => `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>

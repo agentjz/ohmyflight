@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "label": "legacy",
+  "method": {
+    "warmups": 1,
+    "repetitions": 3,
+    "browserContext": "fresh context per sample",
+    "realInputPolicy": "paths and business content omitted; only result hashes and timings retained"
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.10",
+    "playwright": "1.58.0",
+    "chromium": "145.0.7632.6",
+    "cpuCount": 32
+  },
+  "inputs": {
+    "training-workbench": {
+      "kind": "owner-local",
+      "bytes": 277348
+    },
+    "seasonal-learning": {
+      "kind": "owner-local",
+      "bytes": 60304
+    },
+    "audit-king": {
+      "kind": "generated-docx"
+    },
+    "proof-king": {
+      "kind": "generated-docx-pair"
+    }
+  },
+  "coldStart": {
+    "training-workbench": {
+      "navigationMs": {
+        "median": 199.1,
+        "p95": 199.4,
+        "minimum": 186.6,
+        "maximum": 199.4
+      },
+      "domContentLoadedMs": {
+        "median": 196.1,
+        "p95": 196.5,
+        "minimum": 183.8,
+        "maximum": 196.5
+      },
+      "scriptRequests": {
+        "median": 44,
+        "p95": 44,
+        "minimum": 44,
+        "maximum": 44
+      },
+      "transferBytes": {
+        "median": 2031120,
+        "p95": 2031120,
+        "minimum": 2031120,
+        "maximum": 2031120
+      },
+      "usedJsHeapBytes": {
+        "median": 9045416,
+        "p95": 9085952,
+        "minimum": 9034196,
+        "maximum": 9085952
+      },
+      "wallMs": {
+        "median": 233.98,
+        "p95": 245.3,
+        "minimum": 221.7,
+        "maximum": 245.3
+      },
+      "errors": []
+    },
+    "seasonal-learning": {
+      "navigationMs": {
+        "median": 78.1,
+        "p95": 80.9,
+        "minimum": 76.4,
+        "maximum": 80.9
+      },
+      "domContentLoadedMs": {
+        "median": 75.8,
+        "p95": 78.3,
+        "minimum": 74.2,
+        "maximum": 78.3
+      },
+      "scriptRequests": {
+        "median": 14,
+        "p95": 14,
+        "minimum": 14,
+        "maximum": 14
+      },
+      "transferBytes": {
+        "median": 1878604,
+        "p95": 1878604,
+        "minimum": 1878604,
+        "maximum": 1878604
+      },
+      "usedJsHeapBytes": {
+        "median": 5542835,
+        "p95": 5552820,
+        "minimum": 5542347,
+        "maximum": 5552820
+      },
+      "wallMs": {
+        "median": 112.37,
+        "p95": 131.17,
+        "minimum": 110.92,
+        "maximum": 131.17
+      },
+      "errors": []
+    },
+    "audit-king": {
+      "navigationMs": {
+        "median": 146,
+        "p95": 152.8,
+        "minimum": 136.9,
+        "maximum": 152.8
+      },
+      "domContentLoadedMs": {
+        "median": 144.6,
+        "p95": 151.3,
+        "minimum": 135.5,
+        "maximum": 151.3
+      },
+      "scriptRequests": {
+        "median": 37,
+        "p95": 37,
+        "minimum": 37,
+        "maximum": 37
+      },
+      "transferBytes": {
+        "median": 3101692,
+        "p95": 3101692,
+        "minimum": 3101692,
+        "maximum": 3101692
+      },
+      "usedJsHeapBytes": {
+        "median": 17067762,
+        "p95": 17094830,
+        "minimum": 16925534,
+        "maximum": 17094830
+      },
+      "wallMs": {
+        "median": 186.01,
+        "p95": 197.23,
+        "minimum": 171.57,
+        "maximum": 197.23
+      },
+      "errors": []
+    },
+    "proof-king": {
+      "navigationMs": {
+        "median": 133.6,
+        "p95": 137.4,
+        "minimum": 131.1,
+        "maximum": 137.4
+      },
+      "domContentLoadedMs": {
+        "median": 133.4,
+        "p95": 137.1,
+        "minimum": 130.7,
+        "maximum": 137.1
+      },
+      "scriptRequests": {
+        "median": 24,
+        "p95": 24,
+        "minimum": 24,
+        "maximum": 24
+      },
+      "transferBytes": {
+        "median": 3040442,
+        "p95": 3040442,
+        "minimum": 3040442,
+        "maximum": 3040442
+      },
+      "usedJsHeapBytes": {
+        "median": 8063299,
+        "p95": 8064671,
+        "minimum": 7991823,
+        "maximum": 8064671
+      },
+      "wallMs": {
+        "median": 169.6,
+        "p95": 172.7,
+        "minimum": 165.38,
+        "maximum": 172.7
+      },
+      "errors": []
+    }
+  },
+  "workflows": {
+    "training-workbench": {
+      "durationMs": {
+        "median": 939.2,
+        "p95": 943.61,
+        "minimum": 929.2,
+        "maximum": 943.61
+      },
+      "resultSha256": [
+        "36f72df2caa826ef9d27246f90503da605437ba0ff5dc94a2496703ef6a86434"
+      ],
+      "errors": []
+    },
+    "seasonal-learning": {
+      "durationMs": {
+        "median": 203.35,
+        "p95": 203.52,
+        "minimum": 201.14,
+        "maximum": 203.52
+      },
+      "resultSha256": [
+        "926d9695af95e4b6216dc0599eb4430fac9f0163484919ffee3902746eacdda3"
+      ],
+      "errors": []
+    },
+    "audit-king": {
+      "durationMs": {
+        "median": 173.77,
+        "p95": 185.23,
+        "minimum": 163.08,
+        "maximum": 185.23
+      },
+      "resultSha256": [
+        "123d95246be4bfb6ca84baf8090085de514468ea159485553f13ef684fdeacbd"
+      ],
+      "errors": []
+    },
+    "proof-king": {
+      "durationMs": {
+        "median": 241.07,
+        "p95": 255.76,
+        "minimum": 239.63,
+        "maximum": 255.76
+      },
+      "resultSha256": [
+        "eee5043dceb616b950ce2feb312425e97be943ebe461e306175db910efbce4ad"
+      ],
+      "errors": []
+    }
+  },
+  "memoryCycles": {
+    "training-workbench": {
+      "usedJsHeapBytes": [
+        86633551,
+        86866804,
+        86994692,
+        87119472,
+        87258432
+      ],
+      "errors": [],
+      "growthBytes": 624881,
+      "growthRatio": 1.0072
+    },
+    "seasonal-learning": {
+      "usedJsHeapBytes": [
+        13174532,
+        20655750,
+        23526596,
+        36245184,
+        14687941
+      ],
+      "errors": [],
+      "growthBytes": 1513409,
+      "growthRatio": 1.1149
+    },
+    "audit-king": {
+      "usedJsHeapBytes": [
+        30279079,
+        31008612,
+        32260227,
+        35679163,
+        38247975
+      ],
+      "errors": [],
+      "growthBytes": 7968896,
+      "growthRatio": 1.2632
+    },
+    "proof-king": {
+      "usedJsHeapBytes": [
+        10416482,
+        10583125,
+        10766953,
+        10943157,
+        11130465
+      ],
+      "errors": [],
+      "growthBytes": 713983,
+      "growthRatio": 1.0685
+    }
+  }
+}

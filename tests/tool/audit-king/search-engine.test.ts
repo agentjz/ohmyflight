@@ -1,18 +1,14 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createAuditKingSearchEngine } from "../../../src/tool/app/audit-king/search-engine";
+import { loadBrowserVendor } from "../../helpers/browser-context";
 
 describe("audit-king search engine", () => {
-  let context: any;
   let searchEngine: any;
 
     beforeAll(() => {
-        context = loadBrowserScripts([
-            "libs/flexsearch.bundle.min.js",
-            "tool/app/audit-king/text-normalizer.js",
-            "tool/app/audit-king/search-engine.js"
-        ]);
-        searchEngine = (context.AuditKing as any).SearchEngine;
+        const context = loadBrowserVendor("libs/flexsearch.bundle.min.js");
+        searchEngine = createAuditKingSearchEngine((context as any).FlexSearch);
     });
 
   it("searches multiple manual keywords across manuals with exact and loose hits", () => {

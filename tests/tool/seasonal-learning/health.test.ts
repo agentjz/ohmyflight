@@ -1,6 +1,6 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { SeasonalLearningHealth as health } from "../../../src/tool/app/seasonal-learning/health";
 
 const ACTUAL_HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "培训类型", "日期", "期数", "身份"];
 const HEADERS = ["序号", "员工号", "姓名", "分部", "技术信息", "是否带队", "是否美线带队", "培训类型", "日期", "期数", "身份"];
@@ -16,16 +16,6 @@ function row(
 }
 
 describe("seasonal learning workbook health", () => {
-  let health: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/seasonal-learning/data.js",
-      "tool/app/seasonal-learning/health.js"
-    ]);
-    health = context.SeasonalLearningHealth;
-  });
-
   it("summarizes matching rosters and keeps arbitrary identity values", () => {
     const total = [
       HEADERS,

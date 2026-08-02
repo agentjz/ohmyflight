@@ -1,5 +1,6 @@
-(function () {
-  const STATUSES = {
+import type { TrainingStatusTone, TrainingVisibleStatusBucket, TrainingVisibleStatusField } from "./models";
+
+const STATUSES = {
     expired: "已过期",
     expiredScheduled: "已过期已排补训",
     must: "必须排",
@@ -9,7 +10,7 @@
     abnormal: "异常"
   };
 
-  const VISIBLE_STATUS_FIELDS = [
+  const VISIBLE_STATUS_FIELDS: Array<{ status: string; field: TrainingVisibleStatusField }> = [
     { status: STATUSES.expired, field: "expired" },
     { status: STATUSES.expiredScheduled, field: "expiredScheduled" },
     { status: STATUSES.must, field: "must" },
@@ -20,7 +21,7 @@
 
   const DEFAULT_VISIBLE_STATUSES = new Set(VISIBLE_STATUS_FIELDS.map((item) => item.status));
 
-  const STATUS_ORDER = new Map([
+  const STATUS_ORDER = new Map<string, number>([
     [STATUSES.expired, 0],
     [STATUSES.expiredScheduled, 1],
     [STATUSES.must, 2],
@@ -30,27 +31,29 @@
     [STATUSES.normal, 6]
   ]);
 
-  const TONE_ORDER = new Map([
+  const TONE_ORDER = new Map<TrainingStatusTone, number>([
     ["red", 0],
     ["orange", 1],
     ["green", 2],
     ["gray", 3]
   ]);
 
-  function rankOfStatus(status) {
-    return STATUS_ORDER.has(status) ? STATUS_ORDER.get(status) : 99;
+  function rankOfStatus(status: string): number {
+    return STATUS_ORDER.has(status) ? STATUS_ORDER.get(status)! : 99;
   }
 
-  function fieldForStatus(status) {
+  function fieldForStatus(status: string): TrainingVisibleStatusField | "" {
     const item = VISIBLE_STATUS_FIELDS.find((entry) => entry.status === status);
     return item ? item.field : "";
   }
 
-  function isDefaultVisible(status) {
+  function isDefaultVisible(status: string): boolean {
     return DEFAULT_VISIBLE_STATUSES.has(status);
   }
 
-  function createVisibleStatusBucket(extra = {}) {
+  function createVisibleStatusBucket(): TrainingVisibleStatusBucket;
+  function createVisibleStatusBucket<T extends object>(extra: T): TrainingVisibleStatusBucket & T;
+  function createVisibleStatusBucket<T extends object>(extra = {} as T): TrainingVisibleStatusBucket & T {
     return {
       ...extra,
       expired: 0,
@@ -62,12 +65,12 @@
     };
   }
 
-  function incrementVisibleStatusBucket(item, status) {
+  function incrementVisibleStatusBucket(item: TrainingVisibleStatusBucket, status: string): void {
     const field = fieldForStatus(status);
     if (field) item[field] += 1;
   }
 
-  function toneForQualificationStatus(status) {
+  function toneForQualificationStatus(status: string): TrainingStatusTone {
     switch (status) {
       case STATUSES.expired:
       case STATUSES.must:
@@ -84,7 +87,7 @@
     }
   }
 
-  function badgeToneForWorkbenchStatus(status) {
+  function badgeToneForWorkbenchStatus(status: string): "danger" | "warn" | "ok" | "info" {
     switch (status) {
       case STATUSES.expired:
       case STATUSES.abnormal:
@@ -102,7 +105,7 @@
     }
   }
 
-  function labelForTone(tone) {
+  function labelForTone(tone: TrainingStatusTone): string {
     switch (tone) {
       case "red":
         return "红";
@@ -115,15 +118,14 @@
     }
   }
 
-  function rankOfTone(tone) {
+  function rankOfTone(tone: TrainingStatusTone): number {
     return TONE_ORDER.get(tone) ?? 99;
   }
 
-  function chooseWorstTone(currentTone, nextTone) {
+  function chooseWorstTone(currentTone: TrainingStatusTone, nextTone: TrainingStatusTone): TrainingStatusTone {
     return rankOfTone(nextTone) < rankOfTone(currentTone) ? nextTone : currentTone;
   }
-
-  window.TrainingTool.WorkbenchStatus = {
+  export const TrainingToolWorkbenchStatus = {
     STATUSES,
     VISIBLE_STATUS_FIELDS,
     DEFAULT_VISIBLE_STATUSES,
@@ -139,4 +141,3 @@
     rankOfTone,
     chooseWorstTone
   };
-})();

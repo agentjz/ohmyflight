@@ -1,6 +1,6 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { TrainingToolPersonValidityQuery as query } from "../../../src/tool/app/training-workbench/scripts/person-validity-query";
 
 const HEADERS = [
   "员工号", "姓名", "分部", "技术信息", "熟练检查", "应急训练", "危险品", "航空安保", "TSA",
@@ -35,17 +35,6 @@ function analysisFixture() {
 }
 
 describe("training workbench person validity query", () => {
-  let query: any;
-
-  beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/training-workbench/scripts/config.js",
-      "tool/app/training-workbench/scripts/utils.js",
-      "tool/app/training-workbench/scripts/person-validity-query.js"
-    ]);
-    query = (context as any).TrainingTool.PersonValidityQuery;
-  });
-
   it("returns every validity column and keeps date, text, and empty values distinct", () => {
     const index = query.buildIndex(analysisFixture(), "2026-07-30");
     const [person] = query.search(index, "100001");

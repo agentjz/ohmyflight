@@ -1,5 +1,10 @@
-(function () {
-    const runtime = (globalThis as any).ManualProofText || ((globalThis as any).ManualProofText = {});
+import type {
+    ComparisonOptions,
+    ComparisonSlice,
+    DiffKind,
+    DiffSegment,
+    WorkerManual
+} from "./models";
 
     function normalize(value: unknown): string {
         return String(value ?? "")
@@ -204,12 +209,13 @@
         return Math.max(0, Math.min(1, value));
     }
 
-    runtime.normalize = normalize;
-    runtime.grams = grams;
-    runtime.tokens = tokens;
-    runtime.splitText = splitText;
-    runtime.similarity = similarity;
-    runtime.createSlices = createSlices;
-    runtime.compareTokens = compareTokens;
-    runtime.inlineDiff = inlineDiff;
-})();
+export const ManualProofText = {
+    normalize,
+    grams,
+    tokens,
+    splitText,
+    similarity,
+    createSlices,
+    compareTokens,
+    inlineDiff
+};

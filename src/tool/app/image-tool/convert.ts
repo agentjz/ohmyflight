@@ -1,12 +1,7 @@
-(function () {
-  const runtime = window.ImageTool || (window.ImageTool = {} as ImageToolRuntimeRegistry);
+import type { ImageToolImageItem, ImageToolImageProcessResult } from "./models";
+import * as tools from "./shared";
 
-  function initConvert(): void {
-    const shared = runtime.shared;
-    if (!shared) {
-      throw new Error("Image tool shared runtime is unavailable");
-    }
-    const tools: ImageToolSharedApi = shared;
+export function initConvert(): void {
 
     const images: ImageToolImageItem[] = [];
     const listEl = tools.getElement<HTMLElement>("convertList");
@@ -118,6 +113,3 @@
       }
     }
   }
-
-  runtime.initConvert = initConvert;
-})();

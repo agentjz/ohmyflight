@@ -1,12 +1,6 @@
-(function () {
-  const runtime = window.ImageTool || (window.ImageTool = {} as ImageToolRuntimeRegistry);
+import * as tools from "./shared";
 
-  function initBase64(): void {
-    const shared = runtime.shared;
-    if (!shared) {
-      throw new Error("Image tool shared runtime is unavailable");
-    }
-    const tools: ImageToolSharedApi = shared;
+export function initBase64(): void {
 
     let imageBlob: Blob | null = null;
 
@@ -81,6 +75,3 @@
       image.src = base64;
     }
   }
-
-  runtime.initBase64 = initBase64;
-})();

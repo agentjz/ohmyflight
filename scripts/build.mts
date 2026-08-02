@@ -1,9 +1,12 @@
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
+import { build } from "esbuild";
 import ts from "typescript";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,10 +14,60 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 const sourceRoot = path.join(projectRoot, "src");
 const staticRoot = path.join(projectRoot, "public");
-const distRoot = path.join(projectRoot, "dist");
+const distRoot = resolveDistRoot();
 const skillsRoot = path.join(projectRoot, ".agents", "skills");
 const userManualsRoot = path.join(projectRoot, "spec", "user");
 const execFileAsync = promisify(execFile);
+
+function resolveDistRoot(): string {
+  const requestedRoot = process.env.OHMYFLIGHT_DIST_ROOT;
+  if (!requestedRoot) return path.join(projectRoot, "dist");
+
+  const resolvedRoot = path.resolve(requestedRoot);
+  const temporaryRoot = path.resolve(os.tmpdir());
+  const relativePath = path.relative(temporaryRoot, resolvedRoot);
+  const topLevelDirectory = relativePath.split(path.sep)[0] || "";
+  if (
+    relativePath.startsWith("..")
+    || path.isAbsolute(relativePath)
+    || !topLevelDirectory.startsWith("ohmyflight-build-")
+  ) {
+    throw new Error("OHMYFLIGHT_DIST_ROOT 只允许使用专用的系统临时目录。");
+  }
+  return resolvedRoot;
+}
+
+const pageEntries = [
+  { source: "src/tool/tools-render.ts", output: "tool/app", page: "tool/index.html" },
+  { source: "src/tool/manuals.ts", output: "tool/manuals-app", page: "tool/manuals.html" },
+  { source: "src/tool/developer.ts", output: "tool/developer-app", page: "tool/developer.html" },
+  { source: "src/jobskill/site.ts", output: "jobskill/app", page: "jobskill/index.html" },
+  { source: "src/sponsor/main.ts", output: "sponsor/app", page: "sponsor/index.html" },
+  { source: "src/tool/app/audit-king/main.ts", output: "tool/app/audit-king/app", page: "tool/app/audit-king/index.html" },
+  { source: "src/tool/app/crew-flight-stats/main.ts", output: "tool/app/crew-flight-stats/app", page: "tool/app/crew-flight-stats/index.html" },
+  { source: "src/tool/app/crew-match-name-id/main.ts", output: "tool/app/crew-match-name-id/app", page: "tool/app/crew-match-name-id/index.html" },
+  { source: "src/tool/app/flight-stats-helper/shell.ts", output: "tool/app/flight-stats-helper/app", page: "tool/app/flight-stats-helper/index.html" },
+  { source: "src/tool/app/focus-crew/main.ts", output: "tool/app/focus-crew/app", page: "tool/app/focus-crew/index.html" },
+  { source: "src/tool/app/hotel-bill-check/main.ts", output: "tool/app/hotel-bill-check/app", page: "tool/app/hotel-bill-check/index.html" },
+  { source: "src/tool/app/image-tool/main.ts", output: "tool/app/image-tool/app", page: "tool/app/image-tool/index.html" },
+  { source: "src/tool/app/lock-entry-helper/shell.ts", output: "tool/app/lock-entry-helper/app", page: "tool/app/lock-entry-helper/index.html" },
+  { source: "src/tool/app/oa-read-helper/shell.ts", output: "tool/app/oa-read-helper/app", page: "tool/app/oa-read-helper/index.html" },
+  { source: "src/tool/app/qualification-query-helper/shell.ts", output: "tool/app/qualification-query-helper/app", page: "tool/app/qualification-query-helper/index.html" },
+  { source: "src/tool/app/pdf-stamp/main.ts", output: "tool/app/pdf-stamp/app", page: "tool/app/pdf-stamp/index.html" },
+  { source: "src/tool/app/pdf-tool/main.ts", output: "tool/app/pdf-tool/app", page: "tool/app/pdf-tool/index.html" },
+  { source: "src/tool/app/personnel-structure-stats/main.ts", output: "tool/app/personnel-structure-stats/app", page: "tool/app/personnel-structure-stats/index.html" },
+  { source: "src/tool/app/proof-king/main.ts", output: "tool/app/proof-king/app", page: "tool/app/proof-king/index.html" },
+  { source: "src/tool/app/seasonal-learning/main.ts", output: "tool/app/seasonal-learning/app", page: "tool/app/seasonal-learning/index.html" },
+  { source: "src/tool/app/session-bill-check/main.ts", output: "tool/app/session-bill-check/app", page: "tool/app/session-bill-check/index.html" },
+  { source: "src/tool/app/text-joiner/main.ts", output: "tool/app/text-joiner/app", page: "tool/app/text-joiner/index.html" },
+  { source: "src/tool/app/training-workbench/scripts/app.ts", output: "tool/app/training-workbench/app", page: "tool/app/training-workbench/index.html" },
+  { source: "src/tool/app/training-workbench/scripts/rule-reference.ts", output: "tool/app/training-workbench/rule-reference-app", page: "tool/app/training-workbench/rule-reference.html" },
+  { source: "src/tool/app/word-template-filler/main.ts", output: "tool/app/word-template-filler/app", page: "tool/app/word-template-filler/index.html" }
+] as const;
+
+const workerEntries = [
+  { source: "src/tool/app/proof-king/comparison-worker.ts", output: "tool/app/proof-king/comparison-worker" }
+] as const;
 
 const manualSkillEntries = [
   {
@@ -30,29 +83,6 @@ const manualSkillEntries = [
     name: "技术管理手册"
   }
 ] as const;
-
-async function walkTypeScriptFiles(rootDir: string): Promise<string[]> {
-  const results: string[] = [];
-
-  async function visit(currentDir: string): Promise<void> {
-    const entries = await fs.readdir(currentDir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const fullPath = path.join(currentDir, entry.name);
-      if (entry.isDirectory()) {
-        await visit(fullPath);
-        continue;
-      }
-
-      if (entry.isFile() && entry.name.endsWith(".ts") && !entry.name.endsWith(".d.ts")) {
-        results.push(fullPath);
-      }
-    }
-  }
-
-  await visit(rootDir);
-  return results.sort();
-}
 
 async function walkSourceAssetFiles(rootDir: string): Promise<string[]> {
   const results: string[] = [];
@@ -76,11 +106,6 @@ async function walkSourceAssetFiles(rootDir: string): Promise<string[]> {
 
   await visit(rootDir);
   return results.sort();
-}
-
-function toOutputPath(sourceFilePath: string): string {
-  const relativePath = path.relative(sourceRoot, sourceFilePath);
-  return path.join(distRoot, relativePath.replace(/\.ts$/i, ".js"));
 }
 
 function toAssetOutputPath(sourceFilePath: string): string {
@@ -123,7 +148,6 @@ async function readGitText(args: string[]): Promise<string> {
 
 async function generateVersionFile() {
   const commit = await readGitText(["rev-parse", "--short", "HEAD"]);
-  const branch = await readGitText(["branch", "--show-current"]);
   const rawLog = await readGitText(["log", "--pretty=format:%h%x09%cI%x09%s"]);
   const commits = rawLog
     ? rawLog.split(/\r?\n/).map((line) => {
@@ -138,14 +162,60 @@ async function generateVersionFile() {
 
   const version = {
     commit,
-    branch,
-    builtAt: new Date().toISOString(),
     commits
   };
 
   await fs.writeFile(
     path.join(distRoot, "version.json"),
     `${JSON.stringify(version, null, 2)}\n`,
+    "utf8"
+  );
+}
+
+async function buildPageEntries(): Promise<void> {
+  const entryPoints = Object.fromEntries(
+    [...pageEntries, ...workerEntries].map((entry) => [entry.output, path.join(projectRoot, entry.source)])
+  );
+  const result = await build({
+    absWorkingDir: projectRoot,
+    entryPoints,
+    outdir: distRoot,
+    bundle: true,
+    format: "esm",
+    platform: "browser",
+    target: "es2020",
+    sourcemap: true,
+    minify: true,
+    charset: "utf8",
+    entryNames: "[dir]/[name]",
+    legalComments: "none",
+    metafile: true,
+    write: true,
+    logLevel: "silent"
+  });
+
+  const commit = await readGitText(["rev-parse", "--short", "HEAD"]);
+  const entries = [];
+  for (const entry of pageEntries) {
+    const output = `${entry.output}.js`;
+    const content = await fs.readFile(path.join(distRoot, output));
+    entries.push({
+      source: entry.source,
+      output,
+      page: entry.page,
+      sha256: createHash("sha256").update(content).digest("hex")
+    });
+  }
+
+  const outputs = Object.keys(result.metafile.outputs)
+    .map((output) => {
+      const relativeOutput = path.relative(distRoot, path.resolve(projectRoot, output)).replace(/\\/g, "/");
+      return `dist/${relativeOutput}`;
+    })
+    .sort((left, right) => left.localeCompare(right, "en"));
+  await fs.writeFile(
+    path.join(distRoot, "build-manifest.json"),
+    `${JSON.stringify({ schemaVersion: 1, commit, entries, outputs }, null, 2)}\n`,
     "utf8"
   );
 }
@@ -194,9 +264,9 @@ async function generateSkillsDataFile() {
     return leftPriority - rightPriority || left.name.localeCompare(right.name, "en");
   });
 
-  const outputPath = path.join(distRoot, "tool", "skills-data.js");
+  const outputPath = path.join(distRoot, "tool", "skills-data.json");
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
-  await fs.writeFile(outputPath, `window.skills = ${JSON.stringify(skills)};\n`, "utf8");
+  await fs.writeFile(outputPath, `${JSON.stringify(skills)}\n`, "utf8");
 }
 
 function readObjectStringProperty(node: ts.ObjectLiteralExpression, propertyName: string): string {
@@ -268,27 +338,9 @@ async function generateManualsDataFile() {
     });
   }
 
-  const outputPath = path.join(distRoot, "tool", "manuals-data.js");
+  const outputPath = path.join(distRoot, "tool", "manuals-data.json");
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
-  await fs.writeFile(outputPath, `window.manuals = ${JSON.stringify(manuals)};\n`, "utf8");
-}
-
-async function emitSourceFile(sourceFilePath: string): Promise<string> {
-  const outputFilePath = toOutputPath(sourceFilePath);
-  const sourceText = await fs.readFile(sourceFilePath, "utf8");
-  const result = ts.transpileModule(sourceText, {
-    compilerOptions: {
-      target: ts.ScriptTarget.ES2020,
-      module: ts.ModuleKind.None,
-      newLine: ts.NewLineKind.LineFeed,
-      removeComments: false
-    },
-    fileName: sourceFilePath
-  });
-
-  await fs.mkdir(path.dirname(outputFilePath), { recursive: true });
-  await fs.writeFile(outputFilePath, result.outputText, "utf8");
-  return path.relative(projectRoot, outputFilePath);
+  await fs.writeFile(outputPath, `${JSON.stringify(manuals)}\n`, "utf8");
 }
 
 async function copySourceAsset(sourceFilePath: string): Promise<string> {
@@ -302,27 +354,18 @@ async function main() {
   await prepareDist();
   await copyStaticFiles();
 
-  const sourceFiles = await walkTypeScriptFiles(sourceRoot);
-
-  if (!sourceFiles.length) {
-    throw new Error("src/ 下没有可构建的 TypeScript 文件。");
-  }
-
-  const emittedFiles: string[] = [];
-  for (const sourceFilePath of sourceFiles) {
-    emittedFiles.push(await emitSourceFile(sourceFilePath));
-  }
-
   const assetFiles = await walkSourceAssetFiles(sourceRoot);
   for (const sourceFilePath of assetFiles) {
-    emittedFiles.push(await copySourceAsset(sourceFilePath));
+    await copySourceAsset(sourceFilePath);
   }
 
   await generateSkillsDataFile();
   await generateManualsDataFile();
+  await buildPageEntries();
   await generateVersionFile();
 
-  process.stdout.write(`Built ${emittedFiles.length} scripts into dist/\n`);
+  const outputLabel = distRoot === path.join(projectRoot, "dist") ? "dist/" : "an isolated output directory";
+  process.stdout.write(`Built ${pageEntries.length} page entries, ${workerEntries.length} worker and ${assetFiles.length} source assets into ${outputLabel}\n`);
 }
 
 main().catch((error) => {

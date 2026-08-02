@@ -1,14 +1,27 @@
-const allManualRows: ManualItem[] = Array.isArray(manuals) ? manuals : [];
+import "./support-shell";
+import type { ManualItem } from "./models";
+
+let allManualRows: ManualItem[] = [];
 const manualList = document.getElementById("manualList");
 const downloadManuals = document.getElementById("downloadManuals");
 
-if (manualList instanceof HTMLElement) {
-    renderManuals(manualList);
-}
+initializeManuals().catch((error: unknown) => {
+    if (manualList instanceof HTMLElement) {
+        manualList.innerHTML = `<div class="empty-row">${escapeManualHtml(error instanceof Error ? error.message : String(error))}</div>`;
+    }
+});
 
-if (downloadManuals instanceof HTMLButtonElement) {
-    downloadManuals.disabled = allManualRows.length === 0;
-    downloadManuals.addEventListener("click", downloadAllManuals);
+async function initializeManuals(): Promise<void> {
+    const response = await fetch("./manuals-data.json");
+    if (!response.ok) throw new Error(`用户手册加载失败：${response.status}`);
+    const data = await response.json() as unknown;
+    if (!Array.isArray(data)) throw new Error("用户手册数据格式无效。");
+    allManualRows = data as ManualItem[];
+    if (manualList instanceof HTMLElement) renderManuals(manualList);
+    if (downloadManuals instanceof HTMLButtonElement) {
+        downloadManuals.disabled = allManualRows.length === 0;
+        downloadManuals.addEventListener("click", downloadAllManuals);
+    }
 }
 
 function renderManuals(container: HTMLElement): void {

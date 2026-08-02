@@ -1,6 +1,6 @@
 // 生成应用运行时：模板文件加载
 
-const GeneratedAppRuntimeTemplate = {
+export const GeneratedAppRuntimeTemplate = {
     generate: () => `
 // 页面加载时尝试加载模板
 async function loadTemplate() {

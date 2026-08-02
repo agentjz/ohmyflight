@@ -1,7 +1,8 @@
 import * as XLSX from "xlsx-js-style";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { TrainingToolScanner as Scanner } from "../../../src/tool/app/training-workbench/scripts/scanner";
+import { TrainingToolTrainingCalendar as TrainingCalendar } from "../../../src/tool/app/training-workbench/scripts/training-calendar";
 
 function makeDate(year: number, month: number, day: number) {
   return new Date(year, month - 1, day, 12, 0, 0, 0);
@@ -73,25 +74,8 @@ function buildWorkbook() {
 }
 
 describe("training calendar", () => {
-  let Scanner: any;
-  let TrainingCalendar: any;
-
   beforeAll(() => {
-    const context = loadBrowserScripts([
-      "tool/app/training-workbench/scripts/config.js",
-      "tool/app/training-workbench/scripts/utils.js",
-      "tool/app/training-workbench/scripts/training-record-policy.js",
-      "tool/app/training-workbench/scripts/scanner.js",
-      "tool/app/training-workbench/scripts/training-calendar-exclusions.js",
-      "tool/app/training-workbench/scripts/training-calendar.js"
-    ], { XLSX });
-
-    const trainingTool = context.TrainingTool as {
-      Scanner: any;
-      TrainingCalendar: any;
-    };
-    Scanner = trainingTool.Scanner;
-    TrainingCalendar = trainingTool.TrainingCalendar;
+    vi.stubGlobal("XLSX", XLSX);
   });
 
   it("builds sessions, attendee details, exclusions, merged security dates, and reminders", () => {

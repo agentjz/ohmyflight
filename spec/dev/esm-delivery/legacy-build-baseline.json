@@ -1,0 +1,1765 @@
+{
+  "schemaVersion": 1,
+  "coreArtifactSha256": "f1d1bebe73d3618c453b3cb60e7f9a53347d6632cfa2704df0aa154225621976",
+  "fileCount": 324,
+  "totalBytes": 35724754,
+  "pages": [
+    {
+      "page": "index.html",
+      "scripts": [],
+      "applicationScriptCount": 0,
+      "applicationBytes": 0,
+      "applicationGzipBytes": 0
+    },
+    {
+      "page": "jobskill/index.html",
+      "scripts": [
+        {
+          "source": "../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../libs/marked.min.js",
+          "kind": "third-party",
+          "bytes": 39972,
+          "gzipBytes": 12536
+        },
+        {
+          "source": "../libs/bootstrap.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 80727,
+          "gzipBytes": 23807
+        },
+        {
+          "source": "./skills-data.js",
+          "kind": "application",
+          "bytes": 396,
+          "gzipBytes": 242
+        },
+        {
+          "source": "./search.js",
+          "kind": "application",
+          "bytes": 1725,
+          "gzipBytes": 643
+        },
+        {
+          "source": "../tool/support-shell.js",
+          "kind": "application",
+          "bytes": 753,
+          "gzipBytes": 383
+        },
+        {
+          "source": "./site.js",
+          "kind": "application",
+          "bytes": 9501,
+          "gzipBytes": 2747
+        }
+      ],
+      "applicationScriptCount": 4,
+      "applicationBytes": 12375,
+      "applicationGzipBytes": 4015
+    },
+    {
+      "page": "sponsor/index.html",
+      "scripts": [
+        {
+          "source": "../site-visibility.js",
+          "kind": "site-runtime",
+          "bytes": 318,
+          "gzipBytes": 256
+        },
+        {
+          "source": "./contributors.js",
+          "kind": "application",
+          "bytes": 453,
+          "gzipBytes": 289
+        },
+        {
+          "source": "./site.js",
+          "kind": "application",
+          "bytes": 4322,
+          "gzipBytes": 1351
+        }
+      ],
+      "applicationScriptCount": 2,
+      "applicationBytes": 4775,
+      "applicationGzipBytes": 1640
+    },
+    {
+      "page": "tool/app/audit-king/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/bootstrap.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 80727,
+          "gzipBytes": 23807
+        },
+        {
+          "source": "../../../libs/flexsearch.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 51517,
+          "gzipBytes": 17801
+        },
+        {
+          "source": "../../../libs/mammoth.min.js",
+          "kind": "third-party",
+          "bytes": 642215,
+          "gzipBytes": 138557
+        },
+        {
+          "source": "../../../libs/xlsx.full.min.js",
+          "kind": "third-party",
+          "bytes": 951928,
+          "gzipBytes": 335063
+        },
+        {
+          "source": "../../../libs/pdf.min.js",
+          "kind": "third-party",
+          "bytes": 320025,
+          "gzipBytes": 89012
+        },
+        {
+          "source": "../../../libs/pdf-lib.min.js",
+          "kind": "third-party",
+          "bytes": 525115,
+          "gzipBytes": 206374
+        },
+        {
+          "source": "../../../libs/jszip.min.js",
+          "kind": "third-party",
+          "bytes": 97642,
+          "gzipBytes": 28452
+        },
+        {
+          "source": "../../project-archive.js",
+          "kind": "application",
+          "bytes": 7497,
+          "gzipBytes": 2350
+        },
+        {
+          "source": "types.js",
+          "kind": "application",
+          "bytes": 135,
+          "gzipBytes": 118
+        },
+        {
+          "source": "text-normalizer.js",
+          "kind": "application",
+          "bytes": 1509,
+          "gzipBytes": 491
+        },
+        {
+          "source": "document-reader.js",
+          "kind": "application",
+          "bytes": 5004,
+          "gzipBytes": 1702
+        },
+        {
+          "source": "check-item-store.js",
+          "kind": "application",
+          "bytes": 1415,
+          "gzipBytes": 549
+        },
+        {
+          "source": "search-engine.js",
+          "kind": "application",
+          "bytes": 7118,
+          "gzipBytes": 1884
+        },
+        {
+          "source": "highlight.js",
+          "kind": "application",
+          "bytes": 4273,
+          "gzipBytes": 1111
+        },
+        {
+          "source": "source-locator.js",
+          "kind": "application",
+          "bytes": 17144,
+          "gzipBytes": 2665
+        },
+        {
+          "source": "export.js",
+          "kind": "application",
+          "bytes": 856,
+          "gzipBytes": 438
+        },
+        {
+          "source": "check-item-workbook.js",
+          "kind": "application",
+          "bytes": 7461,
+          "gzipBytes": 2112
+        },
+        {
+          "source": "pdf-locator-model.js",
+          "kind": "application",
+          "bytes": 24537,
+          "gzipBytes": 5456
+        },
+        {
+          "source": "state.js",
+          "kind": "application",
+          "bytes": 13828,
+          "gzipBytes": 2673
+        },
+        {
+          "source": "view.js",
+          "kind": "application",
+          "bytes": 16102,
+          "gzipBytes": 3906
+        },
+        {
+          "source": "app-context.js",
+          "kind": "application",
+          "bytes": 2469,
+          "gzipBytes": 708
+        },
+        {
+          "source": "upload-actions.js",
+          "kind": "application",
+          "bytes": 2338,
+          "gzipBytes": 783
+        },
+        {
+          "source": "check-item-actions.js",
+          "kind": "application",
+          "bytes": 6524,
+          "gzipBytes": 1624
+        },
+        {
+          "source": "match-actions.js",
+          "kind": "application",
+          "bytes": 12964,
+          "gzipBytes": 2292
+        },
+        {
+          "source": "audit-actions.js",
+          "kind": "application",
+          "bytes": 2606,
+          "gzipBytes": 755
+        },
+        {
+          "source": "workbook-actions.js",
+          "kind": "application",
+          "bytes": 1523,
+          "gzipBytes": 641
+        },
+        {
+          "source": "folder-script-generator.js",
+          "kind": "application",
+          "bytes": 3707,
+          "gzipBytes": 1340
+        },
+        {
+          "source": "folder-script-actions.js",
+          "kind": "application",
+          "bytes": 1259,
+          "gzipBytes": 592
+        },
+        {
+          "source": "pdf-locator-reader.js",
+          "kind": "application",
+          "bytes": 2102,
+          "gzipBytes": 861
+        },
+        {
+          "source": "pdf-locator-preview.js",
+          "kind": "application",
+          "bytes": 2767,
+          "gzipBytes": 1004
+        },
+        {
+          "source": "pdf-locator-export.js",
+          "kind": "application",
+          "bytes": 2568,
+          "gzipBytes": 1019
+        },
+        {
+          "source": "pdf-locator-view.js",
+          "kind": "application",
+          "bytes": 8272,
+          "gzipBytes": 2285
+        },
+        {
+          "source": "pdf-locator-actions.js",
+          "kind": "application",
+          "bytes": 14004,
+          "gzipBytes": 2653
+        },
+        {
+          "source": "project-package.js",
+          "kind": "application",
+          "bytes": 4164,
+          "gzipBytes": 1371
+        },
+        {
+          "source": "project-actions.js",
+          "kind": "application",
+          "bytes": 4893,
+          "gzipBytes": 1567
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 827,
+          "gzipBytes": 384
+        }
+      ],
+      "applicationScriptCount": 29,
+      "applicationBytes": 179866,
+      "applicationGzipBytes": 45334
+    },
+    {
+      "page": "tool/app/crew-extract-id/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 3270,
+          "gzipBytes": 1040
+        }
+      ],
+      "applicationScriptCount": 1,
+      "applicationBytes": 3270,
+      "applicationGzipBytes": 1040
+    },
+    {
+      "page": "tool/app/crew-flight-stats/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/xlsx.full.min.js",
+          "kind": "third-party",
+          "bytes": 951928,
+          "gzipBytes": 335063
+        },
+        {
+          "source": "logic.js",
+          "kind": "application",
+          "bytes": 3217,
+          "gzipBytes": 972
+        },
+        {
+          "source": "app-context.js",
+          "kind": "application",
+          "bytes": 3037,
+          "gzipBytes": 816
+        },
+        {
+          "source": "view.js",
+          "kind": "application",
+          "bytes": 2784,
+          "gzipBytes": 971
+        },
+        {
+          "source": "file-actions.js",
+          "kind": "application",
+          "bytes": 3331,
+          "gzipBytes": 1024
+        },
+        {
+          "source": "crew-extract-actions.js",
+          "kind": "application",
+          "bytes": 3878,
+          "gzipBytes": 1137
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 3032,
+          "gzipBytes": 864
+        }
+      ],
+      "applicationScriptCount": 6,
+      "applicationBytes": 19279,
+      "applicationGzipBytes": 5784
+    },
+    {
+      "page": "tool/app/crew-match-name-id/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/xlsx-js-style.min.js",
+          "kind": "third-party",
+          "bytes": 425023,
+          "gzipBytes": 143160
+        },
+        {
+          "source": "../../../libs/html2canvas.min.js",
+          "kind": "third-party",
+          "bytes": 198708,
+          "gzipBytes": 46422
+        },
+        {
+          "source": "logic.js",
+          "kind": "application",
+          "bytes": 4008,
+          "gzipBytes": 1342
+        },
+        {
+          "source": "table-editor.js",
+          "kind": "application",
+          "bytes": 9631,
+          "gzipBytes": 2474
+        },
+        {
+          "source": "export.js",
+          "kind": "application",
+          "bytes": 8650,
+          "gzipBytes": 2665
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 7284,
+          "gzipBytes": 2321
+        }
+      ],
+      "applicationScriptCount": 4,
+      "applicationBytes": 29573,
+      "applicationGzipBytes": 8802
+    },
+    {
+      "page": "tool/app/flight-stats-helper/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "shell.js",
+          "kind": "application",
+          "bytes": 1256,
+          "gzipBytes": 518
+        }
+      ],
+      "applicationScriptCount": 1,
+      "applicationBytes": 1256,
+      "applicationGzipBytes": 518
+    },
+    {
+      "page": "tool/app/focus-crew/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/xlsx-js-style.min.js",
+          "kind": "third-party",
+          "bytes": 425023,
+          "gzipBytes": 143160
+        },
+        {
+          "source": "logic.js",
+          "kind": "application",
+          "bytes": 6070,
+          "gzipBytes": 1725
+        },
+        {
+          "source": "view.js",
+          "kind": "application",
+          "bytes": 4921,
+          "gzipBytes": 1166
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 6709,
+          "gzipBytes": 1983
+        }
+      ],
+      "applicationScriptCount": 3,
+      "applicationBytes": 17700,
+      "applicationGzipBytes": 4874
+    },
+    {
+      "page": "tool/app/hotel-bill-check/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/xlsx.bundle.js",
+          "kind": "third-party",
+          "bytes": 425023,
+          "gzipBytes": 143160
+        },
+        {
+          "source": "logic.js",
+          "kind": "application",
+          "bytes": 5766,
+          "gzipBytes": 1412
+        },
+        {
+          "source": "app-context.js",
+          "kind": "application",
+          "bytes": 977,
+          "gzipBytes": 317
+        },
+        {
+          "source": "view.js",
+          "kind": "application",
+          "bytes": 6304,
+          "gzipBytes": 1710
+        },
+        {
+          "source": "file-actions.js",
+          "kind": "application",
+          "bytes": 6105,
+          "gzipBytes": 1440
+        },
+        {
+          "source": "export-actions.js",
+          "kind": "application",
+          "bytes": 4226,
+          "gzipBytes": 1068
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 2205,
+          "gzipBytes": 645
+        }
+      ],
+      "applicationScriptCount": 6,
+      "applicationBytes": 25583,
+      "applicationGzipBytes": 6592
+    },
+    {
+      "page": "tool/app/image-tool/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/bootstrap.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 80727,
+          "gzipBytes": 23807
+        },
+        {
+          "source": "../../../libs/browser-image-compression.min.js",
+          "kind": "third-party",
+          "bytes": 57078,
+          "gzipBytes": 20612
+        },
+        {
+          "source": "../../../libs/pica.min.js",
+          "kind": "third-party",
+          "bytes": 35908,
+          "gzipBytes": 13664
+        },
+        {
+          "source": "../../../libs/cropper.min.js",
+          "kind": "third-party",
+          "bytes": 37389,
+          "gzipBytes": 12229
+        },
+        {
+          "source": "shared.js",
+          "kind": "application",
+          "bytes": 4389,
+          "gzipBytes": 1406
+        },
+        {
+          "source": "convert.js",
+          "kind": "application",
+          "bytes": 4812,
+          "gzipBytes": 1318
+        },
+        {
+          "source": "compress.js",
+          "kind": "application",
+          "bytes": 4470,
+          "gzipBytes": 1216
+        },
+        {
+          "source": "resize.js",
+          "kind": "application",
+          "bytes": 5702,
+          "gzipBytes": 1390
+        },
+        {
+          "source": "crop.js",
+          "kind": "application",
+          "bytes": 2603,
+          "gzipBytes": 733
+        },
+        {
+          "source": "base64.js",
+          "kind": "application",
+          "bytes": 2992,
+          "gzipBytes": 974
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 426,
+          "gzipBytes": 228
+        }
+      ],
+      "applicationScriptCount": 7,
+      "applicationBytes": 25394,
+      "applicationGzipBytes": 7265
+    },
+    {
+      "page": "tool/app/lock-entry-helper/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "shell.js",
+          "kind": "application",
+          "bytes": 493,
+          "gzipBytes": 260
+        }
+      ],
+      "applicationScriptCount": 1,
+      "applicationBytes": 493,
+      "applicationGzipBytes": 260
+    },
+    {
+      "page": "tool/app/oa-read-helper/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "shell.js",
+          "kind": "application",
+          "bytes": 1256,
+          "gzipBytes": 518
+        }
+      ],
+      "applicationScriptCount": 1,
+      "applicationBytes": 1256,
+      "applicationGzipBytes": 518
+    },
+    {
+      "page": "tool/app/pdf-stamp/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/bootstrap.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 80727,
+          "gzipBytes": 23807
+        },
+        {
+          "source": "../../../libs/pdf.min.js",
+          "kind": "third-party",
+          "bytes": 320025,
+          "gzipBytes": 89012
+        },
+        {
+          "source": "../../../libs/pdf-lib.min.js",
+          "kind": "third-party",
+          "bytes": 525115,
+          "gzipBytes": 206374
+        },
+        {
+          "source": "logic.js",
+          "kind": "application",
+          "bytes": 7122,
+          "gzipBytes": 1633
+        },
+        {
+          "source": "app-context.js",
+          "kind": "application",
+          "bytes": 3931,
+          "gzipBytes": 1218
+        },
+        {
+          "source": "rule-actions.js",
+          "kind": "application",
+          "bytes": 7738,
+          "gzipBytes": 1951
+        },
+        {
+          "source": "canvas-actions.js",
+          "kind": "application",
+          "bytes": 9790,
+          "gzipBytes": 2128
+        },
+        {
+          "source": "upload-actions.js",
+          "kind": "application",
+          "bytes": 3891,
+          "gzipBytes": 1123
+        },
+        {
+          "source": "export-actions.js",
+          "kind": "application",
+          "bytes": 2403,
+          "gzipBytes": 968
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 544,
+          "gzipBytes": 276
+        }
+      ],
+      "applicationScriptCount": 7,
+      "applicationBytes": 35419,
+      "applicationGzipBytes": 9297
+    },
+    {
+      "page": "tool/app/pdf-tool/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/bootstrap.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 80727,
+          "gzipBytes": 23807
+        },
+        {
+          "source": "../../../libs/pdf.min.js",
+          "kind": "third-party",
+          "bytes": 320025,
+          "gzipBytes": 89012
+        },
+        {
+          "source": "../../../libs/pdf-lib.min.js",
+          "kind": "third-party",
+          "bytes": 525115,
+          "gzipBytes": 206374
+        },
+        {
+          "source": "../../../libs/jszip.min.js",
+          "kind": "third-party",
+          "bytes": 97642,
+          "gzipBytes": 28452
+        },
+        {
+          "source": "shared.js",
+          "kind": "application",
+          "bytes": 5382,
+          "gzipBytes": 1584
+        },
+        {
+          "source": "extract.js",
+          "kind": "application",
+          "bytes": 13260,
+          "gzipBytes": 2966
+        },
+        {
+          "source": "merge.js",
+          "kind": "application",
+          "bytes": 3926,
+          "gzipBytes": 1318
+        },
+        {
+          "source": "pdf-to-image.js",
+          "kind": "application",
+          "bytes": 5554,
+          "gzipBytes": 1784
+        },
+        {
+          "source": "image-to-pdf.js",
+          "kind": "application",
+          "bytes": 4075,
+          "gzipBytes": 1432
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 499,
+          "gzipBytes": 285
+        }
+      ],
+      "applicationScriptCount": 6,
+      "applicationBytes": 32696,
+      "applicationGzipBytes": 9369
+    },
+    {
+      "page": "tool/app/personnel-structure-stats/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/xlsx.full.min.js",
+          "kind": "third-party",
+          "bytes": 951928,
+          "gzipBytes": 335063
+        },
+        {
+          "source": "logic.js",
+          "kind": "application",
+          "bytes": 22265,
+          "gzipBytes": 5154
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 11543,
+          "gzipBytes": 3562
+        }
+      ],
+      "applicationScriptCount": 2,
+      "applicationBytes": 33808,
+      "applicationGzipBytes": 8716
+    },
+    {
+      "page": "tool/app/proof-king/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/bootstrap.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 80727,
+          "gzipBytes": 23807
+        },
+        {
+          "source": "../../../libs/mammoth.min.js",
+          "kind": "third-party",
+          "bytes": 642215,
+          "gzipBytes": 138557
+        },
+        {
+          "source": "../../../libs/pdf.min.js",
+          "kind": "third-party",
+          "bytes": 320025,
+          "gzipBytes": 89012
+        },
+        {
+          "source": "../../../libs/xlsx-js-style.min.js",
+          "kind": "third-party",
+          "bytes": 425023,
+          "gzipBytes": 143160
+        },
+        {
+          "source": "../../../libs/docx.iife.js",
+          "kind": "third-party",
+          "bytes": 1123332,
+          "gzipBytes": 221568
+        },
+        {
+          "source": "../../../libs/jszip.min.js",
+          "kind": "third-party",
+          "bytes": 97642,
+          "gzipBytes": 28452
+        },
+        {
+          "source": "../../project-archive.js",
+          "kind": "application",
+          "bytes": 7497,
+          "gzipBytes": 2350
+        },
+        {
+          "source": "special-rules.js",
+          "kind": "application",
+          "bytes": 377,
+          "gzipBytes": 299
+        },
+        {
+          "source": "manual-reader.js",
+          "kind": "application",
+          "bytes": 11229,
+          "gzipBytes": 3109
+        },
+        {
+          "source": "navigation.js",
+          "kind": "application",
+          "bytes": 7928,
+          "gzipBytes": 2161
+        },
+        {
+          "source": "revision-navigation-view.js",
+          "kind": "application",
+          "bytes": 6352,
+          "gzipBytes": 1941
+        },
+        {
+          "source": "document-context.js",
+          "kind": "application",
+          "bytes": 3129,
+          "gzipBytes": 934
+        },
+        {
+          "source": "word-document-view.js",
+          "kind": "application",
+          "bytes": 3654,
+          "gzipBytes": 1096
+        },
+        {
+          "source": "pdf-document-view.js",
+          "kind": "application",
+          "bytes": 10356,
+          "gzipBytes": 2441
+        },
+        {
+          "source": "revision-review-view.js",
+          "kind": "application",
+          "bytes": 7692,
+          "gzipBytes": 2148
+        },
+        {
+          "source": "report-model.js",
+          "kind": "application",
+          "bytes": 2548,
+          "gzipBytes": 944
+        },
+        {
+          "source": "decision-model.js",
+          "kind": "application",
+          "bytes": 1717,
+          "gzipBytes": 644
+        },
+        {
+          "source": "excel-report.js",
+          "kind": "application",
+          "bytes": 5350,
+          "gzipBytes": 1647
+        },
+        {
+          "source": "word-report.js",
+          "kind": "application",
+          "bytes": 5751,
+          "gzipBytes": 1657
+        },
+        {
+          "source": "project-package.js",
+          "kind": "application",
+          "bytes": 3473,
+          "gzipBytes": 1141
+        },
+        {
+          "source": "project-actions.js",
+          "kind": "application",
+          "bytes": 2496,
+          "gzipBytes": 1018
+        },
+        {
+          "source": "workspace.js",
+          "kind": "application",
+          "bytes": 22943,
+          "gzipBytes": 5300
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 229,
+          "gzipBytes": 183
+        }
+      ],
+      "applicationScriptCount": 17,
+      "applicationBytes": 102721,
+      "applicationGzipBytes": 29013
+    },
+    {
+      "page": "tool/app/qualification-query-helper/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        }
+      ],
+      "applicationScriptCount": 0,
+      "applicationBytes": 0,
+      "applicationGzipBytes": 0
+    },
+    {
+      "page": "tool/app/seasonal-learning/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/bootstrap.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 80727,
+          "gzipBytes": 23807
+        },
+        {
+          "source": "../../../libs/xlsx-js-style.min.js",
+          "kind": "third-party",
+          "bytes": 425023,
+          "gzipBytes": 143160
+        },
+        {
+          "source": "../../../libs/echarts.min.js",
+          "kind": "third-party",
+          "bytes": 1030900,
+          "gzipBytes": 334227
+        },
+        {
+          "source": "data.js",
+          "kind": "application",
+          "bytes": 14277,
+          "gzipBytes": 3429
+        },
+        {
+          "source": "health.js",
+          "kind": "application",
+          "bytes": 7249,
+          "gzipBytes": 2051
+        },
+        {
+          "source": "balance-filter.js",
+          "kind": "application",
+          "bytes": 977,
+          "gzipBytes": 494
+        },
+        {
+          "source": "balance-rules.js",
+          "kind": "application",
+          "bytes": 1900,
+          "gzipBytes": 640
+        },
+        {
+          "source": "allocation.js",
+          "kind": "application",
+          "bytes": 1874,
+          "gzipBytes": 716
+        },
+        {
+          "source": "logic.js",
+          "kind": "application",
+          "bytes": 8696,
+          "gzipBytes": 2333
+        },
+        {
+          "source": "export.js",
+          "kind": "application",
+          "bytes": 7350,
+          "gzipBytes": 2230
+        },
+        {
+          "source": "app-context.js",
+          "kind": "application",
+          "bytes": 3271,
+          "gzipBytes": 1102
+        },
+        {
+          "source": "view.js",
+          "kind": "application",
+          "bytes": 20086,
+          "gzipBytes": 4704
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 12594,
+          "gzipBytes": 3202
+        }
+      ],
+      "applicationScriptCount": 10,
+      "applicationBytes": 78274,
+      "applicationGzipBytes": 20901
+    },
+    {
+      "page": "tool/app/session-bill-check/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/bootstrap.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 80727,
+          "gzipBytes": 23807
+        },
+        {
+          "source": "../../../libs/xlsx.bundle.js",
+          "kind": "third-party",
+          "bytes": 425023,
+          "gzipBytes": 143160
+        },
+        {
+          "source": "../../../libs/echarts.min.js",
+          "kind": "third-party",
+          "bytes": 1030900,
+          "gzipBytes": 334227
+        },
+        {
+          "source": "logic.js",
+          "kind": "application",
+          "bytes": 13797,
+          "gzipBytes": 3287
+        },
+        {
+          "source": "app-context.js",
+          "kind": "application",
+          "bytes": 2318,
+          "gzipBytes": 782
+        },
+        {
+          "source": "view.js",
+          "kind": "application",
+          "bytes": 9384,
+          "gzipBytes": 2634
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 3108,
+          "gzipBytes": 918
+        }
+      ],
+      "applicationScriptCount": 4,
+      "applicationBytes": 28607,
+      "applicationGzipBytes": 7621
+    },
+    {
+      "page": "tool/app/text-joiner/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "./logic.js",
+          "kind": "application",
+          "bytes": 553,
+          "gzipBytes": 287
+        },
+        {
+          "source": "./main.js",
+          "kind": "application",
+          "bytes": 2026,
+          "gzipBytes": 715
+        }
+      ],
+      "applicationScriptCount": 2,
+      "applicationBytes": 2579,
+      "applicationGzipBytes": 1002
+    },
+    {
+      "page": "tool/app/training-workbench/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/xlsx-js-style.min.js",
+          "kind": "third-party",
+          "bytes": 425023,
+          "gzipBytes": 143160
+        },
+        {
+          "source": "../../../libs/echarts.min.js",
+          "kind": "third-party",
+          "bytes": 1030900,
+          "gzipBytes": 334227
+        },
+        {
+          "source": "./scripts/config.js",
+          "kind": "application",
+          "bytes": 4288,
+          "gzipBytes": 1146
+        },
+        {
+          "source": "./scripts/utils.js",
+          "kind": "application",
+          "bytes": 11773,
+          "gzipBytes": 2991
+        },
+        {
+          "source": "./scripts/crm-instructors.js",
+          "kind": "application",
+          "bytes": 213,
+          "gzipBytes": 155
+        },
+        {
+          "source": "./scripts/training-ignore-list.js",
+          "kind": "application",
+          "bytes": 2279,
+          "gzipBytes": 652
+        },
+        {
+          "source": "./scripts/training-record-policy.js",
+          "kind": "application",
+          "bytes": 3706,
+          "gzipBytes": 867
+        },
+        {
+          "source": "./scripts/scanner.js",
+          "kind": "application",
+          "bytes": 11018,
+          "gzipBytes": 2668
+        },
+        {
+          "source": "./scripts/person-validity-query.js",
+          "kind": "application",
+          "bytes": 4286,
+          "gzipBytes": 1359
+        },
+        {
+          "source": "./scripts/training-calendar-exclusions.js",
+          "kind": "application",
+          "bytes": 215,
+          "gzipBytes": 163
+        },
+        {
+          "source": "./scripts/training-calendar.js",
+          "kind": "application",
+          "bytes": 9090,
+          "gzipBytes": 2341
+        },
+        {
+          "source": "./scripts/rule-engine.js",
+          "kind": "application",
+          "bytes": 18927,
+          "gzipBytes": 3346
+        },
+        {
+          "source": "./scripts/workbench-status.js",
+          "kind": "application",
+          "bytes": 4038,
+          "gzipBytes": 1036
+        },
+        {
+          "source": "./scripts/simulation-schedule.js",
+          "kind": "application",
+          "bytes": 2331,
+          "gzipBytes": 761
+        },
+        {
+          "source": "./scripts/schedule-assessment.js",
+          "kind": "application",
+          "bytes": 29696,
+          "gzipBytes": 5852
+        },
+        {
+          "source": "./scripts/scheduled-distribution.js",
+          "kind": "application",
+          "bytes": 5093,
+          "gzipBytes": 1361
+        },
+        {
+          "source": "./scripts/annual-training-stats.js",
+          "kind": "application",
+          "bytes": 5208,
+          "gzipBytes": 1417
+        },
+        {
+          "source": "./scripts/crm-annual.js",
+          "kind": "application",
+          "bytes": 11258,
+          "gzipBytes": 2542
+        },
+        {
+          "source": "./scripts/workbook-health.js",
+          "kind": "application",
+          "bytes": 12280,
+          "gzipBytes": 3171
+        },
+        {
+          "source": "./scripts/crm-export.js",
+          "kind": "application",
+          "bytes": 1243,
+          "gzipBytes": 567
+        },
+        {
+          "source": "./scripts/workbench.js",
+          "kind": "application",
+          "bytes": 588,
+          "gzipBytes": 222
+        },
+        {
+          "source": "./scripts/schedule-gap-check.js",
+          "kind": "application",
+          "bytes": 6143,
+          "gzipBytes": 1703
+        },
+        {
+          "source": "./scripts/workbench-export.js",
+          "kind": "application",
+          "bytes": 1979,
+          "gzipBytes": 667
+        },
+        {
+          "source": "./scripts/validity.js",
+          "kind": "application",
+          "bytes": 11730,
+          "gzipBytes": 2813
+        },
+        {
+          "source": "./scripts/report-sheet.js",
+          "kind": "application",
+          "bytes": 7819,
+          "gzipBytes": 1900
+        },
+        {
+          "source": "./scripts/result-status.js",
+          "kind": "application",
+          "bytes": 1918,
+          "gzipBytes": 549
+        },
+        {
+          "source": "./scripts/app-copy.js",
+          "kind": "application",
+          "bytes": 686,
+          "gzipBytes": 449
+        },
+        {
+          "source": "./scripts/app-state.js",
+          "kind": "application",
+          "bytes": 877,
+          "gzipBytes": 345
+        },
+        {
+          "source": "./scripts/app-elements.js",
+          "kind": "application",
+          "bytes": 7469,
+          "gzipBytes": 1180
+        },
+        {
+          "source": "./scripts/app-person-validity-query.js",
+          "kind": "application",
+          "bytes": 5544,
+          "gzipBytes": 1605
+        },
+        {
+          "source": "./scripts/app-schedule-gap-check.js",
+          "kind": "application",
+          "bytes": 4364,
+          "gzipBytes": 1464
+        },
+        {
+          "source": "./scripts/app-training-calendar.js",
+          "kind": "application",
+          "bytes": 5998,
+          "gzipBytes": 1686
+        },
+        {
+          "source": "./scripts/app-charts.js",
+          "kind": "application",
+          "bytes": 16227,
+          "gzipBytes": 2867
+        },
+        {
+          "source": "./scripts/app-result-table.js",
+          "kind": "application",
+          "bytes": 4456,
+          "gzipBytes": 1217
+        },
+        {
+          "source": "./scripts/app-summary-view.js",
+          "kind": "application",
+          "bytes": 8992,
+          "gzipBytes": 2223
+        },
+        {
+          "source": "./scripts/app-renderers.js",
+          "kind": "application",
+          "bytes": 22409,
+          "gzipBytes": 4475
+        },
+        {
+          "source": "./scripts/app-selection.js",
+          "kind": "application",
+          "bytes": 2889,
+          "gzipBytes": 828
+        },
+        {
+          "source": "./scripts/app-controls.js",
+          "kind": "application",
+          "bytes": 5473,
+          "gzipBytes": 1127
+        },
+        {
+          "source": "./scripts/app-projects.js",
+          "kind": "application",
+          "bytes": 3462,
+          "gzipBytes": 955
+        },
+        {
+          "source": "./scripts/app-workbench-controller.js",
+          "kind": "application",
+          "bytes": 2903,
+          "gzipBytes": 853
+        },
+        {
+          "source": "./scripts/app-simulation-schedule.js",
+          "kind": "application",
+          "bytes": 5875,
+          "gzipBytes": 1699
+        },
+        {
+          "source": "./scripts/app-actions.js",
+          "kind": "application",
+          "bytes": 10110,
+          "gzipBytes": 2129
+        },
+        {
+          "source": "./scripts/app.js",
+          "kind": "application",
+          "bytes": 3937,
+          "gzipBytes": 726
+        }
+      ],
+      "applicationScriptCount": 41,
+      "applicationBytes": 278790,
+      "applicationGzipBytes": 66077
+    },
+    {
+      "page": "tool/app/training-workbench/rule-reference.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "./scripts/config.js",
+          "kind": "application",
+          "bytes": 4288,
+          "gzipBytes": 1146
+        },
+        {
+          "source": "./scripts/utils.js",
+          "kind": "application",
+          "bytes": 11773,
+          "gzipBytes": 2991
+        },
+        {
+          "source": "./scripts/rule-engine.js",
+          "kind": "application",
+          "bytes": 18927,
+          "gzipBytes": 3346
+        },
+        {
+          "source": "./scripts/rule-reference.js",
+          "kind": "application",
+          "bytes": 9206,
+          "gzipBytes": 2324
+        }
+      ],
+      "applicationScriptCount": 4,
+      "applicationBytes": 44194,
+      "applicationGzipBytes": 9807
+    },
+    {
+      "page": "tool/app/word-template-filler/index.html",
+      "scripts": [
+        {
+          "source": "../../../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../../../libs/xlsx.full.min.js",
+          "kind": "third-party",
+          "bytes": 951928,
+          "gzipBytes": 335063
+        },
+        {
+          "source": "../../../libs/jszip.min.js",
+          "kind": "third-party",
+          "bytes": 97642,
+          "gzipBytes": 28452
+        },
+        {
+          "source": "config-template.js",
+          "kind": "application",
+          "bytes": 15585,
+          "gzipBytes": 3869
+        },
+        {
+          "source": "config-parser.js",
+          "kind": "application",
+          "bytes": 4531,
+          "gzipBytes": 1509
+        },
+        {
+          "source": "generated-app-styles.js",
+          "kind": "application",
+          "bytes": 6815,
+          "gzipBytes": 1465
+        },
+        {
+          "source": "generated-app-runtime-state.js",
+          "kind": "application",
+          "bytes": 628,
+          "gzipBytes": 430
+        },
+        {
+          "source": "generated-app-runtime-template.js",
+          "kind": "application",
+          "bytes": 969,
+          "gzipBytes": 576
+        },
+        {
+          "source": "generated-app-runtime-loop.js",
+          "kind": "application",
+          "bytes": 1379,
+          "gzipBytes": 706
+        },
+        {
+          "source": "generated-app-runtime-form.js",
+          "kind": "application",
+          "bytes": 3399,
+          "gzipBytes": 1015
+        },
+        {
+          "source": "generated-app-runtime-date.js",
+          "kind": "application",
+          "bytes": 3581,
+          "gzipBytes": 1152
+        },
+        {
+          "source": "generated-app-runtime-batch.js",
+          "kind": "application",
+          "bytes": 7880,
+          "gzipBytes": 2492
+        },
+        {
+          "source": "generated-app-runtime-export.js",
+          "kind": "application",
+          "bytes": 2288,
+          "gzipBytes": 1099
+        },
+        {
+          "source": "generated-app-runtime-events.js",
+          "kind": "application",
+          "bytes": 2648,
+          "gzipBytes": 1120
+        },
+        {
+          "source": "generated-app-script.js",
+          "kind": "application",
+          "bytes": 727,
+          "gzipBytes": 295
+        },
+        {
+          "source": "generated-app-shell.js",
+          "kind": "application",
+          "bytes": 2741,
+          "gzipBytes": 1199
+        },
+        {
+          "source": "html-generator.js",
+          "kind": "application",
+          "bytes": 5170,
+          "gzipBytes": 1161
+        },
+        {
+          "source": "app-packager.js",
+          "kind": "application",
+          "bytes": 7319,
+          "gzipBytes": 2660
+        },
+        {
+          "source": "main.js",
+          "kind": "application",
+          "bytes": 5752,
+          "gzipBytes": 1775
+        }
+      ],
+      "applicationScriptCount": 16,
+      "applicationBytes": 71412,
+      "applicationGzipBytes": 22523
+    },
+    {
+      "page": "tool/developer.html",
+      "scripts": [
+        {
+          "source": "../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../libs/marked.min.js",
+          "kind": "third-party",
+          "bytes": 39972,
+          "gzipBytes": 12536
+        },
+        {
+          "source": "../libs/bootstrap.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 80727,
+          "gzipBytes": 23807
+        },
+        {
+          "source": "./skills-data.js",
+          "kind": "application",
+          "bytes": 45835,
+          "gzipBytes": 17378
+        },
+        {
+          "source": "./support-shell.js",
+          "kind": "application",
+          "bytes": 753,
+          "gzipBytes": 383
+        },
+        {
+          "source": "./developer.js",
+          "kind": "application",
+          "bytes": 6803,
+          "gzipBytes": 2229
+        }
+      ],
+      "applicationScriptCount": 3,
+      "applicationBytes": 53391,
+      "applicationGzipBytes": 19990
+    },
+    {
+      "page": "tool/index.html",
+      "scripts": [
+        {
+          "source": "../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../site-visibility.js",
+          "kind": "site-runtime",
+          "bytes": 318,
+          "gzipBytes": 256
+        },
+        {
+          "source": "./home-pattern-gate-logic.js",
+          "kind": "application",
+          "bytes": 1855,
+          "gzipBytes": 791
+        },
+        {
+          "source": "./home-pattern-gate.js",
+          "kind": "application",
+          "bytes": 7960,
+          "gzipBytes": 1841
+        },
+        {
+          "source": "./tools-data.js",
+          "kind": "application",
+          "bytes": 3405,
+          "gzipBytes": 1428
+        },
+        {
+          "source": "./tools-render.js",
+          "kind": "application",
+          "bytes": 8023,
+          "gzipBytes": 2248
+        }
+      ],
+      "applicationScriptCount": 4,
+      "applicationBytes": 21243,
+      "applicationGzipBytes": 6308
+    },
+    {
+      "page": "tool/manuals.html",
+      "scripts": [
+        {
+          "source": "../theme.js",
+          "kind": "site-runtime",
+          "bytes": 1997,
+          "gzipBytes": 599
+        },
+        {
+          "source": "../libs/marked.min.js",
+          "kind": "third-party",
+          "bytes": 39972,
+          "gzipBytes": 12536
+        },
+        {
+          "source": "../libs/bootstrap.bundle.min.js",
+          "kind": "third-party",
+          "bytes": 80727,
+          "gzipBytes": 23807
+        },
+        {
+          "source": "./manuals-data.js",
+          "kind": "application",
+          "bytes": 108280,
+          "gzipBytes": 37864
+        },
+        {
+          "source": "./support-shell.js",
+          "kind": "application",
+          "bytes": 753,
+          "gzipBytes": 383
+        },
+        {
+          "source": "./manuals.js",
+          "kind": "application",
+          "bytes": 3797,
+          "gzipBytes": 1384
+        }
+      ],
+      "applicationScriptCount": 3,
+      "applicationBytes": 112830,
+      "applicationGzipBytes": 39631
+    }
+  ]
+}

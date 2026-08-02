@@ -1,6 +1,6 @@
 // 生成应用运行时：页面事件绑定
 
-const GeneratedAppRuntimeEvents = {
+export const GeneratedAppRuntimeEvents = {
     generate: () => `
 // 导出Word
 document.getElementById('exportBtn').addEventListener('click', async function() {

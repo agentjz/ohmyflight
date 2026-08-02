@@ -1,9 +1,22 @@
-(function () {
-    const runtime = window;
-    const namespace = runtime.SeasonalLearningApp || (runtime.SeasonalLearningApp = {});
+import { SeasonalLearningBalanceRules } from "./balance-rules";
+import { createSeasonalLearningExport } from "./export";
+import { SeasonalLearningHealth } from "./health";
+import { SeasonalLearningLogic } from "./logic";
+import type {
+    SeasonalLearningAppContext,
+    SeasonalLearningAppState,
+    SeasonalLearningEchartsApi,
+    SeasonalLearningModalApi
+} from "./models";
 
-    function createAppContext(): SeasonalLearningAppContext {
-        const rules = runtime.SeasonalLearningBalanceRules;
+type AppContextDependencies = {
+    xlsx: typeof import("xlsx-js-style");
+    modalApi: SeasonalLearningModalApi | null;
+    echarts: SeasonalLearningEchartsApi | null;
+};
+
+export function createAppContext(dependencies: AppContextDependencies): SeasonalLearningAppContext {
+        const rules = SeasonalLearningBalanceRules;
         const state: SeasonalLearningAppState = {
             sourceWorkbook: null,
             sourceFileName: "",
@@ -55,7 +68,7 @@
 
         async function readWorkbook(file: File): Promise<import("xlsx-js-style").WorkBook> {
             const buffer = await file.arrayBuffer();
-            return runtime.XLSX.read(buffer, {
+            return dependencies.xlsx.read(buffer, {
                 type: "array",
                 cellDates: true,
                 cellFormula: true,
@@ -67,7 +80,7 @@
         function sheetRows(workbook: import("xlsx-js-style").WorkBook, sheetName: string): unknown[][] {
             const sheet = workbook.Sheets[sheetName];
             if (!sheet) throw new Error(`未找到工作表：${sheetName}。`);
-            return runtime.XLSX.utils.sheet_to_json<unknown[]>(sheet, {
+            return dependencies.xlsx.utils.sheet_to_json<unknown[]>(sheet, {
                 header: 1,
                 raw: true,
                 defval: null,
@@ -83,11 +96,13 @@
         }
 
         return {
-            runtime,
-            logic: runtime.SeasonalLearningLogic,
+            xlsx: dependencies.xlsx,
+            modalApi: dependencies.modalApi,
+            echarts: dependencies.echarts,
+            logic: SeasonalLearningLogic,
             rules,
-            exporter: runtime.SeasonalLearningExport,
-            health: runtime.SeasonalLearningHealth,
+            exporter: createSeasonalLearningExport(dependencies.xlsx),
+            health: SeasonalLearningHealth,
             state,
             getElement,
             escapeHtml,
@@ -98,6 +113,3 @@
             workbookUses1904Dates
         };
     }
-
-    namespace.AppContext = { createAppContext };
-})();

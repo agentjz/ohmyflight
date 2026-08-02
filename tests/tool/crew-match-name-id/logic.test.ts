@@ -1,17 +1,10 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as XLSX from "xlsx-js-style";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createCrewMatchNameIdExporter } from "../../../src/tool/app/crew-match-name-id/export";
+import * as logic from "../../../src/tool/app/crew-match-name-id/logic";
 
 describe("crew-match-name-id logic", () => {
-  let context: ReturnType<typeof loadBrowserScripts>;
-  let logic: any;
-
-  beforeAll(() => {
-    context = loadBrowserScripts(["tool/app/crew-match-name-id/logic.js"]);
-    logic = context.CrewMatchNameIdLogic;
-  });
-
   it("extracts tech level tokens from known tech info formats", () => {
     expect(logic.extractTechLevel("777:飞行教员C")).toBe("C");
     expect(logic.extractTechLevel("777:飞行教员A")).toBe("A");
@@ -91,11 +84,8 @@ describe("crew-match-name-id logic", () => {
   });
 
   it("builds a styled workbook with custom columns", () => {
-    const exportContext = loadBrowserScripts([
-      "tool/app/crew-match-name-id/logic.js",
-      "tool/app/crew-match-name-id/export.js"
-    ], { XLSX });
-    const workbook = (exportContext.CrewMatchNameIdExporter as any).buildExcelWorkbook([
+    const exporter = createCrewMatchNameIdExporter(XLSX, undefined);
+    const workbook = exporter.buildExcelWorkbook([
       { id: "123456", name: "张三", department: "一分部", techInfo: "777:飞行教员C", techLevel: "C" }
     ], [{ header: "申请", valuesByEmployeeId: { "123456": "EEUO" } }]);
     const sheet = workbook.Sheets["匹配结果"];
@@ -109,6 +99,6 @@ describe("crew-match-name-id logic", () => {
     expect(sheet.A1.s.fill.fgColor.rgb).toBe("E8EFEA");
     expect(sheet.A2.s.border.top.style).toBe("thin");
     expect(sheet["!cols"]).toHaveLength(5);
-    expect(sheet["!rows"][0].hpt).toBe(28);
+    expect(sheet["!rows"]?.[0]?.hpt).toBe(28);
   });
 });

@@ -1,8 +1,12 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const Scanner = window.TrainingTool.Scanner;
-  const Calendar = window.TrainingTool.TrainingCalendar;
-  const runtime = window.TrainingToolApp;
+import { TrainingToolScanner } from "./scanner";
+import type { TrainingCalendarDayEvent, TrainingCalendarSession, TrainingToolAppRuntime } from "./models";
+import { TrainingToolTrainingCalendar } from "./training-calendar";
+import { TrainingToolUtils } from "./utils";
+
+export function installTrainingAppTrainingCalendar(runtime: TrainingToolAppRuntime): void {
+const Utils = TrainingToolUtils;
+  const Scanner = TrainingToolScanner;
+  const Calendar = TrainingToolTrainingCalendar;
   const state = runtime.state;
   const elements = runtime.elements;
 
@@ -154,4 +158,4 @@
     clear,
     render
   };
-})();
+}

@@ -1,12 +1,7 @@
-(function () {
-  const runtime = window.ImageTool || (window.ImageTool = {} as ImageToolRuntimeRegistry);
+import type { ImageToolCompressionOptions, ImageToolImageItem } from "./models";
+import * as tools from "./shared";
 
-  function initCompress(): void {
-    const shared = runtime.shared;
-    if (!shared) {
-      throw new Error("Image tool shared runtime is unavailable");
-    }
-    const tools: ImageToolSharedApi = shared;
+export function initCompress(): void {
 
     const images: ImageToolImageItem[] = [];
     const listEl = tools.getElement<HTMLElement>("compressList");
@@ -114,6 +109,3 @@
       }
     }
   }
-
-  runtime.initCompress = initCompress;
-})();

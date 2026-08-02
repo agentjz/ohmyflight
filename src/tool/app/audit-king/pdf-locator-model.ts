@@ -1,6 +1,12 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingEvidenceGroup } from "./models";
 
+export interface AuditKingPdfLocatorHooks {
+    ignoreLine?: (line: string) => boolean;
+    weakSegment?: (text: string) => boolean;
+    skipContent?: (content: string) => boolean;
+}
+
+export function createAuditKingPdfLocatorModel(locatorHooks: AuditKingPdfLocatorHooks = {}) {
     interface PdfLocatorPage {
         pdfId: string;
         pdfName: string;
@@ -104,12 +110,8 @@
         snippets: string[];
     }
 
-    function hooks(): {
-        ignoreLine?: (line: string) => boolean;
-        weakSegment?: (text: string) => boolean;
-        skipContent?: (content: string) => boolean;
-    } {
-        return runtime.PdfLocatorHooks || {};
+    function hooks(): AuditKingPdfLocatorHooks {
+        return locatorHooks;
     }
 
     function normalizeLine(value: string): string {
@@ -553,7 +555,7 @@
         if (!rawSlots.length) {
             throw new Error("PDF 工作区文件没有可导入的槽位。");
         }
-        const slots = rawSlots.map((slot: any, index: number) => normalizeWorkspaceSlot(slot, index, documents));
+        const slots: PdfLocatorSlot[] = rawSlots.map((slot: any, index: number) => normalizeWorkspaceSlot(slot, index, documents));
         const selectedSlotId = slots.some((slot) => slot.id === data?.selectedSlotId)
             ? data.selectedSlotId
             : slots[0]?.id || "";
@@ -724,7 +726,7 @@
         });
     }
 
-    runtime.PdfLocatorModel = {
+    return {
         createState,
         normalizeLocatorText,
         buildEvidenceSegments,
@@ -742,4 +744,4 @@
         rebindWorkspaceSlotsToDocuments,
         summarizeResults
     };
-})();
+}

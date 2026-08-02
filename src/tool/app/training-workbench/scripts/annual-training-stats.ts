@@ -1,8 +1,11 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const TrainingRecordPolicy = window.TrainingTool.TrainingRecordPolicy;
+import { TrainingToolTrainingRecordPolicy } from "./training-record-policy";
+import { TrainingToolUtils } from "./utils";
+import type { TrainingToolAnalysis, TrainingToolSheetInfo, TrainingToolSheetRow } from "./models";
 
-  interface AnnualTrainingStatsRow {
+const Utils = TrainingToolUtils;
+  const TrainingRecordPolicy = TrainingToolTrainingRecordPolicy;
+
+  export interface AnnualTrainingStatsRow {
     projectName: string;
     employeeId: string;
     name: string;
@@ -12,18 +15,31 @@
     source: string;
   }
 
-  interface AnnualTrainingStatsFilters {
+  export interface AnnualTrainingStatsFilters {
     projectName?: string;
     year?: number | string;
     monthKey?: string;
   }
 
-  function getTrainingDate(row: TrainingToolSheetRow, sheetInfo: any) {
+  export interface AnnualTrainingStatsDistribution {
+    allRows: AnnualTrainingStatsRow[];
+    rows: AnnualTrainingStatsRow[];
+    year: number;
+    filterOptions: { projects: string[]; years: string[]; months: string[] };
+    summary: {
+      total: number;
+      projectCount: number;
+      projectRows: Array<{ projectName: string; total: number }>;
+      monthRows: Array<{ label: string; total: number }>;
+    };
+  }
+
+  function getTrainingDate(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): Date | null {
     return Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训开始日期"))
       || Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训结束日期"));
   }
 
-  function normalizeYear(value, fallbackYear) {
+  function normalizeYear(value: unknown, fallbackYear: number): number {
     const year = Number(Utils.normalizeText(value));
     return Number.isInteger(year) && year >= 2000 && year <= 2100 ? year : fallbackYear;
   }
@@ -61,15 +77,15 @@
     });
   }
 
-  function uniqueSorted(values: string[]) {
+  function uniqueSorted(values: string[]): string[] {
     return [...new Set(values.filter(Boolean))].sort((left, right) => left.localeCompare(right));
   }
 
-  function buildMonthKeys(year) {
+  function buildMonthKeys(year: number): string[] {
     return Array.from({ length: 12 }, (_, index) => `${year}-${String(index + 1).padStart(2, "0")}`);
   }
 
-  function filterRows(rows: AnnualTrainingStatsRow[], filters: AnnualTrainingStatsFilters = {}) {
+  function filterRows(rows: AnnualTrainingStatsRow[], filters: AnnualTrainingStatsFilters = {}): AnnualTrainingStatsRow[] {
     const projectName = Utils.normalizeText(filters.projectName);
     const fallbackYear = new Date().getFullYear();
     const year = normalizeYear(filters.year, fallbackYear);
@@ -83,7 +99,7 @@
     });
   }
 
-  function buildProjectRows(rows: AnnualTrainingStatsRow[]) {
+  function buildProjectRows(rows: AnnualTrainingStatsRow[]): Array<{ projectName: string; total: number }> {
     const projectMap = new Map<string, number>();
     rows.forEach((row) => {
       projectMap.set(row.projectName, (projectMap.get(row.projectName) || 0) + 1);
@@ -93,7 +109,7 @@
       .sort((left, right) => right.total - left.total || left.projectName.localeCompare(right.projectName));
   }
 
-  function buildMonthRows(rows: AnnualTrainingStatsRow[], year) {
+  function buildMonthRows(rows: AnnualTrainingStatsRow[], year: number): Array<{ label: string; total: number }> {
     const monthMap = new Map(buildMonthKeys(year).map((monthKey) => [monthKey, 0]));
     rows.forEach((row) => {
       if (!monthMap.has(row.monthKey)) return;
@@ -102,7 +118,7 @@
     return [...monthMap.entries()].map(([label, total]) => ({ label, total }));
   }
 
-  function buildDistribution(analysis: TrainingToolAnalysis | null, filters: AnnualTrainingStatsFilters = {}) {
+  function buildDistribution(analysis: TrainingToolAnalysis | null, filters: AnnualTrainingStatsFilters = {}): AnnualTrainingStatsDistribution {
     const allRows = buildRows(analysis);
     const availableYears = uniqueSorted(allRows.map((row) => String(row.year))).reverse();
     const fallbackYear = availableYears.length ? Number(availableYears[0]) : new Date().getFullYear();
@@ -127,10 +143,8 @@
       }
     };
   }
-
-  window.TrainingTool.AnnualTrainingStats = {
+  export const TrainingToolAnnualTrainingStats = {
     buildRows,
     filterRows,
     buildDistribution
   };
-})();

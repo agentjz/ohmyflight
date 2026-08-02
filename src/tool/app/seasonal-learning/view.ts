@@ -1,6 +1,11 @@
-(function () {
-    const namespace = window.SeasonalLearningApp;
-    const BalanceFilter = window.SeasonalLearningBalanceFilter;
+import { SeasonalLearningBalanceFilter as BalanceFilter } from "./balance-filter";
+import type {
+    SeasonalLearningAppContext,
+    SeasonalLearningCategory,
+    SeasonalLearningHealthPerson,
+    SeasonalLearningPerson
+} from "./models";
+
     const categoryKeys: SeasonalLearningCategory[] = ["leader", "captain", "firstOfficer"];
 
     function peopleByCategory(people: SeasonalLearningPerson[], category: SeasonalLearningCategory): SeasonalLearningPerson[] {
@@ -197,7 +202,7 @@
 
     function renderChart(context: SeasonalLearningAppContext): void {
         const element = context.getElement<HTMLDivElement>("distributionChart");
-        if (!window.echarts) {
+        if (!context.echarts) {
             element.textContent = "图表组件未加载。";
             return;
         }
@@ -207,7 +212,7 @@
             context.state.periodCount,
             context.state.enabledBalanceHookIds
         );
-        context.state.chart = context.state.chart || window.echarts.init(element);
+        context.state.chart = context.state.chart || context.echarts.init(element);
         const textColor = cssColor("--omf-text", "#1f2328");
         const mutedColor = cssColor("--omf-text-muted", "#656d76");
         const borderColor = cssColor("--omf-border", "#d0d7de");
@@ -421,11 +426,10 @@
         updateMoveButtons(context);
     }
 
-    namespace.View = {
+export const SeasonalLearningView = {
         renderAll,
         renderDateControls,
         renderChart,
         renderHealth,
         updateMoveButtons
     };
-})();

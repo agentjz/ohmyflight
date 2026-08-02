@@ -1,17 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { TrainingToolCrmExport as CrmExport } from "../../../src/tool/app/training-workbench/scripts/crm-export";
 import * as XLSX from "xlsx-js-style";
 
 describe("crm export", () => {
   it("exports only CRM missing people columns", () => {
-    const context = loadBrowserScripts([
-      "tool/app/training-workbench/scripts/config.js",
-      "tool/app/training-workbench/scripts/utils.js",
-      "tool/app/training-workbench/scripts/crm-export.js"
-    ], { XLSX });
-
-    const CrmExport = (context.TrainingTool as any).CrmExport;
+    vi.stubGlobal("XLSX", XLSX);
     const workbook = CrmExport.buildMissingWorkbook({
       year: 2026,
       missingPeople: [

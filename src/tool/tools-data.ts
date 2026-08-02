@@ -1,4 +1,6 @@
-const tools: ToolItem[] = [
+import type { SiteAnnouncement, ToolItem } from "./models";
+
+export const tools: ToolItem[] = [
     { name: "培训皇帝", desc: "查个人资质、排培训、核覆盖、看年度压力并更新有效期", entry: "training-workbench", status: "done", category: "heavy" },
     { name: "换季学习", desc: "检查换季名单，均衡岗位和美线带队并移动导出实际安排", entry: "seasonal-learning", status: "done", category: "heavy" },
     { name: "审计之王", desc: "从检查项检索手册证据，整理审计依据和 PDF 页面", entry: "audit-king", status: "done", category: "heavy" },
@@ -17,14 +19,10 @@ const tools: ToolItem[] = [
     { name: "PDF 加水印", desc: "在 PDF 每页统一位置添加图片水印", entry: "pdf-stamp", status: "done", category: "light" },
     { name: "图片工具", desc: "转换、压缩、裁剪、缩放和 Base64 互转", entry: "image-tool", status: "done", category: "light" },
     { name: "文本拼接助手", desc: "清除换行与常见分隔符，按指定字符重新拼接", entry: "text-joiner", status: "done", category: "light" },
-    { name: "提取员工号", desc: "从混杂文本提取六位员工号并去重", entry: "crew-extract-id", status: "done", category: "light" },
     { name: "人员结构统计", desc: "按报告口径统计人员结构并生成报告", entry: "personnel-structure-stats", status: "done", category: "light" }
 ];
 
-const announcement: SiteAnnouncement = {
+export const announcement: SiteAnnouncement = {
     message: "🎉🎉🎉温和的野兽派！",
     href: "../sponsor/index.html"
 };
-
-window.tools = tools;
-window.announcement = announcement;

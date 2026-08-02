@@ -1,10 +1,17 @@
-importScripts("text-engine.js", "alignment-events.js", "alignment-core.js");
+import { ManualProofAlignment } from "./alignment-core";
+import type {
+    ComparisonProgress,
+    ComparisonWorkerFailure,
+    ComparisonWorkerProgress,
+    ComparisonWorkerRequest,
+    ComparisonWorkerSuccess
+} from "./models";
 
 self.addEventListener("message", (event: MessageEvent<ComparisonWorkerRequest>) => {
     const request = event.data;
     if (!request || request.type !== "compare") return;
     try {
-        const comparison = (self as any).ManualProofAlignment.compare(
+        const comparison = ManualProofAlignment.compare(
             request.myManual,
             request.referenceManual,
             request.options || {},

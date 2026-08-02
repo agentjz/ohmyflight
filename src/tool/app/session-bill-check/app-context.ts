@@ -1,13 +1,19 @@
-(function () {
-    const runtime = window as SessionBillRuntime;
-    const namespace = runtime.SessionBillCheck || (runtime.SessionBillCheck = {});
+import type * as XLSX from "xlsx-js-style";
 
-    function createAppContext(): SessionBillAppContext {
-        const logic = runtime.SessionBillLogic;
-        if (!logic) {
-            throw new Error("Session bill logic failed to initialize");
-        }
+import type {
+    SessionBillAppContext,
+    SessionBillAppState,
+    SessionBillCompareRow,
+    SessionBillEcharts,
+    SessionBillLogicApi,
+    SessionBillWorkbook
+} from "./models";
 
+export function createAppContext(
+    xlsx: typeof XLSX,
+    logic: SessionBillLogicApi,
+    echarts: SessionBillEcharts | undefined
+): SessionBillAppContext {
         const state: SessionBillAppState = {
             sessionWorkbook: null,
             billWorkbook: null,
@@ -42,7 +48,7 @@
         }
 
         function readWorkbook(file: File): Promise<SessionBillWorkbook> {
-            return file.arrayBuffer().then((buffer) => runtime.XLSX.read(buffer, {
+            return file.arrayBuffer().then((buffer) => xlsx.read(buffer, {
                 type: "array",
                 cellFormula: true,
                 cellStyles: true,
@@ -58,7 +64,8 @@
         }
 
         return {
-            runtime,
+            XLSX: xlsx,
+            echarts,
             logic,
             state,
             getElement,
@@ -67,9 +74,4 @@
             readWorkbook,
             filteredRows
         };
-    }
-
-    namespace.AppContext = {
-        createAppContext
-    };
-})();
+}

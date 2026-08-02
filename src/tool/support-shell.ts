@@ -1,6 +1,6 @@
-const supportThemeButtons = document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]");
+export const supportThemeButtons = document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]");
 
-function syncSupportThemeButtons(): void {
+export function syncSupportThemeButtons(): void {
     if (!window.OhmyflightTheme) return;
     const isDark = window.OhmyflightTheme.getTheme() === "dark";
     const label = isDark ? "切换到白天模式" : "切换到暗夜模式";

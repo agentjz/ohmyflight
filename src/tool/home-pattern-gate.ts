@@ -1,4 +1,4 @@
-const homePatternLogic = window.HomePatternGateLogic;
+import { homePatternLogic } from "./home-pattern-gate-logic";
 const homePatternGate = document.getElementById("homePatternGate");
 const homePatternBoard = document.getElementById("homePatternBoard");
 const homePatternPath = document.getElementById("homePatternPath");

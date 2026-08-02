@@ -1,9 +1,17 @@
-(function () {
+import { ManualProofEvents as eventBuilder } from "./alignment-events";
+import type {
+    AlignmentMatch,
+    ComparisonOptions,
+    ComparisonProgress,
+    ComparisonSlice,
+    ManualComparison,
+    RevisionEvent,
+    WorkerManual
+} from "./models";
+import { ManualProofText as text } from "./text-engine";
+
     type Anchor = { myIndex: number; referenceIndex: number; exact: boolean; similarity: number };
     type Candidate = AlignmentMatch & { baseScore: number; score: number; previous: number };
-
-    const text = (globalThis as any).ManualProofText;
-    const eventBuilder = (globalThis as any).ManualProofEvents;
 
     function compare(
         myManual: WorkerManual,
@@ -311,9 +319,8 @@
         if (!eventBuilder?.build) throw new Error("ManualProofEvents is not loaded.");
     }
 
-    (globalThis as any).ManualProofAlignment = {
+export const ManualProofAlignment = {
         compare,
         uniqueExactAnchors,
         alignGap
     };
-})();

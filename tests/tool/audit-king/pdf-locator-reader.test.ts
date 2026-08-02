@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { createAuditKingPdfLocatorReader } from "../../../src/tool/app/audit-king/pdf-locator-reader";
 
 describe("audit-king pdf locator reader", () => {
     it("reads text pages from PDF.js", async () => {
-        const context = loadReaderWithPdfJs([
+        const reader = loadReaderWithPdfJs([
             ["第一页文字"],
             ["第二页", "补充文字"]
         ]);
 
-        const documents = await (context.AuditKing as any).PdfLocatorReader.readPdfFiles([
+        const documents = await reader.readPdfFiles([
             makeFile("手册.pdf")
         ]);
 
@@ -23,18 +23,16 @@ describe("audit-king pdf locator reader", () => {
     });
 
     it("rejects scanned PDFs without readable text layer", async () => {
-        const context = loadReaderWithPdfJs([[""], [" "]]);
+        const reader = loadReaderWithPdfJs([[""], [" "]]);
 
-        await expect((context.AuditKing as any).PdfLocatorReader.readPdfFiles([
+        await expect(reader.readPdfFiles([
             makeFile("扫描件.pdf")
         ])).rejects.toThrow("没有可读取的文字层");
     });
 });
 
 function loadReaderWithPdfJs(pageItems: string[][]) {
-    return loadBrowserScripts(["tool/app/audit-king/pdf-locator-reader.js"], {
-        Uint8Array,
-        pdfjsLib: {
+    return createAuditKingPdfLocatorReader({
             GlobalWorkerOptions: {},
             getDocument: () => ({
                 promise: Promise.resolve({
@@ -46,13 +44,9 @@ function loadReaderWithPdfJs(pageItems: string[][]) {
                     })
                 })
             })
-        }
-    });
+        });
 }
 
 function makeFile(name: string) {
-    return {
-        name,
-        arrayBuffer: async () => new ArrayBuffer(8)
-    };
+    return new File([new ArrayBuffer(8)], name);
 }

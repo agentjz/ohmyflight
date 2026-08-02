@@ -1,16 +1,15 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import * as shared from "../../../src/tool/app/image-tool/shared";
 
 describe("图片工具 Object URL 生命周期", () => {
-  let shared: any;
   let created: string[];
   let revoked: string[];
 
   beforeEach(() => {
     created = [];
     revoked = [];
-    const URL = {
+    const urlApi = {
       createObjectURL() {
         const value = `blob:${created.length + 1}`;
         created.push(value);
@@ -20,14 +19,15 @@ describe("图片工具 Object URL 生命周期", () => {
         revoked.push(value);
       }
     };
-    const context = loadBrowserScripts(["tool/app/image-tool/shared.js"], { URL });
-    shared = (context as any).ImageTool.shared;
+    vi.stubGlobal("URL", urlApi);
   });
+
+  afterEach(() => vi.unstubAllGlobals());
 
   it("删除或清空上传项时释放对应 URL", () => {
     const items = [
-      { file: {}, url: "blob:a" },
-      { file: {}, url: "blob:b" }
+      { file: {} as File, url: "blob:a" },
+      { file: {} as File, url: "blob:b" }
     ];
 
     shared.removeImageItem(items, 0);
@@ -46,9 +46,9 @@ describe("图片工具 Object URL 生命周期", () => {
       }
     };
 
-    shared.setObjectUrl(element, {});
-    shared.setObjectUrl(element, {});
-    shared.setObjectUrl(element, null);
+    shared.setObjectUrl(element as unknown as HTMLImageElement, {} as Blob);
+    shared.setObjectUrl(element as unknown as HTMLImageElement, {} as Blob);
+    shared.setObjectUrl(element as unknown as HTMLImageElement, null);
 
     expect(created).toEqual(["blob:1", "blob:2"]);
     expect(revoked).toEqual(["blob:1", "blob:2"]);

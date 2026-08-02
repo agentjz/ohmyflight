@@ -7,13 +7,16 @@
 1. 先确认问题能复现，或确认需求有明确输入、输出和业务规则。
 2. 修改代码时保持范围清晰，不做无关重构。
 3. 涉及培训、锁班、Excel解析、日期规则等业务逻辑时，同步更新测试或规格文档。
-4. 提交前安装依赖并运行统一验证：
+4. 提交前安装依赖并运行统一验证。Windows PowerShell 使用以下命令：
 
-```bash
-npm install
+```powershell
+npm.cmd ci
 python -m pip install -r requirements.txt
-npm run verify
+python -m playwright install chromium
+npm.cmd run verify
 ```
+
+`verify` 包含类型检查、TypeScript/Python 全量测试、真实 Chromium 页面与脱敏重型流程、确定性双构建和第三方完整性检查。需要验证真实大文件性能时，使用 `test:performance` 传入本地文件；真实输入和原始性能输出不提交。
 
 ## 文档
 
@@ -24,5 +27,7 @@ npm run verify
 ## 代码风格
 
 - 优先沿用现有目录结构和实现方式；不要为了工程化增加没有实际维护收益的框架和层级。
-- 浏览器工具以 `src/tool/app/` 和 `public/tool/app/` 的现有模式为准。
+- 浏览器内部源码使用标准 ESM `import`/`export`，每个页面只保留一个模块应用入口；第三方 UMD 全局必须通过局部窄接口接入。
+- 不通过 `window.*` 注册表连接内部模块，不保留重复脚本链、兼容别名或 ESM 外壳调用旧全局实现。
 - Python 自动化工具放在对应工具目录内，每个脚本保持可独立分发的完整 APP，并保留清晰的输入解析和失败提示。
+- `public/libs/` 增删或替换文件时，同步更新 `versions.json` 中的精确版本、发布来源、许可证和 SHA-256。

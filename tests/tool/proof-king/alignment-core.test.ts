@@ -1,19 +1,10 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { ManualProofAlignment } from "../../../src/tool/app/proof-king/alignment-core";
+
+const core: any = ManualProofAlignment;
 
 describe("校对之王顺序对齐", () => {
-    let core: any;
-
-    beforeAll(() => {
-        const context = loadBrowserScripts([
-            "tool/app/proof-king/text-engine.js",
-            "tool/app/proof-king/alignment-events.js",
-            "tool/app/proof-king/alignment-core.js"
-        ]);
-        core = (context as any).ManualProofAlignment;
-    });
-
     it("以顺序锚点为边界聚合参考新增和参考删除", () => {
         const comparison = core.compare(
             manual("my", [

@@ -1,6 +1,8 @@
+import "./support-shell";
+import type { SkillItem } from "./models";
+
 type VersionInfo = {
     commit?: string;
-    builtAt?: string;
     commits?: Array<{
         hash?: string;
         date?: string;
@@ -8,18 +10,29 @@ type VersionInfo = {
     }>;
 };
 
-const allSkillRows: SkillItem[] = Array.isArray(skills) ? skills : [];
+let allSkillRows: SkillItem[] = [];
 const developerSkills = document.getElementById("developerSkills");
 const commitMeta = document.getElementById("commitMeta");
 const commitList = document.getElementById("commitList");
 const copyToastElement = document.getElementById("copyToast");
 const copyToastBody = document.getElementById("copyToastBody");
 
-if (developerSkills instanceof HTMLElement) {
-    renderSkills(developerSkills);
-}
-
+initializeSkills();
 renderCommits();
+
+async function initializeSkills(): Promise<void> {
+    if (!(developerSkills instanceof HTMLElement)) return;
+    try {
+        const response = await fetch("./skills-data.json");
+        if (!response.ok) throw new Error(`Skills 加载失败：${response.status}`);
+        const data = await response.json() as unknown;
+        if (!Array.isArray(data)) throw new Error("Skills 数据格式无效。");
+        allSkillRows = data as SkillItem[];
+        renderSkills(developerSkills);
+    } catch (error) {
+        developerSkills.innerHTML = `<div class="empty-row">${escapeHtml(error instanceof Error ? error.message : String(error))}</div>`;
+    }
+}
 
 function renderSkills(container: HTMLElement): void {
     if (!allSkillRows.length) {
@@ -107,12 +120,7 @@ async function renderCommits(): Promise<void> {
         if (!response.ok) throw new Error("version not found");
         const version = await response.json() as VersionInfo;
         const commits = Array.isArray(version.commits) ? version.commits : [];
-        const builtAt = version.builtAt ? new Date(version.builtAt) : null;
-        const builtAtText = builtAt && !Number.isNaN(builtAt.getTime())
-            ? builtAt.toLocaleString("zh-CN", { hour12: false })
-            : "未知时间";
-
-        commitMeta.textContent = `${version.commit || "unknown"} · 构建于 ${builtAtText} · ${commits.length} 条提交`;
+        commitMeta.textContent = `${version.commit || "unknown"} · ${commits.length} 条提交`;
         commitList.innerHTML = commits.length
             ? commits.map((item) => `
                 <div class="commit-item">

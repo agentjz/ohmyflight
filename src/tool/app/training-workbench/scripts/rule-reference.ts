@@ -1,7 +1,11 @@
-(function () {
-  const Config = window.TrainingTool.Config;
-  const Utils = window.TrainingTool.Utils;
-  const RuleEngine = window.TrainingTool.RuleEngine;
+import { TrainingToolConfig } from "./config";
+import { TrainingToolRuleEngine } from "./rule-engine";
+import { TrainingToolUtils } from "./utils";
+import type { TrainingProjectRule } from "./models";
+
+const Config = TrainingToolConfig;
+  const Utils = TrainingToolUtils;
+  const RuleEngine = TrainingToolRuleEngine;
 
   const elements = {
     projectBody: requireElement("projectBody"),
@@ -15,21 +19,31 @@
     return element;
   }
 
-  function getRuleMap() {
+  interface RuleExample {
+    projectName: string;
+    title: string;
+    trainingDate: string;
+    oldExpiry: string;
+    resultType: string;
+    newExpiry: string;
+    reason: string;
+  }
+
+  function getRuleMap(): Map<string, TrainingProjectRule> {
     return new Map(Config.PROJECT_RULES.map((rule) => [rule.canonical, rule]));
   }
 
-  function formatRuleDuration(rule) {
+  function formatRuleDuration(rule: TrainingProjectRule): string {
     return `${rule.validityValue}${Utils.normalizeText(rule.validityUnit)}`;
   }
 
-  function formatWindowText(rule) {
+  function formatWindowText(rule: TrainingProjectRule): string {
     const windowInfo = RuleEngine.getWindowInfo(rule, Utils.makeDate(2027, 6, 15));
     if (!windowInfo.hasWindow) return "无窗口";
     return windowInfo.tag || "窗口";
   }
 
-  function normalizeResultType(rule, trainingDate, oldExpiry) {
+  function normalizeResultType(rule: TrainingProjectRule, trainingDate: Date, oldExpiry: Date | null): string {
     if (!oldExpiry) return "首次/无旧值";
     const judgement = RuleEngine.classifyUpdateJudgement(rule, trainingDate, oldExpiry);
     if (judgement === "最新日期重算") return "无窗口";
@@ -37,9 +51,9 @@
     return judgement;
   }
 
-  function buildExample(ruleName, title, trainingDateText, oldExpiryText) {
-    const rule = getRuleMap().get(ruleName);
-    const trainingDate = Utils.parseDate(trainingDateText);
+  function buildExample(ruleName: string, title: string, trainingDateText: string, oldExpiryText: string): RuleExample {
+    const rule = getRuleMap().get(ruleName)!;
+    const trainingDate = Utils.parseDate(trainingDateText)!;
     const oldExpiry = Utils.parseDate(oldExpiryText);
     const computed = RuleEngine.computeExpiry(rule, trainingDate, oldExpiry);
     return {
@@ -53,7 +67,7 @@
     };
   }
 
-  function buildSections() {
+  function buildSections(): Array<{ title: string; rows: RuleExample[] }> {
     return [
       {
         title: "基准月类：应急训练",
@@ -103,13 +117,13 @@
     ];
   }
 
-  function badgeClass(resultType) {
+  function badgeClass(resultType: string): string {
     if (resultType === "命中窗口") return "warn";
     if (resultType === "超期") return "danger";
     return "info";
   }
 
-  function renderProjectTable() {
+  function renderProjectTable(): void {
     elements.projectBody.innerHTML = Config.PROJECT_RULES.map((rule) => `
       <tr>
         <td>${Utils.escapeHtml(rule.canonical)}</td>
@@ -122,7 +136,7 @@
     `).join("");
   }
 
-  function buildExcelGuideRows() {
+  function buildExcelGuideRows(): Array<{ scene: string; rule: string }> {
     return [
       {
         scene: "人员信息表有效期",
@@ -159,7 +173,7 @@
     ];
   }
 
-  function renderExcelGuide() {
+  function renderExcelGuide(): void {
     if (!elements.excelGuideBody) return;
     elements.excelGuideBody.innerHTML = buildExcelGuideRows().map((row) => `
       <tr>
@@ -169,7 +183,7 @@
     `).join("");
   }
 
-  function renderCaseSections() {
+  function renderCaseSections(): void {
     elements.caseSections.innerHTML = buildSections().map((section) => `
       <article class="section" style="margin-top: 16px;">
         <div class="section-head">
@@ -212,4 +226,3 @@
   renderProjectTable();
   renderExcelGuide();
   renderCaseSections();
-})();

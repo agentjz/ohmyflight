@@ -1,6 +1,10 @@
-(function () {
-  const Utils = window.TrainingTool.Utils;
-  const STATUSES = window.TrainingTool.WorkbenchStatus.STATUSES;
+import { TrainingToolUtils } from "./utils";
+import { TrainingToolWorkbench } from "./workbench";
+import { TrainingToolWorkbenchStatus } from "./workbench-status";
+import type { TrainingExtraProjectRow, TrainingToolAnalysis } from "./models";
+
+const Utils = TrainingToolUtils;
+  const STATUSES = TrainingToolWorkbenchStatus.STATUSES;
   const ALLOWED_HORIZONS = new Set([30, 60, 90]);
 
   type GapSourceRow = {
@@ -22,7 +26,7 @@
     rank: number;
   };
 
-  type GapCheckRow = {
+  export type GapCheckRow = {
     key: string;
     windowKey: GapWindow["key"];
     windowLabel: string;
@@ -39,7 +43,7 @@
     reason: string;
   };
 
-  type GapCheckResult = {
+  export type GapCheckResult = {
     baseDate: string;
     endDate: string;
     horizonDays: number;
@@ -187,16 +191,14 @@
   ): GapCheckResult {
     const baseDate = requireDate(options.baseDate || new Date(), "观察基准日");
     const horizonDays = requireHorizon(options.horizonDays ?? 30);
-    const result = window.TrainingTool.Workbench.buildWorkbench(analysis, {
+    const result = TrainingToolWorkbench.buildWorkbench(analysis, {
       today: baseDate,
       stageEnd: addDays(baseDate, horizonDays),
       extraProjectRows: options.extraProjectRows || []
     });
     return buildFromRows(result.allDetailRows || [], baseDate, horizonDays);
   }
-
-  window.TrainingTool.ScheduleGapCheck = {
+  export const TrainingToolScheduleGapCheck = {
     build,
     buildFromRows
   };
-})();

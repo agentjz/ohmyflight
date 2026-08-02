@@ -1,6 +1,7 @@
-(function () {
-  const COPY = window.TrainingToolApp.copy;
-  const runtime = window.TrainingToolApp;
+import type { TrainingToolAppRuntime } from "./models";
+
+export function installTrainingAppProjects(runtime: TrainingToolAppRuntime): void {
+const COPY = runtime.copy;
   const state = runtime.state;
   const elements = runtime.elements;
   const renderers = runtime.renderers;
@@ -63,7 +64,7 @@
     controls.refreshButtons();
   }
 
-  function handleUpdateProjectGroupChange(event) {
+  function handleUpdateProjectGroupChange(event: Event): void {
     const target = event.target;
     if (!(target instanceof HTMLInputElement)) return;
 
@@ -89,4 +90,4 @@
     renderEmptyState,
     handleUpdateProjectGroupChange
   };
-})();
+}

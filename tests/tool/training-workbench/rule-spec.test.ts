@@ -1,6 +1,8 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { loadBrowserScripts } from "../../helpers/browser-context";
+import { TrainingToolConfig as Config } from "../../../src/tool/app/training-workbench/scripts/config";
+import { TrainingToolRuleEngine as RuleEngine } from "../../../src/tool/app/training-workbench/scripts/rule-engine";
+import { TrainingToolUtils as Utils } from "../../../src/tool/app/training-workbench/scripts/utils";
 import {
   TRAINING_RENEWAL_CASES,
   TRAINING_RULE_DEFINITIONS,
@@ -40,27 +42,6 @@ function normalizeScheduleStatus(actual: string): ScheduleSpecStatus {
 }
 
 describe("training-workbench rule spec", () => {
-  let context: ReturnType<typeof loadBrowserScripts>;
-  let Config: any;
-  let Utils: any;
-  let RuleEngine: any;
-
-  beforeAll(() => {
-    context = loadBrowserScripts([
-      "tool/app/training-workbench/scripts/config.js",
-      "tool/app/training-workbench/scripts/utils.js",
-      "tool/app/training-workbench/scripts/rule-engine.js"
-    ]);
-    const trainingTool = context.TrainingTool as {
-      Config: any;
-      Utils: any;
-      RuleEngine: any;
-    };
-    Config = trainingTool.Config;
-    Utils = trainingTool.Utils;
-    RuleEngine = trainingTool.RuleEngine;
-  });
-
   it("matches the published training rule matrix, aliases, renewal examples, and schedule examples", () => {
     const ruleMap = new Map<string, any>(Config.PROJECT_RULES.map((rule: any) => [rule.canonical, rule]));
 
@@ -82,8 +63,8 @@ describe("training-workbench rule spec", () => {
       const rule = ruleMap.get(testCase.project);
       const oldExpiry = Utils.parseDate(testCase.oldExpiry);
       const trainingDate = Utils.parseDate(testCase.trainingDate);
-      const computed = RuleEngine.computeExpiry(rule, trainingDate, oldExpiry);
-      const judgement = RuleEngine.classifyUpdateJudgement(rule, trainingDate, oldExpiry);
+      const computed = RuleEngine.computeExpiry(rule, trainingDate!, oldExpiry);
+      const judgement = RuleEngine.classifyUpdateJudgement(rule, trainingDate!, oldExpiry);
       const windowInfo = RuleEngine.getWindowInfo(rule, oldExpiry);
 
       expect(
@@ -108,8 +89,8 @@ describe("training-workbench rule spec", () => {
       const rule = ruleMap.get(testCase.project);
       const result = RuleEngine.classifyScheduleStageStatus(
         rule,
-        Utils.parseDate(testCase.stageStart),
-        Utils.parseDate(testCase.stageEnd),
+        Utils.parseDate(testCase.stageStart)!,
+        Utils.parseDate(testCase.stageEnd)!,
         Utils.parseDate(testCase.oldExpiry)
       );
 

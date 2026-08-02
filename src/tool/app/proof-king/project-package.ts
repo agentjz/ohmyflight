@@ -1,6 +1,11 @@
-(function () {
-    const runtime = window.ManualProof || (window.ManualProof = {});
-    const archive = (window as any).OhMyFlightProjectArchive;
+import type { createProjectArchive } from "../../project-archive";
+import { ManualProofDecisions as Decisions } from "./decision-model";
+import type {
+    ProofProjectBuildInput,
+    ProofProjectReadResult,
+    ProofProjectSnapshot
+} from "./models";
+export function createProjectPackage(archive: ReturnType<typeof createProjectArchive>) {
     const schemaVersion = 1;
     const statePath = "state/proof-project.json";
     const workbookPath = "reports/revision-events.xlsx";
@@ -59,10 +64,8 @@
         if (eventIds.some((id) => !id) || new Set(eventIds).size !== eventIds.length) {
             throw new Error("校对项目中的修订事件编号无效或重复。");
         }
-        state.decisions = runtime.Decisions?.normalize
-            ? runtime.Decisions.normalize(state.comparison.events, state.decisions || {})
-            : state.decisions || {};
+        state.decisions = Decisions.normalize(state.comparison.events, state.decisions || {});
     }
 
-    runtime.ProjectPackage = { schemaVersion, build, read, validateState };
-})();
+return { schemaVersion, build, read, validateState };
+}

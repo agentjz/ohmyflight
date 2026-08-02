@@ -1,10 +1,14 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingAppContext } from "./app-context";
+import type {
+    AuditKingPdfLocatorExportTask,
+    AuditKingPdfLocatorResult,
+    AuditKingPdfLocatorSlot,
+    AuditKingStateModel
+} from "./models";
 
     function render(context: AuditKingAppContext): void {
-        runtime.PdfLocatorView.renderPdfLocator(context.state.pdfLocator);
+        context.runtime.PdfLocatorView.renderPdfLocator(context.state.pdfLocator);
     }
-
     function currentSlot(state: AuditKingStateModel): AuditKingPdfLocatorSlot | null {
         return state.pdfLocator.slots.find((slot) => slot.id === state.pdfLocator.selectedSlotId)
             || state.pdfLocator.slots[0]
@@ -42,7 +46,7 @@
             container.innerHTML = `<div class="empty-panel">选择 PDF 和页码后预览。</div>`;
             return;
         }
-        await runtime.PdfLocatorPreview.renderSlotPreview(slot, context.state.pdfLocator.documents, container);
+        await context.runtime.PdfLocatorPreview.renderSlotPreview(slot, context.state.pdfLocator.documents, container);
     }
 
     function setSlots(context: AuditKingAppContext, slots: AuditKingPdfLocatorSlot[], message: string): void {
@@ -50,7 +54,7 @@
         context.state.pdfLocator.results = slots
             .map((slot) => slot.result)
             .filter((result): result is AuditKingPdfLocatorResult => result !== undefined);
-        context.state.pdfLocator.summary = runtime.PdfLocatorModel.summarizeResults(context.state.pdfLocator.results);
+        context.state.pdfLocator.summary = context.runtime.PdfLocatorModel.summarizeResults(context.state.pdfLocator.results);
         context.state.pdfLocator.selectedSlotId = slots[0]?.id || "";
         render(context);
         context.runtime.View.renderStatus(message, "success");
@@ -61,16 +65,16 @@
     }
 
     function updateSlot(context: AuditKingAppContext, slotId: string, patch: Partial<AuditKingPdfLocatorSlot>): void {
-        context.state.pdfLocator.slots = runtime.PdfLocatorModel.updateSlotField(context.state.pdfLocator.slots, slotId, patch);
+        context.state.pdfLocator.slots = context.runtime.PdfLocatorModel.updateSlotField(context.state.pdfLocator.slots, slotId, patch);
         selectFirstSlotIfNeeded(context.state);
         context.state.pdfLocator.results = context.state.pdfLocator.slots
             .map((slot) => slot.result)
             .filter((result): result is AuditKingPdfLocatorResult => result !== undefined);
-        context.state.pdfLocator.summary = runtime.PdfLocatorModel.summarizeResults(context.state.pdfLocator.results);
+        context.state.pdfLocator.summary = context.runtime.PdfLocatorModel.summarizeResults(context.state.pdfLocator.results);
         render(context);
     }
 
-    function bindPdfLocatorActions(context: AuditKingAppContext): void {
+export function bindPdfLocatorActions(context: AuditKingAppContext): void {
         const pdfInput = context.getElement<HTMLInputElement>("pdfLocatorPdfInput");
         const workspaceInput = context.getElement<HTMLInputElement>("pdfLocatorWorkspaceInput");
         syncExpandContextInput(context);
@@ -84,9 +88,9 @@
             pdfInput.value = "";
             if (!files.length) return;
             try {
-                const documents = await runtime.PdfLocatorReader.readPdfFiles(files);
+                const documents = await context.runtime.PdfLocatorReader.readPdfFiles(files);
                 context.state.pdfLocator.documents.push(...documents);
-                context.state.pdfLocator.slots = runtime.PdfLocatorModel.rebindWorkspaceSlotsToDocuments(
+                context.state.pdfLocator.slots = context.runtime.PdfLocatorModel.rebindWorkspaceSlotsToDocuments(
                     context.state.pdfLocator.slots,
                     context.state.pdfLocator.documents
                 );
@@ -107,12 +111,14 @@
             if (!file) return;
             try {
                 const text = await file.text();
-                const restored = runtime.PdfLocatorModel.parseWorkspace(text, context.state.pdfLocator.documents);
+                const restored = context.runtime.PdfLocatorModel.parseWorkspace(text, context.state.pdfLocator.documents);
                 context.state.pdfLocator.slots = restored.slots;
                 context.state.pdfLocator.selectedSlotId = restored.selectedSlotId;
                 context.state.pdfLocator.expandContextPages = restored.expandContextPages;
-                context.state.pdfLocator.results = restored.slots.map((slot: AuditKingPdfLocatorSlot) => slot.result).filter(Boolean);
-                context.state.pdfLocator.summary = runtime.PdfLocatorModel.summarizeResults(context.state.pdfLocator.results);
+                context.state.pdfLocator.results = restored.slots
+                    .map((slot: AuditKingPdfLocatorSlot) => slot.result)
+                    .filter((result): result is AuditKingPdfLocatorResult => result !== undefined);
+                context.state.pdfLocator.summary = context.runtime.PdfLocatorModel.summarizeResults(context.state.pdfLocator.results);
                 syncExpandContextInput(context);
                 render(context);
                 context.runtime.View.renderStatus(`已导入 PDF 工作区：${restored.slots.length} 个槽位。`, "success");
@@ -126,7 +132,7 @@
                 context.runtime.View.renderStatus("当前 PDF 工作区没有可导出的槽位。", "error");
                 return;
             }
-            const json = runtime.PdfLocatorModel.serializeWorkspace(
+            const json = context.runtime.PdfLocatorModel.serializeWorkspace(
                 context.state.pdfLocator.slots,
                 context.state.pdfLocator.documents,
                 context.state.pdfLocator.selectedSlotId,
@@ -148,7 +154,7 @@
             }
             setSlots(
                 context,
-                runtime.PdfLocatorModel.buildSlotsFromEvidenceGroups(evidenceGroups),
+                context.runtime.PdfLocatorModel.buildSlotsFromEvidenceGroups(evidenceGroups),
                 "已从审计篮子生成 PDF 证据槽。"
             );
         });
@@ -158,7 +164,7 @@
                 const rangeText = context.getElement<HTMLInputElement>("pdfLocatorRangeInput").value;
                 setSlots(
                     context,
-                    runtime.PdfLocatorModel.buildEmptySlotsFromRange(rangeText),
+                    context.runtime.PdfLocatorModel.buildEmptySlotsFromRange(rangeText),
                     "已生成空 PDF 证据槽。"
                 );
             } catch (error) {
@@ -177,14 +183,16 @@
                     context.runtime.View.renderStatus("请先从审计篮子生成槽位，或生成空槽。", "error");
                     return;
                 }
-                context.state.pdfLocator.slots = runtime.PdfLocatorModel.buildSlotsFromEvidenceGroups(evidenceGroups);
+                context.state.pdfLocator.slots = context.runtime.PdfLocatorModel.buildSlotsFromEvidenceGroups(evidenceGroups);
             }
-            const slots = runtime.PdfLocatorModel.locateSlots(context.state.pdfLocator.slots, context.state.pdfLocator.documents, {
+            const slots = context.runtime.PdfLocatorModel.locateSlots(context.state.pdfLocator.slots, context.state.pdfLocator.documents, {
                 expandContextPages: context.state.pdfLocator.expandContextPages
             });
             context.state.pdfLocator.slots = slots;
-            context.state.pdfLocator.results = slots.map((slot: AuditKingPdfLocatorSlot) => slot.result).filter(Boolean);
-            context.state.pdfLocator.summary = runtime.PdfLocatorModel.summarizeResults(context.state.pdfLocator.results);
+            context.state.pdfLocator.results = slots
+                .map((slot: AuditKingPdfLocatorSlot) => slot.result)
+                .filter((result): result is AuditKingPdfLocatorResult => result !== undefined);
+            context.state.pdfLocator.summary = context.runtime.PdfLocatorModel.summarizeResults(context.state.pdfLocator.results);
             selectFirstSlotIfNeeded(context.state);
             render(context);
             context.runtime.View.renderStatus("PDF 证据槽自动识别完成，可人工调整 PDF 和页码。", "success");
@@ -196,7 +204,7 @@
             context.state.pdfLocator.slots = [];
             context.state.pdfLocator.selectedSlotId = "";
             context.state.pdfLocator.expandContextPages = true;
-            context.state.pdfLocator.summary = runtime.PdfLocatorModel.summarizeResults([]);
+            context.state.pdfLocator.summary = context.runtime.PdfLocatorModel.summarizeResults([]);
             syncExpandContextInput(context);
             render(context);
             context.getElement<HTMLElement>("pdfLocatorPreview").innerHTML = `<div class="empty-panel">选择 PDF 和页码后预览。</div>`;
@@ -271,17 +279,12 @@
 
     async function exportSlots(context: AuditKingAppContext, options: { onlySelected?: boolean; slotId?: string }): Promise<void> {
         try {
-            const tasks = runtime.PdfLocatorModel.buildExportTasks(context.state.pdfLocator.slots, context.state.pdfLocator.documents, options);
+            const tasks = context.runtime.PdfLocatorModel.buildExportTasks(context.state.pdfLocator.slots, context.state.pdfLocator.documents, options);
             const skipped = tasks.filter((task: AuditKingPdfLocatorExportTask) => task.skippedReason);
-            const result = await runtime.PdfLocatorExport.exportTasks(tasks, context.state.pdfLocator.documents);
+            const result = await context.runtime.PdfLocatorExport.exportTasks(tasks, context.state.pdfLocator.documents);
             const skippedText = skipped.length ? `，跳过 ${skipped.length} 条` : "";
             context.runtime.View.renderStatus(`已导出 ${result.exported} 条 PDF 证据${skippedText}。`, "success");
         } catch (error) {
             context.runtime.View.renderStatus(error instanceof Error ? error.message : String(error), "error");
         }
     }
-
-    runtime.PdfLocatorActions = {
-        bindPdfLocatorActions
-    };
-})();

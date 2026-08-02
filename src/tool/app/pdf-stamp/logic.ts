@@ -1,16 +1,4 @@
-type PdfStampRuleMode = 'all' | 'odd' | 'even' | 'range';
-
-type PdfStampRule = {
-    id: number;
-    mode: PdfStampRuleMode;
-    rangeStr: string;
-    xMm: number;
-    yMm: number;
-    wMm: number;
-    hMm: number;
-    opacity: number;
-    lockRatio: boolean;
-};
+import type { PdfStampResizeDirection, PdfStampRule } from "./models";
 
 type PdfStampDrawOptions = {
     x: number;
@@ -19,7 +7,6 @@ type PdfStampDrawOptions = {
     height: number;
     opacity: number;
 };
-type PdfStampResizeDirection = 'tl' | 'tr' | 'bl' | 'br';
 type PdfStampOverlayStyle = {
     leftPx: number;
     topPx: number;
@@ -32,50 +19,9 @@ type PdfStampPagePlan = {
     rules: PdfStampRule[];
 };
 
-type PdfStampLogicApi = {
-    MM2PT: number;
-    createRule: (id: number, imgAspect: number, overrides?: Partial<PdfStampRule>) => PdfStampRule;
-    parsePageRange: (rangeStr: string, maxPage: number) => number[];
-    ruleMatchesPage: (rule: Pick<PdfStampRule, 'mode' | 'rangeStr'>, pageNum: number, maxPage: number) => boolean;
-    getRulesForPage: (rules: PdfStampRule[], pageNum: number, maxPage: number) => PdfStampRule[];
-    buildStampDrawOptions: (rule: PdfStampRule, pageHeightPt: number) => PdfStampDrawOptions;
-    updateRuleField: (rule: PdfStampRule, field: keyof PdfStampRule, value: unknown, imgAspect: number) => PdfStampRule;
-    buildOverlayStyle: (rule: PdfStampRule, renderScale: number) => PdfStampOverlayStyle;
-    applyOverlayMove: (
-        rule: PdfStampRule,
-        input: {
-            dxPx: number;
-            dyPx: number;
-            startLeftPx: number;
-            startTopPx: number;
-            widthPx: number;
-            heightPx: number;
-            canvasWidthPx: number;
-            canvasHeightPx: number;
-            renderScale: number;
-        }
-    ) => PdfStampRule;
-    applyOverlayResize: (
-        rule: PdfStampRule,
-        input: {
-            direction: PdfStampResizeDirection;
-            dxPx: number;
-            dyPx: number;
-            startLeftPx: number;
-            startTopPx: number;
-            startWidthPx: number;
-            startHeightPx: number;
-            renderScale: number;
-            imgAspect: number;
-        }
-    ) => PdfStampRule;
-    buildExportPlan: (rules: PdfStampRule[], totalPages: number) => PdfStampPagePlan[];
-};
+export const MM2PT = 72 / 25.4;
 
-(function () {
-    const MM2PT = 72 / 25.4;
-
-    function createRule(id: number, imgAspect: number, overrides?: Partial<PdfStampRule>): PdfStampRule {
+export function createRule(id: number, imgAspect: number, overrides?: Partial<PdfStampRule>): PdfStampRule {
         const safeAspect = imgAspect > 0 ? imgAspect : 1;
         return {
             id,
@@ -90,8 +36,7 @@ type PdfStampLogicApi = {
             ...(overrides || {})
         };
     }
-
-    function parsePageRange(rangeStr: string, maxPage: number): number[] {
+export function parsePageRange(rangeStr: string, maxPage: number): number[] {
         const max = Math.max(0, Math.floor(maxPage));
         if (!rangeStr || !rangeStr.trim() || max <= 0) return [];
 
@@ -123,7 +68,7 @@ type PdfStampLogicApi = {
         return Array.from(pages).sort((left, right) => left - right);
     }
 
-    function ruleMatchesPage(rule: Pick<PdfStampRule, 'mode' | 'rangeStr'>, pageNum: number, maxPage: number): boolean {
+export function ruleMatchesPage(rule: Pick<PdfStampRule, 'mode' | 'rangeStr'>, pageNum: number, maxPage: number): boolean {
         if (pageNum < 1 || pageNum > maxPage) return false;
         if (rule.mode === 'all') return true;
         if (rule.mode === 'odd') return pageNum % 2 === 1;
@@ -132,11 +77,11 @@ type PdfStampLogicApi = {
         return false;
     }
 
-    function getRulesForPage(rules: PdfStampRule[], pageNum: number, maxPage: number): PdfStampRule[] {
+export function getRulesForPage(rules: PdfStampRule[], pageNum: number, maxPage: number): PdfStampRule[] {
         return rules.filter(rule => ruleMatchesPage(rule, pageNum, maxPage));
     }
 
-    function buildStampDrawOptions(rule: PdfStampRule, pageHeightPt: number): PdfStampDrawOptions {
+export function buildStampDrawOptions(rule: PdfStampRule, pageHeightPt: number): PdfStampDrawOptions {
         const width = rule.wMm * MM2PT;
         const height = rule.hMm * MM2PT;
         return {
@@ -148,7 +93,7 @@ type PdfStampLogicApi = {
         };
     }
 
-    function updateRuleField(rule: PdfStampRule, field: keyof PdfStampRule, value: unknown, imgAspect: number): PdfStampRule {
+export function updateRuleField(rule: PdfStampRule, field: keyof PdfStampRule, value: unknown, imgAspect: number): PdfStampRule {
         const next = { ...rule };
         if (field === 'mode') {
             const mode = String(value);
@@ -186,7 +131,7 @@ type PdfStampLogicApi = {
         return valuePx / (renderScale * MM2PT);
     }
 
-    function buildOverlayStyle(rule: PdfStampRule, renderScale: number): PdfStampOverlayStyle {
+export function buildOverlayStyle(rule: PdfStampRule, renderScale: number): PdfStampOverlayStyle {
         return {
             leftPx: mmToPx(rule.xMm, renderScale),
             topPx: mmToPx(rule.yMm, renderScale),
@@ -196,7 +141,7 @@ type PdfStampLogicApi = {
         };
     }
 
-    function applyOverlayMove(
+export function applyOverlayMove(
         rule: PdfStampRule,
         input: {
             dxPx: number;
@@ -219,7 +164,7 @@ type PdfStampLogicApi = {
         };
     }
 
-    function applyOverlayResize(
+export function applyOverlayResize(
         rule: PdfStampRule,
         input: {
             direction: PdfStampResizeDirection;
@@ -266,7 +211,7 @@ type PdfStampLogicApi = {
         };
     }
 
-    function buildExportPlan(rules: PdfStampRule[], totalPages: number): PdfStampPagePlan[] {
+export function buildExportPlan(rules: PdfStampRule[], totalPages: number): PdfStampPagePlan[] {
         const pages: PdfStampPagePlan[] = [];
         for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
             const pageRules = getRulesForPage(rules, pageNum, totalPages);
@@ -276,20 +221,3 @@ type PdfStampLogicApi = {
         }
         return pages;
     }
-
-    const api: PdfStampLogicApi = {
-        MM2PT,
-        createRule,
-        parsePageRange,
-        ruleMatchesPage,
-        getRulesForPage,
-        buildStampDrawOptions,
-        updateRuleField,
-        buildOverlayStyle,
-        applyOverlayMove,
-        applyOverlayResize,
-        buildExportPlan
-    };
-
-    (globalThis as typeof globalThis & { PdfStampLogic?: PdfStampLogicApi }).PdfStampLogic = api;
-})();

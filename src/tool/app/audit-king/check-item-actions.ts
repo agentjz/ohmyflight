@@ -1,5 +1,5 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type { AuditKingAppContext } from "./app-context";
+import type { AuditKingCheckItemSource, AuditKingImportedCheckItem } from "./models";
 
     function getChecklistSelection(context: AuditKingAppContext): { keyword: string; source?: AuditKingCheckItemSource } {
         const selection = window.getSelection();
@@ -45,7 +45,7 @@
         context.runtime.View.renderStatus("已更新检查单来源。", "success");
     }
 
-    function bindCheckItemActions(context: AuditKingAppContext): void {
+export function bindCheckItemActions(context: AuditKingAppContext): void {
         context.getElement<HTMLButtonElement>("addCheckItemBtn").addEventListener("click", () => {
             const code = context.getElement<HTMLInputElement>("checkItemCodeInput");
             const name = context.getElement<HTMLInputElement>("checkItemNameInput");
@@ -103,6 +103,3 @@
             }
         });
     }
-
-    runtime.CheckItemActions = { bindCheckItemActions };
-})();

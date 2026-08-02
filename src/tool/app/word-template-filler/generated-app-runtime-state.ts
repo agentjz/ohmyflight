@@ -1,7 +1,7 @@
 // 生成应用运行时：配置和全局状态
 
-const GeneratedAppRuntimeState = {
-    generate: (fieldsJson, loopFieldsJson, templateFileName) => `
+export const GeneratedAppRuntimeState = {
+    generate: (fieldsJson: string, loopFieldsJson: string, templateFileName: string) => `
 // 配置数据
 const CONFIG = {
     fields: ${fieldsJson},

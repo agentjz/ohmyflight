@@ -1,32 +1,33 @@
-(function () {
-  const runtime = window.TrainingToolApp;
-  const COPY = runtime.copy;
+import type { TrainingToolAppRuntime, TrainingToolWorkbook } from "./models";
+
+export function installTrainingAppControls(runtime: TrainingToolAppRuntime): void {
+const COPY = runtime.copy;
   const state = runtime.state;
   const elements = runtime.elements;
 
-  function todayString() {
+  function todayString(): string {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   }
 
-  function nextMonthEndString() {
+  function nextMonthEndString(): string {
     const now = new Date();
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 2, 0);
     return `${monthEnd.getFullYear()}-${String(monthEnd.getMonth() + 1).padStart(2, "0")}-${String(monthEnd.getDate()).padStart(2, "0")}`;
   }
 
-  function initializeDefaultDates() {
+  function initializeDefaultDates(): void {
     elements.workbenchStartDateInput.value = todayString();
     elements.workbenchEndDateInput.value = nextMonthEndString();
     elements.workbenchPressureYearInput.value = String(new Date().getFullYear());
   }
 
-  function setStatus(message, isError = false) {
+  function setStatus(message: string, isError = false): void {
     elements.statusLine.textContent = message;
     elements.statusLine.classList.toggle("is-error", Boolean(isError));
   }
 
-  function refreshButtons() {
+  function refreshButtons(): void {
     const canUpdate = Boolean(state.analysis)
       && Boolean(elements.updateValiditySheetSelect.value)
       && state.updateSelectedProjects.length > 0
@@ -82,27 +83,27 @@
     elements.exportButton.disabled = !state.pendingExport || state.busy;
   }
 
-  function setBusy(busy) {
+  function setBusy(busy: boolean): void {
     state.busy = busy;
     elements.workbookFile.disabled = busy;
     refreshButtons();
   }
 
-  function clearPendingExport() {
+  function clearPendingExport(): void {
     state.pendingExport = null;
     state.pendingExportName = "";
     state.pendingExportLabel = "";
     elements.exportButton.textContent = COPY.defaultExportButton;
   }
 
-  function setPendingExport(workbook, fileName, label, buttonText) {
+  function setPendingExport(workbook: TrainingToolWorkbook, fileName: string, label: string, buttonText: string): void {
     state.pendingExport = workbook;
     state.pendingExportName = fileName;
     state.pendingExportLabel = label;
     elements.exportButton.textContent = buttonText;
   }
 
-  function invalidateExportPreview() {
+  function invalidateExportPreview(): void {
     clearPendingExport();
     refreshButtons();
   }
@@ -116,4 +117,4 @@
     invalidateExportPreview,
     refreshButtons
   };
-})();
+}

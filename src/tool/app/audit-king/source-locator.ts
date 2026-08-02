@@ -1,6 +1,17 @@
-(function () {
-    const runtime = window.AuditKing || (window.AuditKing = {});
+import type {
+    AuditKingCheckItem,
+    AuditKingCheckItemSource,
+    AuditKingDocument,
+    AuditKingManualEvidence,
+    AuditKingMatch,
+    AuditKingTextBlock
+} from "./models";
     const CONTEXT_LENGTH = 20;
+    type AuditKingSourceDocument = Pick<AuditKingDocument, "id" | "name" | "blocks">;
+    type AuditKingManualMatch = Omit<AuditKingMatch, "checkItemId"> & {
+        checkItemId?: string;
+        keywordId?: string;
+    };
 
     function makeSource(block: AuditKingTextBlock, start: number, end: number): AuditKingCheckItemSource {
         const safeStart = Math.max(0, Math.min(start, block.text.length));
@@ -16,7 +27,7 @@
         };
     }
 
-    function makeManualEvidence(match: AuditKingMatch): AuditKingManualEvidence {
+    function makeManualEvidence(match: AuditKingManualMatch): AuditKingManualEvidence {
         const safeStart = Math.max(0, Math.min(match.start, match.blockText.length));
         const safeEnd = Math.max(safeStart, Math.min(match.end, match.blockText.length));
         return {
@@ -37,7 +48,7 @@
         };
     }
 
-    function buildDocumentTextMap(documentItem: AuditKingDocument): {
+    function buildDocumentTextMap(documentItem: AuditKingSourceDocument): {
         text: string;
         blocks: Array<{ block: AuditKingTextBlock; start: number; end: number }>;
     } {
@@ -56,7 +67,7 @@
     }
 
     function makeManualEvidenceFromDocumentRange(
-        documentItem: AuditKingDocument,
+        documentItem: AuditKingSourceDocument,
         start: number,
         end: number,
         options: { sourceType?: "summary" | "selection" | ""; mode?: "exact" | "loose" | ""; note?: string } = {}
@@ -215,7 +226,7 @@
         };
     }
 
-    function getEvidenceDocumentBlocks(evidence: AuditKingManualEvidence, documents: AuditKingDocument[]): AuditKingTextBlock[] {
+    function getEvidenceDocumentBlocks(evidence: AuditKingManualEvidence, documents: AuditKingSourceDocument[]): AuditKingTextBlock[] {
         const byId = evidence.documentId
             ? documents.find((documentItem) => documentItem.id === evidence.documentId)
             : undefined;
@@ -243,7 +254,7 @@
     }
 
     function resolveEvidenceByGlobalCoordinates(
-        documentItem: AuditKingDocument | undefined,
+        documentItem: AuditKingSourceDocument | undefined,
         evidence: AuditKingManualEvidence
     ): AuditKingManualEvidence | null {
         if (!documentItem) return null;
@@ -304,7 +315,7 @@
         return beforeOk && afterOk;
     }
 
-    function findEvidenceTextInDocument(documentItem: AuditKingDocument, text: string, evidence: AuditKingManualEvidence): AuditKingManualEvidence[] {
+    function findEvidenceTextInDocument(documentItem: AuditKingSourceDocument, text: string, evidence: AuditKingManualEvidence): AuditKingManualEvidence[] {
         if (!text) return [];
         const map = buildDocumentTextMap(documentItem);
         const matches: AuditKingManualEvidence[] = [];
@@ -320,7 +331,7 @@
         return matches.filter((candidate) => documentContextMatches(map.text, candidate, evidence));
     }
 
-    function uniqueEvidenceByDocumentContext(documents: AuditKingDocument[], evidence: AuditKingManualEvidence): AuditKingManualEvidence | null {
+    function uniqueEvidenceByDocumentContext(documents: AuditKingSourceDocument[], evidence: AuditKingManualEvidence): AuditKingManualEvidence | null {
         const evidenceText = evidence.text || "";
         if (!evidenceText) return null;
         const candidates = getEvidenceCandidateDocuments(evidence, documents)
@@ -328,7 +339,7 @@
         return candidates.length === 1 ? candidates[0] : null;
     }
 
-    function getEvidenceCandidateDocuments(evidence: AuditKingManualEvidence, documents: AuditKingDocument[]): AuditKingDocument[] {
+    function getEvidenceCandidateDocuments(evidence: AuditKingManualEvidence, documents: AuditKingSourceDocument[]): AuditKingSourceDocument[] {
         const byId = evidence.documentId
             ? documents.find((documentItem) => documentItem.id === evidence.documentId)
             : undefined;
@@ -341,7 +352,7 @@
 
     function resolveManualEvidence(
         evidence: AuditKingManualEvidence,
-        documents: AuditKingDocument[]
+        documents: AuditKingSourceDocument[]
     ): AuditKingManualEvidence {
         if (!documents.length || !evidence.text) return evidence;
 
@@ -386,7 +397,7 @@
         return evidence;
     }
 
-    function resolveCheckItemEvidences(items: AuditKingCheckItem[], documents: AuditKingDocument[]): AuditKingCheckItem[] {
+    function resolveCheckItemEvidences(items: AuditKingCheckItem[], documents: AuditKingSourceDocument[]): AuditKingCheckItem[] {
         return items.map((item) => ({
             ...item,
             manualEvidences: item.manualEvidences.map((evidence) => resolveManualEvidence(evidence, documents))
@@ -400,7 +411,7 @@
         }));
     }
 
-    runtime.SourceLocator = {
+export const AuditKingSourceLocator = {
         makeSource,
         makeManualEvidence,
         makeManualEvidenceFromDocumentRange,
@@ -409,4 +420,3 @@
         resolveCheckItemSources,
         resolveCheckItemEvidences
     };
-})();

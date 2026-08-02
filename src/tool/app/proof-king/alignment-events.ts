@@ -1,6 +1,12 @@
-(function () {
-    const runtime = (globalThis as any).ManualProofEvents || ((globalThis as any).ManualProofEvents = {});
-    const text = (globalThis as any).ManualProofText;
+import type {
+    AlignmentMatch,
+    ComparisonSlice,
+    DiffSegment,
+    RevisionContextAnchor,
+    RevisionEvent,
+    RevisionKind
+} from "./models";
+import { ManualProofText as text } from "./text-engine";
 
     function build(
         mySlices: ComparisonSlice[],
@@ -299,5 +305,4 @@
         return Math.round(value * 1000) / 1000;
     }
 
-    runtime.build = build;
-})();
+export const ManualProofEvents = { build };
