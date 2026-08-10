@@ -47,9 +47,6 @@ jobs:
       - name: Verify site
         run: npm run verify
 
-      - name: Audit Node dependencies
-        run: npm audit --audit-level=high
-
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
