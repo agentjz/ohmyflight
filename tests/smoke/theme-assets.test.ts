@@ -10,7 +10,7 @@ describe("shared theme assets", () => {
   const supportPageHtmlFiles = [
     resolveFromDist("tool", "developer.html"),
     resolveFromDist("tool", "manuals.html"),
-    resolveFromDist("jobskill", "index.html")
+    resolveFromDist("memo", "index.html")
   ];
 
   it("are present in dist", () => {

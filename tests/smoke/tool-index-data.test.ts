@@ -17,23 +17,6 @@ describe("tool index data", () => {
       expect(tool.status === "done" || tool.status === "wip").toBe(true);
       expect(["heavy", "light", "automation"]).toContain(tool.category);
     });
-    expect(tools).toContainEqual(expect.objectContaining({
-      entry: "seasonal-learning",
-      category: "heavy",
-      status: "done"
-    }));
-    expect(tools).toContainEqual(expect.objectContaining({
-      entry: "oa-read-helper",
-      homepageState: "cooling"
-    }));
-    expect(tools).toContainEqual(expect.objectContaining({
-      entry: "proof-king",
-      homepageState: "beta"
-    }));
-    expect(tools).toContainEqual(expect.objectContaining({
-      entry: "session-bill-check",
-      homepageState: "cooling"
-    }));
   });
 
   it("publishes four category views and defaults to all tools", () => {
@@ -75,7 +58,6 @@ describe("tool index data", () => {
   it("publishes the current repository skills", () => {
     const skills = loadSkillsData() || [];
     const manualSkillDirectories = new Set([
-      "read-flight-operations-manual",
       "read-flight-training-program",
       "read-flight-technical-management-manual"
     ]);

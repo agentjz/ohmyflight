@@ -8,6 +8,7 @@ import { promisify } from "node:util";
 
 import { build } from "esbuild";
 import ts from "typescript";
+import type { BeginnerTutorialData, TutorialModule, TutorialRecord, TutorialSourceRef } from "../src/tool/app/beginner-tutorial/types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +18,7 @@ const staticRoot = path.join(projectRoot, "public");
 const distRoot = resolveDistRoot();
 const skillsRoot = path.join(projectRoot, ".agents", "skills");
 const userManualsRoot = path.join(projectRoot, "spec", "user");
+const beginnerTutorialContentRoot = path.join(sourceRoot, "tool", "app", "beginner-tutorial", "content");
 const execFileAsync = promisify(execFile);
 
 function resolveDistRoot(): string {
@@ -42,7 +44,7 @@ const pageEntries = [
   { source: "src/tool/manuals.ts", output: "tool/manuals-app", page: "tool/manuals.html" },
   { source: "src/tool/developer.ts", output: "tool/developer-app", page: "tool/developer.html" },
   { source: "src/tool/app/beginner-tutorial/main.ts", output: "tool/app/beginner-tutorial/app", page: "tool/app/beginner-tutorial/index.html" },
-  { source: "src/jobskill/site.ts", output: "jobskill/app", page: "jobskill/index.html" },
+  { source: "src/memo/site.ts", output: "memo/app", page: "memo/index.html" },
   { source: "src/sponsor/main.ts", output: "sponsor/app", page: "sponsor/index.html" },
   { source: "src/tool/app/audit-king/main.ts", output: "tool/app/audit-king/app", page: "tool/app/audit-king/index.html" },
   { source: "src/tool/app/crew-flight-stats/main.ts", output: "tool/app/crew-flight-stats/app", page: "tool/app/crew-flight-stats/index.html" },
@@ -70,20 +72,10 @@ const workerEntries = [
   { source: "src/tool/app/proof-king/comparison-worker.ts", output: "tool/app/proof-king/comparison-worker" }
 ] as const;
 
-const beginnerTutorialEntries = [
-  {
-    skillDirectory: "read-flight-operations-manual",
-    source: "spec/reference/flight-manuals/operations-manual.md"
-  },
-  {
-    skillDirectory: "read-flight-training-program",
-    source: "spec/reference/flight-manuals/training-program.md"
-  },
-  {
-    skillDirectory: "read-flight-technical-management-manual",
-    source: "spec/reference/flight-manuals/technical-management-manual.md"
-  }
-] as const;
+const hiddenManualSkillNames = new Set([
+  "read-flight-training-program",
+  "read-flight-technical-management-manual"
+]);
 
 async function walkSourceAssetFiles(rootDir: string): Promise<string[]> {
   const results: string[] = [];
@@ -233,15 +225,12 @@ async function generateSkillsDataFile() {
   const entries = await fs.readdir(skillsRoot, { withFileTypes: true });
   const skills: Array<{ name: string; description: string; source: string; path: string }> = [];
   const pinnedSkillNames = new Map([
-    ["read-flight-operations-manual", 0],
-    ["read-flight-training-program", 1],
-    ["read-flight-technical-management-manual", 2]
+    ["read-flight-training-program", 0],
+    ["read-flight-technical-management-manual", 1]
   ]);
-  const manualSkillNames = new Set(beginnerTutorialEntries.map((item) => item.skillDirectory));
-
   for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name, "en"))) {
     if (!entry.isDirectory()) continue;
-    if (manualSkillNames.has(entry.name as typeof beginnerTutorialEntries[number]["skillDirectory"])) continue;
+    if (hiddenManualSkillNames.has(entry.name)) continue;
     const skillPath = path.join(skillsRoot, entry.name, "SKILL.md");
 
     try {
@@ -333,20 +322,53 @@ async function generateManualsDataFile() {
 }
 
 async function generateBeginnerTutorialDataFile() {
-  const tutorials: Array<{ name: string; description: string; source: string; path: string }> = [];
+  const sourcePath = path.join(beginnerTutorialContentRoot, "knowledge.json");
+  const source = JSON.parse(await fs.readFile(sourcePath, "utf8")) as Omit<BeginnerTutorialData, "modules"> & {
+    modules: Array<Omit<TutorialModule, "sources" | "body">>;
+  };
+  if (source.schemaVersion !== 1 || !source.title || !source.description || !Array.isArray(source.sourceScope) || !Array.isArray(source.modules)) {
+    throw new Error("菜鸟教程知识源结构无效。");
+  }
 
-  for (const item of beginnerTutorialEntries) {
-    const source = await fs.readFile(path.join(projectRoot, item.source), "utf8");
-    const frontmatterMatch = source.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
-    const frontmatter = frontmatterMatch?.[1] || "";
-    tutorials.push({
-      name: readFrontmatterValue(frontmatter, "name"),
-      description: readFrontmatterValue(frontmatter, "description"),
-      source: stripFrontmatter(source).trim(),
-      path: item.source
+  const sourceIndex = new Map(source.sourceScope.map((item) => [item.id, item]));
+  const resolveSources = (ids: string[] | undefined, owner: string): TutorialSourceRef[] => {
+    if (!ids?.length) return [];
+    return ids.map((id) => {
+      const item = sourceIndex.get(id);
+      if (!item) throw new Error(`菜鸟教程知识项 ${owner} 引用了不存在的来源 ${id}。`);
+      return item;
+    });
+  };
+
+  const modules: TutorialModule[] = [];
+  for (const module of source.modules) {
+    const moduleBody = module.bodyFile
+      ? (await fs.readFile(path.join(beginnerTutorialContentRoot, module.bodyFile), "utf8")).trim()
+      : undefined;
+    const records: TutorialRecord[] | undefined = module.records?.map((record) => ({
+      ...record,
+      sources: resolveSources(record.sourceIds, record.id)
+    }));
+    const steps = module.steps?.map((step) => ({
+      ...step,
+      sources: resolveSources(step.sourceIds, step.id)
+    }));
+    modules.push({
+      ...module,
+      ...(moduleBody === undefined ? {} : { body: moduleBody }),
+      ...(records === undefined ? {} : { records }),
+      ...(steps === undefined ? {} : { steps }),
+      sources: resolveSources(module.sourceIds, module.id)
     });
   }
 
+  const tutorials: BeginnerTutorialData = {
+    schemaVersion: 1,
+    title: source.title,
+    description: source.description,
+    sourceScope: source.sourceScope,
+    modules
+  };
   const outputPath = path.join(distRoot, "tool", "beginner-tutorial-data.json");
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   await fs.writeFile(outputPath, `${JSON.stringify(tutorials)}\n`, "utf8");

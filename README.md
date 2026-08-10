@@ -2,9 +2,7 @@
 
 # ohmyflight
 
-### 把反复点击、批量录入和表格核对，交给真正能跑的工具。
-
-[项目主页](https://luckymaomi.github.io/ohmyflight/) · [工作技能](https://luckymaomi.github.io/ohmyflight/jobskill/) · [GitHub](https://github.com/luckymaomi/ohmyflight)
+[项目主页](https://luckymaomi.github.io/ohmyflight/) · [备忘录](https://luckymaomi.github.io/ohmyflight/memo/) · [GitHub](https://github.com/luckymaomi/ohmyflight)
 
 <p>
   <a href="https://github.com/luckymaomi/ohmyflight/actions/workflows/deploy-pages.yml"><img alt="Deploy Pages" src="https://img.shields.io/github/actions/workflow/status/luckymaomi/ohmyflight/deploy-pages.yml?branch=master&logo=githubactions&logoColor=white&label=Pages"></a>
@@ -22,6 +20,7 @@
 
 | 工具 | 状态 | 功能 |
 | --- | --- | --- |
+| 菜鸟教程 | 🧪 | 新兵蛋子，立正！ |
 | 培训皇帝 | ✅ | 查个人资质、排培训、核覆盖、看年度压力并更新有效期。 |
 | 换季学习 | ✅ | 检查换季名单，均衡岗位和美线带队并移动导出实际安排。 |
 | 审计之王 | ✅ | 从检查项检索手册证据，整理审计依据和 PDF 页面。 |
@@ -51,21 +50,3 @@
 ## 目前
 
 服务于：南货航飞行部、中国南方航空货运有限公司。
-
-## 开发与构建
-
-浏览器源码位于 `src/`，使用标准 ESM 显式依赖；每个页面由一个应用入口构建，第三方浏览器库继续从 `public/libs/` 本地加载。生产产物输出到 `dist/`。
-
-Windows 下可直接运行 `start_index.py` 构建并打开本地站点；脚本在本机 `4567` 端口成功启动服务后打开页面，端口被占用时会直接报告错误。
-
-```powershell
-npm.cmd ci
-python -m pip install -r requirements.txt
-python -m playwright install chromium
-npm.cmd run build
-npm.cmd run typecheck
-npm.cmd test
-npm.cmd run verify
-```
-
-`npm.cmd run verify` 覆盖类型检查、TypeScript/Python 全量测试、真实 Chromium 页面与脱敏重型流程和连续双构建。真实 Excel 性能回放使用 `npm.cmd run test:performance -- --training-workbook <培训表> --seasonal-workbook <换季表>`；输入和原始结果不提交。构建与恢复约定见 [`spec/dev/esm-delivery/delivery.md`](./spec/dev/esm-delivery/delivery.md)。

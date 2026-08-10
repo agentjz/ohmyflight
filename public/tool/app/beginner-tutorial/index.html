@@ -8,10 +8,10 @@
     <link rel="stylesheet" href="../../../libs/bootstrap.min.css">
     <link rel="stylesheet" href="../../../theme.css">
     <link rel="stylesheet" href="../../support-shell.css">
-    <link rel="stylesheet" href="../../developer.css">
+    <link rel="stylesheet" href="./tutorial.css">
 </head>
 <body>
-    <div class="support-shell">
+    <div class="support-shell tutorial-shell">
         <header class="support-bar">
             <a class="support-brand" href="../../index.html" title="返回工具首页">
                 <strong>菜鸟教程</strong>
@@ -35,21 +35,22 @@
             </nav>
         </header>
 
-        <main class="support-main manual-main">
-            <div class="manual-toolbar">
-                <button class="support-link download-manuals" id="downloadManuals" type="button">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path>
-                    </svg>
-                    <span>下载全部</span>
-                </button>
+        <main class="support-main tutorial-main">
+            <div class="tutorial-toolbar">
+                <label for="tutorialSearch">搜索</label>
+                <input id="tutorialSearch" type="search" autocomplete="off" placeholder="等级、资质、条件或数字">
+                <span id="tutorialSearchStatus" aria-live="polite"></span>
             </div>
-            <div class="skills-list" id="manualList"></div>
+            <div class="tutorial-layout">
+                <nav class="tutorial-navigation" id="tutorialNavigation" aria-label="教程模块"></nav>
+                <div class="tutorial-content" id="tutorialContent">
+                    <div class="tutorial-empty">正在加载。</div>
+                </div>
+            </div>
         </main>
     </div>
 
     <script src="../../../libs/marked.min.js"></script>
-    <script src="../../../libs/bootstrap.bundle.min.js"></script>
     <script type="module" src="./app.js"></script>
 </body>
 </html>

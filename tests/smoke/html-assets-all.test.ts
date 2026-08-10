@@ -11,7 +11,7 @@ describe("all tool html pages", () => {
     resolveFromDist("tool", "index.html"),
     resolveFromDist("tool", "developer.html"),
     resolveFromDist("tool", "manuals.html"),
-    resolveFromDist("jobskill", "index.html"),
+    resolveFromDist("memo", "index.html"),
     ...walkFiles(resolveFromDist("tool", "app"), [".html"])
   ];
 

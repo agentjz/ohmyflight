@@ -1,4 +1,0 @@
-interface:
-  display_name: "运行手册阅读"
-  short_description: "逐章阅读、定位、解释并复核运行手册中的飞行运行规则"
-  default_prompt: "完整阅读现行运行手册，按章节定位机组、运行政策、飞行程序、限制和特殊运行要求。"

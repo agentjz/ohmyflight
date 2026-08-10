@@ -1,12 +1,7 @@
 import { execFileSync } from "node:child_process";
 
-export function assertJavaScriptSyntax(filePath: string, preferredMode = "auto"): void {
-  const args: string[] = [];
-  if (preferredMode === "module") {
-    args.push("--experimental-default-type=module");
-  }
-
-  execFileSync("node", [...args, "--check", filePath], {
+export function assertJavaScriptSyntax(filePath: string, _preferredMode = "auto"): void {
+  execFileSync("node", ["--check", filePath], {
     stdio: "pipe"
   });
 }

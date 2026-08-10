@@ -33,13 +33,13 @@
 - 涉及 Excel 读取、导出、表头映射、日期解析或 openpyxl/SheetJS 时，看 `.agents/skills/excel-dev/SKILL.md`。
 - 涉及 IEB/飞行门户、Playwright 页面探测、员工号查询、技术等级/运行资格抓取或 Excel 批量写回时，看 `.agents/skills/flight-portal-probe/SKILL.md`。
 - 涉及两本 Word/PDF 手册的新增、删除和修改比对时，看 `.agents/skills/compare-manuals/SKILL.md`。
-- 涉及《运行手册》的运行政策、机组、飞行、签派、值勤、应急或特殊运行阅读与版本复核时，看 `.agents/skills/read-flight-operations-manual/SKILL.md`。
 - 涉及《飞行人员训练大纲》的训练课程、课时、检查、资格保持恢复或版本复核时，看 `.agents/skills/read-flight-training-program/SKILL.md`。
 - 涉及《飞行技术管理手册》的技术等级、资格、聘任、检查、档案或版本复核时，看 `.agents/skills/read-flight-technical-management-manual/SKILL.md`。
+- 涉及菜鸟教程正文、知识结构、手册版本更新、来源或页面测试时，看 `.agents/skills/beginner-tutorial-dev/SKILL.md`。
 - 涉及 docx 读取、分析、修改或生成时，看 `.agents/skills/docx-report/SKILL.md`。
 - 涉及面试人员名单整理成锁班导入模板时，看 `.agents/skills/interview-lock-list/SKILL.md`。
 - 涉及人员结构统计和 Word 报告结果核对时，看 `.agents/skills/personnel-report-check/SKILL.md`。
-- 涉及 Jobskill 业务技能子站、日常 Skill 正文、图片附件、导航或索引时，看 `.agents/skills/jobskill-dev/SKILL.md`。
+- 涉及备忘录业务子站、日常备忘录正文、图片附件、导航或索引时，看 `.agents/skills/memo-dev/SKILL.md`。
 - 如果 skill 和 owner 当前明确需求冲突，以 owner 当前需求为准，并说明冲突点。
 
 ## Spec、测试与完成标准
@@ -85,7 +85,7 @@
 - 工具入口数据在 `src/tool/tools-data.ts`。
 - 首页入口在 `public/index.html`，实际工具首页在 `public/tool/index.html` 和 `src/tool/`。
 - 工具页在 `public/tool/app/<tool>/`，源码在 `src/tool/app/<tool>/`。
-- Jobskill 独立子站在 `public/jobskill/`，页面逻辑在 `src/jobskill/`。
+- 备忘录独立子站在 `public/memo/`，页面逻辑在 `src/memo/`。
 - 开发规格在 `spec/dev/<tool>/`，用户手册在 `spec/user/<tool>/manual.md`，测试在 `tests/tool/`。
 
 ## 常用命令

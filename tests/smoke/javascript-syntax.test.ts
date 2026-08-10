@@ -10,7 +10,7 @@ describe("all tool JavaScript files", () => {
     resolveFromDist("tool", "index.html"),
     resolveFromDist("tool", "developer.html"),
     resolveFromDist("tool", "manuals.html"),
-    resolveFromDist("jobskill", "index.html"),
+    resolveFromDist("memo", "index.html"),
     resolveFromDist("sponsor", "index.html"),
     ...walkFiles(resolveFromDist("tool", "app"), [".html"])
   ];

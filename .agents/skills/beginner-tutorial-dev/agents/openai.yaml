@@ -1,0 +1,4 @@
+interface:
+  display_name: "菜鸟教程维护"
+  short_description: "根据两本现行手册维护菜鸟教程的结构化正文、来源、页面和测试"
+  default_prompt: "使用 $beginner-tutorial-dev 按现行手册语义更新菜鸟教程，并同步来源、文档和测试。"
