@@ -175,3 +175,8 @@ export function loadManualsData() {
   ensureDistFresh();
   return JSON.parse(fs.readFileSync(resolveFromDist("tool", "manuals-data.json"), "utf8")) as ManualItem[];
 }
+
+export function loadBeginnerTutorialData() {
+  ensureDistFresh();
+  return JSON.parse(fs.readFileSync(resolveFromDist("tool", "beginner-tutorial-data.json"), "utf8")) as ManualItem[];
+}

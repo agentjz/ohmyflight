@@ -41,6 +41,6 @@
 - 冷启动记录 wall time、Navigation Timing、DOMContentLoaded、脚本请求数、传输字节和 JS 堆。
 - 关键工作流记录导入/文档读取/比对完成时间及业务可观察结果文本哈希。
 - 设备计时预算使用基线中位数加 25% 与 100 ms 两者较大值作为允许噪声；结构预算要求每页仅 1 个应用入口脚本，业务结果哈希必须完全一致，任何 console error、pageerror 或 HTTP 失败均不允许。
-- `npm.cmd run test:browser` 对生产构建的 26 个 HTML 执行真实 Chromium 启动检查，并用脱敏合成 Excel/DOCX 运行培训、换季、审计和校对关键流程。
+- `npm.cmd run test:browser` 对生产构建的 27 个 HTML 执行真实 Chromium 启动检查，并用脱敏合成 Excel/DOCX 运行培训、换季、审计和校对关键流程。
 - `npm.cmd run test:performance -- --training-workbook <培训表> --seasonal-workbook <换季表> --baseline spec/dev/esm-delivery/legacy-performance.json` 复现三次正式采样、结果哈希预算和五轮内存复核；真实输入与原始输出不进入仓库。
 - 固定真实输入正式工作流中位数均在预算内，四项结果哈希与重构前金样一致；该性能证据未用于修改核心业务算法。

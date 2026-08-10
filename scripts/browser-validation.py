@@ -371,8 +371,8 @@ def validate(result: dict[str, Any], baseline_path: Path | None) -> list[str]:
     for page in pages:
         if page["errors"]:
             failures.append(f"{page['page']} 页面启动错误：{page['errors']}")
-    if pages and len(pages) != 26:
-        failures.append(f"构建 HTML 数量为 {len(pages)}，预期 26")
+    if pages and len(pages) != 27:
+        failures.append(f"构建 HTML 数量为 {len(pages)}，预期 27")
 
     for name, metrics in result["coldStart"].items():
         if metrics["errors"]:

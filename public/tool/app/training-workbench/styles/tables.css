@@ -2,7 +2,7 @@
     overflow-x: auto;
     overflow-y: hidden;
     border: 1px solid var(--omf-border);
-    border-radius: 8px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
 }
 
@@ -143,7 +143,7 @@
     align-items: center;
     justify-content: center;
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: var(--omf-radius);
     font-size: 12px;
     font-weight: 600;
 }
@@ -222,7 +222,7 @@
 
 .schedule-gap-table-shell::-webkit-scrollbar-thumb {
     border: 3px solid var(--omf-surface-soft);
-    border-radius: 999px;
+    border-radius: var(--omf-radius);
     background: var(--omf-border-strong);
 }
 
@@ -279,7 +279,7 @@
     align-items: center;
     min-height: 24px;
     padding: 3px 8px;
-    border-radius: 999px;
+    border-radius: var(--omf-radius);
     font-size: 11px;
     font-weight: 600;
     white-space: nowrap;
@@ -361,7 +361,7 @@
 
 .collapse-shell {
     border: 1px solid var(--omf-border);
-    border-radius: 8px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
 }
 

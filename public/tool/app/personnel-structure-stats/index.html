@@ -10,7 +10,7 @@
     <style>
         body { background: transparent; padding: 20px; }
         .container { max-width: 1400px; }
-        .card { border-color: var(--omf-border); border-radius: 8px; }
+        .card { border-color: var(--omf-border); border-radius: var(--omf-radius); }
         .card-body { padding: 16px 18px; }
         .card-title { font-weight: 700; }
         .result-card-head {
@@ -38,7 +38,7 @@
         .closure-state { font-weight: 700; }
         .closure-state.is-closed { color: var(--omf-success-text); }
         .closure-state.is-open { color: var(--omf-danger-text); }
-        .status { margin-top: 8px; padding: 6px 10px; border-radius: 4px; font-size: 12px; display: none; }
+        .status { margin-top: 8px; padding: 6px 10px; border: 2px solid var(--omf-border); border-radius: var(--omf-radius); font-size: 12px; display: none; }
         .status-success { background: var(--omf-success-bg); color: var(--omf-success-text); display: block; }
         .status-error { background: var(--omf-danger-bg); color: var(--omf-danger-text); display: block; }
         .status-loading, .status-hint { background: var(--omf-surface-soft); color: var(--omf-text-muted); display: block; }

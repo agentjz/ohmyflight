@@ -15,6 +15,7 @@ description: ohmyflight 仓库内新增或修改工具的一般开发流程，�
 - 大型前端模块优先参考 `training-workbench`。
 - Python 工具优先参考 `lock-entry-helper`、`flight-stats-helper`、`oa-read-helper`。
 - 工具入口看 `src/tool/tools-data.ts`，页面放 `public/tool/app/<tool>/`，源码放 `src/tool/app/<tool>/`。
+- 涉及页面 UI 时同时读取 `.agents/skills/ui-clarity/SKILL.md` 和 `spec/dev/ui-theme/spec.md`；页面接入共享 `theme.js`、`theme.css`，专属 CSS 只维护布局和领域特判。
 
 ## 实现原则
 

@@ -10,29 +10,29 @@
         body { background: transparent; padding: 20px; }
         .container { max-width: 1200px; }
         .nav-tabs .nav-link { cursor: pointer; }
-        .upload-area { border: 2px dashed #dee2e6; border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 15px; }
-        .upload-area:hover, .upload-area.dragover { border-color: #0d6efd; background: #f8f9fa; }
+        .upload-area { border: 2px dashed var(--omf-border); border-radius: var(--omf-radius); padding: 40px; text-align: center; cursor: pointer; transition: background var(--omf-transition), border-color var(--omf-transition); margin-bottom: 15px; }
+        .upload-area:hover, .upload-area.dragover { border-color: var(--omf-border-strong); background: var(--omf-surface-soft); }
         .upload-area input { display: none; }
-        .file-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 8px; }
-        .file-item .drag-handle { cursor: move; color: #999; }
+        .file-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--omf-surface-soft); border: 1px solid var(--omf-border); border-radius: var(--omf-radius); margin-bottom: 8px; }
+        .file-item .drag-handle { cursor: move; color: var(--omf-text-quiet); }
         .file-item .file-info { flex: 1; min-width: 0; }
         .file-item .file-name { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-item .file-meta { font-size: 12px; color: #666; }
+        .file-item .file-meta { font-size: 12px; color: var(--omf-text-muted); }
         .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 15px; }
-        .preview-page { border: 2px solid #dee2e6; border-radius: 4px; overflow: hidden; cursor: pointer; transition: all 0.15s; }
+        .preview-page { border: 2px solid var(--omf-border); border-radius: var(--omf-radius); overflow: hidden; cursor: pointer; transition: transform var(--omf-transition), border-color var(--omf-transition); }
         .preview-page:hover { transform: scale(1.02); }
-        .preview-page.selected { border-color: #0d6efd; background: #e7f1ff; }
+        .preview-page.selected { border-color: var(--omf-info-border); background: var(--omf-info-bg); }
         .preview-page canvas { width: 100%; display: block; }
-        .preview-page .page-label { text-align: center; padding: 4px; font-size: 12px; background: #f8f9fa; }
+        .preview-page .page-label { text-align: center; padding: 4px; font-size: 12px; background: var(--omf-surface-soft); }
         .result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px; }
-        .result-item { border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden; }
+        .result-item { border: 1px solid var(--omf-border); border-radius: var(--omf-radius); overflow: hidden; }
         .result-item img { width: 100%; display: block; }
         .result-item .item-footer { padding: 8px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .status-bar { padding: 10px 15px; background: #e7f1ff; border-radius: 4px; margin: 10px 0; }
-        .status-bar.error { background: #f8d7da; color: #842029; }
+        .status-bar { padding: 10px 15px; background: var(--omf-info-bg); border: 2px solid var(--omf-info-border); border-radius: var(--omf-radius); margin: 10px 0; color: var(--omf-info-text); }
+        .status-bar.error { background: var(--omf-danger-bg); border-color: var(--omf-danger-border); color: var(--omf-danger-text); }
         .hidden { display: none !important; }
-        .extract-file-card { border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #fff; }
-        .extract-file-card .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #dee2e6; }
+        .extract-file-card { border: 1px solid var(--omf-border); border-radius: var(--omf-radius); padding: 15px; margin-bottom: 15px; background: var(--omf-surface); }
+        .extract-file-card .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--omf-divider); }
         .extract-file-card .card-header .file-title { flex: 1; font-weight: 500; }
         .extract-file-card .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
     </style>

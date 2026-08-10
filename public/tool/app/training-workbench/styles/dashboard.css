@@ -3,7 +3,7 @@
 .tool-card,
 .overview-item {
     border: 1px solid var(--omf-border);
-    border-radius: 8px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     padding: 14px;
 }
@@ -26,7 +26,7 @@
     min-height: 38px;
     padding: 7px 10px;
     border: 1px solid var(--omf-border);
-    border-radius: 6px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     color: var(--omf-text);
     font: inherit;
@@ -222,7 +222,7 @@
     align-items: center;
     gap: 6px;
     padding: 6px 10px;
-    border-radius: 999px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
     color: var(--omf-text-muted);
     font-size: 13px;
@@ -258,7 +258,7 @@
     align-items: start;
     padding: 10px 12px;
     border: 1px solid var(--omf-border);
-    border-radius: 8px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     font-size: 13px;
 }
@@ -314,7 +314,7 @@
     width: 100%;
     min-width: 0;
     border: 1px solid var(--omf-border);
-    border-radius: 8px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     padding: 12px;
 }
@@ -345,7 +345,7 @@
     margin-bottom: 12px;
     padding: 10px 12px;
     border: 1px solid var(--omf-border);
-    border-radius: 8px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
     color: var(--omf-text-muted);
     font-size: 13px;
@@ -369,7 +369,7 @@
     margin-bottom: 12px;
     padding: 14px 16px;
     border: 1px solid var(--omf-border);
-    border-radius: 8px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
 }
 
@@ -444,7 +444,7 @@
     min-height: 76px;
     padding: 11px 13px;
     border: 1px solid var(--omf-border);
-    border-radius: 6px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     color: var(--omf-text);
     text-align: left;
@@ -587,7 +587,7 @@
 
 .simulation-panel {
     border: 1px solid var(--omf-border);
-    border-radius: 8px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     padding: 12px;
 }
@@ -675,7 +675,7 @@
     min-height: 28px;
     padding: 0 8px;
     border: 1px solid var(--omf-border);
-    border-radius: 6px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     color: var(--omf-text);
     font-size: 13px;
@@ -738,7 +738,7 @@
 
 .summary-panel {
     border: 1px solid var(--omf-border);
-    border-radius: 8px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     padding: 12px;
 }
@@ -804,7 +804,7 @@
     align-items: center;
     min-height: 28px;
     padding: 0 10px;
-    border-radius: 999px;
+    border-radius: var(--omf-radius);
     border: 1px solid var(--omf-border);
     background: var(--omf-surface-soft);
     color: var(--omf-text-muted);

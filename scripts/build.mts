@@ -41,6 +41,7 @@ const pageEntries = [
   { source: "src/tool/tools-render.ts", output: "tool/app", page: "tool/index.html" },
   { source: "src/tool/manuals.ts", output: "tool/manuals-app", page: "tool/manuals.html" },
   { source: "src/tool/developer.ts", output: "tool/developer-app", page: "tool/developer.html" },
+  { source: "src/tool/app/beginner-tutorial/main.ts", output: "tool/app/beginner-tutorial/app", page: "tool/app/beginner-tutorial/index.html" },
   { source: "src/jobskill/site.ts", output: "jobskill/app", page: "jobskill/index.html" },
   { source: "src/sponsor/main.ts", output: "sponsor/app", page: "sponsor/index.html" },
   { source: "src/tool/app/audit-king/main.ts", output: "tool/app/audit-king/app", page: "tool/app/audit-king/index.html" },
@@ -69,18 +70,18 @@ const workerEntries = [
   { source: "src/tool/app/proof-king/comparison-worker.ts", output: "tool/app/proof-king/comparison-worker" }
 ] as const;
 
-const manualSkillEntries = [
+const beginnerTutorialEntries = [
   {
-    directory: "read-flight-operations-manual",
-    name: "运行手册"
+    skillDirectory: "read-flight-operations-manual",
+    source: "spec/reference/flight-manuals/operations-manual.md"
   },
   {
-    directory: "read-flight-training-program",
-    name: "训练大纲"
+    skillDirectory: "read-flight-training-program",
+    source: "spec/reference/flight-manuals/training-program.md"
   },
   {
-    directory: "read-flight-technical-management-manual",
-    name: "技术管理手册"
+    skillDirectory: "read-flight-technical-management-manual",
+    source: "spec/reference/flight-manuals/technical-management-manual.md"
   }
 ] as const;
 
@@ -236,11 +237,11 @@ async function generateSkillsDataFile() {
     ["read-flight-training-program", 1],
     ["read-flight-technical-management-manual", 2]
   ]);
-  const manualSkillNames = new Set(manualSkillEntries.map((item) => item.directory));
+  const manualSkillNames = new Set(beginnerTutorialEntries.map((item) => item.skillDirectory));
 
   for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name, "en"))) {
     if (!entry.isDirectory()) continue;
-    if (manualSkillNames.has(entry.name as typeof manualSkillEntries[number]["directory"])) continue;
+    if (manualSkillNames.has(entry.name as typeof beginnerTutorialEntries[number]["skillDirectory"])) continue;
     const skillPath = path.join(skillsRoot, entry.name, "SKILL.md");
 
     try {
@@ -315,18 +316,6 @@ function stripFrontmatter(source: string): string {
 async function generateManualsDataFile() {
   const manuals: Array<{ name: string; description: string; source: string; path: string }> = [];
 
-  for (const item of manualSkillEntries) {
-    const relativePath = `.agents/skills/${item.directory}/SKILL.md`;
-    const source = await fs.readFile(path.join(projectRoot, relativePath), "utf8");
-    const frontmatterMatch = source.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
-    manuals.push({
-      name: item.name,
-      description: readFrontmatterValue(frontmatterMatch?.[1] || "", "description"),
-      source: stripFrontmatter(source).trim(),
-      path: relativePath
-    });
-  }
-
   for (const tool of await readToolCatalog()) {
     const relativePath = `spec/user/${tool.entry}/manual.md`;
     const source = await fs.readFile(path.join(projectRoot, relativePath), "utf8");
@@ -341,6 +330,26 @@ async function generateManualsDataFile() {
   const outputPath = path.join(distRoot, "tool", "manuals-data.json");
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   await fs.writeFile(outputPath, `${JSON.stringify(manuals)}\n`, "utf8");
+}
+
+async function generateBeginnerTutorialDataFile() {
+  const tutorials: Array<{ name: string; description: string; source: string; path: string }> = [];
+
+  for (const item of beginnerTutorialEntries) {
+    const source = await fs.readFile(path.join(projectRoot, item.source), "utf8");
+    const frontmatterMatch = source.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
+    const frontmatter = frontmatterMatch?.[1] || "";
+    tutorials.push({
+      name: readFrontmatterValue(frontmatter, "name"),
+      description: readFrontmatterValue(frontmatter, "description"),
+      source: stripFrontmatter(source).trim(),
+      path: item.source
+    });
+  }
+
+  const outputPath = path.join(distRoot, "tool", "beginner-tutorial-data.json");
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  await fs.writeFile(outputPath, `${JSON.stringify(tutorials)}\n`, "utf8");
 }
 
 async function copySourceAsset(sourceFilePath: string): Promise<string> {
@@ -361,6 +370,7 @@ async function main() {
 
   await generateSkillsDataFile();
   await generateManualsDataFile();
+  await generateBeginnerTutorialDataFile();
   await buildPageEntries();
   await generateVersionFile();
 

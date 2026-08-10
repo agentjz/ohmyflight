@@ -1,24 +1,24 @@
 :root {
-    --st-primary: #dd2c2f;
-    --st-primary-strong: #b61f22;
-    --st-primary-deep: #8f1417;
-    --st-primary-soft: #fff1f2;
-    --st-primary-soft-strong: #ffd9dd;
-    --st-primary-ring: rgba(221, 44, 47, 0.16);
-    --st-on-primary: #ffffff;
-    --st-info: #2563eb;
-    --st-info-soft: #eff6ff;
-    --st-info-border: rgba(37, 99, 235, 0.26);
-    --st-success: #116329;
-    --st-success-soft: #b7efc5;
-    --st-success-border: rgba(17, 99, 41, 0.26);
-    --st-warning: #76571a;
-    --st-warning-soft: #edf0ee;
-    --st-warning-border: rgba(86, 102, 93, 0.32);
-    --st-danger: #cf222e;
-    --st-danger-soft: #ffc9c7;
-    --st-danger-border: rgba(185, 28, 28, 0.32);
-    --st-shadow-soft: rgba(15, 23, 42, 0.06);
+    --st-primary: var(--omf-accent-pink);
+    --st-primary-strong: color-mix(in srgb, var(--omf-accent-pink) 72%, var(--omf-text));
+    --st-primary-deep: color-mix(in srgb, var(--omf-accent-pink) 52%, var(--omf-text));
+    --st-primary-soft: color-mix(in srgb, var(--omf-accent-pink) 12%, var(--omf-surface));
+    --st-primary-soft-strong: color-mix(in srgb, var(--omf-accent-pink) 24%, var(--omf-surface));
+    --st-primary-ring: color-mix(in srgb, var(--omf-accent-pink) 34%, transparent);
+    --st-on-primary: var(--omf-on-accent);
+    --st-info: var(--omf-info-text);
+    --st-info-soft: var(--omf-info-bg);
+    --st-info-border: var(--omf-info-border);
+    --st-success: var(--omf-success-text);
+    --st-success-soft: var(--omf-success-bg);
+    --st-success-border: var(--omf-success-border);
+    --st-warning: var(--omf-warning-text);
+    --st-warning-soft: var(--omf-warning-bg);
+    --st-warning-border: var(--omf-warning-border);
+    --st-danger: var(--omf-danger-text);
+    --st-danger-soft: var(--omf-danger-bg);
+    --st-danger-border: var(--omf-danger-border);
+    --st-shadow-soft: var(--omf-shadow-color);
     --st-status-ok-bg: var(--st-success-soft);
     --st-status-ok-text: var(--st-success);
     --st-status-ok-border: var(--st-success-border);
@@ -31,12 +31,12 @@
     --st-status-info-bg: var(--st-info-soft);
     --st-status-info-text: var(--st-info);
     --st-status-info-border: var(--st-info-border);
-    --st-gap-near-bg: #dff7f4;
-    --st-gap-near-text: #0f6f69;
-    --st-gap-mid-bg: #e7f0fc;
-    --st-gap-mid-text: #315b84;
-    --st-gap-far-bg: #edf0f4;
-    --st-gap-far-text: #5b6674;
+    --st-gap-near-bg: color-mix(in srgb, var(--omf-accent-mint) 20%, var(--omf-surface));
+    --st-gap-near-text: var(--omf-success-text);
+    --st-gap-mid-bg: var(--omf-info-bg);
+    --st-gap-mid-text: var(--omf-info-text);
+    --st-gap-far-bg: var(--omf-surface-soft);
+    --st-gap-far-text: var(--omf-text-muted);
     --accent: var(--st-primary);
     --accent-strong: var(--st-primary-strong);
     --accent-deep: var(--st-primary-deep);
@@ -46,15 +46,12 @@
 }
 
 :root[data-theme="dark"] {
-    --st-warning: #e4b75f;
-    --st-warning-soft: #29302c;
-    --st-warning-border: rgba(228, 183, 95, 0.3);
-    --st-gap-near-bg: #163c3b;
-    --st-gap-near-text: #8edbd4;
-    --st-gap-mid-bg: #1d304a;
-    --st-gap-mid-text: #a8c8ee;
-    --st-gap-far-bg: #29303a;
-    --st-gap-far-text: #b8c0cb;
+    --st-gap-near-bg: color-mix(in srgb, var(--omf-accent-mint) 24%, var(--omf-surface));
+    --st-gap-near-text: var(--omf-success-text);
+    --st-gap-mid-bg: var(--omf-info-bg);
+    --st-gap-mid-text: var(--omf-info-text);
+    --st-gap-far-bg: var(--omf-surface-soft);
+    --st-gap-far-text: var(--omf-text-muted);
 }
 
 * {
@@ -89,7 +86,7 @@ select {
 .section {
     background: var(--omf-surface);
     border: 1px solid var(--omf-border);
-    border-radius: 10px;
+    border-radius: var(--omf-radius);
     box-shadow: none;
 }
 
@@ -144,7 +141,7 @@ select {
     justify-content: center;
     min-height: 38px;
     padding: 0 14px;
-    border-radius: 6px;
+    border-radius: var(--omf-radius);
     border: 1px solid var(--omf-border);
     background: var(--omf-surface);
     color: var(--omf-text);
@@ -224,7 +221,7 @@ select {
     min-height: 20px;
     margin-top: 12px;
     padding: 10px 12px;
-    border-radius: 8px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
     color: var(--omf-text-muted);
 }

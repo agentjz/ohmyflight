@@ -2,7 +2,7 @@
     min-height: 40px;
     padding: 14px;
     border: 1px solid var(--omf-border);
-    border-radius: 12px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     box-shadow: none;
 }
@@ -34,7 +34,7 @@
     min-height: 42px;
     padding: 0 14px;
     border: 1px solid var(--omf-border);
-    border-radius: 999px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     font-size: 13px;
     font-weight: 600;
@@ -45,7 +45,7 @@
 .checkbox-inline:hover,
 .checkbox-chip:hover {
     border-color: var(--omf-border-strong);
-    box-shadow: 0 10px 24px var(--st-shadow-soft);
+    box-shadow: var(--omf-shadow-sm);
 }
 
 .checkbox-inline input,
@@ -62,7 +62,7 @@
     width: 20px;
     height: 20px;
     border: 1.5px solid var(--omf-border-strong);
-    border-radius: 6px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
 }
@@ -117,7 +117,7 @@
     align-items: center;
     min-height: 34px;
     padding: 0 12px;
-    border-radius: 999px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
     color: var(--omf-text-muted);
     font-weight: 600;
@@ -134,7 +134,7 @@
     min-height: 56px;
     padding: 14px 16px;
     border: 1px solid var(--omf-border);
-    border-radius: 14px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     font-size: 14px;
     font-weight: 600;
@@ -161,7 +161,7 @@
     justify-content: center;
     padding: 18px;
     border: 1px dashed var(--omf-border-strong);
-    border-radius: 12px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
     text-align: center;
 }

@@ -4,15 +4,15 @@
     --season-first-officer-chart: #9ba3b8;
     --season-us-line-chart: #a9c9bf;
     --season-total-chart: #9c91ae;
-    --season-leader-soft: #eef5fc;
-    --season-captain-soft: #edf8f5;
-    --season-first-officer-soft: #eef0f5;
-    --season-us-line-soft: #edf7f3;
-    --season-total-soft: #f2f0f5;
-    --season-adjusted: #fff2f2;
-    --season-selection-bg: #d8ebe4;
-    --season-selection-border: #14795e;
-    --season-selection-text: #17493d;
+    --season-leader-soft: color-mix(in srgb, var(--season-leader-chart) 18%, var(--omf-surface));
+    --season-captain-soft: color-mix(in srgb, var(--season-captain-chart) 18%, var(--omf-surface));
+    --season-first-officer-soft: color-mix(in srgb, var(--season-first-officer-chart) 18%, var(--omf-surface));
+    --season-us-line-soft: color-mix(in srgb, var(--season-us-line-chart) 18%, var(--omf-surface));
+    --season-total-soft: color-mix(in srgb, var(--season-total-chart) 18%, var(--omf-surface));
+    --season-adjusted: var(--omf-danger-bg);
+    --season-selection-bg: var(--omf-success-bg);
+    --season-selection-border: var(--omf-success-border);
+    --season-selection-text: var(--omf-success-text);
 }
 
 :root[data-theme="dark"] {
@@ -21,15 +21,6 @@
     --season-first-officer-chart: #7f879c;
     --season-us-line-chart: #75988d;
     --season-total-chart: #8d849a;
-    --season-leader-soft: #263342;
-    --season-captain-soft: #243a36;
-    --season-first-officer-soft: #30343f;
-    --season-us-line-soft: #243a34;
-    --season-total-soft: #332f3b;
-    --season-adjusted: #4b1f24;
-    --season-selection-bg: #243d35;
-    --season-selection-border: #54d2a4;
-    --season-selection-text: #e0f4ec;
 }
 
 body {
@@ -50,6 +41,23 @@ body {
     align-items: center;
     min-height: 56px;
     padding: 0 16px;
+}
+
+.app-header,
+.control-band,
+.date-band,
+.balance-rule-band,
+.health-band,
+.summary-strip,
+.balance-result-band,
+.chart-band,
+.change-section,
+.pending-section,
+.period-section,
+.log-section {
+    border: 2px solid var(--omf-border);
+    border-radius: var(--omf-radius);
+    box-shadow: var(--omf-shadow-sm);
 }
 
 .app-header > div {
@@ -136,7 +144,7 @@ body {
     min-height: 38px;
     padding: 6px 9px;
     border: 1px solid var(--omf-border);
-    border-radius: 4px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
     color: var(--omf-text);
     cursor: pointer;
@@ -181,7 +189,7 @@ body {
     min-height: 54px;
     padding: 8px 10px;
     border: 1px solid var(--omf-border);
-    border-radius: 4px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
 }
 
@@ -246,7 +254,7 @@ body {
     justify-self: end;
     padding: 3px 6px;
     border: 1px solid var(--omf-border);
-    border-radius: 4px;
+    border-radius: var(--omf-radius);
     color: var(--omf-text-muted);
     font-size: 11px;
     white-space: nowrap;
@@ -335,7 +343,7 @@ body {
     min-height: 24px;
     padding: 2px 8px;
     border: 1px solid var(--omf-border);
-    border-radius: 999px;
+    border-radius: var(--omf-radius);
     font-size: 11px;
     line-height: 1.2;
     white-space: nowrap;
@@ -389,7 +397,7 @@ body {
     align-items: start;
     padding: 8px 10px;
     border: 1px solid var(--omf-border);
-    border-radius: 5px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
     font-size: 12px;
 }
@@ -436,7 +444,7 @@ body {
     min-width: 0;
     padding: 9px 10px;
     border: 1px solid var(--omf-border);
-    border-radius: 5px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
 }
 
@@ -470,7 +478,7 @@ body {
 .health-name-list > span {
     padding: 3px 6px;
     border: 1px solid var(--omf-border);
-    border-radius: 4px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
     color: var(--omf-text-muted);
     font-size: 11px;
@@ -481,7 +489,7 @@ body {
     padding: 10px;
     overflow: auto;
     border: 1px solid var(--omf-border);
-    border-radius: 6px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
     color: var(--omf-text-muted);
     font-size: 13px;
@@ -531,7 +539,7 @@ body {
 .period-card {
     overflow: hidden;
     border: 1px solid var(--omf-border);
-    border-radius: 6px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
 }
 
@@ -573,7 +581,7 @@ body {
     gap: 3px;
     padding: 4px 7px;
     border: 1px solid color-mix(in srgb, var(--omf-border) 78%, transparent);
-    border-radius: 4px;
+    border-radius: var(--omf-radius);
     white-space: nowrap;
     color: var(--omf-text-muted);
     font-size: 12px;
@@ -607,7 +615,7 @@ body {
     justify-self: end;
     padding: 4px 8px;
     border: 1px solid var(--omf-border);
-    border-radius: 4px;
+    border-radius: var(--omf-radius);
     font-size: 12px;
     white-space: nowrap;
 }
@@ -635,7 +643,7 @@ body {
     justify-content: space-between;
     margin-bottom: 9px;
     padding: 6px 8px;
-    border-radius: 4px;
+    border-radius: var(--omf-radius);
     border: 1px solid color-mix(in srgb, var(--omf-border) 75%, transparent);
     background: var(--omf-surface-soft);
 }
@@ -670,7 +678,7 @@ body {
     margin: 0;
     padding: 5px 7px;
     border: 1px solid var(--omf-border);
-    border-radius: 5px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface);
     cursor: pointer;
 }
@@ -683,7 +691,7 @@ body {
     border-color: var(--season-selection-border);
     background: var(--season-selection-bg);
     color: var(--season-selection-text);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--season-selection-border) 30%, transparent);
+    box-shadow: var(--omf-shadow-focus);
 }
 
 .person-choice:has(.person-checkbox:checked) .person-copy small {
@@ -730,7 +738,7 @@ body {
     padding: 2px 6px;
     overflow: hidden;
     border: 1px solid hsl(var(--identity-hue) 46% 78%);
-    border-radius: 999px;
+    border-radius: var(--omf-radius);
     background: hsl(var(--identity-hue) 66% 93%);
     color: hsl(var(--identity-hue) 40% 31%);
     font-size: 9px;
@@ -780,7 +788,7 @@ body {
 .adjustment-log > div {
     padding: 7px 9px;
     border: 1px solid var(--omf-border);
-    border-radius: 4px;
+    border-radius: var(--omf-radius);
     background: var(--omf-surface-soft);
     font-size: 12px;
 }

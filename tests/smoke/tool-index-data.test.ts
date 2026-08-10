@@ -2,7 +2,7 @@ import fs from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { loadManualsData, loadSiteVisibility, loadSkillsData, loadToolsData } from "../helpers/browser-context";
+import { loadSiteVisibility, loadSkillsData, loadToolsData } from "../helpers/browser-context";
 import { resolveFromRoot } from "../helpers/paths";
 
 describe("tool index data", () => {
@@ -74,7 +74,6 @@ describe("tool index data", () => {
 
   it("publishes the current repository skills", () => {
     const skills = loadSkillsData() || [];
-    const manuals = loadManualsData() || [];
     const manualSkillDirectories = new Set([
       "read-flight-operations-manual",
       "read-flight-training-program",
@@ -93,9 +92,6 @@ describe("tool index data", () => {
       expect(skill.source).toContain(`# `);
       expect(skill.path).toMatch(/^\.agents\/skills\/[a-z0-9-]+\/SKILL\.md$/);
     });
-    expect(manuals.slice(0, 3).map((manual) => manual.path)).toEqual(
-      [...manualSkillDirectories].map((directory) => `.agents/skills/${directory}/SKILL.md`)
-    );
   });
 
 });

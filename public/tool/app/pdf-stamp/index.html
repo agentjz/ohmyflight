@@ -9,28 +9,28 @@
     <style>
         body { background: transparent; padding: 20px; }
         .container { max-width: 1100px; }
-        .upload-area { border: 2px dashed #dee2e6; border-radius: 8px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .upload-area:hover, .upload-area.dragover { border-color: #0d6efd; background: #f8f9fa; }
+        .upload-area { border: 2px dashed var(--omf-border); border-radius: var(--omf-radius); padding: 25px; text-align: center; cursor: pointer; transition: background var(--omf-transition), border-color var(--omf-transition); }
+        .upload-area:hover, .upload-area.dragover { border-color: var(--omf-border-strong); background: var(--omf-surface-soft); }
         .upload-area input { display: none; }
-        .upload-area.has-file { border-style: solid; border-color: #198754; background: #d1e7dd; padding: 12px; }
-        .status-bar { padding: 10px 15px; border-radius: 4px; margin: 10px 0; font-size: 13px; }
-        .status-bar.success { background: #d1e7dd; color: #0f5132; }
-        .status-bar.error { background: #f8d7da; color: #842029; }
-        .status-bar.info { background: #e7f1ff; color: #084298; }
+        .upload-area.has-file { border-style: solid; border-color: var(--omf-success-border); background: var(--omf-success-bg); padding: 12px; }
+        .status-bar { padding: 10px 15px; border: 2px solid var(--omf-border); border-radius: var(--omf-radius); margin: 10px 0; font-size: 13px; }
+        .status-bar.success { border-color: var(--omf-success-border); background: var(--omf-success-bg); color: var(--omf-success-text); }
+        .status-bar.error { border-color: var(--omf-danger-border); background: var(--omf-danger-bg); color: var(--omf-danger-text); }
+        .status-bar.info { border-color: var(--omf-info-border); background: var(--omf-info-bg); color: var(--omf-info-text); }
         .hidden { display: none !important; }
-        .canvas-wrap { position: relative; border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden; background: #e9ecef; display: inline-block; max-width: 100%; }
+        .canvas-wrap { position: relative; border: 1px solid var(--omf-border); border-radius: var(--omf-radius); overflow: hidden; background: var(--omf-surface-muted); display: inline-block; max-width: 100%; }
         .canvas-wrap canvas { display: block; max-width: 100%; }
-        .img-overlay { position: absolute; border: 2px dashed #0d6efd; cursor: move; box-sizing: border-box; }
+        .img-overlay { position: absolute; border: 2px dashed var(--omf-focus); cursor: move; box-sizing: border-box; }
         .img-overlay img { width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
-        .img-overlay .resize-handle { position: absolute; width: 12px; height: 12px; background: #0d6efd; border: 2px solid #fff; border-radius: 2px; z-index: 2; }
+        .img-overlay .resize-handle { position: absolute; width: 12px; height: 12px; background: var(--omf-focus); border: 2px solid var(--omf-surface); border-radius: var(--omf-radius); z-index: 2; }
         .img-overlay .resize-handle.br { bottom: -6px; right: -6px; cursor: nwse-resize; }
         .img-overlay .resize-handle.bl { bottom: -6px; left: -6px; cursor: nesw-resize; }
         .img-overlay .resize-handle.tr { top: -6px; right: -6px; cursor: nesw-resize; }
         .img-overlay .resize-handle.tl { top: -6px; left: -6px; cursor: nwse-resize; }
         .pos-input { width: 75px; }
         .page-nav { display: flex; align-items: center; gap: 8px; }
-        .rule-card { border: 1px solid #dee2e6; border-radius: 6px; padding: 12px; margin-bottom: 10px; background: #fff; }
-        .rule-card.active { border-color: #0d6efd; box-shadow: 0 0 0 2px rgba(13,110,253,0.15); }
+        .rule-card { border: 1px solid var(--omf-border); border-radius: var(--omf-radius); padding: 12px; margin-bottom: 10px; background: var(--omf-surface); }
+        .rule-card.active { border-color: var(--omf-focus); box-shadow: var(--omf-shadow-focus); }
         .rule-card .rule-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .rule-card .rule-header .badge { cursor: pointer; }
         .rule-actions button { padding: 2px 8px; font-size: 12px; }
