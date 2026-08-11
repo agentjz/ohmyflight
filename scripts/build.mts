@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 
 import { build } from "esbuild";
 import ts from "typescript";
-import type { BeginnerTutorialData, TutorialModule, TutorialRecord, TutorialSourceRef } from "../src/tool/app/beginner-tutorial/types";
+import { loadBeginnerTutorialData } from "./beginner-tutorial-content.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -322,53 +322,7 @@ async function generateManualsDataFile() {
 }
 
 async function generateBeginnerTutorialDataFile() {
-  const sourcePath = path.join(beginnerTutorialContentRoot, "knowledge.json");
-  const source = JSON.parse(await fs.readFile(sourcePath, "utf8")) as Omit<BeginnerTutorialData, "modules"> & {
-    modules: Array<Omit<TutorialModule, "sources" | "body">>;
-  };
-  if (source.schemaVersion !== 1 || !source.title || !source.description || !Array.isArray(source.sourceScope) || !Array.isArray(source.modules)) {
-    throw new Error("菜鸟教程知识源结构无效。");
-  }
-
-  const sourceIndex = new Map(source.sourceScope.map((item) => [item.id, item]));
-  const resolveSources = (ids: string[] | undefined, owner: string): TutorialSourceRef[] => {
-    if (!ids?.length) return [];
-    return ids.map((id) => {
-      const item = sourceIndex.get(id);
-      if (!item) throw new Error(`菜鸟教程知识项 ${owner} 引用了不存在的来源 ${id}。`);
-      return item;
-    });
-  };
-
-  const modules: TutorialModule[] = [];
-  for (const module of source.modules) {
-    const moduleBody = module.bodyFile
-      ? (await fs.readFile(path.join(beginnerTutorialContentRoot, module.bodyFile), "utf8")).trim()
-      : undefined;
-    const records: TutorialRecord[] | undefined = module.records?.map((record) => ({
-      ...record,
-      sources: resolveSources(record.sourceIds, record.id)
-    }));
-    const steps = module.steps?.map((step) => ({
-      ...step,
-      sources: resolveSources(step.sourceIds, step.id)
-    }));
-    modules.push({
-      ...module,
-      ...(moduleBody === undefined ? {} : { body: moduleBody }),
-      ...(records === undefined ? {} : { records }),
-      ...(steps === undefined ? {} : { steps }),
-      sources: resolveSources(module.sourceIds, module.id)
-    });
-  }
-
-  const tutorials: BeginnerTutorialData = {
-    schemaVersion: 1,
-    title: source.title,
-    description: source.description,
-    sourceScope: source.sourceScope,
-    modules
-  };
+  const tutorials = await loadBeginnerTutorialData(beginnerTutorialContentRoot);
   const outputPath = path.join(distRoot, "tool", "beginner-tutorial-data.json");
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   await fs.writeFile(outputPath, `${JSON.stringify(tutorials)}\n`, "utf8");

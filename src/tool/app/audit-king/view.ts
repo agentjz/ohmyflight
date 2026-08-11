@@ -42,7 +42,8 @@ export function createAuditKingView({ Highlight, SearchEngine, PdfLocatorView }:
             if (!segment.colors.length) return escapeHtml(segment.text);
             const evidenceClass = segment.evidenceIds.length ? " ak-manual-evidence-highlight" : "";
             const style = segment.evidenceIds.length ? "background:#d1e7dd" : `background:${segment.colors[0]}`;
-            return `<mark class="ak-highlight${evidenceClass}" style="${style}" data-check-item-ids="${escapeHtml(segment.keywordIds.join(","))}" data-evidence-ids="${escapeHtml(segment.evidenceIds.join(","))}">${escapeHtml(segment.text)}</mark>`;
+            const highlightKind = segment.keywordIds.length ? "keyword" : "evidence";
+            return `<mark class="ak-highlight${evidenceClass}" style="${style}" data-highlight-kind="${highlightKind}" data-check-item-ids="${escapeHtml(segment.keywordIds.join(","))}" data-evidence-ids="${escapeHtml(segment.evidenceIds.join(","))}">${escapeHtml(segment.text)}</mark>`;
         }).join("");
     }
 
@@ -184,10 +185,22 @@ export function createAuditKingView({ Highlight, SearchEngine, PdfLocatorView }:
                 end: Math.min(context.text.length, Number(evidence.globalEnd) - context.windowStart)
             }));
         container.innerHTML = `<div id="matchDetailOriginalText" class="detail-text" data-window-start="${context.windowStart}">${renderHighlightedText(context.text, ranges)}</div>`;
+        focusMatchDetail(container);
         getElement<HTMLElement>("matchDetailContextLabel").textContent = `已加载约 ${state.currentDetailContextLength} 字`;
         const expand = getElement<HTMLButtonElement>("expandMatchDetailBtn");
         expand.disabled = !context.truncatedStart && !context.truncatedEnd;
         button.disabled = state.currentCheckItemId === "all" || match.checkItemId !== state.currentCheckItemId;
+    }
+
+    function focusMatchDetail(container: HTMLElement): void {
+        const target = container.querySelector<HTMLElement>("[data-highlight-kind='keyword']");
+        if (!target) {
+            container.scrollTop = 0;
+            return;
+        }
+        const containerTop = container.getBoundingClientRect().top;
+        const targetTop = target.getBoundingClientRect().top - containerTop + container.scrollTop;
+        container.scrollTop = Math.max(0, targetTop - 10);
     }
 
     function renderManualEvidences(state: AuditKingStateModel): void {

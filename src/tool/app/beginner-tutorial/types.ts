@@ -22,7 +22,7 @@ export interface TutorialSection {
     items: string[];
 }
 
-export interface TutorialRecord {
+export interface TutorialRecordBase {
     id: string;
     title: string;
     status: TutorialStatus;
@@ -33,8 +33,24 @@ export interface TutorialRecord {
     action: string;
     lifecycle: string;
     sections?: TutorialSection[];
+}
+
+export interface TutorialRecordLink {
+    moduleId: string;
+    targetId: string;
+    title: string;
+}
+
+export interface TutorialEmbeddedRecord extends TutorialRecordBase {
+    moduleId: string;
+    sources: TutorialSourceRef[];
+}
+
+export interface TutorialRecord extends TutorialRecordBase {
     sourceIds?: string[];
     sources: TutorialSourceRef[];
+    embeddedRecords?: TutorialEmbeddedRecord[];
+    relatedRecords?: TutorialRecordLink[];
 }
 
 export interface TutorialModule {
@@ -57,4 +73,22 @@ export interface BeginnerTutorialData {
     description: string;
     sourceScope: TutorialSourceRef[];
     modules: TutorialModule[];
+}
+
+export interface TutorialSourceRecord extends TutorialRecordBase {
+    sourceIds?: string[];
+    reuseRecordIds?: string[];
+    relatedRecordIds?: string[];
+}
+
+export interface TutorialSourceModule extends Omit<TutorialModule, "body" | "records" | "sources"> {
+    records?: TutorialSourceRecord[];
+}
+
+export interface BeginnerTutorialManifest {
+    schemaVersion: 1;
+    title: string;
+    description: string;
+    sourceFile: string;
+    moduleFiles: string[];
 }

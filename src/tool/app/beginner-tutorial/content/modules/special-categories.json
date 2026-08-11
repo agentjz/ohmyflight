@@ -1,0 +1,14 @@
+{
+  "id": "special-categories",
+  "title": "特殊类别与例外",
+  "kind": "markdown",
+  "summary": "不属于普通等级晋升链的身份、权利和手册留空项。",
+  "bodyFile": "special-categories.md",
+  "sourceIds": [
+    "training-11",
+    "technical-3",
+    "technical-A",
+    "technical-B",
+    "technical-K"
+  ]
+}

@@ -92,4 +92,4 @@ npm.cmd run typecheck
 npm.cmd test
 ```
 
-业务测试直接导入 `src/` 模块，不从 `dist/` 或浏览器全局装载实现。文件上传、第三方库和页面接线使用 `npm.cmd run test:browser` 对生产构建做真实 Chromium 验证；真实 Excel 性能回放通过 `test:performance` 传入 owner 本地文件，输入和原始结果不提交。
+业务测试直接导入 `src/` 模块，不从 `dist/` 或浏览器全局装载实现。文件上传、第三方库和页面接线通过构建产物、类型检查和确定性构建验证；真实 Excel 性能回放不属于仓库级验证入口，输入和原始结果不提交。

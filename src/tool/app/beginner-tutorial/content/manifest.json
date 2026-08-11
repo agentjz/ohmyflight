@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "title": "南货航飞行员成长与资质",
+  "description": "按副驾驶、机长、教员考试员、资质和重新获得资格整理两本现行手册中已经完成语义核对的规则。",
+  "sourceFile": "sources.json",
+  "moduleFiles": [
+    "modules/copilot-type-transition.json",
+    "modules/copilot-levels.json",
+    "modules/captain-type-transition.json",
+    "modules/captain-levels.json",
+    "modules/instructors-examiners.json",
+    "modules/special-categories.json",
+    "modules/qualification-catalog.json",
+    "modules/recovery.json",
+    "modules/key-numbers.json"
+  ]
+}

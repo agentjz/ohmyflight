@@ -1,0 +1,240 @@
+[
+  {
+    "id": "training-2",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第2章 新雇员训练提纲",
+    "section": "进入条件、训练合格后的计划"
+  },
+  {
+    "id": "training-5",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第5章 副驾驶转机型训练提纲",
+    "section": "进入条件、航线运行经历"
+  },
+  {
+    "id": "training-7",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第7章 机长转机型训练提纲",
+    "section": "进入条件、航线运行经历"
+  },
+  {
+    "id": "training-9",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第9章 航线飞行教员训练提纲",
+    "section": "训练、检查、更新和恢复"
+  },
+  {
+    "id": "training-10",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第10章 型别教员训练提纲",
+    "section": "训练、实践考试和恢复"
+  },
+  {
+    "id": "training-11",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第11章 本场飞行教员训练提纲",
+    "section": "当前样本有意留空"
+  },
+  {
+    "id": "training-12",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第12章 飞行检查员训练提纲",
+    "section": "进入条件、训练和资格保持"
+  },
+  {
+    "id": "training-14",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第14章 重新获得资格训练提纲",
+    "section": "进入条件、分档训练和不合格处理"
+  },
+  {
+    "id": "training-15",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第15章 应急生存训练提纲",
+    "section": "初训、复训和记录"
+  },
+  {
+    "id": "training-18",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第18章 通信英语训练提纲",
+    "section": "区域通信资格"
+  },
+  {
+    "id": "training-22",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第22章 特殊区域、航路和机场训练提纲",
+    "section": "运行资格获取和恢复"
+  },
+  {
+    "id": "training-23",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第23章 高原机场训练提纲",
+    "section": "一般高原和高高原"
+  },
+  {
+    "id": "training-24",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第24章 CRM训练提纲",
+    "section": "初始、复训和评估"
+  },
+  {
+    "id": "training-25",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第25章 疲劳管理训练提纲",
+    "section": "初训、复训和记录"
+  },
+  {
+    "id": "training-27",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第27章 区域导航训练提纲",
+    "section": "进入条件、理论训练和评估"
+  },
+  {
+    "id": "training-28",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第28章 导航精度要求训练提纲",
+    "section": "进入条件、理论训练和评估"
+  },
+  {
+    "id": "training-29",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第29章 RNP APCH训练提纲",
+    "section": "理论、模拟机、检查和保持"
+  },
+  {
+    "id": "training-31",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第31章 EDTO训练提纲",
+    "section": "理论、模拟机、航段和复训"
+  },
+  {
+    "id": "training-32",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第32章 ADS-B训练提纲",
+    "section": "理论训练、考试和资格获取"
+  },
+  {
+    "id": "training-33",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第33章 数据链通信训练提纲",
+    "section": "理论、操作、评估和复训"
+  },
+  {
+    "id": "training-34",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第34章 电子飞行包训练提纲",
+    "section": "理论训练、考试和资格获取"
+  },
+  {
+    "id": "training-36",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第36章 极地运行训练提纲",
+    "section": "理论、资格保持和复训"
+  },
+  {
+    "id": "training-44",
+    "manual": "飞行人员训练大纲",
+    "version": "R03-01 V6",
+    "chapter": "第44章 安保培训提纲",
+    "section": "初训、考核、复训和过期处理"
+  },
+  {
+    "id": "technical-3",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "第3章 飞行训练管理",
+    "section": "训练、经历、等级和重新获得资格"
+  },
+  {
+    "id": "technical-4",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "第4章 技术检查评分标准",
+    "section": "检查项目、评分和合格标准"
+  },
+  {
+    "id": "technical-5",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "第5章 飞行机组航线资格管理",
+    "section": "机组构成、操纵权限和航线资格"
+  },
+  {
+    "id": "technical-6",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "第6章 飞行人员管理",
+    "section": "岗位聘任、教员和考试员"
+  },
+  {
+    "id": "technical-7",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "第7章 飞行人员执照管理",
+    "section": "执照、签注和有效期"
+  },
+  {
+    "id": "technical-9",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "第9章 飞行人员技术档案",
+    "section": "资质记录、有效期监控和档案保存"
+  },
+  {
+    "id": "technical-A",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "附录A 型别教员量化考核管理办法",
+    "section": "选拔、聘任、考核和权利中止"
+  },
+  {
+    "id": "technical-B",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "附录B 飞行考试员管理办法",
+    "section": "权利、聘任、任期和恢复间隔"
+  },
+  {
+    "id": "technical-H",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "附录H 飞行人员资质管理实施办法",
+    "section": "类别、审批发布和系统入库"
+  },
+  {
+    "id": "technical-I",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "附录I 飞行员全生命周期信息档案管理实施办法",
+    "section": "信息录入、更新和保存"
+  },
+  {
+    "id": "technical-K",
+    "manual": "飞行技术管理手册",
+    "version": "R01-08 V1",
+    "chapter": "附录K 航线飞行教员资质管理实施办法",
+    "section": "L1/L2选拔、权利、考核和终止"
+  }
+]

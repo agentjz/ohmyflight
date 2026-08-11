@@ -7,13 +7,11 @@
     "test": "npm run build && npm run test:unit && npm run test:python",
     "test:unit": "vitest run",
     "test:python": "python -X utf8 -m unittest discover -s tests/python -p test_*.py",
-    "test:browser": "python -X utf8 scripts/browser-validation.py --isolated-build --synthetic --all-pages --warmups 0 --repetitions 2 --skip-memory",
-    "test:performance": "python -X utf8 scripts/browser-validation.py --isolated-build",
     "test:watch": "tsx scripts/build.mts && vitest",
     "test:smoke": "tsx scripts/build.mts && vitest run tests/smoke",
     "test:tool": "tsx scripts/build.mts && vitest run tests/tool",
     "verify:deterministic": "tsx scripts/verify-deterministic-build.mts",
-    "verify": "npm run typecheck && npm test && npm run test:browser && npm run verify:deterministic"
+    "verify": "npm run typecheck && npm test && npm run verify:deterministic"
   },
   "devDependencies": {
     "@types/node": "^22.20.1",

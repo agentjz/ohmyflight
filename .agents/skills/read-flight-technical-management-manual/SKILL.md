@@ -22,6 +22,6 @@ description: 完整阅读、解释、定位和版本复核飞行技术管理手�
 
 ## 维护菜鸟教程
 
-维护教程时，先阅读 `src/tool/app/beginner-tutorial/content/knowledge.json` 及关联 Markdown，再回到用户提供的原始手册逐条复核。通用等级、资质和数字写入结构化记录；无法用统一字段表达的完整语义写入对应 Markdown；恢复流程在 `recovery` 独立模块中维护。
+维护教程时，先阅读 `src/tool/app/beginner-tutorial/content/manifest.json`、`sources.json`、受影响的 `modules/` 文件及关联Markdown，再回到用户提供的原始手册逐条复核。通用等级、资质和数字写入结构化记录；无法用统一字段表达的完整语义写入对应Markdown；恢复流程在 `recovery` 独立模块中维护，并可由等级记录引用后在页面就地展开。
 
 写入前做语义审计，写入后检查来源 ID、版本、章节、适用对象、状态和结果分支。不得用脚本把章节标题或搜索命中机械提取成正文。完成后运行构建、类型检查和测试。

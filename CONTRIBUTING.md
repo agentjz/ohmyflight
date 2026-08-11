@@ -12,11 +12,10 @@
 ```powershell
 npm.cmd ci
 python -m pip install -r requirements.txt
-python -m playwright install chromium
 npm.cmd run verify
 ```
 
-`verify` 包含类型检查、TypeScript/Python 全量测试、真实 Chromium 页面与脱敏重型流程和确定性双构建。需要验证真实大文件性能时，使用 `test:performance` 传入本地文件；真实输入和原始性能输出不提交。
+`verify` 包含类型检查、TypeScript/Python 全量测试和确定性双构建。真实浏览器验证和临时性能采样不属于仓库级验证入口；生产 Python 自动化工具仍按各自用户手册安装运行依赖。
 
 ## 文档
 

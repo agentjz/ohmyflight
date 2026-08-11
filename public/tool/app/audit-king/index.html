@@ -62,14 +62,20 @@
         .ak-highlight { padding: 0 2px; border-radius: 2px; color: inherit; }
         .ak-manual-evidence-highlight { background: var(--omf-success-bg); border-radius: var(--omf-radius); }
         .audit-clause { border: 1px solid var(--omf-border); border-radius: var(--omf-radius); margin-bottom: 12px; background: var(--omf-surface); overflow: hidden; }
-        .audit-clause > header { display: grid; grid-template-columns: minmax(140px, auto) minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--omf-divider); background: var(--omf-surface-soft); }
-        .audit-clause > header span { min-width: 0; color: var(--omf-text-muted); font-size: 12px; overflow-wrap: anywhere; }
+        .audit-clause > header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(180px, .34fr) auto; gap: 12px; align-items: start; padding: 12px; border-bottom: 1px solid var(--omf-divider); background: var(--omf-surface-soft); }
+        .audit-clause > header strong { min-width: 0; font-size: 14px; font-weight: 700; line-height: 1.5; overflow-wrap: anywhere; }
+        .audit-clause > header span { min-width: 0; color: var(--omf-text-muted); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+        .audit-clause > header .btn { justify-self: end; font-size: 12px; line-height: 1.35; white-space: nowrap; }
         .audit-evidence-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) minmax(140px, .36fr) auto; gap: 8px; align-items: start; padding: 10px 12px; border-bottom: 1px solid var(--omf-divider); }
+        .audit-evidence-row > span { padding-top: 6px; color: var(--omf-text-muted); font-size: 12px; text-align: center; }
         .audit-evidence-row:last-child { border-bottom: 0; }
-        .audit-evidence-content { line-height: 1.6; min-height: 70px; }
+        .audit-evidence-content { min-height: 70px; font-size: 13px; line-height: 1.55; }
+        .audit-evidence-row > input, .audit-evidence-row > .btn { font-size: 12px; }
         .audit-clause-empty { padding: 14px 12px; color: var(--omf-text-muted); font-size: 13px; background: var(--omf-surface); }
         .evidence-list-scroll { height: clamp(360px, 52vh, 620px); overflow: auto; border: 1px solid var(--omf-border); border-radius: var(--omf-radius); background: var(--omf-surface); padding: 12px; }
         .evidence-list-scroll .audit-clause:last-child { margin-bottom: 0; }
+        .audit-basket-card .card-title { font-size: 15px; }
+        .audit-basket-card .card-body > .d-flex .btn { font-size: 12px; }
         .manual-evidence-scroll { height: clamp(360px, 52vh, 620px); overflow: auto; border: 1px solid var(--omf-border); border-radius: var(--omf-radius); background: var(--omf-surface); padding: 8px; }
         .manual-evidence-item { border: 1px solid var(--omf-border); border-radius: var(--omf-radius); padding: 10px; margin-bottom: 8px; background: var(--omf-surface); }
         .manual-evidence-item:last-child { margin-bottom: 0; }
@@ -120,6 +126,7 @@
             .check-item-row > .btn-outline-danger { grid-column: 3; }
             .check-item-fields { grid-template-columns: 1fr; }
             .audit-clause > header, .audit-evidence-row { grid-template-columns: 1fr; }
+            .audit-clause > header .btn { justify-self: start; }
         }
     </style>
     <link rel="stylesheet" href="../../../theme.css">
@@ -256,7 +263,7 @@
             </div>
         </section>
 
-        <section class="card">
+        <section class="card audit-basket-card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
                     <div>
