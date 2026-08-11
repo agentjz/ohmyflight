@@ -18,7 +18,7 @@ describe("项目归档底层", () => {
         });
         const restored = await archive.read(bytes, "proof-king", 1);
 
-        expect(restored.manifest).toMatchObject({ format: "cargodog-project", tool: "proof-king", schemaVersion: 1 });
+        expect(restored.manifest).toMatchObject({ format: "watchdog-project", tool: "proof-king", schemaVersion: 1 });
         expect(await restored.json("state/project.json")).toEqual({ selected: ["revision-2"] });
         const file = await restored.file("sources/my/manual.pdf", "manual.pdf", "application/pdf");
         expect(await file.text()).toBe("manual-a");

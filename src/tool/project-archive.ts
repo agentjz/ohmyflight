@@ -16,7 +16,7 @@ export function createProjectArchive(JSZip: any) {
         sha256: string;
     };
     type ProjectManifest = {
-        format: "cargodog-project";
+        format: "watchdog-project";
         tool: string;
         schemaVersion: number;
         exportedAt: string;
@@ -58,7 +58,7 @@ export function createProjectArchive(JSZip: any) {
             });
         }
         const manifest: ProjectManifest = {
-            format: "cargodog-project",
+            format: "watchdog-project",
             tool: options.tool,
             schemaVersion: options.schemaVersion,
             exportedAt: new Date().toISOString(),
@@ -86,7 +86,7 @@ export function createProjectArchive(JSZip: any) {
         } catch (_error) {
             throw new Error("项目包清单不是有效 JSON。");
         }
-        if (manifest?.format !== "cargodog-project") throw new Error("不是 cargodog 项目包。");
+        if (manifest?.format !== "watchdog-project") throw new Error("不是 watchdog 项目包。");
         if (manifest.tool !== expectedTool) throw new Error(`项目类型不匹配：需要 ${expectedTool}，实际为 ${manifest.tool || "未知"}。`);
         if (manifest.schemaVersion !== expectedSchemaVersion) {
             throw new Error(`项目包版本不支持：需要 ${expectedSchemaVersion}，实际为 ${manifest.schemaVersion || "未知"}。`);

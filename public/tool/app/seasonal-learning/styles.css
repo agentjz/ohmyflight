@@ -4,15 +4,15 @@
     --season-first-officer-chart: #9ba3b8;
     --season-us-line-chart: #a9c9bf;
     --season-total-chart: #9c91ae;
-    --season-leader-soft: color-mix(in srgb, var(--season-leader-chart) 18%, var(--omf-surface));
-    --season-captain-soft: color-mix(in srgb, var(--season-captain-chart) 18%, var(--omf-surface));
-    --season-first-officer-soft: color-mix(in srgb, var(--season-first-officer-chart) 18%, var(--omf-surface));
-    --season-us-line-soft: color-mix(in srgb, var(--season-us-line-chart) 18%, var(--omf-surface));
-    --season-total-soft: color-mix(in srgb, var(--season-total-chart) 18%, var(--omf-surface));
-    --season-adjusted: var(--omf-danger-bg);
-    --season-selection-bg: var(--omf-success-bg);
-    --season-selection-border: var(--omf-success-border);
-    --season-selection-text: var(--omf-success-text);
+    --season-leader-soft: color-mix(in srgb, var(--season-leader-chart) 18%, var(--watchdog-surface));
+    --season-captain-soft: color-mix(in srgb, var(--season-captain-chart) 18%, var(--watchdog-surface));
+    --season-first-officer-soft: color-mix(in srgb, var(--season-first-officer-chart) 18%, var(--watchdog-surface));
+    --season-us-line-soft: color-mix(in srgb, var(--season-us-line-chart) 18%, var(--watchdog-surface));
+    --season-total-soft: color-mix(in srgb, var(--season-total-chart) 18%, var(--watchdog-surface));
+    --season-adjusted: var(--watchdog-danger-bg);
+    --season-selection-bg: var(--watchdog-success-bg);
+    --season-selection-border: var(--watchdog-success-border);
+    --season-selection-text: var(--watchdog-success-text);
 }
 
 :root[data-theme="dark"] {
@@ -32,7 +32,7 @@ body {
 .page-shell {
     width: min(1560px, 100%);
     margin: 0 auto;
-    color: var(--omf-text);
+    color: var(--watchdog-text);
 }
 
 .app-header {
@@ -55,9 +55,9 @@ body {
 .pending-section,
 .period-section,
 .log-section {
-    border: 2px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    box-shadow: var(--omf-shadow-sm);
+    border: 2px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    box-shadow: var(--watchdog-shadow-sm);
 }
 
 .app-header > div {
@@ -83,13 +83,13 @@ body {
     display: block;
     min-height: 20px;
     margin-top: 3px;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 12px;
 }
 
-.status-success { color: var(--omf-success-text) !important; }
-.status-warning { color: var(--omf-warning-text) !important; }
-.status-danger { color: var(--omf-danger-text) !important; }
+.status-success { color: var(--watchdog-success-text) !important; }
+.status-warning { color: var(--watchdog-warning-text) !important; }
+.status-danger { color: var(--watchdog-danger-text) !important; }
 
 .control-band {
     display: grid;
@@ -97,7 +97,7 @@ body {
     gap: 14px;
     align-items: end;
     padding: 16px;
-    background: var(--omf-surface);
+    background: var(--watchdog-surface);
 }
 
 .file-field,
@@ -105,7 +105,7 @@ body {
 .date-field {
     display: grid;
     gap: 5px;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 12px;
 }
 
@@ -126,7 +126,7 @@ body {
 .log-section {
     padding: 16px;
     margin-top: 10px;
-    background: var(--omf-surface);
+    background: var(--watchdog-surface);
 }
 
 .balance-rule-controls {
@@ -143,10 +143,10 @@ body {
     min-width: 154px;
     min-height: 38px;
     padding: 6px 9px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface-soft);
-    color: var(--omf-text);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface-soft);
+    color: var(--watchdog-text);
     cursor: pointer;
     font-size: 13px;
 }
@@ -160,19 +160,19 @@ body {
 }
 
 .balance-rule-option.is-fixed {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     cursor: default;
 }
 
 .balance-rule-order {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
     text-align: center;
 }
 
 .balance-result-summary {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 12px;
 }
 
@@ -188,14 +188,14 @@ body {
     align-items: center;
     min-height: 54px;
     padding: 8px 10px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface-soft);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface-soft);
 }
 
 .balance-result-row.needs-check {
-    border-color: color-mix(in srgb, var(--omf-warning-text) 45%, var(--omf-border));
-    background: color-mix(in srgb, var(--omf-warning-bg) 62%, var(--omf-surface));
+    border-color: color-mix(in srgb, var(--watchdog-warning-text) 45%, var(--watchdog-border));
+    background: color-mix(in srgb, var(--watchdog-warning-bg) 62%, var(--watchdog-surface));
 }
 
 .balance-result-name {
@@ -209,7 +209,7 @@ body {
 
 .balance-result-name strong {
     overflow: hidden;
-    color: var(--omf-text);
+    color: var(--watchdog-text);
     font-size: 12px;
     line-height: 1.35;
     text-overflow: ellipsis;
@@ -218,7 +218,7 @@ body {
 
 .balance-result-name span {
     margin-top: 2px;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 10px;
 }
 
@@ -239,13 +239,13 @@ body {
 }
 
 .balance-period-counts small {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 9px;
 }
 
 .balance-period-counts b {
     margin-top: 1px;
-    color: var(--omf-text);
+    color: var(--watchdog-text);
     font-size: 14px;
     font-variant-numeric: tabular-nums;
 }
@@ -253,9 +253,9 @@ body {
 .balance-result-state {
     justify-self: end;
     padding: 3px 6px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    color: var(--omf-text-muted);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    color: var(--watchdog-text-muted);
     font-size: 11px;
     white-space: nowrap;
 }
@@ -289,7 +289,7 @@ body {
     align-items: flex-end;
     margin-top: 10px;
     padding: 16px;
-    background: var(--omf-surface);
+    background: var(--watchdog-surface);
 }
 
 .summary-item {
@@ -306,13 +306,13 @@ body {
 }
 
 .summary-item span {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 12px;
 }
 
 .summary-item strong {
     margin-top: 4px;
-    color: var(--omf-text);
+    color: var(--watchdog-text);
     font-size: 24px;
     line-height: 1.15;
     font-variant-numeric: tabular-nums;
@@ -326,7 +326,7 @@ body {
 .workspace-status {
     margin: 0;
     padding: 8px 16px;
-    background: var(--omf-surface);
+    background: var(--watchdog-surface);
 }
 
 .health-summary {
@@ -342,26 +342,26 @@ body {
     justify-content: center;
     min-height: 24px;
     padding: 2px 8px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
     font-size: 11px;
     line-height: 1.2;
     white-space: nowrap;
 }
 
 .health-error {
-    background: var(--omf-danger-bg);
-    color: var(--omf-danger-text);
+    background: var(--watchdog-danger-bg);
+    color: var(--watchdog-danger-text);
 }
 
 .health-warning {
-    background: var(--omf-warning-bg);
-    color: var(--omf-warning-text);
+    background: var(--watchdog-warning-bg);
+    color: var(--watchdog-warning-text);
 }
 
 .health-info {
     background: var(--season-leader-soft);
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
 }
 
 .health-metrics {
@@ -369,7 +369,7 @@ body {
     flex-wrap: wrap;
     gap: 8px 22px;
     margin-bottom: 12px;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 12px;
 }
 
@@ -380,7 +380,7 @@ body {
 }
 
 .health-metrics b {
-    color: var(--omf-text);
+    color: var(--watchdog-text);
     font-size: 18px;
     font-variant-numeric: tabular-nums;
 }
@@ -396,39 +396,39 @@ body {
     gap: 8px;
     align-items: start;
     padding: 8px 10px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface-soft);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface-soft);
     font-size: 12px;
 }
 
 .health-item-error .health-level {
-    background: var(--omf-danger-bg);
-    color: var(--omf-danger-text);
+    background: var(--watchdog-danger-bg);
+    color: var(--watchdog-danger-text);
 }
 
 .health-item-warning .health-level {
-    background: var(--omf-warning-bg);
-    color: var(--omf-warning-text);
+    background: var(--watchdog-warning-bg);
+    color: var(--watchdog-warning-text);
 }
 
 .health-item-info .health-level {
     background: var(--season-leader-soft);
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
 }
 
 .health-area {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-weight: 600;
 }
 
 .health-message {
-    color: var(--omf-text);
+    color: var(--watchdog-text);
 }
 
 .health-detail {
     grid-column: 3;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     line-height: 1.55;
     overflow-wrap: anywhere;
 }
@@ -443,14 +443,14 @@ body {
 .identity-audit details {
     min-width: 0;
     padding: 9px 10px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface);
 }
 
 .identity-audit summary {
     cursor: pointer;
-    color: var(--omf-text);
+    color: var(--watchdog-text);
     font-size: 12px;
     font-weight: 600;
 }
@@ -464,7 +464,7 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 11px;
 }
 
@@ -477,10 +477,10 @@ body {
 
 .health-name-list > span {
     padding: 3px 6px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface-soft);
-    color: var(--omf-text-muted);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface-soft);
+    color: var(--watchdog-text-muted);
     font-size: 11px;
 }
 
@@ -488,30 +488,30 @@ body {
     max-height: 120px;
     padding: 10px;
     overflow: auto;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface-soft);
-    color: var(--omf-text-muted);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface-soft);
+    color: var(--watchdog-text-muted);
     font-size: 13px;
 }
 
 .move-selection-summary.is-error {
-    border-color: var(--omf-danger-text);
-    background: var(--omf-danger-bg);
-    color: var(--omf-danger-text);
+    border-color: var(--watchdog-danger-text);
+    background: var(--watchdog-danger-bg);
+    color: var(--watchdog-danger-text);
 }
 
 .move-target-field {
     display: grid;
     gap: 6px;
     margin-top: 14px;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 13px;
 }
 
 .change-section,
 .pending-section {
-    background: var(--omf-warning-bg);
+    background: var(--watchdog-warning-bg);
 }
 
 .change-content {
@@ -538,13 +538,13 @@ body {
 
 .period-card {
     overflow: hidden;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface);
 }
 
 .period-card.has-issue {
-    border-color: color-mix(in srgb, var(--omf-warning-text) 55%, var(--omf-border));
+    border-color: color-mix(in srgb, var(--watchdog-warning-text) 55%, var(--watchdog-border));
 }
 
 .period-card-header {
@@ -554,7 +554,7 @@ body {
     align-items: center;
     min-height: 62px;
     padding: 10px 14px;
-    background: var(--omf-surface-soft);
+    background: var(--watchdog-surface-soft);
 }
 
 .period-title h3 {
@@ -564,7 +564,7 @@ body {
 }
 
 .period-title span {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 12px;
 }
 
@@ -580,10 +580,10 @@ body {
     align-items: baseline;
     gap: 3px;
     padding: 4px 7px;
-    border: 1px solid color-mix(in srgb, var(--omf-border) 78%, transparent);
-    border-radius: var(--omf-radius);
+    border: 1px solid color-mix(in srgb, var(--watchdog-border) 78%, transparent);
+    border-radius: var(--watchdog-radius);
     white-space: nowrap;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 12px;
 }
 
@@ -595,7 +595,7 @@ body {
 
 .period-counts b {
     margin-right: 3px;
-    color: var(--omf-text);
+    color: var(--watchdog-text);
     font-size: 15px;
     font-variant-numeric: tabular-nums;
 }
@@ -614,15 +614,15 @@ body {
 .period-status {
     justify-self: end;
     padding: 4px 8px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
     font-size: 12px;
     white-space: nowrap;
 }
 
 .has-issue .period-status {
-    border-color: var(--omf-warning-text);
-    color: var(--omf-warning-text);
+    border-color: var(--watchdog-warning-text);
+    color: var(--watchdog-warning-text);
 }
 
 .roster-columns {
@@ -643,9 +643,9 @@ body {
     justify-content: space-between;
     margin-bottom: 9px;
     padding: 6px 8px;
-    border-radius: var(--omf-radius);
-    border: 1px solid color-mix(in srgb, var(--omf-border) 75%, transparent);
-    background: var(--omf-surface-soft);
+    border-radius: var(--watchdog-radius);
+    border: 1px solid color-mix(in srgb, var(--watchdog-border) 75%, transparent);
+    background: var(--watchdog-surface-soft);
 }
 
 .group-heading h4 {
@@ -655,7 +655,7 @@ body {
 }
 
 .group-heading span {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 12px;
 }
 
@@ -677,21 +677,21 @@ body {
     min-height: 58px;
     margin: 0;
     padding: 5px 7px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface);
     cursor: pointer;
 }
 
 .person-choice:hover {
-    background: var(--omf-surface-soft);
+    background: var(--watchdog-surface-soft);
 }
 
 .person-choice:has(.person-checkbox:checked) {
     border-color: var(--season-selection-border);
     background: var(--season-selection-bg);
     color: var(--season-selection-text);
-    box-shadow: var(--omf-shadow-focus);
+    box-shadow: var(--watchdog-shadow-focus);
 }
 
 .person-choice:has(.person-checkbox:checked) .person-copy small {
@@ -738,7 +738,7 @@ body {
     padding: 2px 6px;
     overflow: hidden;
     border: 1px solid hsl(var(--identity-hue) 46% 78%);
-    border-radius: var(--omf-radius);
+    border-radius: var(--watchdog-radius);
     background: hsl(var(--identity-hue) 66% 93%);
     color: hsl(var(--identity-hue) 40% 31%);
     font-size: 9px;
@@ -748,9 +748,9 @@ body {
 }
 
 .us-line-marker {
-    border-color: color-mix(in srgb, var(--season-us-line-chart) 72%, var(--omf-border));
+    border-color: color-mix(in srgb, var(--season-us-line-chart) 72%, var(--watchdog-border));
     background: var(--season-us-line-soft);
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
 }
 
 :root[data-theme="dark"] .identity-marker {
@@ -761,7 +761,7 @@ body {
 
 .person-copy small {
     margin-top: 2px;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 10px;
     line-height: 1.3;
     overflow-wrap: anywhere;
@@ -769,13 +769,13 @@ body {
 
 .person-copy .person-technical {
     margin-top: 1px;
-    color: var(--omf-text);
+    color: var(--watchdog-text);
     font-size: 11px;
 }
 
 .empty-group,
 .empty-log {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 12px;
 }
 
@@ -787,9 +787,9 @@ body {
 
 .adjustment-log > div {
     padding: 7px 9px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface-soft);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface-soft);
     font-size: 12px;
 }
 

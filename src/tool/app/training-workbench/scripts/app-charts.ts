@@ -50,10 +50,10 @@ const Utils = TrainingToolUtils;
   }
 
   function getChartTheme() {
-    const text = getCssColor("--omf-text", "#1f2328");
-    const muted = getCssColor("--omf-text-muted", "#656d76");
-    const surface = getCssColor("--omf-surface", "#ffffff");
-    const border = getCssColor("--omf-border", "#d0d7de");
+    const text = getCssColor("--watchdog-text", "#1f2328");
+    const muted = getCssColor("--watchdog-text-muted", "#656d76");
+    const surface = getCssColor("--watchdog-surface", "#ffffff");
+    const border = getCssColor("--watchdog-border", "#d0d7de");
 
     return {
       text,
@@ -429,7 +429,7 @@ const Utils = TrainingToolUtils;
     resizeFrameId = window.requestAnimationFrame(resizeRenderedCharts);
   });
 
-  window.addEventListener("cargodog:themechange", () => {
+  window.addEventListener("watchdog:themechange", () => {
     window.setTimeout(refreshRenderedCharts, 0);
   });
 

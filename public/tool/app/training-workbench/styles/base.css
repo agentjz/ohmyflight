@@ -1,24 +1,24 @@
 :root {
-    --st-primary: var(--omf-accent-pink);
-    --st-primary-strong: color-mix(in srgb, var(--omf-accent-pink) 72%, var(--omf-text));
-    --st-primary-deep: color-mix(in srgb, var(--omf-accent-pink) 52%, var(--omf-text));
-    --st-primary-soft: color-mix(in srgb, var(--omf-accent-pink) 12%, var(--omf-surface));
-    --st-primary-soft-strong: color-mix(in srgb, var(--omf-accent-pink) 24%, var(--omf-surface));
-    --st-primary-ring: color-mix(in srgb, var(--omf-accent-pink) 34%, transparent);
-    --st-on-primary: var(--omf-on-accent);
-    --st-info: var(--omf-info-text);
-    --st-info-soft: var(--omf-info-bg);
-    --st-info-border: var(--omf-info-border);
-    --st-success: var(--omf-success-text);
-    --st-success-soft: var(--omf-success-bg);
-    --st-success-border: var(--omf-success-border);
-    --st-warning: var(--omf-warning-text);
-    --st-warning-soft: var(--omf-warning-bg);
-    --st-warning-border: var(--omf-warning-border);
-    --st-danger: var(--omf-danger-text);
-    --st-danger-soft: var(--omf-danger-bg);
-    --st-danger-border: var(--omf-danger-border);
-    --st-shadow-soft: var(--omf-shadow-color);
+    --st-primary: var(--watchdog-accent-pink);
+    --st-primary-strong: color-mix(in srgb, var(--watchdog-accent-pink) 72%, var(--watchdog-text));
+    --st-primary-deep: color-mix(in srgb, var(--watchdog-accent-pink) 52%, var(--watchdog-text));
+    --st-primary-soft: color-mix(in srgb, var(--watchdog-accent-pink) 12%, var(--watchdog-surface));
+    --st-primary-soft-strong: color-mix(in srgb, var(--watchdog-accent-pink) 24%, var(--watchdog-surface));
+    --st-primary-ring: color-mix(in srgb, var(--watchdog-accent-pink) 34%, transparent);
+    --st-on-primary: var(--watchdog-on-accent);
+    --st-info: var(--watchdog-info-text);
+    --st-info-soft: var(--watchdog-info-bg);
+    --st-info-border: var(--watchdog-info-border);
+    --st-success: var(--watchdog-success-text);
+    --st-success-soft: var(--watchdog-success-bg);
+    --st-success-border: var(--watchdog-success-border);
+    --st-warning: var(--watchdog-warning-text);
+    --st-warning-soft: var(--watchdog-warning-bg);
+    --st-warning-border: var(--watchdog-warning-border);
+    --st-danger: var(--watchdog-danger-text);
+    --st-danger-soft: var(--watchdog-danger-bg);
+    --st-danger-border: var(--watchdog-danger-border);
+    --st-shadow-soft: var(--watchdog-shadow-color);
     --st-status-ok-bg: var(--st-success-soft);
     --st-status-ok-text: var(--st-success);
     --st-status-ok-border: var(--st-success-border);
@@ -31,12 +31,12 @@
     --st-status-info-bg: var(--st-info-soft);
     --st-status-info-text: var(--st-info);
     --st-status-info-border: var(--st-info-border);
-    --st-gap-near-bg: color-mix(in srgb, var(--omf-accent-mint) 20%, var(--omf-surface));
-    --st-gap-near-text: var(--omf-success-text);
-    --st-gap-mid-bg: var(--omf-info-bg);
-    --st-gap-mid-text: var(--omf-info-text);
-    --st-gap-far-bg: var(--omf-surface-soft);
-    --st-gap-far-text: var(--omf-text-muted);
+    --st-gap-near-bg: color-mix(in srgb, var(--watchdog-accent-mint) 20%, var(--watchdog-surface));
+    --st-gap-near-text: var(--watchdog-success-text);
+    --st-gap-mid-bg: var(--watchdog-info-bg);
+    --st-gap-mid-text: var(--watchdog-info-text);
+    --st-gap-far-bg: var(--watchdog-surface-soft);
+    --st-gap-far-text: var(--watchdog-text-muted);
     --accent: var(--st-primary);
     --accent-strong: var(--st-primary-strong);
     --accent-deep: var(--st-primary-deep);
@@ -46,12 +46,12 @@
 }
 
 :root[data-theme="dark"] {
-    --st-gap-near-bg: color-mix(in srgb, var(--omf-accent-mint) 24%, var(--omf-surface));
-    --st-gap-near-text: var(--omf-success-text);
-    --st-gap-mid-bg: var(--omf-info-bg);
-    --st-gap-mid-text: var(--omf-info-text);
-    --st-gap-far-bg: var(--omf-surface-soft);
-    --st-gap-far-text: var(--omf-text-muted);
+    --st-gap-near-bg: color-mix(in srgb, var(--watchdog-accent-mint) 24%, var(--watchdog-surface));
+    --st-gap-near-text: var(--watchdog-success-text);
+    --st-gap-mid-bg: var(--watchdog-info-bg);
+    --st-gap-mid-text: var(--watchdog-info-text);
+    --st-gap-far-bg: var(--watchdog-surface-soft);
+    --st-gap-far-text: var(--watchdog-text-muted);
 }
 
 * {
@@ -61,7 +61,7 @@
 body {
     margin: 0;
     background: transparent;
-    color: var(--omf-text);
+    color: var(--watchdog-text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei UI", sans-serif;
 }
 
@@ -84,9 +84,9 @@ select {
 
 .hero,
 .section {
-    background: var(--omf-surface);
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
+    background: var(--watchdog-surface);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
     box-shadow: none;
 }
 
@@ -116,13 +116,13 @@ select {
     margin: 0;
     font-size: 24px;
     font-weight: 600;
-    color: var(--omf-text);
+    color: var(--watchdog-text);
 }
 
 .hero-subtitle {
     margin: 0;
     max-width: 760px;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 14px;
     line-height: 1.7;
 }
@@ -141,10 +141,10 @@ select {
     justify-content: center;
     min-height: 38px;
     padding: 0 14px;
-    border-radius: var(--omf-radius);
-    border: 1px solid var(--omf-border);
-    background: var(--omf-surface);
-    color: var(--omf-text);
+    border-radius: var(--watchdog-radius);
+    border: 1px solid var(--watchdog-border);
+    background: var(--watchdog-surface);
+    color: var(--watchdog-text);
     text-decoration: none;
     cursor: pointer;
     transition: background 0.16s ease, border-color 0.16s ease;
@@ -152,8 +152,8 @@ select {
 
 .hero-link:hover,
 .action-button:hover {
-    background: var(--omf-surface-soft);
-    border-color: var(--omf-border-strong);
+    background: var(--watchdog-surface-soft);
+    border-color: var(--watchdog-border-strong);
 }
 
 .hero-link:disabled,
@@ -208,7 +208,7 @@ select {
 .muted,
 .status-line,
 .field-help {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 13px;
     line-height: 1.6;
 }
@@ -221,9 +221,9 @@ select {
     min-height: 20px;
     margin-top: 12px;
     padding: 10px 12px;
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface-soft);
-    color: var(--omf-text-muted);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface-soft);
+    color: var(--watchdog-text-muted);
 }
 
 .status-line.is-error {
@@ -234,6 +234,6 @@ select {
 .empty-block {
     padding: 28px 14px;
     text-align: center;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 13px;
 }

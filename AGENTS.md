@@ -1,4 +1,4 @@
-# cargodog Agent 工作规约
+# watchdog Agent 工作规约
 
 本文件是仓库地图和最高约束。具体开发方法看 `.agents/skills/`，具体业务事实看 `spec/`。
 
@@ -27,7 +27,7 @@
 - 项目级 skill 放在 `.agents/skills/`。
 - 任务命中 skill 描述时，必须先读对应 `SKILL.md`。
 - 中大型开发、跨模块重构、工具下线、测试结构整理或生产级验收闭环时，看 `.agents/skills/plan/SKILL.md`，并维护根目录 `plan.md`。
-- 新增或修改工具、业务规则、spec、测试、构建时，看 `.agents/skills/cargodog-dev/SKILL.md`。
+- 新增或修改工具、业务规则、spec、测试、构建时，看 `.agents/skills/watchdog-dev/SKILL.md`。
 - 涉及培训皇帝/培训工作台/培训 Excel/培训规则时，看 `.agents/skills/training-workbench/SKILL.md`。
 - 涉及页面 UI、表格、卡片、筛选区、结果区、统计摘要或用户指出页面混乱难看时，看 `.agents/skills/ui-clarity/SKILL.md`。
 - 涉及 Excel 读取、导出、表头映射、日期解析或 openpyxl/SheetJS 时，看 `.agents/skills/excel-dev/SKILL.md`。

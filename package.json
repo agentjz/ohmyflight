@@ -1,5 +1,5 @@
 {
-  "name": "cargodog",
+  "name": "watchdog",
   "private": true,
   "scripts": {
     "build": "tsx scripts/build.mts",

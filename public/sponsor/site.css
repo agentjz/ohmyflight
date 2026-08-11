@@ -1,12 +1,12 @@
 :root {
     color-scheme: light;
-    --paper: var(--omf-page-bg);
-    --surface: var(--omf-surface);
-    --ink: var(--omf-text);
-    --muted: var(--omf-text-muted);
-    --line: var(--omf-border);
-    --teal: var(--omf-accent-sky);
-    --signal: var(--omf-accent-pink);
+    --paper: var(--watchdog-page-bg);
+    --surface: var(--watchdog-surface);
+    --ink: var(--watchdog-text);
+    --muted: var(--watchdog-text-muted);
+    --line: var(--watchdog-border);
+    --teal: var(--watchdog-accent-sky);
+    --signal: var(--watchdog-accent-pink);
 }
 
 * {
@@ -81,16 +81,16 @@ a {
     justify-content: center;
     padding: 10px 20px;
     border: 2px solid var(--line);
-    border-radius: var(--omf-radius);
-    box-shadow: var(--omf-shadow-sm);
+    border-radius: var(--watchdog-radius);
+    box-shadow: var(--watchdog-shadow-sm);
     font-size: 15px;
     font-weight: 750;
     text-decoration: none;
 }
 
 .hero-action-primary {
-    background: var(--omf-accent-sky);
-    color: var(--omf-on-accent);
+    background: var(--watchdog-accent-sky);
+    color: var(--watchdog-on-accent);
 }
 
 .hero-action-secondary {
@@ -100,16 +100,16 @@ a {
 
 .hero-action:hover,
 .hero-action:focus-visible {
-    border-color: var(--omf-border-strong);
-    background: var(--omf-accent-mint);
+    border-color: var(--watchdog-border-strong);
+    background: var(--watchdog-accent-mint);
     box-shadow: none;
-    color: var(--omf-on-accent);
+    color: var(--watchdog-on-accent);
     transform: translate(2px, 2px);
 }
 
 .hero-action:focus-visible,
 .project-badges a:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--omf-focus) 26%, transparent);
+    outline: 3px solid color-mix(in srgb, var(--watchdog-focus) 26%, transparent);
     outline-offset: 3px;
 }
 
@@ -134,7 +134,7 @@ a {
 
 .honor-code {
     padding: 116px 0 124px;
-    background: var(--omf-surface-soft);
+    background: var(--watchdog-surface-soft);
     color: var(--ink);
 }
 
@@ -295,9 +295,9 @@ a {
     gap: 14px;
     padding: 6px 7px 6px 16px;
     border: 2px solid var(--line);
-    border-radius: var(--omf-radius);
+    border-radius: var(--watchdog-radius);
     background: var(--paper);
-    box-shadow: var(--omf-shadow-sm);
+    box-shadow: var(--watchdog-shadow-sm);
 }
 
 .command-row code {
@@ -312,24 +312,24 @@ a {
     height: 36px;
     padding: 0;
     border: 0;
-    border-radius: var(--omf-radius);
-    background: var(--omf-accent-sky);
-    color: var(--omf-on-accent);
-    box-shadow: var(--omf-shadow-sm);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-accent-sky);
+    color: var(--watchdog-on-accent);
+    box-shadow: var(--watchdog-shadow-sm);
     font: 700 13px/1 "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
     cursor: pointer;
 }
 
 .copy-command:hover,
 .copy-command:focus-visible {
-    background: var(--omf-accent-mint);
+    background: var(--watchdog-accent-mint);
     box-shadow: none;
-    color: var(--omf-on-accent);
+    color: var(--watchdog-on-accent);
     transform: translate(2px, 2px);
 }
 
 .copy-command:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--omf-focus) 24%, transparent);
+    outline: 3px solid color-mix(in srgb, var(--watchdog-focus) 24%, transparent);
     outline-offset: 2px;
 }
 
@@ -341,9 +341,9 @@ a {
     display: block;
     width: 100%;
     border: 2px solid var(--line);
-    background: var(--omf-surface);
+    background: var(--watchdog-surface);
     object-fit: contain;
-    box-shadow: var(--omf-shadow-lg);
+    box-shadow: var(--watchdog-shadow-lg);
 }
 
 .media-agent img {
@@ -368,7 +368,7 @@ a {
 
 .engineering {
     padding: 108px 0 116px;
-    background: color-mix(in srgb, var(--omf-accent-mint) 10%, var(--omf-surface));
+    background: color-mix(in srgb, var(--watchdog-accent-mint) 10%, var(--watchdog-surface));
 }
 
 .engineering-inner {
@@ -391,11 +391,11 @@ a {
 }
 
 .support {
-    --repo-blue: var(--omf-link);
-    --repo-line: var(--omf-border);
-    --repo-muted: var(--omf-text-muted);
+    --repo-blue: var(--watchdog-link);
+    --repo-line: var(--watchdog-border);
+    --repo-muted: var(--watchdog-text-muted);
     padding: 116px 0 96px;
-    background: var(--omf-surface-soft);
+    background: var(--watchdog-surface-soft);
     color: var(--ink);
 }
 
@@ -435,12 +435,12 @@ a {
 
 .contribution-item:hover,
 .contribution-item:focus-visible {
-    background: color-mix(in srgb, var(--omf-accent-sky) 12%, var(--omf-surface));
+    background: color-mix(in srgb, var(--watchdog-accent-sky) 12%, var(--watchdog-surface));
     color: var(--ink);
 }
 
 .contribution-item:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--omf-focus) 24%, transparent);
+    outline: 3px solid color-mix(in srgb, var(--watchdog-focus) 24%, transparent);
     outline-offset: 4px;
 }
 
@@ -538,7 +538,7 @@ a {
 }
 
 a.contributors-avatar-link:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--omf-focus) 24%, transparent);
+    outline: 3px solid color-mix(in srgb, var(--watchdog-focus) 24%, transparent);
     outline-offset: 4px;
 }
 
@@ -548,7 +548,7 @@ a.contributors-avatar-link:focus-visible {
     height: 56px;
     border: 1px solid var(--repo-line);
     border-radius: 50%;
-    background: var(--omf-surface-muted);
+    background: var(--watchdog-surface-muted);
     object-fit: cover;
 }
 
@@ -571,7 +571,7 @@ a.contributors-name:focus-visible {
 }
 
 a.contributors-name:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--omf-focus) 24%, transparent);
+    outline: 3px solid color-mix(in srgb, var(--watchdog-focus) 24%, transparent);
     outline-offset: 4px;
 }
 

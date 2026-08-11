@@ -12,17 +12,17 @@
         .result-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
         .result-toolbar-group { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
         .image-title-control { display: flex; align-items: center; gap: 7px; }
-        .image-title-control label { color: var(--omf-text-muted); font-size: 13px; white-space: nowrap; }
+        .image-title-control label { color: var(--watchdog-text-muted); font-size: 13px; white-space: nowrap; }
         .image-title-input { width: 150px; text-align: center; letter-spacing: 0; }
-        .table-container { border: 1px solid var(--omf-border); border-radius: var(--omf-radius); max-height: 430px; overflow: auto; }
+        .table-container { border: 1px solid var(--watchdog-border); border-radius: var(--watchdog-radius); max-height: 430px; overflow: auto; }
         .result-table { width: 100%; min-width: 900px; table-layout: fixed; border-collapse: separate; border-spacing: 0; margin: 0; }
         .result-table th,
-        .result-table td { padding: 10px 12px; border-right: 1px solid var(--omf-border); border-bottom: 1px solid var(--omf-border); font-size: 14px; text-align: center; vertical-align: middle; white-space: normal; overflow-wrap: anywhere; }
+        .result-table td { padding: 10px 12px; border-right: 1px solid var(--watchdog-border); border-bottom: 1px solid var(--watchdog-border); font-size: 14px; text-align: center; vertical-align: middle; white-space: normal; overflow-wrap: anywhere; }
         .result-table th { position: sticky; top: 0; z-index: 2; font-weight: 700; }
         .result-table th:last-child,
         .result-table td:last-child { border-right: none; }
         .result-table tbody tr:last-child td { border-bottom: none; }
-        .result-table tbody tr.selected td { background: var(--omf-info-bg); }
+        .result-table tbody tr.selected td { background: var(--watchdog-info-bg); }
         .result-table .col-select { width: 48px; }
         .result-table .col-id { width: 112px; }
         .result-table .col-name { width: 144px; }
@@ -32,17 +32,17 @@
         .result-table .col-custom { width: 170px; }
         .custom-header-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 28px; align-items: center; gap: 4px; }
         .custom-header-input,
-        .custom-value-input { width: 100%; min-width: 0; color: var(--omf-text); background: var(--omf-surface); border: 1px solid transparent; border-radius: var(--omf-radius); text-align: center; letter-spacing: 0; }
+        .custom-value-input { width: 100%; min-width: 0; color: var(--watchdog-text); background: var(--watchdog-surface); border: 1px solid transparent; border-radius: var(--watchdog-radius); text-align: center; letter-spacing: 0; }
         .custom-header-input { height: 32px; padding: 4px 6px; font-weight: 700; }
         .custom-value-input { min-height: 34px; padding: 6px 8px; }
         .custom-header-input:hover,
-        .custom-value-input:hover { border-color: var(--omf-border); }
+        .custom-value-input:hover { border-color: var(--watchdog-border); }
         .custom-header-input:focus,
-        .custom-value-input:focus { border-color: var(--omf-focus); outline: 2px solid var(--omf-focus); }
-        .remove-column-btn { width: 28px; height: 28px; padding: 0; border: 1px solid transparent; border-radius: var(--omf-radius); color: var(--omf-text-muted); background: transparent; font-size: 20px; line-height: 1; }
-        .remove-column-btn:hover { color: var(--omf-danger-text); background: var(--omf-danger-bg); }
-        .no-result { text-align: center; padding: 40px 20px; color: var(--omf-text-muted); font-size: 14px; }
-        #fileStatus { padding: 8px 12px; border-radius: var(--omf-radius); font-size: 12px; display: none; }
+        .custom-value-input:focus { border-color: var(--watchdog-focus); outline: 2px solid var(--watchdog-focus); }
+        .remove-column-btn { width: 28px; height: 28px; padding: 0; border: 1px solid transparent; border-radius: var(--watchdog-radius); color: var(--watchdog-text-muted); background: transparent; font-size: 20px; line-height: 1; }
+        .remove-column-btn:hover { color: var(--watchdog-danger-text); background: var(--watchdog-danger-bg); }
+        .no-result { text-align: center; padding: 40px 20px; color: var(--watchdog-text-muted); font-size: 14px; }
+        #fileStatus { padding: 8px 12px; border-radius: var(--watchdog-radius); font-size: 12px; display: none; }
         @media (max-width: 768px) {
             body { padding: 12px; }
             .result-heading,

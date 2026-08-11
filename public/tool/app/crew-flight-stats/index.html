@@ -10,26 +10,26 @@
         body { background: transparent; padding: 20px; }
         .container { max-width: 1200px; }
         .sheet-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-        .sheet-checkbox { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--omf-surface-soft); border: 1px solid var(--omf-border); border-radius: var(--omf-radius); cursor: pointer; font-size: 13px; }
-        .sheet-checkbox:hover { background: var(--omf-surface-muted); }
+        .sheet-checkbox { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--watchdog-surface-soft); border: 1px solid var(--watchdog-border); border-radius: var(--watchdog-radius); cursor: pointer; font-size: 13px; }
+        .sheet-checkbox:hover { background: var(--watchdog-surface-muted); }
         .sheet-checkbox input { cursor: pointer; }
-        .sheet-checkbox.checked { background: var(--omf-info-bg); border-color: var(--omf-info-border); }
-        .warning-list { max-height: 150px; overflow-y: auto; padding: 10px; background: var(--omf-warning-bg); border: 2px solid var(--omf-warning-border); border-radius: var(--omf-radius); color: var(--omf-warning-text); font-size: 13px; line-height: 1.6; }
+        .sheet-checkbox.checked { background: var(--watchdog-info-bg); border-color: var(--watchdog-info-border); }
+        .warning-list { max-height: 150px; overflow-y: auto; padding: 10px; background: var(--watchdog-warning-bg); border: 2px solid var(--watchdog-warning-border); border-radius: var(--watchdog-radius); color: var(--watchdog-warning-text); font-size: 13px; line-height: 1.6; }
         #resultTable { width: 100%; border-collapse: collapse; font-size: 13px; }
-        #resultTable th, #resultTable td { padding: 8px 12px; border: 1px solid var(--omf-border); text-align: center; white-space: nowrap; }
-        #resultTable th { background: var(--omf-surface-muted); font-weight: 600; position: sticky; top: 0; }
-        #resultTable th:first-child, #resultTable td:first-child { text-align: left; position: sticky; left: 0; background: var(--omf-surface); z-index: 1; }
-        #resultTable th:first-child { background: var(--omf-surface-muted); z-index: 2; }
-        #resultTable tbody tr:hover { background: var(--omf-surface-soft); }
-        #resultTable tbody tr:hover td:first-child { background: var(--omf-surface-soft); }
+        #resultTable th, #resultTable td { padding: 8px 12px; border: 1px solid var(--watchdog-border); text-align: center; white-space: nowrap; }
+        #resultTable th { background: var(--watchdog-surface-muted); font-weight: 600; position: sticky; top: 0; }
+        #resultTable th:first-child, #resultTable td:first-child { text-align: left; position: sticky; left: 0; background: var(--watchdog-surface); z-index: 1; }
+        #resultTable th:first-child { background: var(--watchdog-surface-muted); z-index: 2; }
+        #resultTable tbody tr:hover { background: var(--watchdog-surface-soft); }
+        #resultTable tbody tr:hover td:first-child { background: var(--watchdog-surface-soft); }
         #crewTable { width: 100%; border-collapse: collapse; }
-        #crewTable th { padding: 6px 8px; background: var(--omf-surface-muted); border: 1px solid var(--omf-border); text-align: left; font-size: 13px; }
-        #crewTable td { border: 1px solid var(--omf-border); }
+        #crewTable th { padding: 6px 8px; background: var(--watchdog-surface-muted); border: 1px solid var(--watchdog-border); text-align: left; font-size: 13px; }
+        #crewTable td { border: 1px solid var(--watchdog-border); }
         #crewTable input, #crewTable textarea { width: 100%; border: none; padding: 6px 8px; font-size: 13px; }
-        #crewTable input:focus, #crewTable textarea:focus { background: var(--omf-info-bg); }
-        .status { margin-top: 8px; padding: 6px 10px; border-radius: var(--omf-radius); font-size: 12px; display: none; }
-        .status-success { background: var(--omf-success-bg); color: var(--omf-success-text); display: block; }
-        .status-error { background: var(--omf-danger-bg); color: var(--omf-danger-text); display: block; }
+        #crewTable input:focus, #crewTable textarea:focus { background: var(--watchdog-info-bg); }
+        .status { margin-top: 8px; padding: 6px 10px; border-radius: var(--watchdog-radius); font-size: 12px; display: none; }
+        .status-success { background: var(--watchdog-success-bg); color: var(--watchdog-success-text); display: block; }
+        .status-error { background: var(--watchdog-danger-bg); color: var(--watchdog-danger-text); display: block; }
     </style>
     <link rel="stylesheet" href="../../../theme.css">
 </head>

@@ -10,12 +10,12 @@ import { resolveFromDist, resolveFromRoot } from "../helpers/paths";
 describe("engineering contract", () => {
   it("does not generate or advertise a source archive", () => {
     expect(fs.existsSync(resolveFromRoot("package_site_source.py"))).toBe(false);
-    expect(fs.existsSync(resolveFromDist("downloads", "cargodog-source.zip"))).toBe(false);
+    expect(fs.existsSync(resolveFromDist("downloads", "watchdog-source.zip"))).toBe(false);
 
     const html = walkFiles(resolveFromDist(), [".html"])
       .map((file) => fs.readFileSync(file, "utf8"))
       .join("\n");
-    expect(html).not.toContain("cargodog-source.zip");
+    expect(html).not.toContain("watchdog-source.zip");
   });
 
   it("keeps page script references unique and includes an app-owned entry", () => {

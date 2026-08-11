@@ -213,10 +213,10 @@ import type {
             context.state.enabledBalanceHookIds
         );
         context.state.chart = context.state.chart || context.echarts.init(element);
-        const textColor = cssColor("--omf-text", "#1f2328");
-        const mutedColor = cssColor("--omf-text-muted", "#656d76");
-        const borderColor = cssColor("--omf-border", "#d0d7de");
-        const surfaceColor = cssColor("--omf-surface", "#ffffff");
+        const textColor = cssColor("--watchdog-text", "#1f2328");
+        const mutedColor = cssColor("--watchdog-text-muted", "#656d76");
+        const borderColor = cssColor("--watchdog-border", "#d0d7de");
+        const surfaceColor = cssColor("--watchdog-surface", "#ffffff");
         context.state.chart.setOption({
             animationDuration: 280,
             color: [

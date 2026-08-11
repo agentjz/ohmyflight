@@ -1,9 +1,9 @@
 ---
-name: cargodog-dev
-description: cargodog 仓库内新增或修改工具的一般开发流程，适用于前端工具、Python 小工具、Excel 解析导出工具、业务规则实现、入口注册、spec 文档、测试和构建收尾。
+name: watchdog-dev
+description: watchdog 仓库内新增或修改工具的一般开发流程，适用于前端工具、Python 小工具、Excel 解析导出工具、业务规则实现、入口注册、spec 文档、测试和构建收尾。
 ---
 
-# cargodog Dev
+# watchdog Dev
 
 在本仓库新增或修改工具时使用本 skill。
 

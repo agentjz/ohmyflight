@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    var storageKey = "cargodog.theme";
+    var storageKey = "watchdog.theme";
     var defaultTheme = document.documentElement.dataset.defaultTheme === "dark" ? "dark" : "light";
     function normalizeTheme(value) {
         return value === "dark" || value === "light" ? value : defaultTheme;
@@ -40,7 +40,7 @@
             storeTheme(nextTheme);
         }
 
-        window.dispatchEvent(new CustomEvent("cargodog:themechange", {
+        window.dispatchEvent(new CustomEvent("watchdog:themechange", {
             detail: { theme: nextTheme }
         }));
 
@@ -59,7 +59,7 @@
         return setTheme(getTheme() === "dark" ? "light" : "dark");
     }
 
-    window.CargodogTheme = {
+    window.WatchdogTheme = {
         getTheme: getTheme,
         setTheme: setTheme,
         toggleTheme: toggleTheme,

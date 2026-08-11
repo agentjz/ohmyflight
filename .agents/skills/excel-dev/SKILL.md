@@ -1,11 +1,11 @@
 ---
 name: excel-dev
-description: cargodog 仓库内开发、修改或排查 Excel 读取、Excel 导出、表头映射、日期解析、批量导入、SheetJS/openpyxl 数据处理和相关测试时使用；尤其适用于修复日期偏移、Excel serial、JS Date 字符串泄漏、超链接导出、表格解析口径不一致等问题。
+description: watchdog 仓库内开发、修改或排查 Excel 读取、Excel 导出、表头映射、日期解析、批量导入、SheetJS/openpyxl 数据处理和相关测试时使用；尤其适用于修复日期偏移、Excel serial、JS Date 字符串泄漏、超链接导出、表格解析口径不一致等问题。
 ---
 
 # Excel 开发
 
-在 cargodog 仓库处理 Excel 工具时使用本 skill。先读 `AGENTS.md` 和 `.agents/skills/cargodog-dev/SKILL.md`，再执行本文件约束。
+在 watchdog 仓库处理 Excel 工具时使用本 skill。先读 `AGENTS.md` 和 `.agents/skills/watchdog-dev/SKILL.md`，再执行本文件约束。
 
 ## 核心原则
 
@@ -84,7 +84,7 @@ Excel 日期相关修改至少覆盖：
 
 ## 验证命令
 
-先跑相关局部测试，再按 `cargodog-dev` 收尾要求运行：
+先跑相关局部测试，再按 `watchdog-dev` 收尾要求运行：
 
 ```powershell
 npm.cmd run build

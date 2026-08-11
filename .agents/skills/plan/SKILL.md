@@ -1,6 +1,6 @@
 ---
 name: plan
-description: 在 cargodog 仓库内编写和执行单文件 plan.md。适用于中大型开发、跨模块重构、生产级验收、工具下线、测试结构整理、架构硬化、恢复演练、评测闭环，以及任何不能靠一次小补丁完成的任务；要求把 plan.md 写成需求、事实、失败测试、目标、设计、任务、验证和收口合一的执行合同。
+description: 在 watchdog 仓库内编写和执行单文件 plan.md。适用于中大型开发、跨模块重构、生产级验收、工具下线、测试结构整理、架构硬化、恢复演练、评测闭环，以及任何不能靠一次小补丁完成的任务；要求把 plan.md 写成需求、事实、失败测试、目标、设计、任务、验证和收口合一的执行合同。
 ---
 
 # Plan
@@ -12,7 +12,7 @@ description: 在 cargodog 仓库内编写和执行单文件 plan.md。适用于�
 ## 触发后先做
 
 - 先读根目录 `AGENTS.md`。
-- 涉及代码、测试、spec、构建时，同时读 `.agents/skills/cargodog-dev/SKILL.md`。
+- 涉及代码、测试、spec、构建时，同时读 `.agents/skills/watchdog-dev/SKILL.md`。
 - 如果根目录已有 `plan.md`，先判断它是否属于当前任务；属于则更新，不属于则询问或明确覆盖理由。
 - 如果没有 `plan.md`，以根目录 `plan.example.md` 为模板创建。
 - 写完或更新 `plan.md` 后再做大改；执行中事实推翻计划时，先更新 `plan.md` 再继续。

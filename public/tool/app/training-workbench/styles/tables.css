@@ -1,9 +1,9 @@
 .table-shell {
     overflow-x: auto;
     overflow-y: hidden;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface);
 }
 
 .table-shell.selected-person-shell,
@@ -22,8 +22,8 @@
 }
 
 .table thead th {
-    background: var(--omf-surface-soft);
-    color: var(--omf-text);
+    background: var(--watchdog-surface-soft);
+    color: var(--watchdog-text);
     border-bottom-width: 1px;
     white-space: nowrap;
     vertical-align: middle;
@@ -143,7 +143,7 @@
     align-items: center;
     justify-content: center;
     padding: 4px 10px;
-    border-radius: var(--omf-radius);
+    border-radius: var(--watchdog-radius);
     font-size: 12px;
     font-weight: 600;
 }
@@ -208,7 +208,7 @@
     max-height: 520px;
     overflow: auto;
     scrollbar-width: auto;
-    scrollbar-color: var(--omf-border-strong) var(--omf-surface-soft);
+    scrollbar-color: var(--watchdog-border-strong) var(--watchdog-surface-soft);
 }
 
 .schedule-gap-table-shell::-webkit-scrollbar {
@@ -217,13 +217,13 @@
 }
 
 .schedule-gap-table-shell::-webkit-scrollbar-track {
-    background: var(--omf-surface-soft);
+    background: var(--watchdog-surface-soft);
 }
 
 .schedule-gap-table-shell::-webkit-scrollbar-thumb {
-    border: 3px solid var(--omf-surface-soft);
-    border-radius: var(--omf-radius);
-    background: var(--omf-border-strong);
+    border: 3px solid var(--watchdog-surface-soft);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-border-strong);
 }
 
 .schedule-gap-table {
@@ -279,7 +279,7 @@
     align-items: center;
     min-height: 24px;
     padding: 3px 8px;
-    border-radius: var(--omf-radius);
+    border-radius: var(--watchdog-radius);
     font-size: 11px;
     font-weight: 600;
     white-space: nowrap;
@@ -306,8 +306,8 @@
 }
 
 .gap-attention-label {
-    background: var(--omf-surface-muted);
-    color: var(--omf-text-muted);
+    background: var(--watchdog-surface-muted);
+    color: var(--watchdog-text-muted);
 }
 
 .gap-attention-label.is-uncovered {
@@ -322,13 +322,13 @@
 }
 
 .schedule-gap-person-name {
-    color: var(--omf-text);
+    color: var(--watchdog-text);
     font-weight: 600;
 }
 
 .schedule-gap-person-id {
     margin-top: 2px;
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 11px;
 }
 
@@ -337,7 +337,7 @@
 }
 
 .schedule-gap-reason {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
 }
 
 .selected-person-table :is(th, td) {
@@ -360,9 +360,9 @@
 }
 
 .collapse-shell {
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface);
 }
 
 .collapse-shell summary {

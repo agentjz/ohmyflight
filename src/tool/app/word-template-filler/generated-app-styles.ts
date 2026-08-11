@@ -4,50 +4,50 @@ export const GeneratedAppStyles = {
     generate: () => `
         :root {
             color-scheme: light;
-            --omf-page-bg: #f1f2f0;
-            --omf-surface: #fbfbfa;
-            --omf-surface-soft: #eef0f1;
-            --omf-text: #1f2933;
-            --omf-text-muted: #596675;
-            --omf-border: #4b5563;
-            --omf-border-strong: #27313d;
-            --omf-focus: #37b8e9;
-            --omf-accent-pink: #f472b6;
-            --omf-accent-sky: #38bdf8;
-            --omf-accent-mint: #a3e635;
-            --omf-on-accent: #252a30;
-            --omf-shadow-color: rgba(39, 49, 61, 0.28);
-            --omf-shadow-sm: 3px 3px 0 var(--omf-shadow-color);
-            --omf-shadow-focus: 4px 4px 0 color-mix(in srgb, var(--omf-focus) 58%, transparent);
-            --omf-danger-bg: #f5dde1;
-            --omf-danger-text: #8a3441;
-            --omf-danger-border: #ad5966;
-            --omf-success-bg: #dcefdc;
-            --omf-success-text: #245c3f;
-            --omf-success-border: #4c8064;
+            --watchdog-page-bg: #f1f2f0;
+            --watchdog-surface: #fbfbfa;
+            --watchdog-surface-soft: #eef0f1;
+            --watchdog-text: #1f2933;
+            --watchdog-text-muted: #596675;
+            --watchdog-border: #4b5563;
+            --watchdog-border-strong: #27313d;
+            --watchdog-focus: #37b8e9;
+            --watchdog-accent-pink: #f472b6;
+            --watchdog-accent-sky: #38bdf8;
+            --watchdog-accent-mint: #a3e635;
+            --watchdog-on-accent: #252a30;
+            --watchdog-shadow-color: rgba(39, 49, 61, 0.28);
+            --watchdog-shadow-sm: 3px 3px 0 var(--watchdog-shadow-color);
+            --watchdog-shadow-focus: 4px 4px 0 color-mix(in srgb, var(--watchdog-focus) 58%, transparent);
+            --watchdog-danger-bg: #f5dde1;
+            --watchdog-danger-text: #8a3441;
+            --watchdog-danger-border: #ad5966;
+            --watchdog-success-bg: #dcefdc;
+            --watchdog-success-text: #245c3f;
+            --watchdog-success-border: #4c8064;
         }
         @media (prefers-color-scheme: dark) {
             :root {
                 color-scheme: dark;
-                --omf-page-bg: #22262b;
-                --omf-surface: #2d3238;
-                --omf-surface-soft: #343a41;
-                --omf-text: #f1f2f4;
-                --omf-text-muted: #c5cad0;
-                --omf-border: #a6adb6;
-                --omf-border-strong: #c1c6cc;
-                --omf-focus: #43c6f3;
-                --omf-accent-pink: #f06db5;
-                --omf-accent-sky: #38b7e9;
-                --omf-accent-mint: #a7df45;
-                --omf-on-accent: #22272d;
-                --omf-shadow-color: rgba(0, 0, 0, 0.48);
-                --omf-danger-bg: #51333a;
-                --omf-danger-text: #efb4bd;
-                --omf-danger-border: #c27a85;
-                --omf-success-bg: #294438;
-                --omf-success-text: #a9ddbd;
-                --omf-success-border: #7aad91;
+                --watchdog-page-bg: #22262b;
+                --watchdog-surface: #2d3238;
+                --watchdog-surface-soft: #343a41;
+                --watchdog-text: #f1f2f4;
+                --watchdog-text-muted: #c5cad0;
+                --watchdog-border: #a6adb6;
+                --watchdog-border-strong: #c1c6cc;
+                --watchdog-focus: #43c6f3;
+                --watchdog-accent-pink: #f06db5;
+                --watchdog-accent-sky: #38b7e9;
+                --watchdog-accent-mint: #a7df45;
+                --watchdog-on-accent: #22272d;
+                --watchdog-shadow-color: rgba(0, 0, 0, 0.48);
+                --watchdog-danger-bg: #51333a;
+                --watchdog-danger-text: #efb4bd;
+                --watchdog-danger-border: #c27a85;
+                --watchdog-success-bg: #294438;
+                --watchdog-success-text: #a9ddbd;
+                --watchdog-success-border: #7aad91;
             }
         }
         * {
@@ -57,8 +57,8 @@ export const GeneratedAppStyles = {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
         }
         body {
-            background: var(--omf-page-bg);
-            color: var(--omf-text);
+            background: var(--watchdog-page-bg);
+            color: var(--watchdog-text);
             min-height: 100vh;
             padding: 20px;
             display: flex;
@@ -70,19 +70,19 @@ export const GeneratedAppStyles = {
             text-align: center;
             margin-bottom: 24px;
             padding: 16px;
-            background: var(--omf-surface);
-            border: 2px solid var(--omf-border);
+            background: var(--watchdog-surface);
+            border: 2px solid var(--watchdog-border);
             border-radius: 0;
-            box-shadow: var(--omf-shadow-sm);
+            box-shadow: var(--watchdog-shadow-sm);
             position: relative;
         }
-        .header h1 { color: var(--omf-text); font-size: 24px; font-weight: 750; }
-        .header p { color: var(--omf-text-muted); font-size: 14px; margin-top: 8px; }
+        .header h1 { color: var(--watchdog-text); font-size: 24px; font-weight: 750; }
+        .header p { color: var(--watchdog-text-muted); font-size: 14px; margin-top: 8px; }
         .panel {
-            background: var(--omf-surface);
-            border: 2px solid var(--omf-border);
+            background: var(--watchdog-surface);
+            border: 2px solid var(--watchdog-border);
             border-radius: 0;
-            box-shadow: var(--omf-shadow-sm);
+            box-shadow: var(--watchdog-shadow-sm);
             padding: 20px;
         }
         .form-group { margin-bottom: 16px; }
@@ -90,7 +90,7 @@ export const GeneratedAppStyles = {
             display: block;
             font-size: 14px;
             font-weight: 500;
-            color: var(--omf-text);
+            color: var(--watchdog-text);
             margin-bottom: 6px;
         }
         .form-group input[type="text"],
@@ -98,20 +98,20 @@ export const GeneratedAppStyles = {
         .form-group textarea {
             width: 100%;
             padding: 10px 12px;
-            border: 2px solid var(--omf-border);
+            border: 2px solid var(--watchdog-border);
             border-radius: 0;
-            background: var(--omf-surface);
-            color: var(--omf-text);
+            background: var(--watchdog-surface);
+            color: var(--watchdog-text);
             font-size: 14px;
             font-family: inherit;
         }
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: var(--omf-focus);
-            outline: 2px solid var(--omf-focus);
+            border-color: var(--watchdog-focus);
+            outline: 2px solid var(--watchdog-focus);
             outline-offset: 2px;
-            box-shadow: var(--omf-shadow-focus);
+            box-shadow: var(--watchdog-shadow-focus);
         }
         .form-group textarea { min-height: 80px; resize: vertical; }
         .radio-group, .checkbox-group { display: flex; gap: 16px; flex-wrap: wrap; }
@@ -130,11 +130,11 @@ export const GeneratedAppStyles = {
             font-size: 14px;
         }
         .loop-table th, .loop-table td {
-            border: 1px solid var(--omf-border);
+            border: 1px solid var(--watchdog-border);
             padding: 8px;
             text-align: left;
         }
-        .loop-table th { background: var(--omf-surface-soft); font-weight: 700; }
+        .loop-table th { background: var(--watchdog-surface-soft); font-weight: 700; }
         .loop-table input, .loop-table textarea, .loop-table select {
             width: 100%;
             border: none;
@@ -145,51 +145,51 @@ export const GeneratedAppStyles = {
         }
         .loop-table input:focus, .loop-table textarea:focus, .loop-table select:focus {
             outline: none;
-            background: color-mix(in srgb, var(--omf-accent-sky) 12%, var(--omf-surface));
+            background: color-mix(in srgb, var(--watchdog-accent-sky) 12%, var(--watchdog-surface));
         }
         .btn {
             padding: 8px 16px;
-            border: 2px solid var(--omf-border);
+            border: 2px solid var(--watchdog-border);
             border-radius: 0;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            background: var(--omf-surface);
-            color: var(--omf-text);
-            box-shadow: var(--omf-shadow-sm);
+            background: var(--watchdog-surface);
+            color: var(--watchdog-text);
+            box-shadow: var(--watchdog-shadow-sm);
             transition: all 0.2s;
         }
-        .btn:hover { border-color: var(--omf-border-strong); background: var(--omf-accent-mint); color: var(--omf-on-accent); box-shadow: none; transform: translate(2px, 2px); }
-        .btn-primary { background: var(--omf-accent-sky); border-color: var(--omf-border-strong); color: var(--omf-on-accent); }
-        .btn-primary:hover { background: var(--omf-accent-mint); }
+        .btn:hover { border-color: var(--watchdog-border-strong); background: var(--watchdog-accent-mint); color: var(--watchdog-on-accent); box-shadow: none; transform: translate(2px, 2px); }
+        .btn-primary { background: var(--watchdog-accent-sky); border-color: var(--watchdog-border-strong); color: var(--watchdog-on-accent); }
+        .btn-primary:hover { background: var(--watchdog-accent-mint); }
         .btn-sm { padding: 4px 10px; font-size: 13px; }
-        .btn-danger { background: var(--omf-danger-bg); color: var(--omf-danger-text); border-color: var(--omf-danger-border); }
-        .btn-danger:hover { background: var(--omf-danger-bg); }
+        .btn-danger { background: var(--watchdog-danger-bg); color: var(--watchdog-danger-text); border-color: var(--watchdog-danger-border); }
+        .btn-danger:hover { background: var(--watchdog-danger-bg); }
         .button-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; }
-        .required { color: var(--omf-danger-text); margin-left: 2px; }
+        .required { color: var(--watchdog-danger-text); margin-left: 2px; }
         .upload-hint {
-            background: var(--omf-surface-soft);
-            border: 2px solid var(--omf-border);
+            background: var(--watchdog-surface-soft);
+            border: 2px solid var(--watchdog-border);
             border-radius: 0;
             padding: 12px;
             margin-bottom: 16px;
             font-size: 14px;
-            color: var(--omf-text-muted);
+            color: var(--watchdog-text-muted);
         }
-        .upload-hint label { color: var(--omf-link, #256f8f); cursor: pointer; text-decoration: underline; }
-        .upload-hint .file-name { color: var(--omf-text); font-weight: 600; margin-left: 8px; }
+        .upload-hint label { color: var(--watchdog-link, #256f8f); cursor: pointer; text-decoration: underline; }
+        .upload-hint .file-name { color: var(--watchdog-text); font-weight: 600; margin-left: 8px; }
         .batch-section {
             margin-top: 28px;
             padding-top: 20px;
-            border-top: 1px solid var(--omf-border);
+            border-top: 1px solid var(--watchdog-border);
         }
         .batch-section h2 {
-            color: var(--omf-text);
+            color: var(--watchdog-text);
             font-size: 18px;
             margin-bottom: 8px;
         }
         .batch-section p {
-            color: var(--omf-text-muted);
+            color: var(--watchdog-text-muted);
             font-size: 14px;
             line-height: 1.6;
             margin-bottom: 12px;
@@ -202,32 +202,32 @@ export const GeneratedAppStyles = {
         }
         .batch-actions input[type="file"] { display: none; }
         .batch-status {
-            border: 2px solid var(--omf-border);
+            border: 2px solid var(--watchdog-border);
             border-radius: 0;
-            background: var(--omf-surface-soft);
-            color: var(--omf-text-muted);
+            background: var(--watchdog-surface-soft);
+            color: var(--watchdog-text-muted);
             font-size: 14px;
             padding: 10px 12px;
             margin-top: 12px;
         }
         .batch-status.error {
-            border-color: var(--omf-danger-border);
-            background: var(--omf-danger-bg);
-            color: var(--omf-danger-text);
+            border-color: var(--watchdog-danger-border);
+            background: var(--watchdog-danger-bg);
+            color: var(--watchdog-danger-text);
         }
         .batch-status.success {
-            border-color: var(--omf-success-border);
-            background: var(--omf-success-bg);
-            color: var(--omf-success-text);
+            border-color: var(--watchdog-success-border);
+            background: var(--watchdog-success-bg);
+            color: var(--watchdog-success-text);
         }
         .batch-preview-toggle {
             display: inline-flex;
             align-items: center;
-            border: 2px solid var(--omf-border);
+            border: 2px solid var(--watchdog-border);
             border-radius: 0;
-            background: var(--omf-surface);
-            color: var(--omf-link, #256f8f);
-            box-shadow: var(--omf-shadow-sm);
+            background: var(--watchdog-surface);
+            color: var(--watchdog-link, #256f8f);
+            box-shadow: var(--watchdog-shadow-sm);
             font-size: 13px;
             font-weight: 500;
             padding: 6px 10px;
@@ -235,9 +235,9 @@ export const GeneratedAppStyles = {
             cursor: pointer;
         }
         .batch-preview-toggle:hover {
-            background: var(--omf-accent-mint);
+            background: var(--watchdog-accent-mint);
             box-shadow: none;
-            color: var(--omf-on-accent);
+            color: var(--watchdog-on-accent);
             transform: translate(2px, 2px);
         }
         .batch-preview {
@@ -247,14 +247,14 @@ export const GeneratedAppStyles = {
             font-size: 13px;
         }
         .batch-preview th, .batch-preview td {
-            border: 1px solid var(--omf-border);
+            border: 1px solid var(--watchdog-border);
             padding: 8px;
             text-align: left;
             vertical-align: top;
         }
-        .batch-preview th { background: var(--omf-surface-soft); font-weight: 700; }
-        .batch-preview .error { color: var(--omf-danger-text); }
-        .batch-preview .success { color: var(--omf-success-text); }
+        .batch-preview th { background: var(--watchdog-surface-soft); font-weight: 700; }
+        .batch-preview .error { color: var(--watchdog-danger-text); }
+        .batch-preview .success { color: var(--watchdog-success-text); }
         @media (max-width: 768px) {
             .button-group { flex-direction: column; }
             .btn { width: 100%; }

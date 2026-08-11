@@ -1,11 +1,11 @@
 ---
 name: memo-dev
-description: 维护 cargodog 内的备忘录业务子站。用户要求新增、删除、重命名或调整飞行部日常备忘录，修改备忘录页面、导航、Markdown 正文、图片附件、维护说明或索引时使用。
+description: 维护 watchdog 内的备忘录业务子站。用户要求新增、删除、重命名或调整飞行部日常备忘录，修改备忘录页面、导航、Markdown 正文、图片附件、维护说明或索引时使用。
 ---
 
 # 备忘录维护
 
-备忘录是 cargodog 下的独立静态子应用，用于查询飞行部日常工作记录。业务正文与项目级 Agent Skill 是两类内容，不能混放。
+备忘录是 watchdog 下的独立静态子应用，用于查询飞行部日常工作记录。业务正文与项目级 Agent Skill 是两类内容，不能混放。
 
 ## 当前入口
 
@@ -33,7 +33,7 @@ description: 维护 cargodog 内的备忘录业务子站。用户要求新增、
 3. 新增、删除、重命名或调整顺序时，同步 `src/memo/memos-data.ts`、`public/memo/SPEC.md` 和 `public/memo/MEMO_INDEX.md`。
 4. 页面布局、搜索或 Markdown 渲染变化时，同步检查 `index.html`、`site.css`、`search.ts` 和 `site.ts`。
 5. 备忘录用户事实写入模块 `SPEC.md`，通用贡献说明使用仓库根 `CONTRIBUTING.md`，Agent 执行流程写入本 Skill。
-6. 不复制 Bootstrap、marked、许可证或第二套 Git；统一复用 cargodog 主仓库能力。
+6. 不复制 Bootstrap、marked、许可证或第二套 Git；统一复用 watchdog 主仓库能力。
 7. Markdown、HTML、CSS 和 JavaScript 文本统一使用 UTF-8 无 BOM。
 
 ## 验证

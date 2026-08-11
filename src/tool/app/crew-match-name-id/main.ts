@@ -60,10 +60,10 @@ function parseExcelData(data: Uint8Array, fileName: string): void {
 function showFileStatus(message: string, type: "success" | "error" | "loading" | "hint"): void {
     const status = requireElement("fileStatus", HTMLElement);
     const colors = {
-        success: ["var(--omf-success-bg)", "var(--omf-success-text)"],
-        error: ["var(--omf-danger-bg)", "var(--omf-danger-text)"],
-        loading: ["var(--omf-info-bg)", "var(--omf-info-text)"],
-        hint: ["var(--omf-surface-soft)", "var(--omf-text-muted)"]
+        success: ["var(--watchdog-success-bg)", "var(--watchdog-success-text)"],
+        error: ["var(--watchdog-danger-bg)", "var(--watchdog-danger-text)"],
+        loading: ["var(--watchdog-info-bg)", "var(--watchdog-info-text)"],
+        hint: ["var(--watchdog-surface-soft)", "var(--watchdog-text-muted)"]
     } as const;
     status.textContent = message;
     status.style.display = "inline-block";
@@ -117,8 +117,8 @@ async function copyToClipboard(text: string, button: HTMLButtonElement, original
     try {
         await navigator.clipboard.writeText(text);
         button.textContent = "已复制";
-        button.style.backgroundColor = "var(--omf-success-bg)";
-        button.style.color = "var(--omf-success-text)";
+        button.style.backgroundColor = "var(--watchdog-success-bg)";
+        button.style.color = "var(--watchdog-success-text)";
         setTimeout(() => {
             button.textContent = originalText;
             button.style.backgroundColor = "";

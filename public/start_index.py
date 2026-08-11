@@ -26,15 +26,15 @@ def open_browser(url: str) -> None:
 def serve(directory: Path, port: int) -> None:
     handler = partial(http.server.SimpleHTTPRequestHandler, directory=str(directory))
     with socketserver.TCPServer(("", port), handler) as server:
-        print(f"[cargodog] Serving {directory} at http://localhost:{port}/")
+        print(f"[watchdog] Serving {directory} at http://localhost:{port}/")
         try:
             server.serve_forever()
         except KeyboardInterrupt:
-            print("\n[cargodog] Server stopped.")
+            print("\n[watchdog] Server stopped.")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Serve public cargodog files locally.")
+    parser = argparse.ArgumentParser(description="Serve public watchdog files locally.")
     parser.add_argument("--port", type=int, default=PORT, help="Local HTTP port.")
     parser.add_argument("--no-open", action="store_true", help="Do not open browser.")
     parser.add_argument("--check", action="store_true", help="Validate paths and exit.")
@@ -46,9 +46,9 @@ def main() -> int:
     public_root = Path(__file__).resolve().parent
     if args.check:
         if not (public_root / "index.html").exists():
-            print("[cargodog] index.html not found.")
+            print("[watchdog] index.html not found.")
             return 1
-        print("[cargodog] public/start_index.py check passed.")
+        print("[watchdog] public/start_index.py check passed.")
         return 0
 
     if not args.no_open:

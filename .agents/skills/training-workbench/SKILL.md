@@ -1,6 +1,6 @@
 ---
 name: training-workbench
-description: cargodog 培训皇帝/培训工作台专属开发引导。用于修改培训有效期、排班总览、模拟排班、CRM 年度核对、年度已培训人次、培训 Excel 解析导出、培训测试或培训 spec 时。
+description: watchdog 培训皇帝/培训工作台专属开发引导。用于修改培训有效期、排班总览、模拟排班、CRM 年度核对、年度已培训人次、培训 Excel 解析导出、培训测试或培训 spec 时。
 ---
 
 # Training Workbench
@@ -9,7 +9,7 @@ description: cargodog 培训皇帝/培训工作台专属开发引导。用于修
 
 ## 先读
 
-- 通用开发方法：`.agents/skills/cargodog-dev/SKILL.md`
+- 通用开发方法：`.agents/skills/watchdog-dev/SKILL.md`
 - 培训总览事实：`spec/dev/training-workbench/spec.md`
 - 培训规则事实：`spec/dev/training-workbench/training-rule-spec.md`
 - 模拟排班维护：`spec/dev/training-workbench/simulation-schedule-module.md`

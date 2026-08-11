@@ -1,14 +1,14 @@
 .checkbox-panel {
     min-height: 40px;
     padding: 14px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface);
     box-shadow: none;
 }
 
 .checkbox-panel.is-disabled {
-    background: var(--omf-surface-soft);
+    background: var(--watchdog-surface-soft);
 }
 
 .checkbox-toolbar {
@@ -18,7 +18,7 @@
     gap: 12px;
     margin-bottom: 14px;
     padding-bottom: 12px;
-    border-bottom: 1px solid var(--omf-border);
+    border-bottom: 1px solid var(--watchdog-border);
     flex-wrap: wrap;
 }
 
@@ -33,9 +33,9 @@
     position: relative;
     min-height: 42px;
     padding: 0 14px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -44,8 +44,8 @@
 
 .checkbox-inline:hover,
 .checkbox-chip:hover {
-    border-color: var(--omf-border-strong);
-    box-shadow: var(--omf-shadow-sm);
+    border-color: var(--watchdog-border-strong);
+    box-shadow: var(--watchdog-shadow-sm);
 }
 
 .checkbox-inline input,
@@ -61,9 +61,9 @@
     flex: 0 0 20px;
     width: 20px;
     height: 20px;
-    border: 1.5px solid var(--omf-border-strong);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface);
+    border: 1.5px solid var(--watchdog-border-strong);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface);
     transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
 }
 
@@ -107,7 +107,7 @@
 
 .checkbox-summary,
 .checkbox-empty {
-    color: var(--omf-text-muted);
+    color: var(--watchdog-text-muted);
     font-size: 12px;
     line-height: 1.5;
 }
@@ -117,9 +117,9 @@
     align-items: center;
     min-height: 34px;
     padding: 0 12px;
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface-soft);
-    color: var(--omf-text-muted);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface-soft);
+    color: var(--watchdog-text-muted);
     font-weight: 600;
 }
 
@@ -133,9 +133,9 @@
     position: relative;
     min-height: 56px;
     padding: 14px 16px;
-    border: 1px solid var(--omf-border);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface);
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -160,9 +160,9 @@
     align-items: center;
     justify-content: center;
     padding: 18px;
-    border: 1px dashed var(--omf-border-strong);
-    border-radius: var(--omf-radius);
-    background: var(--omf-surface-soft);
+    border: 1px dashed var(--watchdog-border-strong);
+    border-radius: var(--watchdog-radius);
+    background: var(--watchdog-surface-soft);
     text-align: center;
 }
 
@@ -174,7 +174,7 @@
 
 .checkbox-panel.is-disabled .checkbox-inline:hover,
 .checkbox-panel.is-disabled .checkbox-chip:hover {
-    border-color: var(--omf-border);
+    border-color: var(--watchdog-border);
     box-shadow: none;
 }
 

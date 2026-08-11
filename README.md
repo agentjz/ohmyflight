@@ -1,16 +1,16 @@
 <div align="center">
 
-# cargodog
+# watchdog
 
-[项目主页](https://luckymaomi.github.io/cargodog/) · [备忘录](https://luckymaomi.github.io/cargodog/memo/) · [GitHub](https://github.com/luckymaomi/cargodog)
+[项目主页](https://luckymaomi.github.io/watchdog/) · [备忘录](https://luckymaomi.github.io/watchdog/memo/) · [GitHub](https://github.com/luckymaomi/watchdog)
 
 <p>
-  <a href="https://github.com/luckymaomi/cargodog/actions/workflows/deploy-pages.yml"><img alt="Deploy Pages" src="https://img.shields.io/github/actions/workflow/status/luckymaomi/cargodog/deploy-pages.yml?branch=master&logo=githubactions&logoColor=white&label=Pages"></a>
+  <a href="https://github.com/luckymaomi/watchdog/actions/workflows/deploy-pages.yml"><img alt="Deploy Pages" src="https://img.shields.io/github/actions/workflow/status/luckymaomi/watchdog/deploy-pages.yml?branch=master&logo=githubactions&logoColor=white&label=Pages"></a>
   <a href="https://www.typescriptlang.org/"><img alt="TypeScript 5.9" src="https://img.shields.io/badge/TypeScript-5.9-3178C6"></a>
   <a href="https://www.python.org/"><img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-3776AB"></a>
   <a href="https://vitest.dev/"><img alt="Vitest 4" src="https://img.shields.io/badge/Vitest-4-6E9F18"></a>
   <img alt="Static local-first" src="https://img.shields.io/badge/Architecture-static%20local--first-0f766e">
-  <a href="./LICENSE"><img alt="MIT License" src="https://img.shields.io/github/license/luckymaomi/cargodog?color=0f766e"></a>
+  <a href="./LICENSE"><img alt="MIT License" src="https://img.shields.io/github/license/luckymaomi/watchdog?color=0f766e"></a>
 </p>
 </div>
 

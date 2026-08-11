@@ -86,8 +86,8 @@ function renderDocumentItems(container: HTMLElement, items: ManualItem[], itemId
 }
 
 function resolveDocumentLinks(container: HTMLElement, sourcePath: string): void {
-    const githubSource = `https://github.com/luckymaomi/cargodog/blob/master/${sourcePath}`;
-    const rawSource = `https://raw.githubusercontent.com/luckymaomi/cargodog/master/${sourcePath}`;
+    const githubSource = `https://github.com/luckymaomi/watchdog/blob/master/${sourcePath}`;
+    const rawSource = `https://raw.githubusercontent.com/luckymaomi/watchdog/master/${sourcePath}`;
 
     container.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((link) => {
         const href = link.getAttribute("href") || "";
