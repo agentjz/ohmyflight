@@ -33,14 +33,14 @@ async function runBuild(distRoot: string): Promise<void> {
   const { stdout, stderr } = await execFileAsync(process.execPath, [tsxCli, "scripts/build.mts"], {
     cwd: projectRoot,
     encoding: "utf8",
-    env: { ...process.env, OHMYFLIGHT_DIST_ROOT: distRoot }
+    env: { ...process.env, CARGODOG_DIST_ROOT: distRoot }
   });
   if (stdout) process.stdout.write(stdout);
   if (stderr) process.stderr.write(stderr);
 }
 
 async function main(): Promise<void> {
-  const temporaryRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ohmyflight-build-deterministic-"));
+  const temporaryRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cargodog-build-deterministic-"));
   try {
     const firstRoot = path.join(temporaryRoot, "first");
     const secondRoot = path.join(temporaryRoot, "second");

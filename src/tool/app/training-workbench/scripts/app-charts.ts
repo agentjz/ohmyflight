@@ -429,7 +429,7 @@ const Utils = TrainingToolUtils;
     resizeFrameId = window.requestAnimationFrame(resizeRenderedCharts);
   });
 
-  window.addEventListener("ohmyflight:themechange", () => {
+  window.addEventListener("cargodog:themechange", () => {
     window.setTimeout(refreshRenderedCharts, 0);
   });
 

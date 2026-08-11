@@ -21,12 +21,12 @@ class LocalThreadingTCPServer(socketserver.ThreadingTCPServer):
 
 def build_dist(project_root: Path) -> None:
     npm_command = "npm.cmd" if os.name == "nt" else "npm"
-    print("[ohmyflight] Building dist and source archive...")
+    print("[cargodog] Building dist and source archive...")
     subprocess.run([npm_command, "run", "build"], cwd=project_root, check=True)
 
 
 def open_browser(url: str) -> None:
-    print("[ohmyflight] Opening local site...")
+    print("[cargodog] Opening local site...")
     if os.name == "nt":
         try:
             subprocess.Popen(["cmd", "/c", "start", "", "msedge", "--inprivate", url])
@@ -48,17 +48,17 @@ def serve(directory: Path, port: int, should_open: bool) -> None:
     server = create_server(directory, port)
     with server:
         url = f"http://localhost:{port}/index.html"
-        print(f"[ohmyflight] Serving {directory} at {url}")
+        print(f"[cargodog] Serving {directory} at {url}")
         if should_open:
             open_browser(url)
         try:
             server.serve_forever()
         except KeyboardInterrupt:
-            print("\n[ohmyflight] Server stopped.")
+            print("\n[cargodog] Server stopped.")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build and serve ohmyflight locally.")
+    parser = argparse.ArgumentParser(description="Build and serve cargodog locally.")
     parser.add_argument("--port", type=int, default=PORT, help="Local HTTP port.")
     parser.add_argument("--no-build", action="store_true", help="Skip npm build.")
     parser.add_argument("--no-open", action="store_true", help="Do not open browser.")
@@ -73,24 +73,24 @@ def main() -> int:
 
     if args.check:
         if not (project_root / "package.json").exists():
-            print("[ohmyflight] package.json not found.", file=sys.stderr)
+            print("[cargodog] package.json not found.", file=sys.stderr)
             return 1
-        print("[ohmyflight] start_index.py check passed.")
+        print("[cargodog] start_index.py check passed.")
         return 0
 
     try:
         if not args.no_build:
             build_dist(project_root)
         if not dist_dir.exists():
-            print("[ohmyflight] dist directory not found. Run without --no-build first.", file=sys.stderr)
+            print("[cargodog] dist directory not found. Run without --no-build first.", file=sys.stderr)
             return 1
         serve(dist_dir, args.port, should_open=not args.no_open)
         return 0
     except subprocess.CalledProcessError as error:
-        print(f"[ohmyflight] Build failed: {error}", file=sys.stderr)
+        print(f"[cargodog] Build failed: {error}", file=sys.stderr)
         return error.returncode or 1
     except OSError as error:
-        print(f"[ohmyflight] Failed to start server: {error}", file=sys.stderr)
+        print(f"[cargodog] Failed to start server: {error}", file=sys.stderr)
         return 1
 
 

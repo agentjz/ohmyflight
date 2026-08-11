@@ -80,10 +80,10 @@ function renderAnnouncement(): void {
 }
 
 function bindHomeThemeToggle(): void {
-    if (!(homeThemeToggle instanceof HTMLButtonElement) || !window.OhmyflightTheme) return;
+    if (!(homeThemeToggle instanceof HTMLButtonElement) || !window.CargodogTheme) return;
 
     const syncToggle = (): void => {
-        const isDark = window.OhmyflightTheme?.getTheme() === "dark";
+        const isDark = window.CargodogTheme?.getTheme() === "dark";
         const label = isDark ? "切换到白天模式" : "切换到暗夜模式";
         homeThemeToggle.setAttribute("aria-label", label);
         homeThemeToggle.setAttribute("aria-pressed", String(isDark));
@@ -91,9 +91,9 @@ function bindHomeThemeToggle(): void {
     };
 
     homeThemeToggle.addEventListener("click", () => {
-        window.OhmyflightTheme?.toggleTheme();
+        window.CargodogTheme?.toggleTheme();
     });
-    window.addEventListener("ohmyflight:themechange", syncToggle);
+    window.addEventListener("cargodog:themechange", syncToggle);
     syncToggle();
 }
 

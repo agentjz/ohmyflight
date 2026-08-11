@@ -1,5 +1,5 @@
 {
-  "name": "ohmyflight",
+  "name": "cargodog",
   "private": true,
   "scripts": {
     "build": "tsx scripts/build.mts",

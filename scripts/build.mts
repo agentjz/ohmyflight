@@ -22,7 +22,7 @@ const beginnerTutorialContentRoot = path.join(sourceRoot, "tool", "app", "beginn
 const execFileAsync = promisify(execFile);
 
 function resolveDistRoot(): string {
-  const requestedRoot = process.env.OHMYFLIGHT_DIST_ROOT;
+  const requestedRoot = process.env.CARGODOG_DIST_ROOT;
   if (!requestedRoot) return path.join(projectRoot, "dist");
 
   const resolvedRoot = path.resolve(requestedRoot);
@@ -32,9 +32,9 @@ function resolveDistRoot(): string {
   if (
     relativePath.startsWith("..")
     || path.isAbsolute(relativePath)
-    || !topLevelDirectory.startsWith("ohmyflight-build-")
+    || !topLevelDirectory.startsWith("cargodog-build-")
   ) {
-    throw new Error("OHMYFLIGHT_DIST_ROOT 只允许使用专用的系统临时目录。");
+    throw new Error("CARGODOG_DIST_ROOT 只允许使用专用的系统临时目录。");
   }
   return resolvedRoot;
 }

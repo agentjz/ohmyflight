@@ -1,6 +1,6 @@
 ---
 name: ui-clarity
-description: ohmyflight 页面 UI 清晰度工作原则。用于新增或修改前端页面、表格、卡片、筛选区、结果区、统计摘要、暗色/亮色样式或用户指出页面混乱难看时。
+description: cargodog 页面 UI 清晰度工作原则。用于新增或修改前端页面、表格、卡片、筛选区、结果区、统计摘要、暗色/亮色样式或用户指出页面混乱难看时。
 ---
 
 # UI Clarity

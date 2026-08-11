@@ -1,6 +1,6 @@
 ---
 name: interview-lock-list
-description: 将面试人员名单整理成 ohmyflight 锁班导入模板。用于用户提供面试 Excel、补充人员清单、plty/锁班模板，并要求整理成锁班皇帝可导入的 Excel，尤其是报务/航前/资质面试锁班名单、横向多组姓名员工号表格、按日期生成地面班锁班数据。
+description: 将面试人员名单整理成 cargodog 锁班导入模板。用于用户提供面试 Excel、补充人员清单、plty/锁班模板，并要求整理成锁班皇帝可导入的 Excel，尤其是报务/航前/资质面试锁班名单、横向多组姓名员工号表格、按日期生成地面班锁班数据。
 ---
 
 # Interview Lock List

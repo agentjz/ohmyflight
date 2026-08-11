@@ -1,8 +1,8 @@
 export const supportThemeButtons = document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]");
 
 export function syncSupportThemeButtons(): void {
-    if (!window.OhmyflightTheme) return;
-    const isDark = window.OhmyflightTheme.getTheme() === "dark";
+    if (!window.CargodogTheme) return;
+    const isDark = window.CargodogTheme.getTheme() === "dark";
     const label = isDark ? "切换到白天模式" : "切换到暗夜模式";
 
     supportThemeButtons.forEach((button) => {
@@ -14,9 +14,9 @@ export function syncSupportThemeButtons(): void {
 
 supportThemeButtons.forEach((button) => {
     button.addEventListener("click", () => {
-        window.OhmyflightTheme?.toggleTheme();
+        window.CargodogTheme?.toggleTheme();
     });
 });
 
-window.addEventListener("ohmyflight:themechange", syncSupportThemeButtons);
+window.addEventListener("cargodog:themechange", syncSupportThemeButtons);
 syncSupportThemeButtons();

@@ -9,7 +9,7 @@ description: 核对人员结构统计和人员结构 Word 报告填充结果时�
 
 ## 先读
 
-- `.agents/skills/ohmyflight-dev/SKILL.md`
+- `.agents/skills/cargodog-dev/SKILL.md`
 - `.agents/skills/docx-report/SKILL.md`
 - `spec/dev/personnel-structure-stats/spec.md`
 - `src/tool/app/personnel-structure-stats/app.py`

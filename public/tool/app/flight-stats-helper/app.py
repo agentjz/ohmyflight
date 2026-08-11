@@ -31,7 +31,7 @@ EXPERIENCE_LABELS = {"飞行经历", "左座经历"}
 
 def patch_openpyxl_wps_data_validation():
     """兼容 WPS/金山表格写入的 dataValidation id 属性。"""
-    if getattr(DataValidation.__init__, "_ohmyflight_patched", False):
+    if getattr(DataValidation.__init__, "_cargodog_patched", False):
         return
 
     original_init = DataValidation.__init__
@@ -40,7 +40,7 @@ def patch_openpyxl_wps_data_validation():
         kwargs.pop("id", None)
         return original_init(self, *args, **kwargs)
 
-    patched_init._ohmyflight_patched = True
+    patched_init._cargodog_patched = True
     DataValidation.__init__ = patched_init
 
 

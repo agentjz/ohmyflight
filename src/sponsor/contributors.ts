@@ -15,7 +15,7 @@ export const contributors = {
   people: [
     {
       name: "luckymaomi",
-      contribution: "设计 ohmyflight 架构。",
+      contribution: "设计 cargodog 架构。",
       linkUrl: "https://github.com/luckymaomi",
       avatarUrl: "https://github.com/luckymaomi.png"
     }

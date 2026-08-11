@@ -44,7 +44,7 @@ describe("菜鸟教程知识装配", () => {
   });
 
   it("拒绝无法解析的记录引用", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ohmyflight-tutorial-test-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cargodog-tutorial-test-"));
     temporaryRoots.push(root);
     await fs.mkdir(path.join(root, "modules"));
     await fs.writeFile(path.join(root, "manifest.json"), JSON.stringify({

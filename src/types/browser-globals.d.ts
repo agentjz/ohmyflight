@@ -19,7 +19,7 @@ interface Window {
   skills: SkillItem[];
   HomePatternGateLogic: HomePatternGateLogic;
   XLSX: XlsxGlobal;
-  OhmyflightTheme?: {
+  CargodogTheme?: {
     getTheme(): "light" | "dark";
     setTheme(theme: "light" | "dark"): "light" | "dark";
     toggleTheme(): "light" | "dark";

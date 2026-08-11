@@ -259,7 +259,7 @@ const browserWindow = window as typeof window & {
         context.getElement<HTMLButtonElement>("balanceButton").addEventListener("click", () => balanceOrCheck(context));
         context.getElement<HTMLButtonElement>("exportButton").addEventListener("click", () => exportWorkbook(context));
         window.addEventListener("resize", () => context.state.chart?.resize());
-        window.addEventListener("ohmyflight:themechange", () => {
+        window.addEventListener("cargodog:themechange", () => {
             if (context.state.initialized) SeasonalLearningView.renderChart(context);
         });
     }

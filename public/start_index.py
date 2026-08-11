@@ -26,15 +26,15 @@ def open_browser(url: str) -> None:
 def serve(directory: Path, port: int) -> None:
     handler = partial(http.server.SimpleHTTPRequestHandler, directory=str(directory))
     with socketserver.TCPServer(("", port), handler) as server:
-        print(f"[ohmyflight] Serving {directory} at http://localhost:{port}/")
+        print(f"[cargodog] Serving {directory} at http://localhost:{port}/")
         try:
             server.serve_forever()
         except KeyboardInterrupt:
-            print("\n[ohmyflight] Server stopped.")
+            print("\n[cargodog] Server stopped.")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Serve public ohmyflight files locally.")
+    parser = argparse.ArgumentParser(description="Serve public cargodog files locally.")
     parser.add_argument("--port", type=int, default=PORT, help="Local HTTP port.")
     parser.add_argument("--no-open", action="store_true", help="Do not open browser.")
     parser.add_argument("--check", action="store_true", help="Validate paths and exit.")
@@ -46,9 +46,9 @@ def main() -> int:
     public_root = Path(__file__).resolve().parent
     if args.check:
         if not (public_root / "index.html").exists():
-            print("[ohmyflight] index.html not found.")
+            print("[cargodog] index.html not found.")
             return 1
-        print("[ohmyflight] public/start_index.py check passed.")
+        print("[cargodog] public/start_index.py check passed.")
         return 0
 
     if not args.no_open:
