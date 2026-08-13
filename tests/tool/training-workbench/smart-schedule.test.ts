@@ -63,7 +63,7 @@ describe("smart schedule", () => {
     expect(Math.max(...usedLoads)).toBeLessThanOrEqual(2);
   });
 
-  it("uses the configured latest-date advance range and reports impossible work", () => {
+  it("uses the configured fixed latest-date advance month and reports impossible work", () => {
     const analysis = Scanner.analyzeWorkbook(buildWorkbook());
     const result = SmartSchedule.buildSmartSchedule(analysis, {
       year: 2027,
@@ -73,12 +73,11 @@ describe("smart schedule", () => {
     const latest = result.items.filter((item) => item.projectName === "TSA" && item.name.startsWith("最新日期"));
 
     expect(latest).toHaveLength(2);
-    expect(latest.every((item) => ["2027-04", "2027-05"].includes(item.recommendedMonth))).toBe(true);
-    expect(new Set(latest.map((item) => item.recommendedMonth)).size).toBe(2);
+    expect(latest.every((item) => item.recommendedMonth === "2027-04")).toBe(true);
     expect(result.items.find((item) => item.name === "提前量不足")).toMatchObject({
       status: "待排",
       recommendedMonth: "2027-01",
-      reason: "安全提前范围已经错过，优先在到期前尽快安排。"
+      reason: "固定提前月份已经错过，优先在到期前尽快安排。"
     });
     expect(result.items.find((item) => item.name === "已经过期")).toMatchObject({
       status: "无法安排",
@@ -96,6 +95,19 @@ describe("smart schedule", () => {
 
     expect(result.items.some((item) => item.name === "提前量不足")).toBe(false);
     expect(result.items.some((item) => item.name === "已经过期")).toBe(false);
+  });
+
+  it("places latest-date work one month before the due month when configured with one month", () => {
+    const analysis = Scanner.analyzeWorkbook(buildWorkbook());
+    const result = SmartSchedule.buildSmartSchedule(analysis, {
+      year: 2027,
+      latestAdvanceMonths: 1,
+      today: makeDate(2027, 1, 10)
+    });
+    const latest = result.items.filter((item) => item.projectName === "TSA" && item.name.startsWith("最新日期"));
+
+    expect(latest).toHaveLength(2);
+    expect(latest.every((item) => item.recommendedMonth === "2027-05")).toBe(true);
   });
 
   it("estimates person-days from the most common project duration in the workbook", () => {

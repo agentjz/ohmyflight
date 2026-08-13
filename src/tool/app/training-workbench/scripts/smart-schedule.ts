@@ -60,6 +60,13 @@ interface ScheduleDraft extends SmartScheduleItem {
   candidateMonths: string[];
   preferredMonth: string;
   scheduledCovered: boolean;
+  emergencyFallback: boolean;
+}
+
+interface CandidateMonths {
+  months: string[];
+  preferredMonth: string;
+  emergencyFallback: boolean;
 }
 
 const LATEST_DATE_RULE = "最新日期";
@@ -73,7 +80,7 @@ function normalizeYear(value: unknown): number {
 
 function normalizeAdvanceMonths(value: unknown): number {
   const amount = Number(value);
-  return Number.isInteger(amount) && amount >= 1 && amount <= 6 ? amount : DEFAULT_ADVANCE_MONTHS;
+  return Number.isInteger(amount) && amount >= 1 ? amount : DEFAULT_ADVANCE_MONTHS;
 }
 
 function monthKeysForYear(year: number): string[] {
@@ -118,11 +125,11 @@ function windowCandidates(
   dueDate: Date,
   year: number,
   today: Date
-): { months: string[]; preferredMonth: string } {
+): CandidateMonths {
   const startOfYear = `${year}-01`;
   const endOfYear = `${year}-12`;
   const windowInfo = RuleEngine.getWindowInfo(rule, currentExpiry);
-  if (!windowInfo.hasWindow) return { months: [], preferredMonth: "" };
+  if (!windowInfo.hasWindow) return { months: [], preferredMonth: "", emergencyFallback: false };
 
   const firstMonth = [Utils.toMonthKey(windowInfo.windowStart), startOfYear, firstPlanningMonth(year, today)]
     .sort()
@@ -134,7 +141,7 @@ function windowCandidates(
   const preferredMonth = rule.ruleType === BASE_MONTH_RULE
     ? shiftMonth(Utils.toMonthKey(currentExpiry), -1)
     : months[0] || "";
-  return { months, preferredMonth };
+  return { months, preferredMonth, emergencyFallback: false };
 }
 
 function latestDateCandidates(
@@ -142,28 +149,26 @@ function latestDateCandidates(
   year: number,
   today: Date,
   advanceMonths: number
-): { months: string[]; preferredMonth: string } {
+): CandidateMonths {
   const dueMonth = Utils.toMonthKey(dueDate);
-  const firstMonth = shiftMonth(dueMonth, -advanceMonths);
-  const lastMonth = shiftMonth(dueMonth, -1);
-  const planningStart = firstPlanningMonth(year, today);
-  const startMonth = [firstMonth, `${year}-01`, planningStart].sort().at(-1) || "";
-  const endMonth = [lastMonth, `${year}-12`].sort()[0] || "";
-  let months = monthsBetween(startMonth, endMonth).filter((monthKey) => {
-    const range = Utils.monthRangeFromKey(monthKey);
-    return Boolean(range && range.end >= today && range.start <= dueDate);
-  });
-  const safeWindowMissed = Boolean(
-    Utils.monthRangeFromKey(lastMonth)
-    && Utils.monthRangeFromKey(lastMonth)!.end < today
-  );
-  if (!months.length && safeWindowMissed && dueDate >= today && Utils.toMonthKey(dueDate).startsWith(`${year}-`)) {
-    months = monthsBetween(firstPlanningMonth(year, today), dueMonth).filter((monthKey) => {
-      const range = Utils.monthRangeFromKey(monthKey);
-      return Boolean(range && range.end >= today && range.start <= dueDate);
-    });
+  const targetMonth = shiftMonth(dueMonth, -advanceMonths);
+  const targetRange = Utils.monthRangeFromKey(targetMonth);
+  const targetAvailable = targetMonth.startsWith(`${year}-`)
+    && Boolean(targetRange && targetRange.end >= today && targetRange.start <= dueDate);
+  if (targetAvailable) {
+    return { months: [targetMonth], preferredMonth: targetMonth, emergencyFallback: false };
   }
-  return { months, preferredMonth: months.includes(lastMonth) ? lastMonth : months[0] || "" };
+
+  const targetMissed = Boolean(targetRange && targetRange.end < today);
+  const emergencyMonth = firstPlanningMonth(year, today);
+  const emergencyAvailable = targetMissed
+    && dueDate >= today
+    && emergencyMonth.startsWith(`${year}-`)
+    && emergencyMonth <= `${year}-12`
+    && candidateDate(emergencyMonth, today, dueDate, today) !== null;
+  return emergencyAvailable
+    ? { months: [emergencyMonth], preferredMonth: emergencyMonth, emergencyFallback: true }
+    : { months: [], preferredMonth: "", emergencyFallback: false };
 }
 
 function estimateProjectPersonDays(project: TrainingToolProjectAnalysis): number {
@@ -258,7 +263,8 @@ function buildDrafts(analysis: TrainingToolAnalysis, options: SmartScheduleOptio
       reason: "",
       candidateMonths,
       preferredMonth: isPastCovered ? currentMonth : candidateInfo.preferredMonth,
-      scheduledCovered: item.coverageStatus === "已覆盖"
+      scheduledCovered: item.coverageStatus === "已覆盖",
+      emergencyFallback: candidateInfo.emergencyFallback
     }];
   });
 }
@@ -324,12 +330,11 @@ function scheduleDrafts(
             ? "已排"
             : "建议调整";
         if (draft.ruleType === LATEST_DATE_RULE) {
-          const emergencyFallback = draft.eligibleEndMonth === Utils.toMonthKey(draft.dueDate);
-          reason = emergencyFallback
-            ? "安全提前范围已经错过，优先在到期前尽快安排。"
+          reason = draft.emergencyFallback
+            ? "固定提前月份已经错过，优先在到期前尽快安排。"
             : status === "已排"
-              ? "当前安排已满足安全提前量。"
-              : "在到期前的安全提前范围内，选择当前负载较低的月份。";
+              ? "当前安排符合固定提前月份。"
+              : "按设置的固定提前月数安排。";
         } else if (draft.ruleType === BASE_MONTH_RULE) {
           reason = status === "已排"
             ? "当前安排位于基准月窗口内。"
@@ -341,7 +346,13 @@ function scheduleDrafts(
         }
       }
 
-      const { candidateMonths: _candidateMonths, preferredMonth: _preferredMonth, scheduledCovered: _scheduledCovered, ...item } = draft;
+      const {
+        candidateMonths: _candidateMonths,
+        preferredMonth: _preferredMonth,
+        scheduledCovered: _scheduledCovered,
+        emergencyFallback: _emergencyFallback,
+        ...item
+      } = draft;
       return { ...item, recommendedMonth, status, reason };
     });
 }

@@ -393,12 +393,8 @@
                         <input id="smartScheduleYearInput" type="number" min="2000" max="2100" step="1" disabled>
                     </div>
                     <div class="field">
-                        <label for="smartScheduleAdvanceSelect">最新日期类提前范围</label>
-                        <select id="smartScheduleAdvanceSelect" disabled>
-                            <option value="1">提前 1 个月</option>
-                            <option value="2" selected>提前 1 至 2 个月</option>
-                            <option value="3">提前 1 至 3 个月</option>
-                        </select>
+                        <label for="smartScheduleAdvanceInput">最新日期类提前月数</label>
+                        <input id="smartScheduleAdvanceInput" type="number" min="1" step="1" value="2" disabled>
                     </div>
                     <div class="field">
                         <label for="smartScheduleProjectSelect">资质项目</label>
@@ -413,7 +409,7 @@
                 </div>
                 <div class="smart-schedule-detail-panel" id="smartScheduleDetailPanel" hidden>
                     <h3 class="chart-title" id="smartScheduleDetailTitle">方案差异</h3>
-                    <div class="table-shell smart-schedule-detail-shell">
+                    <div class="table-shell selected-person-shell">
                         <table class="table table-hover align-middle smart-schedule-detail-table">
                             <thead>
                                 <tr>

@@ -164,11 +164,12 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
     });
     const result = TrainingToolSmartSchedule.buildSmartSchedule(state.analysis, {
       year: elements.smartScheduleYearInput.value,
-      latestAdvanceMonths: elements.smartScheduleAdvanceSelect.value,
+      latestAdvanceMonths: elements.smartScheduleAdvanceInput.value,
       projectName: elements.smartScheduleProjectSelect.value,
       extraProjectRows: state.simulationRecords || [],
       currentLoadRows: currentLoad.monthRows
     });
+    elements.smartScheduleAdvanceInput.value = String(result.latestAdvanceMonths);
     renderProjectOptions(elements.smartScheduleProjectSelect, result.availableProjects, "全部资质项目");
     state.smartSchedule = result;
     charts.renderSmartScheduleChart(result);

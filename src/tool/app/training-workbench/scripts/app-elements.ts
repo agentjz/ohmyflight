@@ -53,7 +53,7 @@ function requireElement<T extends Element>(id: string, Type: { new(): T }): T {
     trainingLoadProjectSelect: requireElement("trainingLoadProjectSelect", HTMLSelectElement),
     trainingLoadChart: requireElement("trainingLoadChart", HTMLElement),
     smartScheduleYearInput: requireElement("smartScheduleYearInput", HTMLInputElement),
-    smartScheduleAdvanceSelect: requireElement("smartScheduleAdvanceSelect", HTMLSelectElement),
+    smartScheduleAdvanceInput: requireElement("smartScheduleAdvanceInput", HTMLInputElement),
     smartScheduleProjectSelect: requireElement("smartScheduleProjectSelect", HTMLSelectElement),
     smartScheduleChart: requireElement("smartScheduleChart", HTMLElement),
     smartScheduleDetailPanel: requireElement("smartScheduleDetailPanel", HTMLElement),
