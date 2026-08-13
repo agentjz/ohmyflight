@@ -113,7 +113,7 @@ const Utils = TrainingToolUtils;
   }
 
   function getPressureMode(): string {
-    return elements.qualificationPressureModeGroup.querySelector<HTMLInputElement>('input[name="qualificationPressureMode"]:checked')?.value || "compare";
+    return elements.qualificationPressureModeGroup.querySelector<HTMLInputElement>('input[name="qualificationPressureMode"]:checked')?.value || "forecast";
   }
 
   function renderWorkbenchCharts(chartData: TrainingChartData | null): void {
@@ -185,14 +185,8 @@ const Utils = TrainingToolUtils;
     }
     const monthRows = result?.monthRows || [];
     const projects = result?.projects || [];
-    const isComparison = mode === "compare";
     const useCurrent = mode === "current";
-    const series = isComparison
-      ? [
-        { name: "当前压力", type: "line", symbol: "circle", data: monthRows.map((row) => row.currentTotal) },
-        { name: "排班后预测", type: "bar", data: monthRows.map((row) => row.forecastTotal) }
-      ]
-      : projects.map((projectName) => ({
+    const series = projects.map((projectName) => ({
         name: projectName,
         type: "bar",
         stack: "qualification",

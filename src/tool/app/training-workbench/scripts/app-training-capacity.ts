@@ -22,7 +22,7 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
   }
 
   function getQualificationPressureMode(): string {
-    return elements.qualificationPressureModeGroup.querySelector<HTMLInputElement>('input[name="qualificationPressureMode"]:checked')?.value || "compare";
+    return elements.qualificationPressureModeGroup.querySelector<HTMLInputElement>('input[name="qualificationPressureMode"]:checked')?.value || "forecast";
   }
 
   function pressureDetailRows(result: TrainingQualificationPressureResult, monthKey: string) {
