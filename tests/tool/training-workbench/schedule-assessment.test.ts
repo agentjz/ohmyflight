@@ -26,8 +26,8 @@ function buildWorkbook() {
     ["2007", "异常日期", "坏日期", "", "", "", ""],
     ["2008", "安保推荐", "", makeDate(2026, 6, 30), "", "", ""],
     ["2009", "过期已排补训", makeDate(2026, 5, 3), "", "", "", ""],
-    ["2010", "程春林", "", makeDate(2026, 4, 30), makeDate(2026, 6, 30), "", ""],
-    ["2011", "宋云龙", "", makeDate(2026, 4, 30), makeDate(2026, 6, 30), "", ""],
+    ["2010", "程春林", makeDate(2026, 4, 30), makeDate(2026, 4, 30), makeDate(2026, 6, 30), "", ""],
+    ["2011", "宋云龙", "", makeDate(2026, 4, 30), makeDate(2026, 6, 30), "", makeDate(2026, 5, 31)],
     ["2012", "TSA必须排", "", "", makeDate(2026, 6, 30), "", ""],
     ["2013", "TSA已排", "", "", makeDate(2026, 6, 30), "", ""],
     ["2014", "同日航空安保和TSA分别记录", "", makeDate(2026, 6, 30), makeDate(2026, 6, 30), "", ""],
@@ -92,8 +92,10 @@ describe("schedule assessment", () => {
     expect(visibleRows.get("过期已排补训/危险品").scheduledDate).toBe("2026-05-07");
     expect(visibleRows.has("程春林/航空安保")).toBe(false);
     expect(visibleRows.has("程春林/TSA")).toBe(false);
+    expect(allRows.has("程春林/危险品")).toBe(false);
     expect(visibleRows.has("宋云龙/航空安保")).toBe(false);
     expect(visibleRows.has("宋云龙/TSA")).toBe(false);
+    expect(allRows.has("宋云龙/飞行作风")).toBe(false);
     expect(visibleRows.has("邢晓楠/航空安保")).toBe(false);
     expect(visibleRows.has("邢晓楠/TSA")).toBe(false);
     expect(visibleRows.has("邢晓楠/英语能力")).toBe(false);
