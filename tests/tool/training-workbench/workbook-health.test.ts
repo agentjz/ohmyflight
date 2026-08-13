@@ -87,6 +87,9 @@ describe("workbook health", () => {
     expect(messages.some((message: string) => message.includes("2026 年 CRM 核对可生成。"))).toBe(true);
     expect(messages.some((message: string) => message.includes("2026 年 CRM 有 1 人重复安排。"))).toBe(true);
     expect(messages.some((message: string) => message.includes("工作表“新雇员培训”当前不参与培训皇帝监控。"))).toBe(true);
+    expect(messages).toContain(
+      "特判人员|当前维护 3 类、共 11 人。|不飞人员（所有资质不监控）：程春林、宋云龙、邢晓楠；安保教员（航空安保、TSA 不监控）：沈欣、张鹏、王峰；CRM 教员（不进入 CRM 未参加名单）：张雨、车有路、田鹏、安阳、陈进军"
+    );
   });
 
   it("checks attendee consistency only for security and TSA sessions with the same date range", () => {

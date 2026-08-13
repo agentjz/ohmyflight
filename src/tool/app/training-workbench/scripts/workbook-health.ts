@@ -1,5 +1,7 @@
 import { TrainingToolConfig } from "./config";
 import { TrainingToolCrmAnnual } from "./crm-annual";
+import { TrainingToolCrmInstructors } from "./crm-instructors";
+import { TrainingToolTrainingIgnoreList } from "./training-ignore-list";
 import { TrainingToolTrainingRecordPolicy } from "./training-record-policy";
 import { TrainingToolUtils } from "./utils";
 import type {
@@ -13,7 +15,9 @@ import type {
 const Config = TrainingToolConfig;
   const Utils = TrainingToolUtils;
   const TrainingRecordPolicy = TrainingToolTrainingRecordPolicy;
+  const TrainingIgnoreList = TrainingToolTrainingIgnoreList;
   const CrmAnnual = TrainingToolCrmAnnual;
+  const CrmInstructors = TrainingToolCrmInstructors;
 
   type HealthLevel = "error" | "warning" | "info";
 
@@ -114,6 +118,31 @@ const Config = TrainingToolConfig;
         addItem(result, "warning", "人员信息表", `员工号 ${employeeId} 重复出现。`, `行号：${rows.join("、")}`);
       }
     });
+  }
+
+  function checkSpecialCasePeople(result: WorkbookHealthResult): void {
+    const ignoredPeople = TrainingIgnoreList.IGNORED_PERSON_PROJECTS;
+    const crmInstructors = CrmInstructors.names;
+    if (!ignoredPeople.length && !crmInstructors.length) return;
+
+    const nonFlyingPeople: string[] = [];
+    const securityInstructors: string[] = [];
+    ignoredPeople.forEach((item) => {
+      if (item.ignoreAllProjects) {
+        nonFlyingPeople.push(item.name);
+        return;
+      }
+      securityInstructors.push(item.name);
+    });
+
+    const groups = [
+      { label: "不飞人员（所有资质不监控）", names: nonFlyingPeople },
+      { label: "安保教员（航空安保、TSA 不监控）", names: securityInstructors },
+      { label: "CRM 教员（不进入 CRM 未参加名单）", names: crmInstructors }
+    ].filter((group) => group.names.length);
+    const uniqueNames = new Set(groups.flatMap((group) => group.names));
+    const detail = groups.map((group) => `${group.label}：${group.names.join("、")}`).join("；");
+    addItem(result, "info", "特判人员", `当前维护 ${groups.length} 类、共 ${uniqueNames.size} 人。`, detail);
   }
 
   function checkProjectSheetRows(result: WorkbookHealthResult, project: TrainingToolProjectAnalysis): void {
@@ -333,6 +362,7 @@ const Config = TrainingToolConfig;
     }
 
     checkPeopleSheet(result, analysis);
+    checkSpecialCasePeople(result);
     checkProjects(result, analysis);
     checkSecurityTsaAttendees(result, analysis);
     checkCrm(result, workbook, analysis, scanner, healthOptions.crmYear);
