@@ -1,11 +1,13 @@
-import type { TrainingQualificationPressureResult, TrainingToolAppRuntime } from "./models";
+import type { TrainingQualificationPressureResult, TrainingSmartScheduleResult, TrainingToolAppRuntime } from "./models";
 import { TrainingToolQualificationPressure } from "./qualification-pressure";
+import { TrainingToolSmartSchedule } from "./smart-schedule";
 import { TrainingToolTrainingLoad } from "./training-load";
 import { TrainingToolUtils } from "./utils";
 
 export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime): {
   renderQualificationPressure(selectedMonth?: string): void;
   renderTrainingLoad(): void;
+  renderSmartSchedule(selectedMonth?: string): void;
 } {
   const Utils = TrainingToolUtils;
   const state = runtime.state;
@@ -108,8 +110,80 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
     charts.renderTrainingLoadChart(result);
   }
 
+  function smartScheduleRows(result: TrainingSmartScheduleResult, selectedMonth: string) {
+    return result.items.filter((item) => item.currentMonth === selectedMonth || item.recommendedMonth === selectedMonth);
+  }
+
+  function renderSmartScheduleDetails(result: TrainingSmartScheduleResult | null, selectedMonth: string): void {
+    if (!result || !selectedMonth) {
+      elements.smartScheduleDetailPanel.hidden = true;
+      elements.smartScheduleDetailTitle.textContent = "方案差异";
+      elements.smartScheduleDetailBody.innerHTML = '<tr><td class="empty-block" colspan="8">点击图中的月份查看方案差异。</td></tr>';
+      return;
+    }
+    const rows = smartScheduleRows(result, selectedMonth);
+    elements.smartScheduleDetailPanel.hidden = false;
+    elements.smartScheduleDetailTitle.textContent = `${selectedMonth} 方案差异（${rows.length} 人项）`;
+    elements.smartScheduleDetailBody.innerHTML = rows.length ? rows.map((row) => {
+      const currentText = row.currentDate || "未安排";
+      const currentClass = row.currentDate ? " smart-schedule-completed-value" : "";
+      const tone = row.status === "已排" ? "ok" : row.status === "无法安排" ? "danger" : row.status === "建议调整" ? "warn" : "info";
+      return `
+        <tr>
+          <td><span class="badge ${tone}">${Utils.escapeHtml(row.status)}</span></td>
+          <td>${Utils.escapeHtml(row.projectName)}</td>
+          <td class="person-name">${Utils.escapeHtml(row.name || "-")}</td>
+          <td>${Utils.escapeHtml(row.employeeId || "-")}</td>
+          <td class="${currentClass.trim()}">${Utils.escapeHtml(currentText)}</td>
+          <td>${Utils.escapeHtml(row.recommendedMonth || "-")}</td>
+          <td>${Utils.escapeHtml(row.dueDate)}</td>
+          <td>${Utils.escapeHtml(row.reason)}</td>
+        </tr>
+      `;
+    }).join("") : '<tr><td class="empty-block" colspan="8">当前月份没有方案差异。</td></tr>';
+  }
+
+  function renderSmartSchedule(selectedMonth = ""): void {
+    if (selectedMonth && state.smartSchedule) {
+      state.smartScheduleSelectedMonth = selectedMonth;
+      renderSmartScheduleDetails(state.smartSchedule, selectedMonth);
+      return;
+    }
+    if (!state.analysis) {
+      state.smartSchedule = null;
+      state.smartScheduleSelectedMonth = "";
+      renderProjectOptions(elements.smartScheduleProjectSelect, [], "全部资质项目");
+      charts.renderSmartScheduleChart(null);
+      renderSmartScheduleDetails(null, "");
+      return;
+    }
+    const currentLoad = TrainingToolTrainingLoad.buildLoad(state.workbook!, state.analysis, {
+      year: elements.smartScheduleYearInput.value,
+      projectName: elements.smartScheduleProjectSelect.value,
+      extraProjectRows: state.simulationRecords || []
+    });
+    const result = TrainingToolSmartSchedule.buildSmartSchedule(state.analysis, {
+      year: elements.smartScheduleYearInput.value,
+      latestAdvanceMonths: elements.smartScheduleAdvanceSelect.value,
+      projectName: elements.smartScheduleProjectSelect.value,
+      extraProjectRows: state.simulationRecords || [],
+      currentLoadRows: currentLoad.monthRows
+    });
+    renderProjectOptions(elements.smartScheduleProjectSelect, result.availableProjects, "全部资质项目");
+    state.smartSchedule = result;
+    charts.renderSmartScheduleChart(result);
+    const selected = state.smartScheduleSelectedMonth;
+    if (selected && result.monthRows.some((row) => row.monthKey === selected)) {
+      renderSmartScheduleDetails(result, selected);
+    } else {
+      state.smartScheduleSelectedMonth = "";
+      renderSmartScheduleDetails(result, "");
+    }
+  }
+
   return {
     renderQualificationPressure,
-    renderTrainingLoad
+    renderTrainingLoad,
+    renderSmartSchedule
   };
 }

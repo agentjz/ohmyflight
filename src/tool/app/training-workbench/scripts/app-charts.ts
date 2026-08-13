@@ -4,6 +4,7 @@ import type {
   TrainingCrmAnnualResult,
   TrainingLoadResult,
   TrainingQualificationPressureResult,
+  TrainingSmartScheduleResult,
   TrainingToolAppRuntime
 } from "./models";
 import { TrainingToolWorkbenchStatus } from "./workbench-status";
@@ -18,6 +19,7 @@ const Utils = TrainingToolUtils;
   let workbenchProjectChart: TrainingChartInstance | null = null;
   let qualificationPressureChart: TrainingChartInstance | null = null;
   let trainingLoadChart: TrainingChartInstance | null = null;
+  let smartScheduleChart: TrainingChartInstance | null = null;
   let crmParticipationChart: TrainingChartInstance | null = null;
   let crmMonthlyChart: TrainingChartInstance | null = null;
   let crmRoleChart: TrainingChartInstance | null = null;
@@ -248,6 +250,37 @@ const Utils = TrainingToolUtils;
     trainingLoadChart.resize();
   }
 
+  function renderSmartScheduleChart(result: TrainingSmartScheduleResult | null): void {
+    const echarts = getEcharts();
+    if (!echarts) {
+      renderChartEmpty(elements.smartScheduleChart, "图表库未加载。");
+      return;
+    }
+    const monthRows = result?.monthRows || [];
+    smartScheduleChart = getOrCreateChart(elements.smartScheduleChart, smartScheduleChart);
+    smartScheduleChart.clear();
+    smartScheduleChart.setOption(withChartTheme({
+      tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+      legend: { top: 0 },
+      grid: { top: 44, right: 28, bottom: 38, left: 48, containLabel: true },
+      xAxis: {
+        type: "category",
+        data: monthRows.map((row) => row.monthKey),
+        axisLabel: { interval: 0, fontSize: 11 }
+      },
+      yAxis: { type: "value", minInterval: 1, name: "人天" },
+      series: [
+        { name: "当前已排", type: "bar", data: monthRows.map((row) => row.currentPersonDays) },
+        { name: "智能推荐", type: "bar", data: monthRows.map((row) => row.recommendedPersonDays) }
+      ]
+    }));
+    smartScheduleChart.off("click");
+    smartScheduleChart.on("click", (params) => {
+      if (params.name) runtime.renderers.renderSmartSchedule(params.name);
+    });
+    smartScheduleChart.resize();
+  }
+
   function renderCrmCharts(result: TrainingCrmAnnualResult | null): void {
     const echarts = getEcharts();
     if (!echarts) {
@@ -382,6 +415,7 @@ const Utils = TrainingToolUtils;
     }
     if (state.qualificationPressure) renderQualificationPressureChart(state.qualificationPressure, getPressureMode());
     if (state.trainingLoad) renderTrainingLoadChart(state.trainingLoad);
+    if (state.smartSchedule) renderSmartScheduleChart(state.smartSchedule);
     if (state.crmAnnualResult) {
       renderCrmCharts(state.crmAnnualResult);
     }
@@ -393,6 +427,7 @@ const Utils = TrainingToolUtils;
       workbenchProjectChart,
       qualificationPressureChart,
       trainingLoadChart,
+      smartScheduleChart,
       crmParticipationChart,
       crmMonthlyChart,
       crmRoleChart
@@ -412,6 +447,7 @@ const Utils = TrainingToolUtils;
     renderWorkbenchCharts,
     renderQualificationPressureChart,
     renderTrainingLoadChart,
+    renderSmartScheduleChart,
     renderCrmCharts,
     refreshRenderedCharts
   };

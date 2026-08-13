@@ -488,6 +488,7 @@
 .simulation-panel,
 .qualification-pressure-panel,
 .training-load-panel,
+.smart-schedule-panel,
 .crm-annual-panel {
     width: 100%;
     min-width: 0;
@@ -504,6 +505,7 @@
 
 .qualification-pressure-panel,
 .training-load-panel,
+.smart-schedule-panel,
 .crm-annual-panel {
     padding: 18px 0 0;
 }
@@ -589,6 +591,41 @@
     display: grid;
     grid-template-columns: minmax(160px, 220px) minmax(200px, 320px);
     gap: 12px;
+}
+
+.smart-schedule-controls {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.55fr) minmax(220px, 0.85fr) minmax(200px, 1fr);
+    gap: 12px;
+}
+
+.smart-schedule-chart-panel,
+.smart-schedule-detail-panel {
+    margin-top: 12px;
+}
+
+.smart-schedule-chart-panel .chart-box {
+    height: 320px;
+}
+
+.smart-schedule-detail-shell {
+    max-height: 430px;
+    overflow: auto;
+}
+
+.smart-schedule-detail-table {
+    min-width: 1040px;
+}
+
+.smart-schedule-detail-table :is(th, td) {
+    padding: 9px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.smart-schedule-completed-value {
+    color: var(--watchdog-text-muted);
+    text-decoration: line-through;
 }
 
 .pressure-detail-table {

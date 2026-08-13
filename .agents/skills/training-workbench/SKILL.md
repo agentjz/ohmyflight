@@ -36,6 +36,7 @@ description: watchdog 培训皇帝/培训工作台专属开发引导。用于修
 - `workbench.ts`：组织工作台扫描、筛选和导出。
 - `qualification-pressure.ts`：复用当前轮次覆盖判断，按全部或单个资质项目预测排班执行后的下一轮最晚完成月份。
 - `training-load.ts`：按全部或单个培训项目统计项目及 CRM 的月度人天和班次；原始记录数只作为内部核对数据。
+- `smart-schedule.ts`：按现有规则为人员资质当前轮次生成合法月份，在不逾期的前提下均衡月度人天，并输出当前与推荐方案差异。
 - `crm-annual.ts`：独立维护 CRM 年度参加核对，不并入资质有效期判断。
 - `simulation-schedule.ts`：只维护浏览器内模拟记录。
 - `app-*.ts`：页面接线、状态、渲染、图表和交互，不承载培训规则。

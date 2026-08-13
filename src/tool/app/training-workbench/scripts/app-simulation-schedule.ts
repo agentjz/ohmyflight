@@ -108,6 +108,7 @@ const Utils = TrainingToolUtils;
       runtime.workbenchController.refreshWorkbenchResult(message);
       runtime.renderers.renderQualificationPressure();
       runtime.renderers.renderTrainingLoad();
+      runtime.renderers.renderSmartSchedule();
       return;
     }
     render();

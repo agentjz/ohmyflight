@@ -83,6 +83,7 @@ const Utils = TrainingToolUtils;
       workbenchController.renderWorkbenchView();
       renderers.renderQualificationPressure();
       renderers.renderTrainingLoad();
+      renderers.renderSmartSchedule();
       runtime.scheduleGapCheck.rebuild();
 
       controls.setStatus(`识别完成：人员信息表“${analysis.peopleInfo.name}”，共识别 ${analysis.projects.length} 个项目 sheet，${analysis.availableMonths.length} 个可选月份。`);

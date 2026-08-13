@@ -18,6 +18,8 @@ runtime.state = {
     qualificationPressure: null,
     qualificationPressureSelectedMonth: "",
     trainingLoad: null,
+    smartSchedule: null,
+    smartScheduleSelectedMonth: "",
     crmAnnualResult: null,
     trainingCalendarResult: null,
     trainingCalendarMonthKey: "",

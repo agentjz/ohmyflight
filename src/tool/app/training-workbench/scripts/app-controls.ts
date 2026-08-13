@@ -21,6 +21,7 @@ const COPY = runtime.copy;
     elements.workbenchEndDateInput.value = nextMonthEndString();
     elements.qualificationPressureStartMonthInput.value = todayString().slice(0, 7);
     elements.trainingLoadYearInput.value = String(new Date().getFullYear());
+    elements.smartScheduleYearInput.value = String(new Date().getFullYear());
   }
 
   function setStatus(message: string, isError = false): void {
@@ -84,6 +85,9 @@ const COPY = runtime.copy;
       });
     elements.trainingLoadYearInput.disabled = !state.analysis || state.busy;
     elements.trainingLoadProjectSelect.disabled = !state.analysis || state.busy;
+    elements.smartScheduleYearInput.disabled = !state.analysis || state.busy;
+    elements.smartScheduleAdvanceSelect.disabled = !state.analysis || state.busy;
+    elements.smartScheduleProjectSelect.disabled = !state.analysis || state.busy;
     elements.scheduleGapBaseDateInput.disabled = !state.analysis || state.busy;
     elements.scheduleGapHorizonGroup.disabled = !state.analysis || state.busy;
     elements.scheduleGapHorizonGroup.querySelectorAll<HTMLInputElement>('input[name="scheduleGapHorizon"]')

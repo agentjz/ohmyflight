@@ -32,7 +32,8 @@
     }
 
     .pressure-controls,
-    .training-load-controls {
+    .training-load-controls,
+    .smart-schedule-controls {
         grid-template-columns: 1fr;
     }
 }
