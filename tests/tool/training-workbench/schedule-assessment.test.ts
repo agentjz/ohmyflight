@@ -135,20 +135,6 @@ describe("schedule assessment", () => {
       { projectName: "TSA", expired: 0, expiredScheduled: 0, must: 2, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
       { projectName: "航空安保", expired: 0, expiredScheduled: 0, must: 1, uncoveredScheduled: 0, recommended: 0, abnormal: 0 }
     ]);
-    expect(result.chartData.monthRows).toEqual([
-      { label: "2026-01", expired: 0, expiredScheduled: 0, must: 0, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-02", expired: 0, expiredScheduled: 0, must: 0, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-03", expired: 0, expiredScheduled: 0, must: 0, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-04", expired: 1, expiredScheduled: 0, must: 0, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-05", expired: 0, expiredScheduled: 1, must: 4, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-06", expired: 0, expiredScheduled: 0, must: 4, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-07", expired: 0, expiredScheduled: 0, must: 0, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-08", expired: 0, expiredScheduled: 0, must: 0, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-09", expired: 0, expiredScheduled: 0, must: 0, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-10", expired: 0, expiredScheduled: 0, must: 0, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-11", expired: 0, expiredScheduled: 0, must: 0, uncoveredScheduled: 0, recommended: 0, abnormal: 0 },
-      { label: "2026-12", expired: 0, expiredScheduled: 0, must: 0, uncoveredScheduled: 0, recommended: 0, abnormal: 0 }
-    ]);
     expect(result.summaryData.projectSummaryRows.map((row: any) => ({
       projectName: row.projectName,
       expired: row.expired,

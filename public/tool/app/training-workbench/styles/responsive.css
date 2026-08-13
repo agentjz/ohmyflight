@@ -31,7 +31,8 @@
         width: auto;
     }
 
-    .annual-training-panel .form-grid-3 {
+    .pressure-controls,
+    .training-load-controls {
         grid-template-columns: 1fr;
     }
 }

@@ -48,12 +48,12 @@ function init(runtime: TrainingToolAppRuntime): void {
   elements.workbenchStatusSelect.addEventListener("change", workbenchController.handleWorkbenchFilterChange);
   elements.workbenchMonthSelect.addEventListener("change", workbenchController.handleWorkbenchFilterChange);
   elements.workbenchSearchInput.addEventListener("input", workbenchController.handleWorkbenchFilterChange);
-  elements.workbenchPressureYearInput.addEventListener("change", workbenchController.handleWorkbenchFilterChange);
-  elements.scheduledDistributionProjectSelect.addEventListener("change", runtime.renderers.renderScheduledDistribution);
-  elements.scheduledDistributionMonthSelect.addEventListener("change", runtime.renderers.renderScheduledDistribution);
-  elements.annualTrainingProjectSelect.addEventListener("change", runtime.renderers.renderAnnualTrainingStats);
-  elements.annualTrainingYearSelect.addEventListener("change", runtime.renderers.renderAnnualTrainingStats);
-  elements.annualTrainingMonthSelect.addEventListener("change", runtime.renderers.renderAnnualTrainingStats);
+  elements.qualificationPressureStartMonthInput.addEventListener("change", () => runtime.renderers.renderQualificationPressure());
+  elements.qualificationPressureHorizonSelect.addEventListener("change", () => runtime.renderers.renderQualificationPressure());
+  elements.qualificationPressureProjectSelect.addEventListener("change", () => runtime.renderers.renderQualificationPressure());
+  elements.qualificationPressureModeGroup.addEventListener("change", () => runtime.renderers.renderQualificationPressure());
+  elements.trainingLoadYearInput.addEventListener("change", runtime.renderers.renderTrainingLoad);
+  elements.trainingLoadProjectSelect.addEventListener("change", runtime.renderers.renderTrainingLoad);
   elements.crmYearInput.addEventListener("change", runtime.renderers.renderCrmAnnual);
   elements.updateProjectGroup.addEventListener("change", projects.handleUpdateProjectGroupChange);
   elements.updateValidityButton.addEventListener("click", actions.handleUpdatePreview);

@@ -60,6 +60,9 @@ const COPY = runtime.copy;
     renderers.renderWorkbenchFilterOptions(null);
     renderers.renderProjectCards();
     renderers.renderResultPlaceholders();
+    renderers.renderQualificationPressure();
+    renderers.renderTrainingLoad();
+    renderers.renderCrmAnnual();
     controls.clearPendingExport();
     controls.refreshButtons();
   }

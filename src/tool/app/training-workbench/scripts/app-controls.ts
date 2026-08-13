@@ -19,7 +19,8 @@ const COPY = runtime.copy;
   function initializeDefaultDates(): void {
     elements.workbenchStartDateInput.value = todayString();
     elements.workbenchEndDateInput.value = nextMonthEndString();
-    elements.workbenchPressureYearInput.value = String(new Date().getFullYear());
+    elements.qualificationPressureStartMonthInput.value = todayString().slice(0, 7);
+    elements.trainingLoadYearInput.value = String(new Date().getFullYear());
   }
 
   function setStatus(message: string, isError = false): void {
@@ -73,7 +74,16 @@ const COPY = runtime.copy;
     elements.workbenchSearchInput.disabled = !state.workbenchResult || state.busy;
     elements.workbenchStartDateInput.disabled = !state.analysis || state.busy;
     elements.workbenchEndDateInput.disabled = !state.analysis || state.busy;
-    elements.workbenchPressureYearInput.disabled = !state.workbenchResult || state.busy;
+    elements.qualificationPressureStartMonthInput.disabled = !state.analysis || state.busy;
+    elements.qualificationPressureHorizonSelect.disabled = !state.analysis || state.busy;
+    elements.qualificationPressureProjectSelect.disabled = !state.analysis || state.busy;
+    elements.qualificationPressureModeGroup.disabled = !state.analysis || state.busy;
+    elements.qualificationPressureModeGroup.querySelectorAll<HTMLInputElement>('input[name="qualificationPressureMode"]')
+      .forEach((input) => {
+        input.disabled = !state.analysis || state.busy;
+      });
+    elements.trainingLoadYearInput.disabled = !state.analysis || state.busy;
+    elements.trainingLoadProjectSelect.disabled = !state.analysis || state.busy;
     elements.scheduleGapBaseDateInput.disabled = !state.analysis || state.busy;
     elements.scheduleGapHorizonGroup.disabled = !state.analysis || state.busy;
     elements.scheduleGapHorizonGroup.querySelectorAll<HTMLInputElement>('input[name="scheduleGapHorizon"]')

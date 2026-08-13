@@ -302,74 +302,83 @@
                     </table>
                 </div>
             </section>
-            <div class="chart-panel month-pressure-panel">
-                <div class="chart-title">年度有效期到期压力</div>
-                <div class="form-grid form-grid-3">
-                    <div class="field">
-                        <label for="workbenchPressureYearInput">压力年份</label>
-                        <input id="workbenchPressureYearInput" type="number" min="2000" max="2100" step="1" disabled>
-                    </div>
-                </div>
-                <div class="chart-box" id="workbenchMonthChart"></div>
-            </div>
-            <section class="scheduled-distribution-panel" aria-labelledby="scheduledDistributionTitle">
+            <section class="qualification-pressure-panel" aria-labelledby="qualificationPressureTitle">
                 <div class="section-head">
                     <div>
-                        <h2 class="section-title" id="scheduledDistributionTitle">已排培训分布</h2>
-                        <p class="section-intro">只统计项目 sheet 中已排且未取消的培训，用于查看培训安排是否集中。</p>
+                        <h2 class="section-title" id="qualificationPressureTitle">排班后资质压力</h2>
+                        <p class="section-intro">每个人每项资质的下一次最晚完成日期落在哪个月；合规安排会把压力移到下一轮，未覆盖的仍留在当前到期月。</p>
                     </div>
                 </div>
-                <div class="form-grid form-grid-3">
+                <div class="pressure-controls">
                     <div class="field">
-                        <label for="scheduledDistributionProjectSelect">培训类型</label>
-                        <select id="scheduledDistributionProjectSelect" disabled>
-                            <option value="">全部培训类型</option>
+                        <label for="qualificationPressureStartMonthInput">观察起始月</label>
+                        <input id="qualificationPressureStartMonthInput" type="month" disabled>
+                    </div>
+                    <div class="field">
+                        <label for="qualificationPressureProjectSelect">资质项目</label>
+                        <select id="qualificationPressureProjectSelect" disabled>
+                            <option value="">全部资质项目</option>
                         </select>
                     </div>
                     <div class="field">
-                        <label for="scheduledDistributionMonthSelect">培训月份</label>
-                        <select id="scheduledDistributionMonthSelect" disabled>
-                            <option value="">全部月份</option>
+                        <label for="qualificationPressureHorizonSelect">观察范围</label>
+                        <select id="qualificationPressureHorizonSelect" disabled>
+                            <option value="24">未来 24 个月</option>
+                            <option value="36" selected>未来 36 个月</option>
+                            <option value="48">未来 48 个月</option>
                         </select>
                     </div>
+                    <fieldset class="pressure-mode-field" id="qualificationPressureModeGroup" disabled>
+                        <legend>显示方式</legend>
+                        <div class="pressure-segmented">
+                            <label><input type="radio" name="qualificationPressureMode" value="current" disabled><span>当前有效期</span></label>
+                            <label><input type="radio" name="qualificationPressureMode" value="forecast" disabled><span>排班后预测</span></label>
+                            <label><input type="radio" name="qualificationPressureMode" value="compare" checked disabled><span>前后对比</span></label>
+                        </div>
+                    </fieldset>
                 </div>
-                <p class="summary-meta" id="scheduledDistributionSummary">导入总表后显示已排培训分布。</p>
-                <div class="chart-panel scheduled-distribution-chart-panel">
-                    <div class="chart-title">按培训日期分布</div>
-                    <div class="chart-box" id="scheduledDistributionDateChart"></div>
+                <div class="chart-panel qualification-pressure-chart-panel">
+                    <div class="chart-title">未来月份资质压力（人项）</div>
+                    <div class="chart-box" id="qualificationPressureChart"></div>
+                </div>
+                <div class="pressure-detail-panel" id="qualificationPressureDetailPanel" hidden>
+                    <h3 class="chart-title" id="qualificationPressureDetailTitle">月份明细</h3>
+                    <div class="table-shell pressure-detail-table-shell">
+                        <table class="table table-hover align-middle pressure-detail-table">
+                            <thead>
+                                <tr>
+                                    <th>姓名</th><th>员工号</th><th>项目</th><th>当前最晚完成</th><th>安排日期</th><th>预测最晚完成</th><th>覆盖状态</th><th>提前天数</th><th>判断说明</th>
+                                </tr>
+                            </thead>
+                            <tbody id="qualificationPressureDetailBody">
+                                <tr><td class="empty-block" colspan="9">点击图中的月份查看人员项目。</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
-            <section class="annual-training-panel" aria-labelledby="annualTrainingTitle">
+            <section class="training-load-panel" aria-labelledby="trainingLoadTitle">
                 <div class="section-head">
                     <div>
-                        <h2 class="section-title" id="annualTrainingTitle">年度已培训人次</h2>
-                        <p class="section-intro">只统计项目 sheet 中已录入且未取消的培训记录，用于查看年度培训人次分布。</p>
+                        <h2 class="section-title" id="trainingLoadTitle">实际培训负载</h2>
+                        <p class="section-intro">当前总表中有效且未取消的培训安排现状，包括已录入、未录入和模拟排班；人天表示人员占用，班次表示培训场次。</p>
                     </div>
                 </div>
-                <div class="form-grid form-grid-3">
+                <div class="training-load-controls">
                     <div class="field">
-                        <label for="annualTrainingProjectSelect">培训类型</label>
-                        <select id="annualTrainingProjectSelect" disabled>
-                            <option value="">全部培训类型</option>
-                        </select>
+                        <label for="trainingLoadYearInput">统计年份</label>
+                        <input id="trainingLoadYearInput" type="number" min="2000" max="2100" step="1" disabled>
                     </div>
                     <div class="field">
-                        <label for="annualTrainingYearSelect">统计年份</label>
-                        <select id="annualTrainingYearSelect" disabled>
-                            <option value="">全部年份</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label for="annualTrainingMonthSelect">培训月份</label>
-                        <select id="annualTrainingMonthSelect" disabled>
-                            <option value="">全部月份</option>
+                        <label for="trainingLoadProjectSelect">培训项目</label>
+                        <select id="trainingLoadProjectSelect" disabled>
+                            <option value="">全部培训项目</option>
                         </select>
                     </div>
                 </div>
-                <p class="summary-meta" id="annualTrainingSummary">导入总表后显示年度已培训人次统计。</p>
-                <div class="chart-panel annual-training-chart-panel">
-                    <div class="chart-title">按月份人次</div>
-                    <div class="chart-box" id="annualTrainingDateChart"></div>
+                <div class="chart-panel training-load-chart-panel">
+                    <div class="chart-title">月度培训负载</div>
+                    <div class="chart-box" id="trainingLoadChart"></div>
                 </div>
             </section>
             <section class="crm-annual-panel" aria-labelledby="crmAnnualTitle">

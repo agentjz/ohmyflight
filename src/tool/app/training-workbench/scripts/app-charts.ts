@@ -1,9 +1,9 @@
 import { TrainingToolUtils } from "./utils";
 import type {
-  TrainingAnnualTrainingStatsDistribution,
   TrainingChartData,
   TrainingCrmAnnualResult,
-  TrainingScheduledDistributionResult,
+  TrainingLoadResult,
+  TrainingQualificationPressureResult,
   TrainingToolAppRuntime
 } from "./models";
 import { TrainingToolWorkbenchStatus } from "./workbench-status";
@@ -16,9 +16,8 @@ const Utils = TrainingToolUtils;
   const elements = runtime.elements;
   let workbenchStatusChart: TrainingChartInstance | null = null;
   let workbenchProjectChart: TrainingChartInstance | null = null;
-  let workbenchMonthChart: TrainingChartInstance | null = null;
-  let scheduledDistributionDateChart: TrainingChartInstance | null = null;
-  let annualTrainingDateChart: TrainingChartInstance | null = null;
+  let qualificationPressureChart: TrainingChartInstance | null = null;
+  let trainingLoadChart: TrainingChartInstance | null = null;
   let crmParticipationChart: TrainingChartInstance | null = null;
   let crmMonthlyChart: TrainingChartInstance | null = null;
   let crmRoleChart: TrainingChartInstance | null = null;
@@ -93,12 +92,19 @@ const Utils = TrainingToolUtils;
         ...option.xAxis,
         axisLabel: { ...theme.mutedTextStyle, ...(option.xAxis.axisLabel || {}) }
       } : option.xAxis,
-      yAxis: option.yAxis ? {
-        axisLine: theme.axisLine,
-        splitLine: theme.splitLine,
-        ...option.yAxis,
-        axisLabel: { ...theme.mutedTextStyle, ...(option.yAxis.axisLabel || {}) }
-      } : option.yAxis
+      yAxis: Array.isArray(option.yAxis)
+        ? option.yAxis.map((axis) => ({
+          axisLine: theme.axisLine,
+          splitLine: theme.splitLine,
+          ...axis,
+          axisLabel: { ...theme.mutedTextStyle, ...(axis.axisLabel || {}) }
+        }))
+        : option.yAxis ? {
+          axisLine: theme.axisLine,
+          splitLine: theme.splitLine,
+          ...option.yAxis,
+          axisLabel: { ...theme.mutedTextStyle, ...(option.yAxis.axisLabel || {}) }
+        } : option.yAxis
     };
   }
 
@@ -106,18 +112,20 @@ const Utils = TrainingToolUtils;
     element.innerHTML = `<div class="empty-block">${Utils.escapeHtml(message)}</div>`;
   }
 
+  function getPressureMode(): string {
+    return elements.qualificationPressureModeGroup.querySelector<HTMLInputElement>('input[name="qualificationPressureMode"]:checked')?.value || "compare";
+  }
+
   function renderWorkbenchCharts(chartData: TrainingChartData | null): void {
     const echarts = getEcharts();
     if (!echarts) {
       renderChartEmpty(elements.workbenchStatusChart, "图表库未加载。");
       renderChartEmpty(elements.workbenchProjectChart, "图表库未加载。");
-      renderChartEmpty(elements.workbenchMonthChart, "图表库未加载。");
       return;
     }
 
     const statusRows = chartData && chartData.statusRows ? chartData.statusRows : [];
     const projectRows = chartData && chartData.projectRows ? chartData.projectRows : [];
-    const monthRows = chartData && chartData.monthRows ? chartData.monthRows : [];
     const visibleSeries = WorkbenchStatus.VISIBLE_STATUS_FIELDS.map((item) => ({
       name: item.status,
       field: item.field
@@ -125,7 +133,6 @@ const Utils = TrainingToolUtils;
 
     workbenchStatusChart = getOrCreateChart(elements.workbenchStatusChart, workbenchStatusChart);
     workbenchProjectChart = getOrCreateChart(elements.workbenchProjectChart, workbenchProjectChart);
-    workbenchMonthChart = getOrCreateChart(elements.workbenchMonthChart, workbenchMonthChart);
 
     workbenchStatusChart.setOption(withChartTheme({
       tooltip: { trigger: "item" },
@@ -166,106 +173,85 @@ const Utils = TrainingToolUtils;
       }))
     }));
 
-    workbenchMonthChart.setOption(withChartTheme({
-      tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-      legend: { top: 0 },
-      grid: { top: 44, right: 18, bottom: 38, left: 48, containLabel: true },
-      xAxis: {
-        type: "category",
-        data: monthRows.map((row) => row.label),
-        axisLabel: {
-          interval: 0,
-          fontSize: 11
-        }
-      },
-      yAxis: {
-        type: "value",
-        minInterval: 1
-      },
-      series: visibleSeries.map((item) => ({
-        name: item.name,
-        type: "bar",
-        stack: "total",
-        data: monthRows.map((row) => row[item.field])
-      }))
-    }));
-
     workbenchStatusChart.resize();
     workbenchProjectChart.resize();
-    workbenchMonthChart.resize();
   }
 
-  function renderScheduledDistributionCharts(summary: TrainingScheduledDistributionResult["summary"] | null): void {
+  function renderQualificationPressureChart(result: TrainingQualificationPressureResult | null, mode: string): void {
     const echarts = getEcharts();
     if (!echarts) {
-      renderChartEmpty(elements.scheduledDistributionDateChart, "图表库未加载。");
+      renderChartEmpty(elements.qualificationPressureChart, "图表库未加载。");
       return;
     }
-
-    const dateRows = summary && summary.dateRows ? summary.dateRows : [];
-
-    scheduledDistributionDateChart = getOrCreateChart(elements.scheduledDistributionDateChart, scheduledDistributionDateChart);
-
-    scheduledDistributionDateChart.setOption(withChartTheme({
-      tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-      grid: { top: 20, right: 38, bottom: 42, left: 96, containLabel: true },
-      dataZoom: [
-        { type: "slider", yAxisIndex: 0, right: 4, width: 14, start: 0, end: Math.min(100, dateRows.length ? 18 / dateRows.length * 100 : 100) },
-        { type: "inside", yAxisIndex: 0 }
-      ],
-      xAxis: { type: "value", minInterval: 1 },
-      yAxis: {
-        type: "category",
-        data: dateRows.map((row) => row.label),
-        axisLabel: { interval: 0, fontSize: 11 }
-      },
-      series: [{
-        name: "已排培训",
+    const monthRows = result?.monthRows || [];
+    const projects = result?.projects || [];
+    const isComparison = mode === "compare";
+    const useCurrent = mode === "current";
+    const series = isComparison
+      ? [
+        { name: "当前压力", type: "line", symbol: "circle", data: monthRows.map((row) => row.currentTotal) },
+        { name: "排班后预测", type: "bar", data: monthRows.map((row) => row.forecastTotal) }
+      ]
+      : projects.map((projectName) => ({
+        name: projectName,
         type: "bar",
-        label: {
-          show: true,
-          position: "right",
-          ...getChartTheme().textStyle
-        },
-        data: dateRows.map((row) => row.total)
-      }]
-    }));
+        stack: "qualification",
+        data: monthRows.map((row) => (useCurrent ? row.currentByProject : row.forecastByProject)[projectName] || 0)
+      }));
 
-    scheduledDistributionDateChart.resize();
-  }
-
-  function renderAnnualTrainingCharts(summary: TrainingAnnualTrainingStatsDistribution["summary"] | null): void {
-    const echarts = getEcharts();
-    if (!echarts) {
-      renderChartEmpty(elements.annualTrainingDateChart, "图表库未加载。");
-      return;
-    }
-
-    const monthRows = summary && summary.monthRows ? summary.monthRows : [];
-
-    annualTrainingDateChart = getOrCreateChart(elements.annualTrainingDateChart, annualTrainingDateChart);
-    annualTrainingDateChart.setOption(withChartTheme({
+    qualificationPressureChart = getOrCreateChart(elements.qualificationPressureChart, qualificationPressureChart);
+    qualificationPressureChart.clear();
+    qualificationPressureChart.setOption(withChartTheme({
       tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-      grid: { top: 20, right: 28, bottom: 42, left: 48, containLabel: true },
+      legend: { top: 0, type: "scroll" },
+      grid: { top: 50, right: 28, bottom: 58, left: 48, containLabel: true },
+      dataZoom: [
+        { type: "slider", xAxisIndex: 0, bottom: 8, height: 18, start: 0, end: Math.min(100, monthRows.length ? 18 / monthRows.length * 100 : 100) },
+        { type: "inside", xAxisIndex: 0 }
+      ],
       xAxis: {
         type: "category",
-        data: monthRows.map((row) => row.label),
+        data: monthRows.map((row) => row.monthKey),
+        axisLabel: { interval: 0, fontSize: 11, rotate: 35 }
+      },
+      yAxis: { type: "value", minInterval: 1, name: "人项" },
+      series
+    }));
+    qualificationPressureChart.off("click");
+    qualificationPressureChart.on("click", (params) => {
+      if (params.name) runtime.renderers.renderQualificationPressure(params.name);
+    });
+    qualificationPressureChart.resize();
+  }
+
+  function renderTrainingLoadChart(result: TrainingLoadResult | null): void {
+    const echarts = getEcharts();
+    if (!echarts) {
+      renderChartEmpty(elements.trainingLoadChart, "图表库未加载。");
+      return;
+    }
+    const monthRows = result?.monthRows || [];
+    trainingLoadChart = getOrCreateChart(elements.trainingLoadChart, trainingLoadChart);
+    trainingLoadChart.clear();
+    trainingLoadChart.setOption(withChartTheme({
+      tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+      legend: { top: 0 },
+      grid: { top: 44, right: 28, bottom: 38, left: 48, containLabel: true },
+      xAxis: {
+        type: "category",
+        data: monthRows.map((row) => row.monthKey),
         axisLabel: { interval: 0, fontSize: 11 }
       },
-      yAxis: { type: "value", minInterval: 1 },
-      series: [{
-        name: "已培训人次",
-        type: "bar",
-        label: {
-          show: true,
-          position: "top",
-          ...getChartTheme().textStyle
-        },
-        data: monthRows.map((row) => row.total)
-      }]
+      yAxis: [
+        { type: "value", minInterval: 1, name: "人天", nameTextStyle: getChartTheme().mutedTextStyle },
+        { type: "value", minInterval: 1, name: "班次", nameTextStyle: getChartTheme().mutedTextStyle }
+      ],
+      series: [
+        { name: "人天", type: "bar", yAxisIndex: 0, data: monthRows.map((row) => row.personDays) },
+        { name: "班次", type: "line", yAxisIndex: 1, symbol: "circle", data: monthRows.map((row) => row.sessionCount) }
+      ]
     }));
-
-    annualTrainingDateChart.resize();
+    trainingLoadChart.resize();
   }
 
   function renderCrmCharts(result: TrainingCrmAnnualResult | null): void {
@@ -400,12 +386,8 @@ const Utils = TrainingToolUtils;
     if (state.workbenchResult && state.workbenchResult.chartData) {
       renderWorkbenchCharts(state.workbenchResult.chartData);
     }
-    if (state.scheduledDistribution && state.scheduledDistribution.summary) {
-      renderScheduledDistributionCharts(state.scheduledDistribution.summary);
-    }
-    if (state.annualTrainingStatsView && state.annualTrainingStatsView.summary) {
-      renderAnnualTrainingCharts(state.annualTrainingStatsView.summary);
-    }
+    if (state.qualificationPressure) renderQualificationPressureChart(state.qualificationPressure, getPressureMode());
+    if (state.trainingLoad) renderTrainingLoadChart(state.trainingLoad);
     if (state.crmAnnualResult) {
       renderCrmCharts(state.crmAnnualResult);
     }
@@ -415,9 +397,8 @@ const Utils = TrainingToolUtils;
     [
       workbenchStatusChart,
       workbenchProjectChart,
-      workbenchMonthChart,
-      scheduledDistributionDateChart,
-      annualTrainingDateChart,
+      qualificationPressureChart,
+      trainingLoadChart,
       crmParticipationChart,
       crmMonthlyChart,
       crmRoleChart
@@ -435,8 +416,8 @@ const Utils = TrainingToolUtils;
 
   runtime.charts = {
     renderWorkbenchCharts,
-    renderScheduledDistributionCharts,
-    renderAnnualTrainingCharts,
+    renderQualificationPressureChart,
+    renderTrainingLoadChart,
     renderCrmCharts,
     refreshRenderedCharts
   };

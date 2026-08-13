@@ -1,12 +1,9 @@
-import { TrainingToolAnnualTrainingStats } from "./annual-training-stats";
 import { TrainingToolCrmAnnual } from "./crm-annual";
+import { createTrainingCapacityRenderers } from "./app-training-capacity";
 import { TrainingToolScanner } from "./scanner";
-import { TrainingToolScheduledDistribution } from "./scheduled-distribution";
 import { TrainingToolUtils } from "./utils";
 import type {
-  TrainingAnnualTrainingStatsDistribution,
   TrainingCrmAnnualResult,
-  TrainingScheduledDistributionResult,
   TrainingStatsCard,
   TrainingToolAppRuntime,
   TrainingToolProjectAnalysis,
@@ -22,10 +19,9 @@ const Utils = TrainingToolUtils;
   const charts = runtime.charts;
   const resultTable = runtime.resultTable;
   const summaryView = runtime.summaryView;
-  const ScheduledDistribution = TrainingToolScheduledDistribution;
-  const AnnualTrainingStats = TrainingToolAnnualTrainingStats;
   const CrmAnnual = TrainingToolCrmAnnual;
   const Scanner = TrainingToolScanner;
+  const { renderQualificationPressure, renderTrainingLoad } = createTrainingCapacityRenderers(runtime);
 
   type ProjectGroupElements = {
     groupElement: HTMLElement;
@@ -194,27 +190,6 @@ const Utils = TrainingToolUtils;
     renderSelectOptions(elements.workbenchMonthSelect, options.months, "全部月份");
   }
 
-  function renderScheduledDistributionOptions(distribution: TrainingScheduledDistributionResult | null): void {
-    const projectOptions = distribution && distribution.filterOptions ? distribution.filterOptions.projects : [];
-    const monthOptions = distribution && distribution.filterOptions ? distribution.filterOptions.months : [];
-    renderSelectOptions(elements.scheduledDistributionProjectSelect, projectOptions, "全部培训类型");
-    renderSelectOptions(elements.scheduledDistributionMonthSelect, monthOptions, "全部月份");
-    elements.scheduledDistributionProjectSelect.disabled = !state.analysis || !projectOptions.length;
-    elements.scheduledDistributionMonthSelect.disabled = !state.analysis || !monthOptions.length;
-  }
-
-  function renderAnnualTrainingOptions(distribution: TrainingAnnualTrainingStatsDistribution | null): void {
-    const projectOptions = distribution && distribution.filterOptions ? distribution.filterOptions.projects : [];
-    const yearOptions = distribution && distribution.filterOptions ? distribution.filterOptions.years : [];
-    const monthOptions = distribution && distribution.filterOptions ? distribution.filterOptions.months : [];
-    renderSelectOptions(elements.annualTrainingProjectSelect, projectOptions, "全部培训类型");
-    renderSelectOptions(elements.annualTrainingYearSelect, yearOptions, "全部年份");
-    renderSelectOptions(elements.annualTrainingMonthSelect, monthOptions, "全部月份");
-    elements.annualTrainingProjectSelect.disabled = !state.analysis || !projectOptions.length;
-    elements.annualTrainingYearSelect.disabled = !state.analysis || !yearOptions.length;
-    elements.annualTrainingMonthSelect.disabled = !state.analysis || !monthOptions.length;
-  }
-
   function renderProjectCards(): void {
     if (!state.analysis || !state.analysis.projects.length) {
       elements.projectCards.innerHTML = `<div class="empty-block">${COPY.defaultProjectCards}</div>`;
@@ -266,47 +241,6 @@ const Utils = TrainingToolUtils;
         ${card.hint ? `<small>${Utils.escapeHtml(card.hint)}</small>` : ""}
       </article>
     `).join("");
-  }
-
-  function renderScheduledDistribution(): void {
-    if (!state.analysis) {
-      state.scheduledDistribution = null;
-      renderScheduledDistributionOptions(null);
-      charts.renderScheduledDistributionCharts(null);
-      elements.scheduledDistributionSummary.textContent = "导入总表后显示已排培训分布。";
-      return;
-    }
-
-    const distribution = ScheduledDistribution.buildDistribution(state.analysis, {
-      projectName: elements.scheduledDistributionProjectSelect.value,
-      monthKey: elements.scheduledDistributionMonthSelect.value
-    });
-    state.scheduledDistribution = distribution;
-    renderScheduledDistributionOptions(distribution);
-    charts.renderScheduledDistributionCharts(distribution.summary);
-    elements.scheduledDistributionSummary.textContent = `当前筛选已排培训 ${distribution.summary.total} 人次。`;
-  }
-
-  function renderAnnualTrainingStats(): void {
-    if (!state.analysis) {
-      state.annualTrainingStats = null;
-      state.annualTrainingStatsView = null;
-      renderAnnualTrainingOptions(null);
-      charts.renderAnnualTrainingCharts(null);
-      elements.annualTrainingSummary.textContent = "导入总表后显示年度已培训人次统计。";
-      return;
-    }
-
-    const distribution = AnnualTrainingStats.buildDistribution(state.analysis, {
-      projectName: elements.annualTrainingProjectSelect.value,
-      year: elements.annualTrainingYearSelect.value,
-      monthKey: elements.annualTrainingMonthSelect.value
-    });
-    state.annualTrainingStats = distribution;
-    state.annualTrainingStatsView = distribution;
-    renderAnnualTrainingOptions(distribution);
-    charts.renderAnnualTrainingCharts(distribution.summary);
-    elements.annualTrainingSummary.textContent = `当前筛选已培训 ${distribution.summary.total} 人次，涉及 ${distribution.summary.projectCount} 个项目。`;
   }
 
   function renderCrmStats(result: TrainingCrmAnnualResult | null): void {
@@ -427,9 +361,6 @@ const Utils = TrainingToolUtils;
     renderStats(null);
     charts.renderWorkbenchCharts(null);
     summaryView.renderWorkbenchSummary(null);
-    renderScheduledDistribution();
-    renderAnnualTrainingStats();
-    renderCrmAnnual();
     if (runtime.simulationSchedule) runtime.simulationSchedule.render();
     resultTable.renderTable(elements.detailTableHead, elements.detailTableBody, [], [], COPY.defaultDetailTable);
     resultTable.renderTable(elements.skippedTableHead, elements.skippedTableBody, [], [], COPY.defaultSkippedTable);
@@ -447,8 +378,6 @@ const Utils = TrainingToolUtils;
       const workbenchResult = result as TrainingWorkbenchResult;
       charts.renderWorkbenchCharts(workbenchResult.chartData);
       summaryView.renderWorkbenchSummary(workbenchResult.summaryData);
-      renderScheduledDistribution();
-      renderAnnualTrainingStats();
       elements.detailTableTitle.textContent = "排班总览明细";
       resultTable.renderTable(
         elements.detailTableHead,
@@ -491,8 +420,8 @@ const Utils = TrainingToolUtils;
     renderProjectCheckboxGroup,
     renderWorkbenchFilterOptions,
     renderProjectCards,
-    renderScheduledDistribution,
-    renderAnnualTrainingStats,
+    renderQualificationPressure,
+    renderTrainingLoad,
     renderCrmAnnual,
     renderResultPlaceholders,
     renderActionResult

@@ -106,6 +106,8 @@ const Utils = TrainingToolUtils;
     syncState();
     if (state.analysis && runtime.workbenchController) {
       runtime.workbenchController.refreshWorkbenchResult(message);
+      runtime.renderers.renderQualificationPressure();
+      runtime.renderers.renderTrainingLoad();
       return;
     }
     render();

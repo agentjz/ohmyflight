@@ -2,14 +2,17 @@ type TrainingXlsxApi = typeof import("xlsx-js-style");
 
 export interface TrainingChartInstance {
   setOption(option: TrainingChartOption): void;
+  clear(): void;
   resize(): void;
+  on(eventName: string, handler: (params: { name?: string }) => void): void;
+  off(eventName: string): void;
 }
 
 export interface TrainingChartOption {
   tooltip?: Record<string, unknown>;
   legend?: Record<string, unknown>;
   xAxis?: Record<string, unknown>;
-  yAxis?: Record<string, unknown>;
+  yAxis?: Record<string, unknown> | Array<Record<string, unknown>>;
   [key: string]: unknown;
 }
 

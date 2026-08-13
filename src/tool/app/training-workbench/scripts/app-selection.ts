@@ -53,8 +53,7 @@ const Utils = TrainingToolUtils;
       projects: elements.workbenchProjectSelect.value ? [elements.workbenchProjectSelect.value] : [],
       statuses: elements.workbenchStatusSelect.value ? [elements.workbenchStatusSelect.value] : [],
       months: elements.workbenchMonthSelect.value ? [elements.workbenchMonthSelect.value] : [],
-      searchText: elements.workbenchSearchInput.value,
-      pressureYear: elements.workbenchPressureYearInput.value
+      searchText: elements.workbenchSearchInput.value
     };
   }
 

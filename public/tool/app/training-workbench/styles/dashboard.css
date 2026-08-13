@@ -484,11 +484,10 @@
     margin-bottom: 10px;
 }
 
-.month-pressure-panel,
 .risk-workspace,
 .simulation-panel,
-.scheduled-distribution-panel,
-.annual-training-panel,
+.qualification-pressure-panel,
+.training-load-panel,
 .crm-annual-panel {
     width: 100%;
     min-width: 0;
@@ -503,33 +502,103 @@
     gap: 8px;
 }
 
-.month-pressure-panel .chart-box {
-    height: 320px;
-}
-
-.scheduled-distribution-panel,
-.annual-training-panel,
+.qualification-pressure-panel,
+.training-load-panel,
 .crm-annual-panel {
     padding: 18px 0 0;
 }
 
-.scheduled-distribution-chart-panel {
-    margin-top: 12px;
+.pressure-controls {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.65fr) minmax(180px, 0.8fr) minmax(150px, 0.65fr) minmax(360px, 1.8fr);
+    gap: 12px;
+    align-items: end;
 }
 
-.scheduled-distribution-chart-panel,
-.annual-training-chart-panel {
-    width: 100%;
-    margin-top: 12px;
+.pressure-mode-field {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
 }
 
-.scheduled-distribution-chart-panel .chart-box,
-.annual-training-chart-panel .chart-box {
-    height: 340px;
+.pressure-mode-field legend {
+    margin-bottom: 7px;
+    color: var(--watchdog-text-muted);
+    font-size: 12px;
+    font-weight: 600;
 }
 
-.annual-training-panel .form-grid-3 {
+.pressure-segmented {
+    display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: hidden;
+    border: 1px solid var(--watchdog-border);
+    border-radius: var(--watchdog-radius);
+}
+
+.pressure-segmented label {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+}
+
+.pressure-segmented label + label {
+    border-left: 1px solid var(--watchdog-border);
+}
+
+.pressure-segmented input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.pressure-segmented span {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    color: var(--watchdog-text-muted);
+    cursor: pointer;
+    font-size: 13px;
+    text-align: center;
+}
+
+.pressure-segmented input:checked + span {
+    background: var(--watchdog-surface-muted);
+    color: var(--watchdog-text);
+    font-weight: 700;
+}
+
+.qualification-pressure-chart-panel,
+.training-load-chart-panel,
+.pressure-detail-panel {
+    margin-top: 12px;
+}
+
+.qualification-pressure-chart-panel .chart-box {
+    height: 390px;
+}
+
+.training-load-chart-panel .chart-box {
+    height: 320px;
+}
+
+.training-load-controls {
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) minmax(200px, 320px);
+    gap: 12px;
+}
+
+.pressure-detail-table {
+    min-width: 1180px;
+}
+
+.pressure-detail-table :is(th, td) {
+    padding: 9px 10px;
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 .crm-stats-grid {

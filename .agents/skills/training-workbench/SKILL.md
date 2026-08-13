@@ -1,6 +1,6 @@
 ---
 name: training-workbench
-description: watchdog 培训皇帝/培训工作台专属开发引导。用于修改培训有效期、排班总览、模拟排班、CRM 年度核对、年度已培训人次、培训 Excel 解析导出、培训测试或培训 spec 时。
+description: watchdog 培训皇帝/培训工作台专属开发引导。用于修改培训有效期、排班总览、排班后资质压力、实际培训负载、模拟排班、CRM 年度核对、培训 Excel 解析导出、培训测试或培训 spec 时。
 ---
 
 # Training Workbench
@@ -34,7 +34,9 @@ description: watchdog 培训皇帝/培训工作台专属开发引导。用于修
 - `rule-engine.ts`：有效期、窗口和排班规则判断。
 - `schedule-assessment.ts`：把人员有效期、项目安排和规则汇总成排班状态、筛选项与统计摘要。该文件虽长，但当前变化原因仍是同一排班评估模型，不因行数单独拆分。
 - `workbench.ts`：组织工作台扫描、筛选和导出。
-- `scheduled-distribution.ts`、`annual-training-stats.ts`、`crm-annual.ts`：各自维护独立统计口径，不并入排班判断。
+- `qualification-pressure.ts`：复用当前轮次覆盖判断，按全部或单个资质项目预测排班执行后的下一轮最晚完成月份。
+- `training-load.ts`：按全部或单个培训项目统计项目及 CRM 的月度人天和班次；原始记录数只作为内部核对数据。
+- `crm-annual.ts`：独立维护 CRM 年度参加核对，不并入资质有效期判断。
 - `simulation-schedule.ts`：只维护浏览器内模拟记录。
 - `app-*.ts`：页面接线、状态、渲染、图表和交互，不承载培训规则。
 - `app.ts` 是培训主页唯一生产入口，`rule-reference.ts` 是规则速查页唯一入口；内部模块通过局部 runtime 接口显式连接，不注册浏览器全局命名空间。
