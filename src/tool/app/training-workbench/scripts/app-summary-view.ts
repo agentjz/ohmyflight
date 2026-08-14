@@ -1,4 +1,3 @@
-import { TrainingToolResultStatus } from "./result-status";
 import type {
   TrainingAssessmentRow,
   TrainingProjectSummaryRow,
@@ -11,7 +10,6 @@ import { TrainingToolWorkbenchStatus } from "./workbench-status";
 
 export function installTrainingAppSummaryView(runtime: TrainingToolAppRuntime): void {
 const Utils = TrainingToolUtils;
-  const ResultStatus = TrainingToolResultStatus;
   const WorkbenchStatus = TrainingToolWorkbenchStatus;
   const elements = runtime.elements;
 
@@ -25,23 +23,6 @@ const Utils = TrainingToolUtils;
   let currentSummaryRows: TrainingProjectSummaryRow[] = [];
   let selectedProject = "";
   let selectedStatus = "";
-
-  function personKey(row: TrainingAssessmentRow): string {
-    return `${row.projectName}@@${row.status}@@${row.employeeId || ""}@@${row.name || ""}`;
-  }
-
-  function getSelectedKeySet(rows: TrainingAssessmentRow[]): Set<string> {
-    const availableKeys = new Set((rows || []).map(personKey));
-    const selectedKeys = new Set(
-      (runtime.state.workbenchSelectedPersonKeys || []).filter((key) => availableKeys.has(key))
-    );
-    runtime.state.workbenchSelectedPersonKeys = [...selectedKeys];
-    return selectedKeys;
-  }
-
-  function badge(status: string): string {
-    return `<span class="badge ${Utils.escapeHtml(ResultStatus.badgeToneForWorkbenchStatus(status))}">${Utils.escapeHtml(status)}</span>`;
-  }
 
   function getRowsBySelection(projectName: string, status: string): TrainingAssessmentRow[] {
     const project = currentSummaryRows.find((row) => row.projectName === projectName);
@@ -68,11 +49,9 @@ const Utils = TrainingToolUtils;
     runtime.state.workbenchSelection = projectName && status
       ? { projectName, status, rows }
       : null;
-    const selectedKeys = getSelectedKeySet(rows);
     if (runtime.controls) runtime.controls.refreshButtons();
 
     if (!projectName || !status) {
-      runtime.state.workbenchSelectedPersonKeys = [];
       elements.workbenchSelectedPeopleTitle.textContent = "人员明细";
       elements.workbenchSelectedPeopleIntro.textContent = "点击上方矩阵中的数字后显示具体人员。";
       elements.workbenchSelectedPeople.innerHTML = `<div class="empty-block">请选择一个项目和状态。</div>`;
@@ -80,25 +59,18 @@ const Utils = TrainingToolUtils;
     }
 
     elements.workbenchSelectedPeopleTitle.textContent = `${projectName} - ${status}`;
-    elements.workbenchSelectedPeopleIntro.textContent = `共 ${rows.length} 人，已选 ${selectedKeys.size} 人。`;
+    elements.workbenchSelectedPeopleIntro.textContent = `共 ${rows.length} 人。`;
 
     if (!rows.length) {
-      runtime.state.workbenchSelectedPersonKeys = [];
       elements.workbenchSelectedPeople.innerHTML = `<div class="empty-block">当前没有对应人员。</div>`;
       return;
     }
 
     elements.workbenchSelectedPeople.innerHTML = `
-      <div class="toolbar toolbar-tight selected-person-toolbar">
-        <button class="action-button action-button-compact" type="button" data-role="select-all-people">全选</button>
-        <button class="action-button action-button-compact" type="button" data-role="clear-people">取消全选</button>
-        <button class="action-button action-button-compact" type="button" data-role="invert-people">反选</button>
-      </div>
       <div class="table-shell selected-person-shell">
         <table class="table table-hover align-middle result-table selected-person-table">
           <thead>
             <tr>
-              <th>选择</th>
               <th>姓名</th>
               <th>员工号</th>
               <th>当前有效期</th>
@@ -108,13 +80,8 @@ const Utils = TrainingToolUtils;
             </tr>
           </thead>
           <tbody>
-            ${rows.map((row) => {
-              const key = personKey(row);
-              return `
+            ${rows.map((row) => `
               <tr>
-                <td>
-                  <input type="checkbox" data-role="person-select" data-key="${Utils.escapeHtml(key)}"${selectedKeys.has(key) ? " checked" : ""}>
-                </td>
                 <td class="person-name">${Utils.escapeHtml(row.name || "-")}</td>
                 <td>${Utils.escapeHtml(row.employeeId || "-")}</td>
                 <td>${Utils.escapeHtml(row.expiry || "-")}</td>
@@ -122,7 +89,7 @@ const Utils = TrainingToolUtils;
                 <td>${Utils.escapeHtml(row.scheduledDate || "-")}</td>
                 <td>${Utils.escapeHtml(row.reason || "-")}</td>
               </tr>
-            `; }).join("")}
+            `).join("")}
           </tbody>
         </table>
       </div>
@@ -184,41 +151,10 @@ const Utils = TrainingToolUtils;
     if (!projectName || !status) return;
     selectedProject = projectName;
     selectedStatus = status;
-    runtime.state.workbenchSelectedPersonKeys = [];
     renderProjectSummary(currentSummaryRows);
   });
 
-  elements.workbenchSelectedPeople.addEventListener("click", (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLButtonElement)) return;
-    const rows = getRowsBySelection(selectedProject, selectedStatus);
-    const keys = rows.map(personKey);
-    if (target.dataset.role === "select-all-people") {
-      runtime.state.workbenchSelectedPersonKeys = keys;
-    } else if (target.dataset.role === "clear-people") {
-      runtime.state.workbenchSelectedPersonKeys = [];
-    } else if (target.dataset.role === "invert-people") {
-      const selected = new Set(runtime.state.workbenchSelectedPersonKeys || []);
-      runtime.state.workbenchSelectedPersonKeys = keys.filter((key) => !selected.has(key));
-    } else {
-      return;
-    }
-    renderSelectedPeople(selectedProject, selectedStatus);
-  });
-
-  elements.workbenchSelectedPeople.addEventListener("change", (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement) || target.dataset.role !== "person-select") return;
-    const selected = new Set(runtime.state.workbenchSelectedPersonKeys || []);
-    const key = target.dataset.key || "";
-    if (target.checked) selected.add(key);
-    else selected.delete(key);
-    runtime.state.workbenchSelectedPersonKeys = [...selected];
-    renderSelectedPeople(selectedProject, selectedStatus);
-  });
-
   runtime.summaryView = {
-    renderWorkbenchSummary,
-    personKey
+    renderWorkbenchSummary
   };
 }

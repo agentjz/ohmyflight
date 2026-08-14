@@ -17,9 +17,6 @@ export interface TrainingProjectRule {
 export interface TrainingToolSheetRow {
   rowNumber: number;
   cells: unknown[];
-  simulationId?: string;
-  simulation?: boolean;
-  source?: string;
 }
 
 export interface TrainingToolSheetInfo {
@@ -147,31 +144,6 @@ export interface TrainingScheduleUrgency {
   rank: number;
 }
 
-export interface TrainingSimulationRecordInput {
-  id?: string;
-  projectName: string;
-  employeeId?: string;
-  name?: string;
-  trainingStartDate?: string | Date;
-  trainingEndDate?: string | Date;
-  remark?: string;
-}
-
-export interface TrainingExtraProjectRow extends TrainingSimulationRecordInput {
-  source?: string;
-}
-
-export interface TrainingSimulationRecord {
-  id: string;
-  projectName: string;
-  employeeId: string;
-  name: string;
-  trainingStartDate: string;
-  trainingEndDate: string;
-  remark: string;
-  source: string;
-}
-
 export type TrainingStatusTone = "red" | "orange" | "green" | "gray";
 export type TrainingBadgeTone = "danger" | "warn" | "info" | "ok";
 export type TrainingVisibleStatusField =
@@ -202,7 +174,6 @@ export interface TrainingAssessmentOptions {
   today?: Date;
   stageEnd?: Date;
   filters?: TrainingAssessmentFilters;
-  extraProjectRows?: TrainingExtraProjectRow[];
 }
 
 export interface TrainingAssessmentRow {
@@ -376,10 +347,9 @@ export interface TrainingToolAppState {
   workbenchResult: TrainingWorkbenchResult | null;
   workbenchView: TrainingWorkbenchResult | null;
   workbenchSelection: TrainingWorkbenchSelection | null;
-  workbenchSelectedPersonKeys: string[];
-  simulationRecords: TrainingSimulationRecord[];
   qualificationPressure: TrainingQualificationPressureResult | null;
   qualificationPressureSelectedMonth: string;
+  qualificationPressureSelectedMode: string;
   trainingLoad: TrainingLoadResult | null;
   crmAnnualResult: TrainingCrmAnnualResult | null;
   trainingCalendarResult: TrainingCalendarResult | null;
@@ -424,10 +394,10 @@ export interface TrainingToolAppElements {
   workbenchProjectChart: HTMLElement;
   qualificationPressureStartMonthInput: HTMLInputElement;
   qualificationPressureHorizonSelect: HTMLSelectElement;
-  qualificationPressureModeGroup: HTMLFieldSetElement;
   qualificationPressureProjectSelect: HTMLSelectElement;
   qualificationPressureChart: HTMLElement;
   qualificationPressureBreakdownChart: HTMLElement;
+  qualificationPressureBreakdownTitle: HTMLElement;
   qualificationPressureDetailPanel: HTMLElement;
   qualificationPressureDetailTitle: HTMLElement;
   qualificationPressureDetailBody: HTMLTableSectionElement;
@@ -446,14 +416,6 @@ export interface TrainingToolAppElements {
   exportCrmMissingButton: HTMLButtonElement;
   exportWorkbenchSelectionButton: HTMLButtonElement;
   exportWorkbenchViewButton: HTMLButtonElement;
-  simulationProjectSelect: HTMLSelectElement;
-  simulationStartDateInput: HTMLInputElement;
-  simulationEndDateInput: HTMLInputElement;
-  simulationRemarkInput: HTMLInputElement;
-  simulationAddSelectionButton: HTMLButtonElement;
-  simulationClearButton: HTMLButtonElement;
-  simulationSummary: HTMLElement;
-  simulationTableBody: HTMLTableSectionElement;
   updateValidityButton: HTMLButtonElement;
   workbenchButton: HTMLButtonElement;
   exportButton: HTMLButtonElement;
@@ -496,7 +458,7 @@ export interface TrainingAppSelection {
 
 export interface TrainingAppCharts {
   renderWorkbenchCharts(chartData: TrainingChartData | null): void;
-  renderQualificationPressureChart(result: TrainingQualificationPressureResult | null, mode: string): void;
+  renderQualificationPressureChart(result: TrainingQualificationPressureResult | null): void;
   renderQualificationPressureBreakdownChart(result: TrainingQualificationPressureResult | null, mode: string, monthKey: string): void;
   renderTrainingLoadChart(result: TrainingLoadResult | null): void;
   renderCrmCharts(result: TrainingCrmAnnualResult | null): void;
@@ -515,7 +477,6 @@ export interface TrainingAppResultTable {
 
 export interface TrainingAppSummaryView {
   renderWorkbenchSummary(summaryData: TrainingSummaryData | null): void;
-  personKey(row: TrainingAssessmentRow): string;
 }
 
 export interface TrainingAppRenderers {
@@ -525,7 +486,7 @@ export interface TrainingAppRenderers {
   renderProjectCheckboxGroup(kind: string, projects: TrainingToolProjectAnalysis[], selectedNames: string[]): void;
   renderWorkbenchFilterOptions(result: TrainingWorkbenchResult | null): void;
   renderProjectCards(): void;
-  renderQualificationPressure(selectedMonth?: string): void;
+  renderQualificationPressure(selectedMonth?: string, selectedMode?: string): void;
   renderTrainingLoad(): void;
   renderCrmAnnual(): void;
   renderResultPlaceholders(): void;
@@ -545,14 +506,6 @@ export interface TrainingAppWorkbenchController {
   refreshWorkbenchResult(statusMessage?: string): TrainingWorkbenchResult | null;
   handleWorkbenchRangeChange(): void;
   handleWorkbenchFilterChange(): void;
-}
-
-export interface TrainingAppSimulationSchedule {
-  render(): void;
-  handleAddSelection(): void;
-  handleClear(): void;
-  handleRemove(event: Event): void;
-  clearRecords(): void;
 }
 
 export interface TrainingAppTrainingCalendar {
@@ -597,7 +550,6 @@ export interface TrainingToolAppRuntime {
   charts: TrainingAppCharts;
   resultTable: TrainingAppResultTable;
   summaryView: TrainingAppSummaryView;
-  simulationSchedule: TrainingAppSimulationSchedule;
   trainingCalendar: TrainingAppTrainingCalendar;
   scheduleGapCheck: TrainingAppScheduleGapCheck;
   personValidityQuery: TrainingAppPersonValidityQuery;

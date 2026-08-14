@@ -249,64 +249,11 @@
                     </div>
                 </div>
             </div>
-            <section class="simulation-panel" aria-labelledby="simulationScheduleTitle">
-                <div class="section-head">
-                    <div>
-                        <h2 class="section-title" id="simulationScheduleTitle">模拟排班</h2>
-                        <p class="section-intro">先在项目风险矩阵下方的人员明细中勾选人员，再临时加入模拟项目记录；只影响当前浏览器里的排班总览，不写回 Excel。</p>
-                    </div>
-                </div>
-                <div class="form-grid form-grid-4">
-                    <div class="field">
-                        <label for="simulationProjectSelect">项目</label>
-                        <select id="simulationProjectSelect" disabled>
-                            <option value="">请选择项目</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label for="simulationStartDateInput">培训开始日期</label>
-                        <input id="simulationStartDateInput" type="date" disabled>
-                    </div>
-                    <div class="field">
-                        <label for="simulationEndDateInput">培训结束日期</label>
-                        <input id="simulationEndDateInput" type="date" disabled>
-                    </div>
-                    <div class="field">
-                        <label for="simulationRemarkInput">备注</label>
-                        <input id="simulationRemarkInput" type="text" value="模拟排班" disabled>
-                    </div>
-                </div>
-                <div class="toolbar">
-                    <button class="action-button action-button-primary" id="simulationAddSelectionButton" type="button" disabled>加入已选人员</button>
-                    <button class="action-button" id="simulationClearButton" type="button" disabled>清空模拟排班</button>
-                </div>
-                <p class="summary-meta" id="simulationSummary">当前没有模拟排班记录。</p>
-                <div class="table-shell simulation-table-shell">
-                    <table class="table table-hover align-middle result-table simulation-table">
-                        <thead>
-                            <tr>
-                                <th>项目</th>
-                                <th>姓名</th>
-                                <th>员工号</th>
-                                <th>开始日期</th>
-                                <th>结束日期</th>
-                                <th>备注</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="simulationTableBody">
-                            <tr>
-                                <td class="empty-block" colspan="7">当前没有模拟排班记录。</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
             <section class="qualification-pressure-panel" aria-labelledby="qualificationPressureTitle">
                 <div class="section-head">
                     <div>
                         <h2 class="section-title" id="qualificationPressureTitle">未来资质到期压力</h2>
-                        <p class="section-intro">按当前有效期和已有排班预测未来压力；点击月份查看资质构成和人员明细。</p>
+                        <p class="section-intro">按当前有效期和已有排班预测未来压力；点击某组柱子查看该口径、该月份的资质构成和人员明细。</p>
                     </div>
                 </div>
                 <div class="pressure-controls">
@@ -328,37 +275,28 @@
                             <option value="48">未来 48 个月</option>
                         </select>
                     </div>
-                    <fieldset class="pressure-mode-field" id="qualificationPressureModeGroup" disabled>
-                        <legend>显示方式</legend>
-                        <div class="pressure-segmented">
-                            <label><input type="radio" name="qualificationPressureMode" value="current" disabled><span>当前有效期</span></label>
-                            <label><input type="radio" name="qualificationPressureMode" value="forecast" checked disabled><span>排班后预测</span></label>
-                        </div>
-                    </fieldset>
                 </div>
                 <div class="chart-panel qualification-pressure-chart-panel">
                     <div class="chart-title">未来月份资质到期压力（人项）</div>
                     <div class="chart-box" id="qualificationPressureChart"></div>
                 </div>
-                <div class="pressure-detail-panel" id="qualificationPressureDetailPanel" hidden>
-                    <h3 class="chart-title" id="qualificationPressureDetailTitle">月份明细</h3>
-                    <div class="pressure-detail-layout">
-                        <div class="pressure-breakdown-panel">
-                            <div class="chart-title">该月资质构成</div>
-                            <div class="chart-box qualification-pressure-breakdown-chart" id="qualificationPressureBreakdownChart"></div>
-                        </div>
-                        <div class="table-shell pressure-detail-table-shell">
-                            <table class="table table-hover align-middle pressure-detail-table">
-                                <thead>
-                                    <tr>
-                                        <th>姓名</th><th>员工号</th><th>项目</th><th>当前最晚完成</th><th>安排日期</th><th>预测最晚完成</th><th>覆盖状态</th><th>提前天数</th><th>判断说明</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="qualificationPressureDetailBody">
-                                    <tr><td class="empty-block" colspan="9">点击图中的月份查看项目构成和人员明细。</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                <div class="chart-panel pressure-breakdown-panel">
+                    <div class="chart-title" id="qualificationPressureBreakdownTitle">该口径、该月份的资质构成</div>
+                    <div class="chart-box qualification-pressure-breakdown-chart" id="qualificationPressureBreakdownChart"></div>
+                </div>
+                <div class="pressure-detail-panel" id="qualificationPressureDetailPanel">
+                    <h3 class="chart-title" id="qualificationPressureDetailTitle">月份人员明细</h3>
+                    <div class="table-shell pressure-detail-table-shell">
+                        <table class="table table-hover align-middle pressure-detail-table">
+                            <thead>
+                                <tr>
+                                    <th>姓名</th><th>员工号</th><th>项目</th><th>当前最晚完成</th><th>安排日期</th><th>预测最晚完成</th><th>覆盖状态</th><th>提前天数</th><th>判断说明</th>
+                                </tr>
+                            </thead>
+                            <tbody id="qualificationPressureDetailBody">
+                                <tr><td class="empty-block" colspan="9">点击上方任一柱子查看人员明细。</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -366,7 +304,7 @@
                 <div class="section-head">
                     <div>
                         <h2 class="section-title" id="trainingLoadTitle">实际培训负载</h2>
-                        <p class="section-intro">当前总表中有效且未取消的培训安排现状，包括已录入、未录入和模拟排班；人天表示人员占用，班次表示培训场次。</p>
+                        <p class="section-intro">当前总表中有效且未取消的培训安排现状，包括已录入和未录入记录；人天表示人员占用，班次表示培训场次。</p>
                     </div>
                 </div>
                 <div class="training-load-controls">

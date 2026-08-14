@@ -113,10 +113,6 @@ const Utils = TrainingToolUtils;
     element.innerHTML = `<div class="empty-block">${Utils.escapeHtml(message)}</div>`;
   }
 
-  function getPressureMode(): string {
-    return elements.qualificationPressureModeGroup.querySelector<HTMLInputElement>('input[name="qualificationPressureMode"]:checked')?.value || "forecast";
-  }
-
   function renderWorkbenchCharts(chartData: TrainingChartData | null): void {
     const echarts = getEcharts();
     if (!echarts) {
@@ -178,19 +174,13 @@ const Utils = TrainingToolUtils;
     workbenchProjectChart.resize();
   }
 
-  function renderQualificationPressureChart(result: TrainingQualificationPressureResult | null, mode: string): void {
+  function renderQualificationPressureChart(result: TrainingQualificationPressureResult | null): void {
     const echarts = getEcharts();
     if (!echarts) {
       renderChartEmpty(elements.qualificationPressureChart, "图表库未加载。");
       return;
     }
     const monthRows = result?.monthRows || [];
-    const useCurrent = mode === "current";
-    const lineName = useCurrent ? "当前有效期" : "排班后预测";
-    const values = monthRows.map((row) => useCurrent ? row.currentTotal : row.forecastTotal);
-    const average = monthRows.length
-      ? values.reduce((total, value) => total + value, 0) / monthRows.length
-      : 0;
     const visibleMonths = Math.min(12, monthRows.length || 12);
     const visibleStartMonth = monthRows[0]?.monthKey;
     const visibleEndMonth = monthRows[visibleMonths - 1]?.monthKey;
@@ -198,7 +188,7 @@ const Utils = TrainingToolUtils;
     qualificationPressureChart = getOrCreateChart(elements.qualificationPressureChart, qualificationPressureChart);
     qualificationPressureChart.clear();
     qualificationPressureChart.setOption(withChartTheme({
-      tooltip: { trigger: "axis", axisPointer: { type: "line" } },
+      tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
       legend: { top: 0 },
       grid: { top: 50, right: 28, bottom: 58, left: 48, containLabel: true },
       dataZoom: [
@@ -231,24 +221,23 @@ const Utils = TrainingToolUtils;
       yAxis: { type: "value", minInterval: 1, name: "人项" },
       series: [
         {
-          name: lineName,
-          type: "line",
-          symbol: "circle",
-          symbolSize: 7,
-          data: values
+          name: "当前有效期",
+          type: "bar",
+          data: monthRows.map((row) => row.currentTotal)
         },
         {
-          name: "观察范围月均",
-          type: "line",
-          symbol: "none",
-          lineStyle: { type: "dashed" },
-          data: monthRows.map(() => average)
+          name: "排班后预测",
+          type: "bar",
+          data: monthRows.map((row) => row.forecastTotal)
         }
       ]
     }));
     qualificationPressureChart.off("click");
     qualificationPressureChart.on("click", (params) => {
-      if (params.name) runtime.renderers.renderQualificationPressure(params.name);
+      const clickParams = params as { name?: string; seriesName?: string };
+      if (!clickParams.name) return;
+      const selectedMode = clickParams.seriesName === "当前有效期" ? "current" : "forecast";
+      runtime.renderers.renderQualificationPressure(clickParams.name, selectedMode);
     });
     qualificationPressureChart.resize();
   }
@@ -464,7 +453,7 @@ const Utils = TrainingToolUtils;
     if (state.workbenchResult && state.workbenchResult.chartData) {
       renderWorkbenchCharts(state.workbenchResult.chartData);
     }
-    if (state.qualificationPressure) renderQualificationPressureChart(state.qualificationPressure, getPressureMode());
+    if (state.qualificationPressure) renderQualificationPressureChart(state.qualificationPressure);
     if (state.trainingLoad) renderTrainingLoadChart(state.trainingLoad);
     if (state.crmAnnualResult) {
       renderCrmCharts(state.crmAnnualResult);

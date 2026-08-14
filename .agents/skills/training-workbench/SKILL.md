@@ -1,6 +1,6 @@
 ---
 name: training-workbench
-description: watchdog 培训皇帝/培训工作台专属开发引导。用于修改培训有效期、排班总览、排班后资质压力、实际培训负载、模拟排班、CRM 年度核对、培训 Excel 解析导出、培训测试或培训 spec 时。
+description: watchdog 培训皇帝/培训工作台专属开发引导。用于修改培训有效期、排班总览、排班后资质压力、实际培训负载、CRM 年度核对、培训 Excel 解析导出、培训测试或培训 spec 时。
 ---
 
 # Training Workbench
@@ -12,7 +12,6 @@ description: watchdog 培训皇帝/培训工作台专属开发引导。用于修
 - 通用开发方法：`.agents/skills/watchdog-dev/SKILL.md`
 - 培训总览事实：`spec/dev/training-workbench/spec.md`
 - 培训规则事实：`spec/dev/training-workbench/training-rule-spec.md`
-- 模拟排班维护：`spec/dev/training-workbench/simulation-schedule-module.md`
 - 用户操作手册：`spec/user/training-workbench/manual.md`
 
 ## 大方针
@@ -20,7 +19,7 @@ description: watchdog 培训皇帝/培训工作台专属开发引导。用于修
 - 不凭记忆改培训规则；先确认 spec、测试和当前代码。
 - 培训工具只呈现已确认事实，不替用户发明新业务规则。
 - 具体口径放 spec，工作方法放 skill，仓库入口放 `AGENTS.md`。
-- 排班总览、有效期更新、统计图、CRM、模拟排班可能是不同口径；改动前先确认数据来源和影响范围。
+- 排班总览、有效期更新、统计图和 CRM 可能是不同口径；改动前先确认数据来源和影响范围。
 - 新事实替代旧事实时，只保留新事实；不要为旧名称、旧字段或旧口径保留兼容层，除非 owner 明确要求。
 
 ## 改动要求
@@ -37,7 +36,6 @@ description: watchdog 培训皇帝/培训工作台专属开发引导。用于修
 - `qualification-pressure.ts`：复用当前轮次覆盖判断，按全部或单个资质项目预测排班执行后的下一轮最晚完成月份，输出总体趋势、项目构成和人员明细的统一数据。
 - `training-load.ts`：按全部或单个培训项目统计项目及 CRM 的月度人天和班次；原始记录数只作为内部核对数据。
 - `crm-annual.ts`：独立维护 CRM 年度参加核对，不并入资质有效期判断。
-- `simulation-schedule.ts`：只维护浏览器内模拟记录。
 - `app-*.ts`：页面接线、状态、渲染、图表和交互，不承载培训规则。
 - `app.ts` 是培训主页唯一生产入口，`rule-reference.ts` 是规则速查页唯一入口；内部模块通过局部 runtime 接口显式连接，不注册浏览器全局命名空间。
 

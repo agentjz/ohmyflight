@@ -9,7 +9,6 @@ import type {
   TrainingAssessmentRow,
   TrainingChartData,
   TrainingChartValueRow,
-  TrainingExtraProjectRow,
   TrainingPersonRiskRow,
   TrainingProjectChartRow,
   TrainingProjectGroup,
@@ -37,7 +36,6 @@ const Utils = TrainingToolUtils;
   const VISIBLE_STATUS_FIELDS = WorkbenchStatus.VISIBLE_STATUS_FIELDS;
 
   type AssessmentFilters = TrainingAssessmentFilters;
-  type ExtraProjectRow = TrainingExtraProjectRow;
 
   type AssessmentCandidate = { employeeId: string; name: string; expiry: Date };
   type CandidateMatch = {
@@ -51,7 +49,6 @@ const Utils = TrainingToolUtils;
     dueDate?: Date | null;
     reason: string;
   };
-  type CandidateSource = { sheetInfo: TrainingToolSheetInfo; rows: TrainingToolSheetRow[]; sheetName: string };
   type SchedulingNeed = {
     status: string;
     dueDate: Date;
@@ -67,57 +64,6 @@ const Utils = TrainingToolUtils;
   function getRowTrainingDate(row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): Date | null {
     return Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训开始日期"))
       || Utils.parseDate(Utils.getValueByHeader(row, sheetInfo, "培训结束日期"));
-  }
-
-  function createExtraSheetInfo(project: TrainingToolProjectAnalysis): TrainingToolSheetInfo & { project: TrainingToolProjectAnalysis } {
-    const headers = [
-      "员工号",
-      "姓名",
-      "项目名称",
-      "培训开始日期",
-      "培训结束日期",
-      "培训信息是否录入",
-      "备注"
-    ];
-
-    return {
-      name: "模拟排班",
-      sheet: null,
-      matrix: [headers],
-      headers,
-      headerMap: Utils.buildHeaderMap(headers),
-      rows: [],
-      project
-    };
-  }
-
-  function buildExtraRows(project: TrainingToolProjectAnalysis, extraProjectRows: ExtraProjectRow[] = []): { sheetInfo: TrainingToolSheetInfo; rows: TrainingToolSheetRow[] } {
-    const sheetInfo = createExtraSheetInfo(project);
-    const rows = (extraProjectRows || [])
-      .filter((item) => Utils.normalizeProjectName(item.projectName) === project.canonical)
-      .map((item, index) => ({
-        rowNumber: index + 1,
-        simulationId: item.id || "",
-        simulation: true,
-        cells: [
-          Utils.normalizeText(item.employeeId),
-          Utils.normalizeText(item.name),
-          project.canonical,
-          item.trainingStartDate || "",
-          item.trainingEndDate || item.trainingStartDate || "",
-          "否",
-          Utils.normalizeText(item.remark)
-        ],
-        source: item.source || "模拟排班"
-      }));
-
-    return {
-      sheetInfo: {
-        ...sheetInfo,
-        rows
-      },
-      rows
-    };
   }
 
   function samePerson(candidate: AssessmentCandidate, row: TrainingToolSheetRow, sheetInfo: TrainingToolSheetInfo): boolean {
@@ -159,30 +105,15 @@ const Utils = TrainingToolUtils;
     return monthEnd(addMonths(today, 1));
   }
 
-  function buildCandidateMatches(project: TrainingToolProjectAnalysis, candidate: AssessmentCandidate, extraProjectRows: ExtraProjectRow[] = []): CandidateMatch[] {
-    const sources: CandidateSource[] = [];
-    if (project.sheetInfo && project.sheetInfo.rows) {
-      sources.push({
-        sheetInfo: project.sheetInfo,
-        rows: project.sheetInfo.rows,
-        sheetName: project.sheetName
-      });
-    }
+  function buildCandidateMatches(project: TrainingToolProjectAnalysis, candidate: AssessmentCandidate): CandidateMatch[] {
+    const sheetInfo = project.sheetInfo;
+    if (!sheetInfo?.rows) return [];
 
-    const extraRows = buildExtraRows(project, extraProjectRows);
-    if (extraRows.rows.length) {
-      sources.push({
-        sheetInfo: extraRows.sheetInfo,
-        rows: extraRows.rows,
-        sheetName: "模拟排班"
-      });
-    }
-
-    return sources.flatMap((sourceInfo) => sourceInfo.rows
-      .filter((row) => samePerson(candidate, row, sourceInfo.sheetInfo))
+    return sheetInfo.rows
+      .filter((row) => samePerson(candidate, row, sheetInfo))
       .map((row) => {
-        const trainingDate = getRowTrainingDate(row, sourceInfo.sheetInfo);
-        const recordState = TrainingRecordPolicy.classify(row, sourceInfo.sheetInfo);
+        const trainingDate = getRowTrainingDate(row, sheetInfo);
+        const recordState = TrainingRecordPolicy.classify(row, sheetInfo);
         const coverage: { covered: boolean; dueDate?: Date | null; reason: string } = recordState.active
           ? RuleEngine.evaluatePlanCoverage(project.rule, trainingDate, candidate.expiry)
           : {
@@ -191,7 +122,7 @@ const Utils = TrainingToolUtils;
           };
         return {
           rowNumber: row.rowNumber,
-          source: row.simulation ? (row.source || "模拟排班") : `${sourceInfo.sheetName} 第${row.rowNumber}行`,
+          source: `${project.sheetName} 第${row.rowNumber}行`,
           trainingDate,
           trainingDateText: Utils.formatDate(trainingDate),
           recorded: recordState.recorded,
@@ -200,7 +131,7 @@ const Utils = TrainingToolUtils;
           dueDate: coverage.dueDate,
           reason: coverage.reason
         };
-      }))
+      })
       .sort((left, right) => {
         const leftTime = left.trainingDate ? left.trainingDate.getTime() : Number.POSITIVE_INFINITY;
         const rightTime = right.trainingDate ? right.trainingDate.getTime() : Number.POSITIVE_INFINITY;
@@ -270,7 +201,7 @@ const Utils = TrainingToolUtils;
     };
   }
 
-  function buildAssessmentRows(analysis: TrainingToolAnalysis, project: TrainingToolProjectAnalysis, stageStart: Date, stageEnd: Date, extraProjectRows: ExtraProjectRow[] = []): TrainingAssessmentRow[] {
+  function buildAssessmentRows(analysis: TrainingToolAnalysis, project: TrainingToolProjectAnalysis, stageStart: Date, stageEnd: Date): TrainingAssessmentRow[] {
     const rows: TrainingAssessmentRow[] = [];
 
     analysis.peopleInfo.rows.forEach((row) => {
@@ -303,7 +234,7 @@ const Utils = TrainingToolUtils;
       }
 
       const candidate = { employeeId, name, expiry };
-      const matches = buildCandidateMatches(project, candidate, extraProjectRows);
+      const matches = buildCandidateMatches(project, candidate);
       const abnormalMatches = matches.filter((item) => item.recordState && item.recordState.abnormal);
       const activeMatches = matches.filter((item) => item.recordState && item.recordState.active);
       const coveredMatches = matches.filter((item) => item.covered);
@@ -374,12 +305,11 @@ const Utils = TrainingToolUtils;
     const stageStart = options.today || createTodayDate();
     const stageEnd = options.stageEnd || getDefaultStageEnd(stageStart);
     const rows: TrainingAssessmentRow[] = [];
-    const extraProjectRows = options.extraProjectRows || [];
 
     analysis.projects
       .filter((project) => project.peopleColumnIndex >= 0)
       .forEach((project) => {
-        rows.push(...buildAssessmentRows(analysis, project, stageStart, stageEnd, extraProjectRows));
+        rows.push(...buildAssessmentRows(analysis, project, stageStart, stageEnd));
       });
 
     return {

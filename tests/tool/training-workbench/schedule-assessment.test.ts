@@ -154,31 +154,4 @@ describe("schedule assessment", () => {
     expect(result.summaryData.personRiskRows.map((row: any) => `${row.name}/${row.total}`)).toContain("取消后必须排/1");
   });
 
-  it("uses temporary simulation rows as project sheet rows for workbench coverage only", () => {
-    const workbook = buildWorkbook();
-    const analysis = Scanner.analyzeWorkbook(workbook);
-    const result = ScheduleAssessment.buildResult(analysis, {
-      today: makeDate(2026, 5, 8),
-      extraProjectRows: [
-        {
-          projectName: "TSA",
-          employeeId: "2012",
-          name: "TSA必须排",
-          trainingStartDate: makeDate(2026, 6, 1),
-          trainingEndDate: makeDate(2026, 6, 1),
-          remark: "模拟排班",
-          source: "模拟排班 simulation-1"
-        }
-      ]
-    });
-
-    const allRows = new Map<string, any>(result.allDetailRows.map((row: any) => [`${row.name}/${row.projectName}`, row]));
-    const visibleRows = new Map<string, any>(result.detailRows.map((row: any) => [`${row.name}/${row.projectName}`, row]));
-
-    expect(allRows.get("TSA必须排/TSA").status).toBe("正常");
-    expect(allRows.get("TSA必须排/TSA").source).toBe("模拟排班 simulation-1");
-    expect(allRows.get("TSA必须排/TSA").scheduledDate).toBe("2026-06-01");
-    expect(visibleRows.has("TSA必须排/TSA")).toBe(false);
-  });
-
 });

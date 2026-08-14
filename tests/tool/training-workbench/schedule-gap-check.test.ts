@@ -88,8 +88,7 @@ describe("training workbench schedule gap check", () => {
     });
   });
 
-  it("builds from the public workbench assessment and forwards simulation rows", () => {
-    const simulationRows = [{ id: "simulation-1" }];
+  it("builds from the public workbench assessment", () => {
     let receivedOptions: any = null;
     vi.spyOn(trainingTool.Workbench, "buildWorkbench").mockImplementation((_analysis: unknown, options: any) => {
         receivedOptions = options;
@@ -103,13 +102,11 @@ describe("training workbench schedule gap check", () => {
 
     const result = gapCheck.build({} as TrainingToolAnalysis, {
       baseDate: "2026-06-01",
-      horizonDays: 30,
-      extraProjectRows: simulationRows
+      horizonDays: 30
     });
 
     expect(trainingTool.Utils.formatDate(receivedOptions.today)).toBe("2026-06-01");
     expect(trainingTool.Utils.formatDate(receivedOptions.stageEnd)).toBe("2026-07-01");
-    expect(receivedOptions.extraProjectRows).toBe(simulationRows);
     expect(result.rows.map((item: any) => item.name)).toEqual(["仍需安排"]);
   });
 });

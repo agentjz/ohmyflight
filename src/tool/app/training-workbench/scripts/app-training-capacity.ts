@@ -4,7 +4,7 @@ import { TrainingToolTrainingLoad } from "./training-load";
 import { TrainingToolUtils } from "./utils";
 
 export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime): {
-  renderQualificationPressure(selectedMonth?: string): void;
+  renderQualificationPressure(selectedMonth?: string, selectedMode?: string): void;
   renderTrainingLoad(): void;
 } {
   const Utils = TrainingToolUtils;
@@ -24,9 +24,7 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
   }
 
   function getQualificationPressureMode(): string {
-    return elements.qualificationPressureModeGroup.querySelector<HTMLInputElement>(
-      'input[name="qualificationPressureMode"]:checked'
-    )?.value || "forecast";
+    return state.qualificationPressureSelectedMode || "forecast";
   }
 
   function pressureDetailRows(result: TrainingQualificationPressureResult, monthKey: string) {
@@ -43,17 +41,18 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
     monthKey: string
   ): void {
     if (!result || !monthKey) {
-      elements.qualificationPressureDetailPanel.hidden = true;
-      elements.qualificationPressureDetailTitle.textContent = "月份明细";
+      elements.qualificationPressureBreakdownTitle.textContent = "该口径、该月份的资质构成";
+      elements.qualificationPressureDetailTitle.textContent = "月份人员明细";
       elements.qualificationPressureDetailBody.innerHTML =
-        '<tr><td class="empty-block" colspan="9">点击图中的月份查看项目构成和人员明细。</td></tr>';
+        '<tr><td class="empty-block" colspan="9">点击上方任一柱子查看人员明细。</td></tr>';
       charts.renderQualificationPressureBreakdownChart(null, getQualificationPressureMode(), "");
       return;
     }
 
     const rows = pressureDetailRows(result, monthKey);
-    elements.qualificationPressureDetailPanel.hidden = false;
-    elements.qualificationPressureDetailTitle.textContent = `${monthKey} 月份明细（${rows.length} 人项）`;
+    const modeLabel = getQualificationPressureMode() === "current" ? "当前有效期" : "排班后预测";
+    elements.qualificationPressureBreakdownTitle.textContent = `${monthKey} ${modeLabel}资质构成`;
+    elements.qualificationPressureDetailTitle.textContent = `${monthKey} ${modeLabel}人员明细（${rows.length} 人项）`;
     charts.renderQualificationPressureBreakdownChart(result, getQualificationPressureMode(), monthKey);
     elements.qualificationPressureDetailBody.innerHTML = rows.length ? rows.map((row) => `
       <tr>
@@ -70,30 +69,33 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
     `).join("") : '<tr><td class="empty-block" colspan="9">该月份没有对应的人项。</td></tr>';
   }
 
-  function renderQualificationPressure(selectedMonth = ""): void {
+  function renderQualificationPressure(selectedMonth = "", selectedMode = ""): void {
     if (selectedMonth && state.qualificationPressure) {
       state.qualificationPressureSelectedMonth = selectedMonth;
+      if (selectedMode === "current" || selectedMode === "forecast") {
+        state.qualificationPressureSelectedMode = selectedMode;
+      }
       renderQualificationPressureDetails(state.qualificationPressure, selectedMonth);
       return;
     }
     if (!state.analysis) {
       state.qualificationPressure = null;
       state.qualificationPressureSelectedMonth = "";
+      state.qualificationPressureSelectedMode = "forecast";
       renderProjectOptions(elements.qualificationPressureProjectSelect, [], "全部资质项目");
       renderQualificationPressureDetails(null, "");
-      charts.renderQualificationPressureChart(null, getQualificationPressureMode());
+      charts.renderQualificationPressureChart(null);
       return;
     }
 
     const result = TrainingToolQualificationPressure.buildPressure(state.analysis, {
       startMonth: elements.qualificationPressureStartMonthInput.value,
       horizonMonths: Number(elements.qualificationPressureHorizonSelect.value),
-      projectName: elements.qualificationPressureProjectSelect.value,
-      extraProjectRows: state.simulationRecords || []
+      projectName: elements.qualificationPressureProjectSelect.value
     });
     renderProjectOptions(elements.qualificationPressureProjectSelect, result.availableProjects, "全部资质项目");
     state.qualificationPressure = result;
-    charts.renderQualificationPressureChart(result, getQualificationPressureMode());
+    charts.renderQualificationPressureChart(result);
     const selected = state.qualificationPressureSelectedMonth;
     if (selected && result.monthRows.some((row) => row.monthKey === selected)) {
       renderQualificationPressureDetails(result, selected);
@@ -112,8 +114,7 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
     }
     const result = TrainingToolTrainingLoad.buildLoad(state.workbook, state.analysis, {
       year: elements.trainingLoadYearInput.value,
-      projectName: elements.trainingLoadProjectSelect.value,
-      extraProjectRows: state.simulationRecords || []
+      projectName: elements.trainingLoadProjectSelect.value
     });
     renderProjectOptions(elements.trainingLoadProjectSelect, result.projects, "全部培训项目");
     state.trainingLoad = result;

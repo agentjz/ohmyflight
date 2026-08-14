@@ -361,7 +361,6 @@ const Utils = TrainingToolUtils;
     renderStats(null);
     charts.renderWorkbenchCharts(null);
     summaryView.renderWorkbenchSummary(null);
-    if (runtime.simulationSchedule) runtime.simulationSchedule.render();
     resultTable.renderTable(elements.detailTableHead, elements.detailTableBody, [], [], COPY.defaultDetailTable);
     resultTable.renderTable(elements.skippedTableHead, elements.skippedTableBody, [], [], COPY.defaultSkippedTable);
     resultTable.renderSkippedSummary(0);

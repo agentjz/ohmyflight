@@ -3,8 +3,7 @@
     .form-grid-4,
     .chart-grid,
     .overview-grid,
-    .risk-workspace,
-    .pressure-detail-layout {
+    .risk-workspace {
         grid-template-columns: 1fr;
     }
 

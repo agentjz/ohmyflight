@@ -1,5 +1,4 @@
 import type {
-  TrainingExtraProjectRow,
   TrainingToolAnalysis,
   TrainingToolSheetInfo,
   TrainingToolSheetRow,
@@ -69,7 +68,6 @@ export interface TrainingLoadResult {
 export interface TrainingLoadOptions {
   year?: number | string;
   projectName?: string;
-  extraProjectRows?: TrainingExtraProjectRow[];
 }
 
 function normalizeYear(value: unknown): number {
@@ -109,24 +107,7 @@ function toLoadRecord(projectName: string, row: TrainingToolSheetRow, sheetInfo:
   };
 }
 
-function buildSimulationSheetInfo(rows: TrainingExtraProjectRow[]): TrainingToolSheetInfo {
-  const headers = ["员工号", "姓名", "项目名称", "培训开始日期", "培训结束日期", "培训信息是否录入", "备注"];
-  const sheetRows = rows.map((row, index) => ({
-    rowNumber: index + 1,
-    simulation: true,
-    cells: [row.employeeId || "", row.name || "", row.projectName, row.trainingStartDate || "", row.trainingEndDate || row.trainingStartDate || "", "否", row.remark || "模拟排班"]
-  }));
-  return {
-    name: "模拟排班",
-    sheet: null,
-    matrix: [headers, ...sheetRows.map((row) => row.cells)],
-    headers,
-    headerMap: Utils.buildHeaderMap(headers),
-    rows: sheetRows
-  };
-}
-
-function collectRecords(workbook: TrainingToolWorkbook, analysis: TrainingToolAnalysis, options: TrainingLoadOptions): LoadRecord[] {
+function collectRecords(workbook: TrainingToolWorkbook, analysis: TrainingToolAnalysis): LoadRecord[] {
   const records: LoadRecord[] = [];
   analysis.projects.forEach((project) => {
     project.sheetInfo.rows.forEach((row) => {
@@ -143,15 +124,6 @@ function collectRecords(workbook: TrainingToolWorkbook, analysis: TrainingToolAn
     });
   }
 
-  const simulationRows = options.extraProjectRows || [];
-  if (simulationRows.length) {
-    const simulationInfo = buildSimulationSheetInfo(simulationRows);
-    simulationInfo.rows.forEach((row) => {
-      const projectName = Utils.normalizeProjectName(Utils.getValueByHeader(row, simulationInfo, "项目名称"));
-      const record = toLoadRecord(projectName, row, simulationInfo);
-      if (record) records.push(record);
-    });
-  }
   return records;
 }
 
@@ -228,7 +200,7 @@ function addDays(value: Date, days: number): Date {
 
 function buildLoad(workbook: TrainingToolWorkbook, analysis: TrainingToolAnalysis, options: TrainingLoadOptions = {}): TrainingLoadResult {
   const year = normalizeYear(options.year);
-  const allRecords = collectRecords(workbook, analysis, options);
+  const allRecords = collectRecords(workbook, analysis);
   const projects = [...new Set(allRecords.map((record) => record.projectName))];
   const requestedProject = normalizeProjectName(options.projectName);
   const selectedProject = projects.includes(requestedProject) ? requestedProject : "";

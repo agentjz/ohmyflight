@@ -80,8 +80,7 @@ const Utils = TrainingToolUtils;
     try {
       const result = ScheduleGapCheck.build(state.analysis, {
         baseDate: elements.scheduleGapBaseDateInput.value,
-        horizonDays: selectedHorizon(),
-        extraProjectRows: state.simulationRecords || []
+        horizonDays: selectedHorizon()
       }) as TrainingToolScheduleGapCheckResult;
       state.scheduleGapCheckResult = result;
       render(result);

@@ -480,12 +480,7 @@
     font-size: 12px;
 }
 
-.selected-person-toolbar {
-    margin-bottom: 10px;
-}
-
 .risk-workspace,
-.simulation-panel,
 .qualification-pressure-panel,
 .training-load-panel,
 .crm-annual-panel {
@@ -510,68 +505,13 @@
 
 .pressure-controls {
     display: grid;
-    grid-template-columns: minmax(150px, 0.65fr) minmax(180px, 0.8fr) minmax(150px, 0.65fr) minmax(360px, 1.8fr);
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
     gap: 12px;
     align-items: end;
 }
 
-.pressure-mode-field {
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
-}
-
-.pressure-mode-field legend {
-    margin-bottom: 7px;
-    color: var(--watchdog-text-muted);
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.pressure-segmented {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    overflow: hidden;
-    border: 1px solid var(--watchdog-border);
-    border-radius: var(--watchdog-radius);
-}
-
-.pressure-segmented label {
-    position: relative;
-    min-width: 0;
-    margin: 0;
-}
-
-.pressure-segmented label + label {
-    border-left: 1px solid var(--watchdog-border);
-}
-
-.pressure-segmented input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.pressure-segmented span {
-    display: flex;
-    min-height: 40px;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 10px;
-    color: var(--watchdog-text-muted);
-    cursor: pointer;
-    font-size: 13px;
-    text-align: center;
-}
-
-.pressure-segmented input:checked + span {
-    background: var(--watchdog-surface-muted);
-    color: var(--watchdog-text);
-    font-weight: 700;
-}
-
 .qualification-pressure-chart-panel,
+.pressure-breakdown-panel,
 .training-load-chart-panel,
 .pressure-detail-panel {
     margin-top: 12px;
@@ -595,25 +535,24 @@
     min-width: 1180px;
 }
 
-.pressure-detail-layout {
-    display: grid;
-    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
-    gap: 12px;
-    min-width: 0;
-}
-
 .pressure-breakdown-panel {
+    width: 100%;
     min-width: 0;
 }
 
 .qualification-pressure-breakdown-chart {
-    height: 360px;
+    height: 320px;
 }
 
 .pressure-detail-table-shell {
+    width: 100%;
     height: 420px;
     max-width: 100%;
-    overflow: auto;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
 }
 
 .pressure-detail-table :is(th, td) {
@@ -680,42 +619,6 @@
     max-height: 420px;
     overflow: auto;
 }
-
-.simulation-panel {
-    border: 1px solid var(--watchdog-border);
-    border-radius: var(--watchdog-radius);
-    background: var(--watchdog-surface);
-    padding: 12px;
-}
-
-.simulation-panel .toolbar {
-    margin-top: 12px;
-}
-
-.simulation-table-shell {
-    margin-top: 10px;
-    max-height: 300px;
-    overflow: auto;
-}
-
-.simulation-table {
-    min-width: 820px;
-}
-
-.simulation-table :is(th, td) {
-    padding: 10px 8px;
-    font-size: 13px;
-    line-height: 1.35;
-}
-
-.simulation-table :is(th, td):nth-child(1),
-.simulation-table :is(th, td):nth-child(3),
-.simulation-table :is(th, td):nth-child(4),
-.simulation-table :is(th, td):nth-child(5),
-.simulation-table :is(th, td):nth-child(7) {
-    white-space: nowrap;
-}
-
 
 .risk-workspace {
     display: grid;
@@ -796,7 +699,7 @@
 }
 
 .selected-person-table {
-    min-width: 960px;
+    min-width: 920px;
 }
 
 .selected-person-table :is(th, td) {
@@ -806,29 +709,27 @@
 }
 
 .selected-person-table :is(th, td):nth-child(1) {
-    width: 58px;
-    text-align: center;
-    white-space: nowrap;
-}
-
-.selected-person-table :is(th, td):nth-child(2) {
     width: 90px;
     white-space: nowrap;
 }
 
-.selected-person-table :is(th, td):nth-child(3) {
+.selected-person-table :is(th, td):nth-child(2) {
     width: 86px;
     white-space: nowrap;
 }
 
-.selected-person-table :is(th, td):nth-child(4),
-.selected-person-table :is(th, td):nth-child(5),
-.selected-person-table :is(th, td):nth-child(6) {
+.selected-person-table :is(th, td):nth-child(3) {
     width: 120px;
     white-space: nowrap;
 }
 
-.selected-person-table :is(th, td):nth-child(7) {
+.selected-person-table :is(th, td):nth-child(4),
+.selected-person-table :is(th, td):nth-child(5) {
+    width: 120px;
+    white-space: nowrap;
+}
+
+.selected-person-table :is(th, td):nth-child(6) {
     width: 360px;
 }
 

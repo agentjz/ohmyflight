@@ -7,7 +7,7 @@
 }
 
 .table-shell.selected-person-shell,
-.table-shell.simulation-table-shell,
+.table-shell.pressure-detail-table-shell,
 .table-shell.crm-missing-shell {
     overflow: auto;
 }
@@ -347,16 +347,18 @@
 }
 
 .selected-person-table :is(th, td):nth-child(1) {
-    width: 56px;
-    text-align: center;
+    width: 90px;
 }
 
 .selected-person-table :is(th, td):nth-child(2),
 .selected-person-table :is(th, td):nth-child(3),
 .selected-person-table :is(th, td):nth-child(4),
-.selected-person-table :is(th, td):nth-child(5),
-.selected-person-table :is(th, td):nth-child(6) {
+.selected-person-table :is(th, td):nth-child(5) {
     white-space: nowrap;
+}
+
+.selected-person-table :is(th, td):nth-child(6) {
+    width: 360px;
 }
 
 .collapse-shell {

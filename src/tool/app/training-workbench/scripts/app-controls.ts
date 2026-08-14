@@ -38,18 +38,6 @@ const COPY = runtime.copy;
     const canWorkbench = Boolean(state.analysis) && !state.busy;
     const canExportWorkbenchView = Boolean(state.workbenchView && state.workbenchView.detailRows && state.workbenchView.detailRows.length) && !state.busy;
     const canExportWorkbenchSelection = Boolean(state.workbenchSelection && state.workbenchSelection.rows && state.workbenchSelection.rows.length) && !state.busy;
-    const hasSimulationRecords = Boolean(state.simulationRecords && state.simulationRecords.length);
-    const canAddSimulationSelection = Boolean(
-      state.analysis
-      && state.workbenchSelection
-      && state.workbenchSelection.rows
-      && state.workbenchSelection.rows.length
-      && state.workbenchSelectedPersonKeys
-      && state.workbenchSelectedPersonKeys.length
-      && elements.simulationProjectSelect.value
-      && elements.simulationStartDateInput.value
-      && elements.simulationEndDateInput.value
-    ) && !state.busy;
     const canExportCrmMissing = Boolean(
       state.crmAnnualResult
       && state.crmAnnualResult.hasCrmSheet
@@ -61,12 +49,6 @@ const COPY = runtime.copy;
     elements.workbenchButton.disabled = !canWorkbench;
     elements.exportWorkbenchViewButton.disabled = !canExportWorkbenchView;
     elements.exportWorkbenchSelectionButton.disabled = !canExportWorkbenchSelection;
-    elements.simulationProjectSelect.disabled = !state.analysis || state.busy;
-    elements.simulationStartDateInput.disabled = !state.analysis || state.busy;
-    elements.simulationEndDateInput.disabled = !state.analysis || state.busy;
-    elements.simulationRemarkInput.disabled = !state.analysis || state.busy;
-    elements.simulationAddSelectionButton.disabled = !canAddSimulationSelection;
-    elements.simulationClearButton.disabled = !hasSimulationRecords || state.busy;
     elements.exportCrmMissingButton.disabled = !canExportCrmMissing;
     elements.workbenchProjectSelect.disabled = !state.workbenchResult || state.busy;
     elements.workbenchStatusSelect.disabled = !state.workbenchResult || state.busy;
@@ -77,11 +59,6 @@ const COPY = runtime.copy;
     elements.qualificationPressureStartMonthInput.disabled = !state.analysis || state.busy;
     elements.qualificationPressureHorizonSelect.disabled = !state.analysis || state.busy;
     elements.qualificationPressureProjectSelect.disabled = !state.analysis || state.busy;
-    elements.qualificationPressureModeGroup.disabled = !state.analysis || state.busy;
-    elements.qualificationPressureModeGroup.querySelectorAll<HTMLInputElement>('input[name="qualificationPressureMode"]')
-      .forEach((input) => {
-        input.disabled = !state.analysis || state.busy;
-      });
     elements.trainingLoadYearInput.disabled = !state.analysis || state.busy;
     elements.trainingLoadProjectSelect.disabled = !state.analysis || state.busy;
     elements.scheduleGapBaseDateInput.disabled = !state.analysis || state.busy;

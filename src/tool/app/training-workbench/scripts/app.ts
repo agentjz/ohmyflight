@@ -13,7 +13,6 @@ import { installTrainingAppSelection } from "./app-selection";
 import { installTrainingAppControls } from "./app-controls";
 import { installTrainingAppProjects } from "./app-projects";
 import { installTrainingAppWorkbenchController } from "./app-workbench-controller";
-import { installTrainingAppSimulationSchedule } from "./app-simulation-schedule";
 import { installTrainingAppActions } from "./app-actions";
 
 function createRuntime(): TrainingToolAppRuntime {
@@ -32,7 +31,6 @@ function createRuntime(): TrainingToolAppRuntime {
   installTrainingAppControls(runtime);
   installTrainingAppProjects(runtime);
   installTrainingAppWorkbenchController(runtime);
-  installTrainingAppSimulationSchedule(runtime);
   installTrainingAppActions(runtime);
   return runtime;
 }
@@ -51,7 +49,6 @@ function init(runtime: TrainingToolAppRuntime): void {
   elements.qualificationPressureStartMonthInput.addEventListener("change", () => runtime.renderers.renderQualificationPressure());
   elements.qualificationPressureHorizonSelect.addEventListener("change", () => runtime.renderers.renderQualificationPressure());
   elements.qualificationPressureProjectSelect.addEventListener("change", () => runtime.renderers.renderQualificationPressure());
-  elements.qualificationPressureModeGroup.addEventListener("change", () => runtime.renderers.renderQualificationPressure());
   elements.trainingLoadYearInput.addEventListener("change", runtime.renderers.renderTrainingLoad);
   elements.trainingLoadProjectSelect.addEventListener("change", runtime.renderers.renderTrainingLoad);
   elements.crmYearInput.addEventListener("change", runtime.renderers.renderCrmAnnual);
@@ -60,24 +57,12 @@ function init(runtime: TrainingToolAppRuntime): void {
   elements.workbenchButton.addEventListener("click", actions.handleWorkbenchPreview);
   elements.exportWorkbenchSelectionButton.addEventListener("click", actions.handleExportWorkbenchSelection);
   elements.exportWorkbenchViewButton.addEventListener("click", actions.handleExportWorkbenchView);
-  elements.simulationAddSelectionButton.addEventListener("click", runtime.simulationSchedule.handleAddSelection);
-  elements.simulationClearButton.addEventListener("click", runtime.simulationSchedule.handleClear);
-  elements.simulationTableBody.addEventListener("click", runtime.simulationSchedule.handleRemove);
-  elements.simulationProjectSelect.addEventListener("change", controls.refreshButtons);
-  elements.simulationStartDateInput.addEventListener("change", () => {
-    if (!elements.simulationEndDateInput.value) {
-      elements.simulationEndDateInput.value = elements.simulationStartDateInput.value;
-    }
-    controls.refreshButtons();
-  });
-  elements.simulationEndDateInput.addEventListener("change", controls.refreshButtons);
   elements.exportCrmMissingButton.addEventListener("click", actions.handleExportCrmMissing);
   elements.exportButton.addEventListener("click", actions.handleExport);
 
   controls.initializeDefaultDates();
   projects.renderEmptyState();
   runtime.trainingCalendar.initialize();
-  runtime.simulationSchedule.render();
   runtime.scheduleGapCheck.initialize();
   runtime.personValidityQuery.initialize();
 }

@@ -1,4 +1,4 @@
-import type { TrainingExtraProjectRow, TrainingToolAnalysis } from "./models";
+import type { TrainingToolAnalysis } from "./models";
 import { TrainingToolRuleEngine } from "./rule-engine";
 import { TrainingToolScheduleAssessment } from "./schedule-assessment";
 import { TrainingToolUtils } from "./utils";
@@ -48,7 +48,6 @@ export interface QualificationPressureOptions {
   startMonth?: string;
   horizonMonths?: number;
   projectName?: string;
-  extraProjectRows?: TrainingExtraProjectRow[];
 }
 
 const DEFAULT_HORIZON_MONTHS = 36;
@@ -85,9 +84,7 @@ function coverageStatus(scheduledDate: Date | null, dueDate: Date | null, covere
 }
 
 function buildItems(analysis: TrainingToolAnalysis, options: QualificationPressureOptions): QualificationPressureItem[] {
-  const assessment = ScheduleAssessment.buildResult(analysis, {
-    extraProjectRows: options.extraProjectRows || []
-  });
+  const assessment = ScheduleAssessment.buildResult(analysis);
 
   return assessment.allDetailRows.flatMap((row): QualificationPressureItem[] => {
     const project = analysis.projectMap.get(row.projectName);

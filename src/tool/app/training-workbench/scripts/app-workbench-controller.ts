@@ -18,8 +18,7 @@ const Utils = TrainingToolUtils;
     }
     return Workbench.buildWorkbench(analysis, {
       today: range.stageStart,
-      stageEnd: range.stageEnd,
-      extraProjectRows: state.simulationRecords || []
+      stageEnd: range.stageEnd
     });
   }
 
@@ -30,7 +29,6 @@ const Utils = TrainingToolUtils;
     state.workbenchSelection = null;
     renderers.renderWorkbenchFilterOptions(view);
     renderers.renderActionResult("workbench", view);
-    if (runtime.simulationSchedule) runtime.simulationSchedule.render();
     controls.refreshButtons();
     return view;
   }

@@ -1,7 +1,7 @@
 import { TrainingToolUtils } from "./utils";
 import { TrainingToolWorkbench } from "./workbench";
 import { TrainingToolWorkbenchStatus } from "./workbench-status";
-import type { TrainingExtraProjectRow, TrainingToolAnalysis } from "./models";
+import type { TrainingToolAnalysis } from "./models";
 
 const Utils = TrainingToolUtils;
   const STATUSES = TrainingToolWorkbenchStatus.STATUSES;
@@ -187,14 +187,13 @@ const Utils = TrainingToolUtils;
 
   function build(
     analysis: TrainingToolAnalysis,
-    options: { baseDate?: string | Date; horizonDays?: number; extraProjectRows?: any[] } = {}
+    options: { baseDate?: string | Date; horizonDays?: number } = {}
   ): GapCheckResult {
     const baseDate = requireDate(options.baseDate || new Date(), "观察基准日");
     const horizonDays = requireHorizon(options.horizonDays ?? 30);
     const result = TrainingToolWorkbench.buildWorkbench(analysis, {
       today: baseDate,
-      stageEnd: addDays(baseDate, horizonDays),
-      extraProjectRows: options.extraProjectRows || []
+      stageEnd: addDays(baseDate, horizonDays)
     });
     return buildFromRows(result.allDetailRows || [], baseDate, horizonDays);
   }
