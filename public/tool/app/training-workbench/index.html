@@ -383,18 +383,14 @@
             <section class="smart-schedule-panel" aria-labelledby="smartScheduleTitle">
                 <div class="section-head">
                     <div>
-                        <h2 class="section-title" id="smartScheduleTitle">智能排班对比</h2>
-                        <p class="section-intro">先保证资质不过期，再在规则允许的月份内均衡培训人天；当前已排和推荐方案直接按月对比。</p>
+                        <h2 class="section-title" id="smartScheduleTitle">智能排班方案</h2>
+                        <p class="section-intro">资质不过期是硬约束，系统独立生成全年月度培训人天尽量接近的排班底稿。</p>
                     </div>
                 </div>
                 <div class="smart-schedule-controls">
                     <div class="field">
                         <label for="smartScheduleYearInput">排班年份</label>
                         <input id="smartScheduleYearInput" type="number" min="2000" max="2100" step="1" disabled>
-                    </div>
-                    <div class="field">
-                        <label for="smartScheduleAdvanceInput">最新日期类提前月数</label>
-                        <input id="smartScheduleAdvanceInput" type="number" min="1" step="1" value="2" disabled>
                     </div>
                     <div class="field">
                         <label for="smartScheduleProjectSelect">资质项目</label>
@@ -404,20 +400,20 @@
                     </div>
                 </div>
                 <div class="chart-panel smart-schedule-chart-panel">
-                    <div class="chart-title">当前排班与智能推荐（人天）</div>
+                    <div class="chart-title">当前排班与均衡方案（人天）</div>
                     <div class="chart-box" id="smartScheduleChart"></div>
                 </div>
                 <div class="smart-schedule-detail-panel" id="smartScheduleDetailPanel" hidden>
-                    <h3 class="chart-title" id="smartScheduleDetailTitle">方案差异</h3>
+                    <h3 class="chart-title" id="smartScheduleDetailTitle">智能推荐明细</h3>
                     <div class="table-shell selected-person-shell">
                         <table class="table table-hover align-middle smart-schedule-detail-table">
                             <thead>
                                 <tr>
-                                    <th>状态</th><th>项目</th><th>姓名</th><th>员工号</th><th>当前安排</th><th>推荐月份</th><th>最晚完成</th><th>说明</th>
+                                    <th>项目</th><th>姓名</th><th>员工号</th><th>推荐月份</th><th>最晚完成</th><th>人天</th><th>说明</th>
                                 </tr>
                             </thead>
                             <tbody id="smartScheduleDetailBody">
-                                <tr><td class="empty-block" colspan="8">点击图中的月份查看方案差异。</td></tr>
+                                <tr><td class="empty-block" colspan="7">点击图中的月份查看智能推荐人员项目。</td></tr>
                             </tbody>
                         </table>
                     </div>

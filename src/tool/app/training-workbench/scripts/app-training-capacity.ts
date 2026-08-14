@@ -7,7 +7,7 @@ import { TrainingToolUtils } from "./utils";
 export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime): {
   renderQualificationPressure(selectedMonth?: string): void;
   renderTrainingLoad(): void;
-  renderSmartSchedule(selectedMonth?: string): void;
+  renderSmartSchedule(selectedMonth?: string, rebuildPlan?: boolean): void;
 } {
   const Utils = TrainingToolUtils;
   const state = runtime.state;
@@ -111,45 +111,52 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
   }
 
   function smartScheduleRows(result: TrainingSmartScheduleResult, selectedMonth: string) {
-    return result.items.filter((item) => item.currentMonth === selectedMonth || item.recommendedMonth === selectedMonth);
+    return result.items.filter((item) => item.recommendedMonth === selectedMonth);
   }
 
   function renderSmartScheduleDetails(result: TrainingSmartScheduleResult | null, selectedMonth: string): void {
-    if (!result || !selectedMonth) {
+    if (!result) {
       elements.smartScheduleDetailPanel.hidden = true;
-      elements.smartScheduleDetailTitle.textContent = "方案差异";
-      elements.smartScheduleDetailBody.innerHTML = '<tr><td class="empty-block" colspan="8">点击图中的月份查看方案差异。</td></tr>';
+      elements.smartScheduleDetailTitle.textContent = "智能推荐明细";
+      elements.smartScheduleDetailBody.innerHTML = '<tr><td class="empty-block" colspan="7">点击图中的月份查看智能推荐人员项目。</td></tr>';
       return;
     }
-    const rows = smartScheduleRows(result, selectedMonth);
+    const rows = selectedMonth
+      ? smartScheduleRows(result, selectedMonth)
+      : result.items.filter((item) => !item.schedulable);
+    if (!selectedMonth && !rows.length) {
+      elements.smartScheduleDetailPanel.hidden = true;
+      elements.smartScheduleDetailTitle.textContent = "智能推荐明细";
+      elements.smartScheduleDetailBody.innerHTML = '<tr><td class="empty-block" colspan="7">点击图中的月份查看智能推荐人员项目。</td></tr>';
+      return;
+    }
     elements.smartScheduleDetailPanel.hidden = false;
-    elements.smartScheduleDetailTitle.textContent = `${selectedMonth} 方案差异（${rows.length} 人项）`;
+    elements.smartScheduleDetailTitle.textContent = selectedMonth
+      ? `${selectedMonth} 智能推荐（${rows.length} 人项）`
+      : `无法在资质过期前安排（${rows.length} 人项）`;
     elements.smartScheduleDetailBody.innerHTML = rows.length ? rows.map((row) => {
-      const currentText = row.currentDate || "未安排";
-      const currentClass = row.currentDate ? " smart-schedule-completed-value" : "";
-      const tone = row.status === "已排" ? "ok" : row.status === "无法安排" ? "danger" : row.status === "建议调整" ? "warn" : "info";
       return `
         <tr>
-          <td><span class="badge ${tone}">${Utils.escapeHtml(row.status)}</span></td>
           <td>${Utils.escapeHtml(row.projectName)}</td>
           <td class="person-name">${Utils.escapeHtml(row.name || "-")}</td>
           <td>${Utils.escapeHtml(row.employeeId || "-")}</td>
-          <td class="${currentClass.trim()}">${Utils.escapeHtml(currentText)}</td>
           <td>${Utils.escapeHtml(row.recommendedMonth || "-")}</td>
           <td>${Utils.escapeHtml(row.dueDate)}</td>
+          <td>${row.personDays}</td>
           <td>${Utils.escapeHtml(row.reason)}</td>
         </tr>
       `;
-    }).join("") : '<tr><td class="empty-block" colspan="8">当前月份没有方案差异。</td></tr>';
+    }).join("") : '<tr><td class="empty-block" colspan="7">当前月份没有智能推荐人员项目。</td></tr>';
   }
 
-  function renderSmartSchedule(selectedMonth = ""): void {
+  function renderSmartSchedule(selectedMonth = "", rebuildPlan = false): void {
     if (selectedMonth && state.smartSchedule) {
       state.smartScheduleSelectedMonth = selectedMonth;
       renderSmartScheduleDetails(state.smartSchedule, selectedMonth);
       return;
     }
     if (!state.analysis) {
+      state.smartSchedulePlan = null;
       state.smartSchedule = null;
       state.smartScheduleSelectedMonth = "";
       renderProjectOptions(elements.smartScheduleProjectSelect, [], "全部资质项目");
@@ -157,20 +164,27 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
       renderSmartScheduleDetails(null, "");
       return;
     }
+    if (rebuildPlan || !state.smartSchedulePlan) {
+      const currentLoad = TrainingToolTrainingLoad.buildLoad(state.workbook!, state.analysis, {
+        year: elements.smartScheduleYearInput.value,
+        extraProjectRows: state.simulationRecords || []
+      });
+      state.smartSchedulePlan = TrainingToolSmartSchedule.buildPlan(state.analysis, {
+        year: elements.smartScheduleYearInput.value,
+        extraProjectRows: state.simulationRecords || [],
+        currentLoadRows: currentLoad.monthRows
+      });
+    }
     const currentLoad = TrainingToolTrainingLoad.buildLoad(state.workbook!, state.analysis, {
       year: elements.smartScheduleYearInput.value,
       projectName: elements.smartScheduleProjectSelect.value,
       extraProjectRows: state.simulationRecords || []
     });
-    const result = TrainingToolSmartSchedule.buildSmartSchedule(state.analysis, {
-      year: elements.smartScheduleYearInput.value,
-      latestAdvanceMonths: elements.smartScheduleAdvanceInput.value,
+    const result = TrainingToolSmartSchedule.buildView(state.smartSchedulePlan, {
       projectName: elements.smartScheduleProjectSelect.value,
-      extraProjectRows: state.simulationRecords || [],
       currentLoadRows: currentLoad.monthRows
     });
-    elements.smartScheduleAdvanceInput.value = String(result.latestAdvanceMonths);
-    renderProjectOptions(elements.smartScheduleProjectSelect, result.availableProjects, "全部资质项目");
+    renderProjectOptions(elements.smartScheduleProjectSelect, state.smartSchedulePlan.availableProjects, "全部资质项目");
     state.smartSchedule = result;
     charts.renderSmartScheduleChart(result);
     const selected = state.smartScheduleSelectedMonth;

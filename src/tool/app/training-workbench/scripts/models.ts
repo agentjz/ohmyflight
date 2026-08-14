@@ -346,6 +346,7 @@ export type TrainingWorkbookHealthResult = import("./workbook-health").WorkbookH
 export type TrainingCrmAnnualResult = import("./crm-annual").CrmAnnualResult;
 export type TrainingQualificationPressureResult = import("./qualification-pressure").QualificationPressureResult;
 export type TrainingLoadResult = import("./training-load").TrainingLoadResult;
+export type TrainingSmartSchedulePlan = import("./smart-schedule").SmartSchedulePlan;
 export type TrainingSmartScheduleResult = import("./smart-schedule").SmartScheduleResult;
 
 export interface TrainingWorkbenchSelection {
@@ -382,6 +383,7 @@ export interface TrainingToolAppState {
   qualificationPressure: TrainingQualificationPressureResult | null;
   qualificationPressureSelectedMonth: string;
   trainingLoad: TrainingLoadResult | null;
+  smartSchedulePlan: TrainingSmartSchedulePlan | null;
   smartSchedule: TrainingSmartScheduleResult | null;
   smartScheduleSelectedMonth: string;
   crmAnnualResult: TrainingCrmAnnualResult | null;
@@ -437,7 +439,6 @@ export interface TrainingToolAppElements {
   trainingLoadProjectSelect: HTMLSelectElement;
   trainingLoadChart: HTMLElement;
   smartScheduleYearInput: HTMLInputElement;
-  smartScheduleAdvanceInput: HTMLInputElement;
   smartScheduleProjectSelect: HTMLSelectElement;
   smartScheduleChart: HTMLElement;
   smartScheduleDetailPanel: HTMLElement;
@@ -536,7 +537,7 @@ export interface TrainingAppRenderers {
   renderProjectCards(): void;
   renderQualificationPressure(selectedMonth?: string): void;
   renderTrainingLoad(): void;
-  renderSmartSchedule(selectedMonth?: string): void;
+  renderSmartSchedule(selectedMonth?: string, rebuildPlan?: boolean): void;
   renderCrmAnnual(): void;
   renderResultPlaceholders(): void;
   renderActionResult(kind: "workbench" | "validity", result: TrainingWorkbenchResult | TrainingValidityResult): void;

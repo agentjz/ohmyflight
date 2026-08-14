@@ -270,8 +270,15 @@ const Utils = TrainingToolUtils;
       },
       yAxis: { type: "value", minInterval: 1, name: "人天" },
       series: [
-        { name: "当前已排", type: "bar", data: monthRows.map((row) => row.currentPersonDays) },
-        { name: "智能推荐", type: "bar", data: monthRows.map((row) => row.recommendedPersonDays) }
+        { name: "当前排班", type: "bar", data: monthRows.map((row) => row.currentPersonDays) },
+        { name: "均衡方案", type: "bar", data: monthRows.map((row) => row.balancedPersonDays) },
+        {
+          name: "月均参考",
+          type: "line",
+          symbol: "none",
+          lineStyle: { type: "dashed" },
+          data: monthRows.map((row) => row.averagePersonDays)
+        }
       ]
     }));
     smartScheduleChart.off("click");

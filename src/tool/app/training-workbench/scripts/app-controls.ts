@@ -86,7 +86,6 @@ const COPY = runtime.copy;
     elements.trainingLoadYearInput.disabled = !state.analysis || state.busy;
     elements.trainingLoadProjectSelect.disabled = !state.analysis || state.busy;
     elements.smartScheduleYearInput.disabled = !state.analysis || state.busy;
-    elements.smartScheduleAdvanceInput.disabled = !state.analysis || state.busy;
     elements.smartScheduleProjectSelect.disabled = !state.analysis || state.busy;
     elements.scheduleGapBaseDateInput.disabled = !state.analysis || state.busy;
     elements.scheduleGapHorizonGroup.disabled = !state.analysis || state.busy;

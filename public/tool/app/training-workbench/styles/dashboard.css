@@ -595,7 +595,7 @@
 
 .smart-schedule-controls {
     display: grid;
-    grid-template-columns: minmax(150px, 0.55fr) minmax(220px, 0.85fr) minmax(200px, 1fr);
+    grid-template-columns: minmax(150px, 0.55fr) minmax(200px, 1fr);
     gap: 12px;
 }
 
@@ -621,40 +621,31 @@
 }
 
 .smart-schedule-detail-table :is(th, td):nth-child(1) {
-    width: 9%;
+    width: 12%;
 }
 
 .smart-schedule-detail-table :is(th, td):nth-child(2) {
-    width: 10%;
+    width: 12%;
 }
 
 .smart-schedule-detail-table :is(th, td):nth-child(3) {
-    width: 8%;
+    width: 10%;
 }
 
 .smart-schedule-detail-table :is(th, td):nth-child(4) {
-    width: 10%;
+    width: 12%;
 }
 
 .smart-schedule-detail-table :is(th, td):nth-child(5) {
-    width: 12%;
+    width: 14%;
 }
 
 .smart-schedule-detail-table :is(th, td):nth-child(6) {
-    width: 10%;
+    width: 8%;
 }
 
 .smart-schedule-detail-table :is(th, td):nth-child(7) {
-    width: 12%;
-}
-
-.smart-schedule-detail-table :is(th, td):nth-child(8) {
-    width: 29%;
-}
-
-.smart-schedule-completed-value {
-    color: var(--watchdog-text-muted);
-    text-decoration: line-through;
+    width: 32%;
 }
 
 .pressure-detail-table {

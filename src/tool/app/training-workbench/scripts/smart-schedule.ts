@@ -6,6 +6,10 @@ import type {
 } from "./models";
 import { TrainingToolQualificationPressure } from "./qualification-pressure";
 import { TrainingToolRuleEngine } from "./rule-engine";
+import {
+  TrainingToolSmartScheduleOptimizer,
+  type SmartScheduleOptimizationGroup
+} from "./smart-schedule-optimizer";
 import { TrainingToolTrainingRecordPolicy } from "./training-record-policy";
 import { TrainingToolUtils } from "./utils";
 
@@ -14,73 +18,83 @@ const RuleEngine = TrainingToolRuleEngine;
 const QualificationPressure = TrainingToolQualificationPressure;
 const TrainingRecordPolicy = TrainingToolTrainingRecordPolicy;
 
-export type SmartScheduleItemStatus = "已排" | "待排" | "建议调整" | "无法安排";
-
 export interface SmartScheduleItem {
   employeeId: string;
   name: string;
   projectName: string;
   ruleType: string;
   dueDate: string;
-  currentDate: string;
-  currentMonth: string;
   recommendedMonth: string;
   eligibleStartMonth: string;
   eligibleEndMonth: string;
   personDays: number;
-  status: SmartScheduleItemStatus;
+  schedulable: boolean;
   reason: string;
 }
 
 export interface SmartScheduleMonthRow {
   monthKey: string;
   currentPersonDays: number;
-  recommendedPersonDays: number;
+  balancedPersonDays: number;
+  averagePersonDays: number;
+}
+
+export interface SmartScheduleProjectMonthLoad {
+  projectName: string;
+  monthKey: string;
+  personDays: number;
+}
+
+export interface SmartSchedulePlan {
+  year: number;
+  optimizationStatus: "optimal";
+  availableProjects: string[];
+  items: SmartScheduleItem[];
+  currentLoadRows: Array<{ monthKey: string; personDays: number }>;
+  replaceableCurrentRows: SmartScheduleProjectMonthLoad[];
+  recommendedRows: SmartScheduleProjectMonthLoad[];
+  peakPersonDays: number;
+  averagePersonDays: number;
+  totalDeviation: number;
+  optimizationVariableCount: number;
 }
 
 export interface SmartScheduleResult {
   year: number;
-  latestAdvanceMonths: number;
   selectedProject: string;
   availableProjects: string[];
   items: SmartScheduleItem[];
   monthRows: SmartScheduleMonthRow[];
 }
 
-export interface SmartScheduleOptions {
+export interface SmartSchedulePlanOptions {
   year?: number | string;
-  latestAdvanceMonths?: number | string;
-  projectName?: string;
   today?: Date;
   extraProjectRows?: TrainingExtraProjectRow[];
   currentLoadRows?: Array<{ monthKey: string; personDays: number }>;
 }
 
-interface ScheduleDraft extends SmartScheduleItem {
-  candidateMonths: string[];
-  preferredMonth: string;
-  scheduledCovered: boolean;
-  emergencyFallback: boolean;
+export interface SmartScheduleViewOptions {
+  projectName?: string;
+  currentLoadRows?: Array<{ monthKey: string; personDays: number }>;
 }
 
-interface CandidateMonths {
-  months: string[];
-  preferredMonth: string;
-  emergencyFallback: boolean;
+interface ScheduleDraft extends SmartScheduleItem {
+  currentDate: string;
+  currentMonth: string;
+  candidateMonths: string[];
+}
+
+interface ScheduleGroup extends SmartScheduleOptimizationGroup {
+  drafts: ScheduleDraft[];
 }
 
 const LATEST_DATE_RULE = "最新日期";
 const BASE_MONTH_RULE = "基准月";
-const DEFAULT_ADVANCE_MONTHS = 2;
 
 function normalizeYear(value: unknown): number {
   const year = Number(value);
   return Number.isInteger(year) && year >= 2000 && year <= 2100 ? year : new Date().getFullYear();
-}
-
-function normalizeAdvanceMonths(value: unknown): number {
-  const amount = Number(value);
-  return Number.isInteger(amount) && amount >= 1 ? amount : DEFAULT_ADVANCE_MONTHS;
 }
 
 function monthKeysForYear(year: number): string[] {
@@ -105,10 +119,9 @@ function monthsBetween(startMonth: string, endMonth: string): string[] {
 }
 
 function firstPlanningMonth(year: number, today: Date): string {
-  const todayMonth = Utils.toMonthKey(today);
   if (year < today.getFullYear()) return `${year}-13`;
   if (year > today.getFullYear()) return `${year}-01`;
-  return todayMonth;
+  return Utils.toMonthKey(today);
 }
 
 function candidateDate(monthKey: string, earliest: Date, latest: Date, today: Date): Date | null {
@@ -125,50 +138,25 @@ function windowCandidates(
   dueDate: Date,
   year: number,
   today: Date
-): CandidateMonths {
-  const startOfYear = `${year}-01`;
-  const endOfYear = `${year}-12`;
+): string[] {
   const windowInfo = RuleEngine.getWindowInfo(rule, currentExpiry);
-  if (!windowInfo.hasWindow) return { months: [], preferredMonth: "", emergencyFallback: false };
-
-  const firstMonth = [Utils.toMonthKey(windowInfo.windowStart), startOfYear, firstPlanningMonth(year, today)]
+  if (!windowInfo.hasWindow) return [];
+  const firstMonth = [Utils.toMonthKey(windowInfo.windowStart), `${year}-01`, firstPlanningMonth(year, today)]
     .sort()
     .at(-1) || "";
-  const lastMonth = [Utils.toMonthKey(windowInfo.windowEnd), endOfYear].sort()[0] || "";
-  const months = monthsBetween(firstMonth, lastMonth).filter((monthKey) => (
+  const lastMonth = [Utils.toMonthKey(windowInfo.windowEnd), `${year}-12`].sort()[0] || "";
+  return monthsBetween(firstMonth, lastMonth).filter((monthKey) => (
     candidateDate(monthKey, windowInfo.windowStart, dueDate, today) !== null
   ));
-  const preferredMonth = rule.ruleType === BASE_MONTH_RULE
-    ? shiftMonth(Utils.toMonthKey(currentExpiry), -1)
-    : months[0] || "";
-  return { months, preferredMonth, emergencyFallback: false };
 }
 
-function latestDateCandidates(
-  dueDate: Date,
-  year: number,
-  today: Date,
-  advanceMonths: number
-): CandidateMonths {
-  const dueMonth = Utils.toMonthKey(dueDate);
-  const targetMonth = shiftMonth(dueMonth, -advanceMonths);
-  const targetRange = Utils.monthRangeFromKey(targetMonth);
-  const targetAvailable = targetMonth.startsWith(`${year}-`)
-    && Boolean(targetRange && targetRange.end >= today && targetRange.start <= dueDate);
-  if (targetAvailable) {
-    return { months: [targetMonth], preferredMonth: targetMonth, emergencyFallback: false };
-  }
-
-  const targetMissed = Boolean(targetRange && targetRange.end < today);
-  const emergencyMonth = firstPlanningMonth(year, today);
-  const emergencyAvailable = targetMissed
-    && dueDate >= today
-    && emergencyMonth.startsWith(`${year}-`)
-    && emergencyMonth <= `${year}-12`
-    && candidateDate(emergencyMonth, today, dueDate, today) !== null;
-  return emergencyAvailable
-    ? { months: [emergencyMonth], preferredMonth: emergencyMonth, emergencyFallback: true }
-    : { months: [], preferredMonth: "", emergencyFallback: false };
+function latestDateCandidates(dueDate: Date, year: number, today: Date): string[] {
+  if (dueDate.getFullYear() !== year) return [];
+  const firstMonth = firstPlanningMonth(year, today);
+  const lastMonth = Utils.toMonthKey(dueDate);
+  return monthsBetween(firstMonth, lastMonth).filter((monthKey) => (
+    candidateDate(monthKey, today, dueDate, today) !== null
+  ));
 }
 
 function estimateProjectPersonDays(project: TrainingToolProjectAnalysis): number {
@@ -185,246 +173,275 @@ function estimateProjectPersonDays(project: TrainingToolProjectAnalysis): number
   return [...counts.entries()].sort((left, right) => right[1] - left[1] || left[0] - right[0])[0]?.[0] || 1;
 }
 
-function distanceInMonths(left: string, right: string): number {
-  const leftRange = Utils.monthRangeFromKey(left);
-  const rightRange = Utils.monthRangeFromKey(right);
-  if (!leftRange || !rightRange) return Number.MAX_SAFE_INTEGER;
-  return Math.abs(
-    (leftRange.start.getFullYear() - rightRange.start.getFullYear()) * 12
-    + leftRange.start.getMonth()
-    - rightRange.start.getMonth()
-  );
+function reasonForRule(ruleType: string): string {
+  if (ruleType === LATEST_DATE_RULE) return "为均衡全年培训人天，在最晚完成日期前安排。";
+  if (ruleType === BASE_MONTH_RULE) return "在基准月窗口内安排，原基准月不变。";
+  return "在保护窗口内安排，原到期锚点不变。";
 }
 
-function chooseMonth(draft: ScheduleDraft, loads: Map<string, number>): string {
-  return [...draft.candidateMonths].sort((left, right) => {
-    const loadDifference = (loads.get(left) || 0) - (loads.get(right) || 0);
-    if (loadDifference) return loadDifference;
-    const currentDifference = Number(right === draft.currentMonth) - Number(left === draft.currentMonth);
-    if (currentDifference) return currentDifference;
-    const leftDistance = distanceInMonths(left, draft.preferredMonth);
-    const rightDistance = distanceInMonths(right, draft.preferredMonth);
-    if (leftDistance !== rightDistance) return leftDistance - rightDistance;
-    return draft.ruleType === LATEST_DATE_RULE
-      ? right.localeCompare(left)
-      : left.localeCompare(right);
-  })[0] || "";
-}
-
-function buildDrafts(analysis: TrainingToolAnalysis, options: SmartScheduleOptions & {
-  year: number;
-  latestAdvanceMonths: number;
-  today: Date;
-}): ScheduleDraft[] {
+function buildDrafts(
+  analysis: TrainingToolAnalysis,
+  options: SmartSchedulePlanOptions & { year: number; today: Date }
+): ScheduleDraft[] {
   const pressure = QualificationPressure.buildPressure(analysis, {
     startMonth: `${options.year}-01`,
     horizonMonths: 60,
     extraProjectRows: options.extraProjectRows || []
   });
-  const projectPersonDays = new Map(analysis.projects.map((project) => [project.canonical, estimateProjectPersonDays(project)]));
+  const projectPersonDays = new Map(analysis.projects.map((project) => [
+    project.canonical,
+    estimateProjectPersonDays(project)
+  ]));
 
   return pressure.items.flatMap((item): ScheduleDraft[] => {
     const project = analysis.projectMap.get(item.projectName);
-    const currentExpiry = Utils.parseDate(item.currentExpiry);
-    const dueDate = Utils.parseDate(item.currentDueDate);
+    const currentDateValue = Utils.parseDate(item.scheduledDate);
+    const currentDate = Utils.formatDate(currentDateValue);
+    const currentMonth = Utils.toMonthKey(currentDateValue);
+    const pastCovered = Boolean(
+      currentDateValue
+      && currentDateValue < options.today
+      && item.coverageStatus === "已覆盖"
+    );
+    const currentExpiry = Utils.parseDate(pastCovered ? item.forecastExpiry : item.currentExpiry);
+    const dueDate = Utils.parseDate(pastCovered ? item.forecastDueDate : item.currentDueDate);
     if (!project || !currentExpiry || !dueDate) return [];
 
-    const currentDate = Utils.parseDate(item.scheduledDate);
-    const currentMonth = Utils.toMonthKey(currentDate);
-    const candidateInfo = project.rule.ruleType === LATEST_DATE_RULE
-      ? latestDateCandidates(dueDate, options.year, options.today, Number(options.latestAdvanceMonths))
+    const candidateMonths = project.rule.ruleType === LATEST_DATE_RULE
+      ? latestDateCandidates(dueDate, options.year, options.today)
       : windowCandidates(project.rule, currentExpiry, dueDate, options.year, options.today);
-    const legalRangeTouchesYear = candidateInfo.months.length > 0;
-    const currentTouchesYear = currentMonth.startsWith(`${options.year}-`);
-    const dueTouchesYear = Utils.toMonthKey(dueDate).startsWith(`${options.year}-`);
-    const latestDateBelongsToEarlierPlan = project.rule.ruleType === LATEST_DATE_RULE
-      && !legalRangeTouchesYear
-      && !currentTouchesYear
-      && dueDate >= options.today;
-    if (latestDateBelongsToEarlierPlan || (!legalRangeTouchesYear && !currentTouchesYear && !dueTouchesYear)) return [];
+    const dueTouchesYear = dueDate.getFullYear() === options.year;
+    const windowTouchesYear = candidateMonths.length > 0;
+    if (!dueTouchesYear && !windowTouchesYear) return [];
 
-    const isPastCovered = Boolean(currentDate && currentDate < options.today && item.coverageStatus === "已覆盖");
-    const candidateMonths = isPastCovered ? [currentMonth] : candidateInfo.months;
-    const eligibleStartMonth = candidateMonths[0] || "";
-    const eligibleEndMonth = candidateMonths.at(-1) || "";
+    const schedulable = candidateMonths.length > 0;
     return [{
       employeeId: item.employeeId,
       name: item.name,
       projectName: item.projectName,
       ruleType: project.rule.ruleType,
-      dueDate: item.currentDueDate,
-      currentDate: item.scheduledDate,
+      dueDate: Utils.formatDate(dueDate),
+      currentDate,
       currentMonth,
       recommendedMonth: "",
-      eligibleStartMonth,
-      eligibleEndMonth,
+      eligibleStartMonth: candidateMonths[0] || "",
+      eligibleEndMonth: candidateMonths.at(-1) || "",
       personDays: projectPersonDays.get(item.projectName) || 1,
-      status: "待排",
-      reason: "",
-      candidateMonths,
-      preferredMonth: isPastCovered ? currentMonth : candidateInfo.preferredMonth,
-      scheduledCovered: item.coverageStatus === "已覆盖",
-      emergencyFallback: candidateInfo.emergencyFallback
+      schedulable,
+      reason: schedulable
+        ? reasonForRule(project.rule.ruleType)
+        : `截至 ${Utils.formatDate(options.today)} 已没有不晚于 ${Utils.formatDate(dueDate)} 的合法月份。`,
+      candidateMonths
     }];
   });
 }
 
-function buildFixedLoads(
-  drafts: ScheduleDraft[],
-  year: number,
-  currentLoadRows: Array<{ monthKey: string; personDays: number }>
-): Map<string, number> {
-  const taskCurrent = new Map(monthKeysForYear(year).map((monthKey) => [monthKey, 0]));
-  drafts.forEach((draft) => {
-    if (!taskCurrent.has(draft.currentMonth)) return;
-    taskCurrent.set(draft.currentMonth, (taskCurrent.get(draft.currentMonth) || 0) + draft.personDays);
+function sumProjectMonthRows(rows: SmartScheduleProjectMonthLoad[]): Map<string, number> {
+  const totals = new Map<string, number>();
+  rows.forEach((row) => {
+    const key = `${row.projectName}\u0000${row.monthKey}`;
+    totals.set(key, (totals.get(key) || 0) + row.personDays);
   });
-  const baseline = new Map(currentLoadRows.map((row) => [row.monthKey, row.personDays]));
-  return new Map(monthKeysForYear(year).map((monthKey) => [
+  return totals;
+}
+
+function replaceableCurrentRows(drafts: ScheduleDraft[], year: number, today: Date): SmartScheduleProjectMonthLoad[] {
+  const rows = drafts.flatMap((draft): SmartScheduleProjectMonthLoad[] => {
+    const currentDate = Utils.parseDate(draft.currentDate);
+    if (!currentDate || currentDate < today || !draft.currentMonth.startsWith(`${year}-`)) return [];
+    return [{
+      projectName: draft.projectName,
+      monthKey: draft.currentMonth,
+      personDays: draft.personDays
+    }];
+  });
+  const totals = sumProjectMonthRows(rows);
+  return [...totals.entries()].map(([key, personDays]) => {
+    const [projectName, monthKey] = key.split("\u0000");
+    return { projectName, monthKey, personDays };
+  });
+}
+
+function fixedLoadsForOptimization(
+  monthKeys: string[],
+  currentLoadRows: Array<{ monthKey: string; personDays: number }>,
+  replaceableRows: SmartScheduleProjectMonthLoad[]
+): Map<string, number> {
+  const currentLoads = new Map(currentLoadRows.map((row) => [row.monthKey, row.personDays]));
+  const replaceableLoads = new Map<string, number>();
+  replaceableRows.forEach((row) => {
+    replaceableLoads.set(row.monthKey, (replaceableLoads.get(row.monthKey) || 0) + row.personDays);
+  });
+  return new Map(monthKeys.map((monthKey) => [
     monthKey,
-    Math.max(0, (baseline.get(monthKey) || 0) - (taskCurrent.get(monthKey) || 0))
+    Math.max(0, (currentLoads.get(monthKey) || 0) - (replaceableLoads.get(monthKey) || 0))
   ]));
 }
 
-function scheduleDrafts(
-  drafts: ScheduleDraft[],
-  year: number,
-  today: Date,
-  currentLoadRows: Array<{ monthKey: string; personDays: number }> = []
-): SmartScheduleItem[] {
-  const loads = buildFixedLoads(drafts, year, currentLoadRows);
-  const locked = drafts.filter((draft) => (
-    draft.scheduledCovered
-    && Boolean(draft.currentDate)
-    && (Utils.parseDate(draft.currentDate)?.getTime() || 0) < today.getTime()
-    && draft.currentMonth.startsWith(`${year}-`)
-  ));
-  locked.forEach((draft) => loads.set(draft.currentMonth, (loads.get(draft.currentMonth) || 0) + draft.personDays));
+function groupDrafts(drafts: ScheduleDraft[]): ScheduleGroup[] {
+  const grouped = new Map<string, ScheduleDraft[]>();
+  drafts.filter((draft) => draft.schedulable).forEach((draft) => {
+    const key = JSON.stringify([draft.projectName, draft.personDays, draft.candidateMonths]);
+    const rows = grouped.get(key) || [];
+    rows.push(draft);
+    grouped.set(key, rows);
+  });
+  return [...grouped.values()]
+    .sort((left, right) => left[0].projectName.localeCompare(right[0].projectName)
+      || left[0].eligibleEndMonth.localeCompare(right[0].eligibleEndMonth)
+      || left[0].eligibleStartMonth.localeCompare(right[0].eligibleStartMonth)
+      || left[0].personDays - right[0].personDays)
+    .map((rows, index) => ({
+      id: String(index),
+      projectName: rows[0].projectName,
+      count: rows.length,
+      personDays: rows[0].personDays,
+      candidateMonths: [...rows[0].candidateMonths],
+      drafts: [...rows].sort((left, right) => left.dueDate.localeCompare(right.dueDate)
+        || left.name.localeCompare(right.name, "zh-Hans-CN")
+        || left.employeeId.localeCompare(right.employeeId))
+    }));
+}
 
-  return [...drafts]
-    .sort((left, right) => left.candidateMonths.length - right.candidateMonths.length
-      || left.eligibleEndMonth.localeCompare(right.eligibleEndMonth)
-      || left.dueDate.localeCompare(right.dueDate)
-      || left.projectName.localeCompare(right.projectName)
-      || left.name.localeCompare(right.name, "zh-Hans-CN"))
-    .map((draft): SmartScheduleItem => {
-      const parsedCurrentDate = Utils.parseDate(draft.currentDate);
-      const pastCovered = draft.scheduledCovered && parsedCurrentDate && parsedCurrentDate < today;
-      let recommendedMonth = pastCovered ? draft.currentMonth : chooseMonth(draft, loads);
-      let status: SmartScheduleItemStatus;
-      let reason: string;
-
-      if (!recommendedMonth) {
-        recommendedMonth = draft.scheduledCovered ? draft.currentMonth : "";
-        status = "无法安排";
-        reason = draft.dueDate < Utils.formatDate(today)
-          ? `当前轮次最晚完成日期为 ${draft.dueDate}，已无法在不过期的前提下生成推荐。`
-          : "本年度剩余月份无法同时满足项目规则和安全提前量。";
-      } else {
-        if (!pastCovered) {
-          loads.set(recommendedMonth, (loads.get(recommendedMonth) || 0) + draft.personDays);
-        }
-        status = !draft.currentMonth
-          ? "待排"
-          : draft.currentMonth === recommendedMonth
-            ? "已排"
-            : "建议调整";
-        if (draft.ruleType === LATEST_DATE_RULE) {
-          reason = draft.emergencyFallback
-            ? "固定提前月份已经错过，优先在到期前尽快安排。"
-            : status === "已排"
-              ? "当前安排符合固定提前月份。"
-              : "按设置的固定提前月数安排。";
-        } else if (draft.ruleType === BASE_MONTH_RULE) {
-          reason = status === "已排"
-            ? "当前安排位于基准月窗口内。"
-            : "在基准月窗口内选择负载较低的月份，原基准月不变。";
-        } else {
-          reason = status === "已排"
-            ? "当前安排位于保护窗口内。"
-            : "在保护窗口内选择负载较低的月份，原到期锚点不变。";
-        }
-      }
-
-      const {
-        candidateMonths: _candidateMonths,
-        preferredMonth: _preferredMonth,
-        scheduledCovered: _scheduledCovered,
-        emergencyFallback: _emergencyFallback,
-        ...item
-      } = draft;
-      return { ...item, recommendedMonth, status, reason };
+function assignRecommendations(
+  groups: ScheduleGroup[],
+  assignments: Map<string, Map<string, number>>
+): ScheduleDraft[] {
+  return groups.flatMap((group) => {
+    const groupAssignments = assignments.get(group.id) || new Map<string, number>();
+    const months = [...groupAssignments.entries()].sort(([left], [right]) => left.localeCompare(right));
+    let offset = 0;
+    const assigned = months.flatMap(([monthKey, count]) => {
+      const rows = group.drafts.slice(offset, offset + count).map((draft) => ({
+        ...draft,
+        recommendedMonth: monthKey
+      }));
+      offset += count;
+      return rows;
     });
-}
-
-function buildMonthRows(
-  items: SmartScheduleItem[],
-  year: number,
-  today: Date,
-  currentLoadRows: Array<{ monthKey: string; personDays: number }> = []
-): SmartScheduleMonthRow[] {
-  const taskCurrent = new Map(monthKeysForYear(year).map((monthKey) => [monthKey, 0]));
-  const taskRecommended = new Map(monthKeysForYear(year).map((monthKey) => [monthKey, 0]));
-  items.forEach((item) => {
-    if (taskCurrent.has(item.currentMonth)) {
-      taskCurrent.set(item.currentMonth, (taskCurrent.get(item.currentMonth) || 0) + item.personDays);
+    if (offset !== group.drafts.length) {
+      throw new Error(`智能排班求解结果不完整：任务组 ${group.id} 应排 ${group.drafts.length} 人项，实际分配 ${offset} 人项。`);
     }
-    if (taskRecommended.has(item.recommendedMonth)) {
-      taskRecommended.set(item.recommendedMonth, (taskRecommended.get(item.recommendedMonth) || 0) + item.personDays);
-    }
-  });
-
-  const baseline = new Map(currentLoadRows.map((row) => [row.monthKey, row.personDays]));
-  const hasBaseline = currentLoadRows.length > 0;
-  const todayMonth = Utils.toMonthKey(today);
-  return monthKeysForYear(year).map((monthKey) => {
-    const taskCurrentDays = taskCurrent.get(monthKey) || 0;
-    const taskRecommendedDays = taskRecommended.get(monthKey) || 0;
-    const currentPersonDays = hasBaseline ? baseline.get(monthKey) || 0 : taskCurrentDays;
-    const historicalMonth = monthKey < todayMonth;
-    const fixedPersonDays = Math.max(0, currentPersonDays - taskCurrentDays);
-    return {
-      monthKey,
-      currentPersonDays,
-      recommendedPersonDays: hasBaseline && historicalMonth
-        ? currentPersonDays
-        : fixedPersonDays + taskRecommendedDays
-    };
+    return assigned;
   });
 }
 
-function buildSmartSchedule(analysis: TrainingToolAnalysis, options: SmartScheduleOptions = {}): SmartScheduleResult {
+function toPublicItem(draft: ScheduleDraft): SmartScheduleItem {
+  const { currentDate: _currentDate, currentMonth: _currentMonth, candidateMonths: _candidateMonths, ...item } = draft;
+  return item;
+}
+
+function recommendedRows(items: SmartScheduleItem[]): SmartScheduleProjectMonthLoad[] {
+  const rows = items.flatMap((item): SmartScheduleProjectMonthLoad[] => item.schedulable ? [{
+    projectName: item.projectName,
+    monthKey: item.recommendedMonth,
+    personDays: item.personDays
+  }] : []);
+  const totals = sumProjectMonthRows(rows);
+  return [...totals.entries()].map(([key, personDays]) => {
+    const [projectName, monthKey] = key.split("\u0000");
+    return { projectName, monthKey, personDays };
+  });
+}
+
+function buildPlan(analysis: TrainingToolAnalysis, options: SmartSchedulePlanOptions = {}): SmartSchedulePlan {
   const year = normalizeYear(options.year);
-  const latestAdvanceMonths = normalizeAdvanceMonths(options.latestAdvanceMonths);
   const today = options.today || RuleEngine.createTodayDate();
-  const drafts = buildDrafts(analysis, {
-    ...options,
-    year,
-    latestAdvanceMonths,
-    today
+  const monthKeys = monthKeysForYear(year);
+  const currentLoadRows = monthKeys.map((monthKey) => ({
+    monthKey,
+    personDays: options.currentLoadRows?.find((row) => row.monthKey === monthKey)?.personDays || 0
+  }));
+  const drafts = buildDrafts(analysis, { ...options, year, today });
+  const replaceableRows = replaceableCurrentRows(drafts, year, today);
+  const fixedLoads = fixedLoadsForOptimization(monthKeys, currentLoadRows, replaceableRows);
+  const groups = groupDrafts(drafts);
+  const optimization = TrainingToolSmartScheduleOptimizer.optimizeSchedule({
+    monthKeys,
+    fixedLoads,
+    groups
   });
-  const requestedProject = Utils.normalizeProjectName(options.projectName);
-  const scopedDrafts = requestedProject
-    ? drafts.filter((draft) => draft.projectName === requestedProject)
-    : drafts;
-  const allItems = scheduleDrafts(scopedDrafts, year, today, options.currentLoadRows || []);
+  if (optimization.status !== "optimal") {
+    const variableCount = groups.reduce((total, group) => total + group.candidateMonths.length, 0);
+    throw new Error(`智能排班全局优化未完成，求解器状态：${optimization.status}，任务组 ${groups.length} 个、分配变量约 ${variableCount} 个。`);
+  }
+
+  const scheduledDrafts = assignRecommendations(groups, optimization.assignments);
+  const impossibleDrafts = drafts.filter((draft) => !draft.schedulable);
+  const items = [...scheduledDrafts, ...impossibleDrafts]
+    .map(toPublicItem)
+    .sort((left, right) => (left.recommendedMonth || "9999-99").localeCompare(right.recommendedMonth || "9999-99")
+      || left.projectName.localeCompare(right.projectName)
+      || left.name.localeCompare(right.name, "zh-Hans-CN"));
   const availableProjects = analysis.projects
     .map((project) => project.canonical)
-    .filter((projectName, index, projects) => projects.indexOf(projectName) === index && drafts.some((item) => item.projectName === projectName));
-  const selectedProject = availableProjects.includes(requestedProject) ? requestedProject : "";
-  const items = selectedProject ? allItems.filter((item) => item.projectName === selectedProject) : allItems;
+    .filter((projectName, index, projects) => projects.indexOf(projectName) === index
+      && items.some((item) => item.projectName === projectName));
+
   return {
     year,
-    latestAdvanceMonths,
-    selectedProject,
+    optimizationStatus: "optimal",
     availableProjects,
-    items: items.sort((left, right) => (left.recommendedMonth || left.currentMonth || "9999-99").localeCompare(right.recommendedMonth || right.currentMonth || "9999-99")
-      || left.projectName.localeCompare(right.projectName)
-      || left.name.localeCompare(right.name, "zh-Hans-CN")),
-    monthRows: buildMonthRows(items, year, today, options.currentLoadRows || [])
+    items,
+    currentLoadRows,
+    replaceableCurrentRows: replaceableRows,
+    recommendedRows: recommendedRows(items),
+    peakPersonDays: optimization.peakPersonDays,
+    averagePersonDays: optimization.averagePersonDays,
+    totalDeviation: optimization.totalDeviation,
+    optimizationVariableCount: optimization.variableCount
+  };
+}
+
+function rowsForProject(rows: SmartScheduleProjectMonthLoad[], projectName: string): SmartScheduleProjectMonthLoad[] {
+  return projectName ? rows.filter((row) => row.projectName === projectName) : rows;
+}
+
+function buildView(plan: SmartSchedulePlan, options: SmartScheduleViewOptions = {}): SmartScheduleResult {
+  const requestedProject = Utils.normalizeProjectName(options.projectName);
+  const selectedProject = plan.availableProjects.includes(requestedProject) ? requestedProject : "";
+  const items = selectedProject
+    ? plan.items.filter((item) => item.projectName === selectedProject)
+    : plan.items;
+  const currentLoadRows = options.currentLoadRows || (selectedProject
+    ? monthKeysForYear(plan.year).map((monthKey) => ({
+        monthKey,
+        personDays: rowsForProject(plan.replaceableCurrentRows, selectedProject)
+          .filter((row) => row.monthKey === monthKey)
+          .reduce((total, row) => total + row.personDays, 0)
+      }))
+    : plan.currentLoadRows);
+  const currentLoads = new Map(currentLoadRows.map((row) => [row.monthKey, row.personDays]));
+  const replaceableLoads = new Map<string, number>();
+  rowsForProject(plan.replaceableCurrentRows, selectedProject).forEach((row) => {
+    replaceableLoads.set(row.monthKey, (replaceableLoads.get(row.monthKey) || 0) + row.personDays);
+  });
+  const recommendationLoads = new Map<string, number>();
+  rowsForProject(plan.recommendedRows, selectedProject).forEach((row) => {
+    recommendationLoads.set(row.monthKey, (recommendationLoads.get(row.monthKey) || 0) + row.personDays);
+  });
+  const balancedLoads = monthKeysForYear(plan.year).map((monthKey) => (
+    Math.max(0, (currentLoads.get(monthKey) || 0) - (replaceableLoads.get(monthKey) || 0))
+    + (recommendationLoads.get(monthKey) || 0)
+  ));
+  const averagePersonDays = balancedLoads.reduce((total, value) => total + value, 0) / balancedLoads.length;
+  const monthRows = monthKeysForYear(plan.year).map((monthKey, index) => ({
+    monthKey,
+    currentPersonDays: currentLoads.get(monthKey) || 0,
+    balancedPersonDays: balancedLoads[index],
+    averagePersonDays
+  }));
+
+  return {
+    year: plan.year,
+    selectedProject,
+    availableProjects: plan.availableProjects,
+    items,
+    monthRows
   };
 }
 
 export const TrainingToolSmartSchedule = {
-  buildSmartSchedule
+  buildPlan,
+  buildView
 };

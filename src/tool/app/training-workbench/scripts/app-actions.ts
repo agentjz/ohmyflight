@@ -61,6 +61,7 @@ const Utils = TrainingToolUtils;
       state.workbenchResult = null;
       state.workbenchView = null;
       state.workbenchSelection = null;
+      state.smartSchedulePlan = null;
       if (runtime.simulationSchedule) runtime.simulationSchedule.clearRecords();
       state.crmAnnualResult = null;
       elements.workbenchSearchInput.value = "";
@@ -83,7 +84,7 @@ const Utils = TrainingToolUtils;
       workbenchController.renderWorkbenchView();
       renderers.renderQualificationPressure();
       renderers.renderTrainingLoad();
-      renderers.renderSmartSchedule();
+      renderers.renderSmartSchedule("", true);
       runtime.scheduleGapCheck.rebuild();
 
       controls.setStatus(`识别完成：人员信息表“${analysis.peopleInfo.name}”，共识别 ${analysis.projects.length} 个项目 sheet，${analysis.availableMonths.length} 个可选月份。`);
