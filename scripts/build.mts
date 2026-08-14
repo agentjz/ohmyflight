@@ -9,6 +9,7 @@ import { promisify } from "node:util";
 import { build } from "esbuild";
 import ts from "typescript";
 import { loadBeginnerTutorialData } from "./beginner-tutorial-content.mjs";
+import { buildToolExports, type ToolExportDefinition } from "./tool-exports.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -213,6 +214,88 @@ async function buildPageEntries(): Promise<void> {
   );
 }
 
+async function buildStandaloneApplicationBundles(): Promise<string> {
+  const standaloneRoot = path.join(distRoot, ".standalone");
+  await fs.rm(standaloneRoot, { recursive: true, force: true });
+  const toolCatalog = await readToolCatalog();
+  const toolEntryNames = new Set(toolCatalog.map((tool) => tool.entry));
+  const entryPoints: Record<string, string> = {};
+  for (const pageEntry of pageEntries) {
+    const toolEntry = toolEntryFromPage(pageEntry.page);
+    if (!toolEntry || !toolEntryNames.has(toolEntry)) continue;
+    entryPoints[`${toolEntry}/${path.basename(pageEntry.output)}`] = path.join(projectRoot, pageEntry.source);
+  }
+  for (const workerEntry of workerEntries) {
+    const toolEntry = toolEntryFromOutput(workerEntry.output);
+    if (!toolEntry || !toolEntryNames.has(toolEntry)) continue;
+    entryPoints[`${toolEntry}/${path.basename(workerEntry.output)}`] = path.join(projectRoot, workerEntry.source);
+  }
+
+  await build({
+    absWorkingDir: projectRoot,
+    entryPoints,
+    outdir: standaloneRoot,
+    bundle: true,
+    format: "iife",
+    platform: "browser",
+    target: "es2020",
+    minify: true,
+    charset: "utf8",
+    entryNames: "[dir]/[name]",
+    legalComments: "none",
+    write: true,
+    logLevel: "silent"
+  });
+  return standaloneRoot;
+}
+
+async function generateStandaloneToolExports(standaloneRoot: string): Promise<number> {
+  const toolCatalog = await readToolCatalog();
+  const definitions: ToolExportDefinition[] = toolCatalog.map((tool) => {
+    const pagePrefix = `tool/app/${tool.entry}/`;
+    const toolPageEntries = pageEntries.filter((entry) => entry.page.startsWith(pagePrefix));
+    const mainPageEntry = toolPageEntries.find((entry) => entry.page === `${pagePrefix}index.html`);
+    if (!mainPageEntry) throw new Error(`工具 ${tool.entry} 没有对应的页面构建入口。`);
+    const auxiliaryBundles = toolPageEntries
+      .filter((entry) => entry !== mainPageEntry)
+      .map((entry) => ({
+        source: path.join(standaloneRoot, tool.entry, `${path.basename(entry.output)}.js`),
+        target: `${path.basename(entry.output)}.js`
+      }));
+    const toolWorkerBundles = workerEntries
+      .filter((entry) => toolEntryFromOutput(entry.output) === tool.entry)
+      .map((entry) => ({
+        source: path.join(standaloneRoot, tool.entry, `${path.basename(entry.output)}.js`),
+        target: `${path.basename(entry.output)}.js`
+      }));
+    const definition: ToolExportDefinition = {
+      entry: tool.entry,
+      name: tool.name,
+      pageDirectory: path.join(distRoot, "tool/app", tool.entry),
+      applicationBundle: path.join(standaloneRoot, tool.entry, `${path.basename(mainPageEntry.output)}.js`),
+      ...(auxiliaryBundles.length ? { auxiliaryBundles } : {}),
+      ...(toolWorkerBundles.length ? { workerBundles: toolWorkerBundles } : {})
+    };
+    return definition;
+  });
+  const results = await buildToolExports({
+    distRoot,
+    exportRoot: path.join(distRoot, "exports"),
+    tools: definitions
+  });
+  return results.length;
+}
+
+function toolEntryFromPage(page: string): string {
+  const match = page.replace(/\\/g, "/").match(/^tool\/app\/([^/]+)\//);
+  return match?.[1] || "";
+}
+
+function toolEntryFromOutput(output: string): string {
+  const match = output.replace(/\\/g, "/").match(/^tool\/app\/([^/]+)\//);
+  return match?.[1] || "";
+}
+
 function readFrontmatterValue(frontmatter: string, key: string): string {
   const prefix = `${key}:`;
   const line = frontmatter
@@ -348,10 +431,17 @@ async function main() {
   await generateManualsDataFile();
   await generateBeginnerTutorialDataFile();
   await buildPageEntries();
+  const standaloneRoot = await buildStandaloneApplicationBundles();
+  let exportCount = 0;
+  try {
+    exportCount = await generateStandaloneToolExports(standaloneRoot);
+  } finally {
+    await fs.rm(standaloneRoot, { recursive: true, force: true });
+  }
   await generateVersionFile();
 
   const outputLabel = distRoot === path.join(projectRoot, "dist") ? "dist/" : "an isolated output directory";
-  process.stdout.write(`Built ${pageEntries.length} page entries, ${workerEntries.length} worker and ${assetFiles.length} source assets into ${outputLabel}\n`);
+  process.stdout.write(`Built ${pageEntries.length} page entries, ${workerEntries.length} worker, ${assetFiles.length} source assets and ${exportCount} standalone exports into ${outputLabel}\n`);
 }
 
 main().catch((error) => {

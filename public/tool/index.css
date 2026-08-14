@@ -478,6 +478,8 @@ body.is-gated {
 }
 
 .tool-card {
+    position: relative;
+    display: grid;
     min-width: 0;
     --card-accent: var(--soft-pink);
 }
@@ -495,15 +497,56 @@ body.is-gated {
 }
 
 .tool-card-surface {
+    grid-area: 1 / 1;
     display: flex;
+    height: 100%;
     min-height: 168px;
     flex-direction: column;
     padding: 18px;
+    padding-bottom: 56px;
     border: 2px solid var(--soft-border);
     background: color-mix(in srgb, var(--card-accent) 9%, var(--soft-surface));
     color: var(--soft-ink);
     text-decoration: none;
     transition: box-shadow 160ms ease-out, transform 160ms ease-out, background 160ms ease-out, color 160ms ease-out;
+}
+
+.tool-card-download {
+    position: relative;
+    z-index: 2;
+    grid-area: 1 / 1;
+    align-self: end;
+    justify-self: end;
+    display: inline-flex;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    margin: 0 14px 14px 0;
+    border: 0;
+    background: transparent;
+    color: var(--soft-quiet);
+    text-decoration: none;
+    transition: transform 160ms ease-out, color 160ms ease-out;
+}
+
+.tool-card-download:hover {
+    color: var(--soft-ink);
+    transform: translateY(-2px);
+}
+
+.tool-card-download:focus-visible {
+    outline: 2px solid var(--soft-focus);
+    outline-offset: 3px;
+}
+
+.is-inactive .tool-card-download {
+    color: var(--soft-quiet);
+}
+
+.tool-download-icon {
+    width: 18px;
+    height: 18px;
 }
 
 .is-enabled .tool-card-surface {

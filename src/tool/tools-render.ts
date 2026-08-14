@@ -125,10 +125,22 @@ function renderToolListItem(item: ToolItem): string {
         <p class="tool-desc">${escapeHtml(item.desc)}</p>
     `;
     return `
-        <article class="tool-card is-${escapeHtml(state)} ${enabled ? "is-enabled" : "is-inactive"}" ${enabled ? "" : 'aria-disabled="true"'}>
+        <article class="tool-card is-${escapeHtml(state)} ${enabled ? "is-enabled" : "is-inactive"}">
             ${enabled
                 ? `<a class="tool-card-surface" href="${escapeHtml(resolveToolUrl(item))}" target="_blank" rel="noopener noreferrer">${content}</a>`
-                : `<div class="tool-card-surface">${content}</div>`}
+                : `<div class="tool-card-surface" aria-disabled="true">${content}</div>`}
+            <a
+                class="tool-card-download"
+                href="${escapeHtml(resolveToolExportUrl(item))}"
+                download
+                aria-label="下载${escapeHtml(item.name)}独立应用"
+                title="下载${escapeHtml(item.name)}独立应用"
+            >
+                <svg class="bi bi-file-earmark-arrow-down tool-download-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
+                    <path d="M8 5a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 9.293V5.5A.5.5 0 0 1 8 5Z"/>
+                    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM9.5 1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5h-2a1.5 1.5 0 0 1-1.5-1.5V1Zm1 0v2.5a.5.5 0 0 0 .5.5h2.5l-3-3Z"/>
+                </svg>
+            </a>
         </article>
     `;
 }
@@ -216,6 +228,10 @@ function bindSearchShortcut(input: HTMLInputElement): void {
 
 function resolveToolUrl(item: ToolItem): string {
     return `./app/${item.entry}/index.html`;
+}
+
+function resolveToolExportUrl(item: ToolItem): string {
+    return `../exports/${item.entry}.zip`;
 }
 
 function escapeHtml(value: unknown): string {
