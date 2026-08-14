@@ -114,6 +114,46 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
     return result.items.filter((item) => item.recommendedMonth === selectedMonth);
   }
 
+  function smartScheduleMonthKeys(startMonth: string, horizonMonths: number): string[] {
+    const range = Utils.monthRangeFromKey(startMonth);
+    if (!range || !Number.isInteger(horizonMonths) || horizonMonths < 12 || horizonMonths > 60) return [];
+    return Array.from({ length: horizonMonths }, (_, index) => (
+      Utils.toMonthKey(
+        Utils.makeDate(range.start.getFullYear(), range.start.getMonth() + 1 + index, 1)
+      )
+    ));
+  }
+
+  function smartScheduleAvoidedMonths(): number[] {
+    return Array.from(elements.smartScheduleAvoidMonthsGroup
+      .querySelectorAll<HTMLInputElement>('input[name="smartScheduleAvoidMonth"]:checked'))
+      .map((input) => Number(input.value))
+      .filter((month) => Number.isInteger(month) && month >= 1 && month <= 12);
+  }
+
+  function smartScheduleFixedLoadRows(
+    startMonth: string,
+    horizonMonths: number
+  ): Array<{ monthKey: string; personDays: number }> {
+    if (!state.workbook || !state.analysis) return [];
+    const monthKeys = smartScheduleMonthKeys(startMonth, horizonMonths);
+    const years = [...new Set(monthKeys.map((monthKey) => Number(monthKey.slice(0, 4))))];
+    const crmLoads = new Map<string, number>();
+    years.forEach((year) => {
+      const load = TrainingToolTrainingLoad.buildLoad(state.workbook!, state.analysis!, {
+        year,
+        projectName: "CRM"
+      });
+      load.monthRows.forEach((row) => {
+        crmLoads.set(row.monthKey, row.personDays);
+      });
+    });
+    return monthKeys.map((monthKey) => ({
+      monthKey,
+      personDays: crmLoads.get(monthKey) || 0
+    }));
+  }
+
   function renderSmartScheduleDetails(result: TrainingSmartScheduleResult | null, selectedMonth: string): void {
     if (!result) {
       elements.smartScheduleDetailPanel.hidden = true;
@@ -165,24 +205,18 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
       return;
     }
     if (rebuildPlan || !state.smartSchedulePlan) {
-      const currentLoad = TrainingToolTrainingLoad.buildLoad(state.workbook!, state.analysis, {
-        year: elements.smartScheduleYearInput.value,
-        extraProjectRows: state.simulationRecords || []
-      });
+      const startMonth = elements.smartScheduleStartMonthInput.value;
+      const horizonMonths = Number(elements.smartScheduleHorizonInput.value);
       state.smartSchedulePlan = TrainingToolSmartSchedule.buildPlan(state.analysis, {
-        year: elements.smartScheduleYearInput.value,
-        extraProjectRows: state.simulationRecords || [],
-        currentLoadRows: currentLoad.monthRows
+        startMonth,
+        horizonMonths,
+        safetyLeadMonths: Number(elements.smartScheduleSafetyLeadInput.value),
+        avoidedMonths: smartScheduleAvoidedMonths(),
+        fixedLoadRows: smartScheduleFixedLoadRows(startMonth, horizonMonths)
       });
     }
-    const currentLoad = TrainingToolTrainingLoad.buildLoad(state.workbook!, state.analysis, {
-      year: elements.smartScheduleYearInput.value,
-      projectName: elements.smartScheduleProjectSelect.value,
-      extraProjectRows: state.simulationRecords || []
-    });
     const result = TrainingToolSmartSchedule.buildView(state.smartSchedulePlan, {
-      projectName: elements.smartScheduleProjectSelect.value,
-      currentLoadRows: currentLoad.monthRows
+      projectName: elements.smartScheduleProjectSelect.value
     });
     renderProjectOptions(elements.smartScheduleProjectSelect, state.smartSchedulePlan.availableProjects, "全部资质项目");
     state.smartSchedule = result;

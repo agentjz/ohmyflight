@@ -266,11 +266,11 @@ const Utils = TrainingToolUtils;
       xAxis: {
         type: "category",
         data: monthRows.map((row) => row.monthKey),
-        axisLabel: { interval: 0, fontSize: 11 }
+        axisLabel: { hideOverlap: true, fontSize: 11 }
       },
       yAxis: { type: "value", minInterval: 1, name: "人天" },
       series: [
-        { name: "当前排班", type: "bar", data: monthRows.map((row) => row.currentPersonDays) },
+        { name: "原始到期压力", type: "bar", data: monthRows.map((row) => row.originalDuePersonDays) },
         { name: "均衡方案", type: "bar", data: monthRows.map((row) => row.balancedPersonDays) },
         {
           name: "月均参考",

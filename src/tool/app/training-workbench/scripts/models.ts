@@ -438,7 +438,10 @@ export interface TrainingToolAppElements {
   trainingLoadYearInput: HTMLInputElement;
   trainingLoadProjectSelect: HTMLSelectElement;
   trainingLoadChart: HTMLElement;
-  smartScheduleYearInput: HTMLInputElement;
+  smartScheduleStartMonthInput: HTMLInputElement;
+  smartScheduleHorizonInput: HTMLInputElement;
+  smartScheduleSafetyLeadInput: HTMLInputElement;
+  smartScheduleAvoidMonthsGroup: HTMLFieldSetElement;
   smartScheduleProjectSelect: HTMLSelectElement;
   smartScheduleChart: HTMLElement;
   smartScheduleDetailPanel: HTMLElement;

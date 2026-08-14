@@ -11,21 +11,26 @@ export interface SmartScheduleOptimizationGroup {
   projectName: string;
   count: number;
   personDays: number;
+  safetyTargetMonth: string;
   candidateMonths: string[];
 }
 
 export interface SmartScheduleOptimizationInput {
   monthKeys: string[];
   fixedLoads: Map<string, number>;
+  avoidedMonths: number[];
   groups: SmartScheduleOptimizationGroup[];
 }
 
 export interface SmartScheduleOptimizationResult {
   status: SolutionStatus;
+  failedObjective: string;
   assignments: Map<string, Map<string, number>>;
   peakPersonDays: number;
   averagePersonDays: number;
   totalDeviation: number;
+  safetyPenalty: number;
+  avoidedPersonDays: number;
   variableCount: number;
 }
 
@@ -37,15 +42,18 @@ interface ModelParts {
 
 interface LoadScore {
   peak: number;
+  safetyPenalty: number;
+  avoidedPersonDays: number;
   projectPeak: number;
   deviation: number;
   projectDeviation: number;
 }
 
 const PEAK_OBJECTIVE = "objective:peak";
+const SAFETY_OBJECTIVE = "objective:safety";
+const AVOIDED_OBJECTIVE = "objective:avoided";
 const PROJECT_PEAK_OBJECTIVE = "objective:project-peak";
 const GLOBAL_DEVIATION_OBJECTIVE = "objective:global-deviation";
-const PROJECT_DEVIATION_OBJECTIVE = "objective:project-deviation";
 const EPSILON = 1e-7;
 
 function groupConstraint(groupId: string): string {
@@ -60,16 +68,34 @@ function deviationConstraint(monthKey: string): string {
   return `deviation:${monthKey}`;
 }
 
-function projectDeviationConstraint(projectIndex: number, monthKey: string): string {
-  return `project-deviation:${projectIndex}:${monthKey}`;
-}
-
 function projectPeakConstraint(projectIndex: number, monthKey: string): string {
   return `project-peak:${projectIndex}:${monthKey}`;
 }
 
 function assignmentVariable(groupIndex: number, monthIndex: number): string {
   return `assignment:${groupIndex}:${monthIndex}`;
+}
+
+function monthNumber(monthKey: string): number {
+  const value = Number(monthKey.slice(5, 7));
+  return Number.isInteger(value) && value >= 1 && value <= 12 ? value : 0;
+}
+
+function monthDistance(monthKeys: string[], from: string, to: string): number {
+  const fromIndex = monthKeys.indexOf(from);
+  const toIndex = monthKeys.indexOf(to);
+  if (fromIndex >= 0 && toIndex >= 0) return Math.max(0, toIndex - fromIndex);
+  if (to < from) return 0;
+  return Math.max(0, Number(to.slice(0, 4)) * 12 + Number(to.slice(5, 7))
+    - Number(from.slice(0, 4)) * 12 - Number(from.slice(5, 7)));
+}
+
+function safetyPenaltyFor(group: SmartScheduleOptimizationGroup, monthKey: string, monthKeys: string[]): number {
+  return monthDistance(monthKeys, group.safetyTargetMonth, monthKey) * group.personDays;
+}
+
+function isAvoided(monthKey: string, avoidedMonths: number[]): boolean {
+  return avoidedMonths.includes(monthNumber(monthKey));
 }
 
 function totalWorkload(input: SmartScheduleOptimizationInput): number {
@@ -142,6 +168,26 @@ function addAssignmentCoefficients(
   });
 }
 
+function addPreferenceObjectives(
+  parts: ModelParts,
+  input: SmartScheduleOptimizationInput
+): void {
+  const groups = new Map(input.groups.map((group) => [group.id, group]));
+  parts.assignmentKeys.forEach((assignment, variableKey) => {
+    const group = groups.get(assignment.groupId);
+    const variable = parts.variables.get(variableKey);
+    if (!group || !variable) return;
+    variable.set(
+      SAFETY_OBJECTIVE,
+      safetyPenaltyFor(group, assignment.monthKey, input.monthKeys)
+    );
+    variable.set(
+      AVOIDED_OBJECTIVE,
+      isAvoided(assignment.monthKey, input.avoidedMonths) ? group.personDays : 0
+    );
+  });
+}
+
 function addGlobalDeviationStage(
   parts: ModelParts,
   input: SmartScheduleOptimizationInput,
@@ -183,34 +229,6 @@ function addProjectPeakStage(
   });
   addAssignmentCoefficients(parts, input, (group, monthKey) => (
     projectPeakConstraint(projectIndexes.get(group.projectName)!, monthKey)
-  ));
-}
-
-function addProjectDeviationStage(
-  parts: ModelParts,
-  input: SmartScheduleOptimizationInput,
-  projects: string[],
-  projectAverages: Map<string, number>,
-  monthsByProject: Map<string, string[]>
-): void {
-  const projectIndexes = new Map(projects.map((projectName, index) => [projectName, index]));
-  projects.forEach((projectName, projectIndex) => {
-    (monthsByProject.get(projectName) || []).forEach((monthKey) => {
-      const constraintKey = projectDeviationConstraint(projectIndex, monthKey);
-      const monthIndex = input.monthKeys.indexOf(monthKey);
-      parts.constraints.set(constraintKey, { equal: projectAverages.get(projectName) || 0 });
-      parts.variables.set(`project-over:${projectIndex}:${monthIndex}`, new Map([
-        [constraintKey, -1],
-        [PROJECT_DEVIATION_OBJECTIVE, 1]
-      ]));
-      parts.variables.set(`project-under:${projectIndex}:${monthIndex}`, new Map([
-        [constraintKey, 1],
-        [PROJECT_DEVIATION_OBJECTIVE, 1]
-      ]));
-    });
-  });
-  addAssignmentCoefficients(parts, input, (group, monthKey) => (
-    projectDeviationConstraint(projectIndexes.get(group.projectName)!, monthKey)
   ));
 }
 
@@ -290,7 +308,29 @@ function assignedProjectLoads(
   return loads;
 }
 
+function assignmentPreferenceScore(
+  input: SmartScheduleOptimizationInput,
+  assignments: Map<string, Map<string, number>>
+): { safetyPenalty: number; avoidedPersonDays: number } {
+  const groups = new Map(input.groups.map((group) => [group.id, group]));
+  let safetyPenalty = 0;
+  let avoidedPersonDays = 0;
+  assignments.forEach((months, groupId) => {
+    const group = groups.get(groupId);
+    if (!group) return;
+    months.forEach((count, monthKey) => {
+      safetyPenalty += count * safetyPenaltyFor(group, monthKey, input.monthKeys);
+      if (isAvoided(monthKey, input.avoidedMonths)) {
+        avoidedPersonDays += count * group.personDays;
+      }
+    });
+  });
+  return { safetyPenalty, avoidedPersonDays };
+}
+
 function scoreLoads(
+  input: SmartScheduleOptimizationInput,
+  assignments: Map<string, Map<string, number>>,
   monthKeys: string[],
   loads: Map<string, number>,
   averagePersonDays: number,
@@ -300,8 +340,11 @@ function scoreLoads(
   monthsByProject: Map<string, string[]>
 ): LoadScore {
   const values = monthKeys.map((monthKey) => loads.get(monthKey) || 0);
+  const preferences = assignmentPreferenceScore(input, assignments);
   return {
     peak: Math.max(0, ...values),
+    safetyPenalty: preferences.safetyPenalty,
+    avoidedPersonDays: preferences.avoidedPersonDays,
     projectPeak: projects.reduce((total, projectName) => total + Math.max(
       0,
       ...(monthsByProject.get(projectName) || []).map((monthKey) => (
@@ -323,6 +366,10 @@ function scoreLoads(
 function isBetterScore(candidate: LoadScore, current: LoadScore): boolean {
   if (candidate.peak < current.peak - EPSILON) return true;
   if (Math.abs(candidate.peak - current.peak) > EPSILON) return false;
+  if (candidate.safetyPenalty < current.safetyPenalty - EPSILON) return true;
+  if (Math.abs(candidate.safetyPenalty - current.safetyPenalty) > EPSILON) return false;
+  if (candidate.avoidedPersonDays < current.avoidedPersonDays - EPSILON) return true;
+  if (Math.abs(candidate.avoidedPersonDays - current.avoidedPersonDays) > EPSILON) return false;
   if (candidate.deviation < current.deviation - EPSILON) return true;
   if (Math.abs(candidate.deviation - current.deviation) > EPSILON) return false;
   if (candidate.projectPeak < current.projectPeak - EPSILON) return true;
@@ -341,6 +388,8 @@ function improveAssignments(
   const loads = assignedLoads(input, assignments);
   const projectLoads = assignedProjectLoads(input, assignments);
   let currentScore = scoreLoads(
+    input,
+    assignments,
     input.monthKeys,
     loads,
     averagePersonDays,
@@ -364,6 +413,8 @@ function improveAssignments(
           projectLoads.set(fromKey, (projectLoads.get(fromKey) || 0) - group.personDays);
           projectLoads.set(toKey, (projectLoads.get(toKey) || 0) + group.personDays);
           const candidateScore = scoreLoads(
+            input,
+            assignments,
             input.monthKeys,
             loads,
             averagePersonDays,
@@ -372,6 +423,12 @@ function improveAssignments(
             projectAverages,
             monthsByProject
           );
+          candidateScore.safetyPenalty = currentScore.safetyPenalty
+            - safetyPenaltyFor(group, from, input.monthKeys)
+            + safetyPenaltyFor(group, to, input.monthKeys);
+          candidateScore.avoidedPersonDays = currentScore.avoidedPersonDays
+            - (isAvoided(from, input.avoidedMonths) ? group.personDays : 0)
+            + (isAvoided(to, input.avoidedMonths) ? group.personDays : 0);
           loads.set(from, (loads.get(from) || 0) + group.personDays);
           loads.set(to, (loads.get(to) || 0) - group.personDays);
           projectLoads.set(fromKey, (projectLoads.get(fromKey) || 0) + group.personDays);
@@ -429,15 +486,19 @@ function optimizeSchedule(input: SmartScheduleOptimizationInput): SmartScheduleO
     const fixedLoads = input.monthKeys.map((monthKey) => input.fixedLoads.get(monthKey) || 0);
     return {
       status: "optimal",
+      failedObjective: "",
       assignments: new Map(),
       peakPersonDays: Math.max(0, ...fixedLoads),
       averagePersonDays,
       totalDeviation: fixedLoads.reduce((total, load) => total + Math.abs(load - averagePersonDays), 0),
+      safetyPenalty: 0,
+      avoidedPersonDays: 0,
       variableCount: 0
     };
   }
 
   const parts = buildModelParts(input);
+  addPreferenceObjectives(parts, input);
   parts.variables.set("peak", new Map([
     [PEAK_OBJECTIVE, 1],
     ...input.monthKeys.map((monthKey): [string, number] => [monthConstraint(monthKey), -1])
@@ -445,16 +506,20 @@ function optimizeSchedule(input: SmartScheduleOptimizationInput): SmartScheduleO
   const stages = [
     { objective: PEAK_OBJECTIVE, prepare: (): void => undefined },
     {
+      objective: SAFETY_OBJECTIVE,
+      prepare: (): void => undefined
+    },
+    {
+      objective: AVOIDED_OBJECTIVE,
+      prepare: (): void => undefined
+    },
+    {
       objective: GLOBAL_DEVIATION_OBJECTIVE,
       prepare: (): void => addGlobalDeviationStage(parts, input, averagePersonDays)
     },
     {
       objective: PROJECT_PEAK_OBJECTIVE,
       prepare: (): void => addProjectPeakStage(parts, input, projects, monthsByProject)
-    },
-    {
-      objective: PROJECT_DEVIATION_OBJECTIVE,
-      prepare: (): void => addProjectDeviationStage(parts, input, projects, projectAverages, monthsByProject)
     }
   ];
   let solution: Solution<string> | null = null;
@@ -464,10 +529,13 @@ function optimizeSchedule(input: SmartScheduleOptimizationInput): SmartScheduleO
     if (solution.status !== "optimal") {
       return {
         status: solution.status,
+        failedObjective: stage.objective,
         assignments: emptyAssignments(input.groups),
         peakPersonDays: Number.NaN,
         averagePersonDays,
         totalDeviation: Number.NaN,
+        safetyPenalty: Number.NaN,
+        avoidedPersonDays: Number.NaN,
         variableCount: parts.variables.size
       };
     }
@@ -485,6 +553,8 @@ function optimizeSchedule(input: SmartScheduleOptimizationInput): SmartScheduleO
   );
   const loads = assignedLoads(input, assignments);
   const score = scoreLoads(
+    input,
+    assignments,
     input.monthKeys,
     loads,
     averagePersonDays,
@@ -495,10 +565,13 @@ function optimizeSchedule(input: SmartScheduleOptimizationInput): SmartScheduleO
   );
   return {
     status: "optimal",
+    failedObjective: "",
     assignments,
     peakPersonDays: score.peak,
     averagePersonDays,
     totalDeviation: score.deviation,
+    safetyPenalty: score.safetyPenalty,
+    avoidedPersonDays: score.avoidedPersonDays,
     variableCount: parts.variables.size
   };
 }

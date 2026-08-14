@@ -595,8 +595,60 @@
 
 .smart-schedule-controls {
     display: grid;
-    grid-template-columns: minmax(150px, 0.55fr) minmax(200px, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
     gap: 12px;
+}
+
+.smart-schedule-avoid-field {
+    grid-column: 1 / -1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.smart-schedule-avoid-field legend {
+    margin-bottom: 7px;
+    color: var(--watchdog-text-muted);
+    font-size: 12px;
+}
+
+.smart-schedule-month-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(48px, 1fr));
+    border: 1px solid var(--watchdog-border);
+    background: var(--watchdog-surface);
+}
+
+.smart-schedule-month-grid label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 38px;
+    margin: 0;
+    border-right: 1px solid var(--watchdog-border);
+    color: var(--watchdog-text);
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.smart-schedule-month-grid label:last-child {
+    border-right: 0;
+}
+
+.smart-schedule-month-grid input {
+    flex: 0 0 auto;
+    width: 15px;
+    height: 15px;
+    margin: 0;
+}
+
+.smart-schedule-month-grid label:has(input:disabled) {
+    cursor: default;
+    opacity: 0.55;
 }
 
 .smart-schedule-chart-panel,

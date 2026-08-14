@@ -39,14 +39,17 @@ interface PersonSeed {
   tsa?: Date;
 }
 
+type ProjectName = "应急训练" | "危险品" | "航空安保" | "TSA";
+type ProjectSchedule = Array<{
+  employeeId: string;
+  name: string;
+  start?: Date;
+  end?: Date;
+}>;
+
 function buildWorkbook(
   people: PersonSeed[],
-  schedules: Partial<Record<"应急训练" | "危险品" | "航空安保" | "TSA", Array<{
-    employeeId: string;
-    name: string;
-    start?: Date;
-    end?: Date;
-  }>>> = {}
+  schedules: Partial<Record<ProjectName, ProjectSchedule>> = {}
 ): XLSX.WorkBook {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([
@@ -60,18 +63,27 @@ function buildWorkbook(
       person.tsa || ""
     ])
   ], { cellDates: true }), "人员信息表");
-  XLSX.utils.book_append_sheet(workbook, projectSheet("应急训练", schedules["应急训练"] || []), "应急训练");
-  XLSX.utils.book_append_sheet(workbook, projectSheet("危险品", schedules["危险品"] || []), "危险品");
-  XLSX.utils.book_append_sheet(workbook, projectSheet("航空安保", schedules["航空安保"] || []), "航空安保");
-  XLSX.utils.book_append_sheet(workbook, projectSheet("TSA", schedules.TSA || []), "TSA");
+  const projectNames: ProjectName[] = ["应急训练", "危险品", "航空安保", "TSA"];
+  projectNames.forEach((projectName) => {
+    XLSX.utils.book_append_sheet(
+      workbook,
+      projectSheet(projectName, schedules[projectName] || []),
+      projectName
+    );
+  });
   return workbook;
 }
 
-function zeroLoadRows(year: number): Array<{ monthKey: string; personDays: number }> {
-  return Array.from({ length: 12 }, (_, index) => ({
-    monthKey: `${year}-${String(index + 1).padStart(2, "0")}`,
-    personDays: 0
-  }));
+function monthKeys(startMonth: string, count: number): string[] {
+  const [year, month] = startMonth.split("-").map(Number);
+  return Array.from({ length: count }, (_, index) => {
+    const value = makeDate(year, month + index, 1);
+    return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}`;
+  });
+}
+
+function zeroFixedRows(startMonth: string, count: number): Array<{ monthKey: string; personDays: number }> {
+  return monthKeys(startMonth, count).map((monthKey) => ({ monthKey, personDays: 0 }));
 }
 
 describe("smart schedule", () => {
@@ -79,36 +91,50 @@ describe("smart schedule", () => {
     vi.stubGlobal("XLSX", XLSX);
   });
 
-  it("spreads a concentrated latest-date workload across every legal month", () => {
-    const people = Array.from({ length: 12 }, (_, index): PersonSeed => ({
+  it("uses one continuous cross-year planning range", () => {
+    const people = Array.from({ length: 18 }, (_, index): PersonSeed => ({
       employeeId: `10${String(index).padStart(2, "0")}`,
       name: `集中到期${index + 1}`,
-      tsa: makeDate(2027, 6, 30)
+      tsa: makeDate(2027, 5, 31)
     }));
     const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook(people)), {
-      year: 2027,
-      today: makeDate(2027, 1, 1),
-      currentLoadRows: zeroLoadRows(2027)
+      startMonth: "2026-09",
+      horizonMonths: 12,
+      safetyLeadMonths: 0,
+      avoidedMonths: [],
+      today: makeDate(2026, 8, 14),
+      fixedLoadRows: zeroFixedRows("2026-09", 12)
     });
     const view = SmartSchedule.buildView(plan);
     const scheduled = plan.items.filter((item) => item.schedulable);
 
-    expect(plan.optimizationStatus).toBe("optimal");
-    expect(scheduled).toHaveLength(12);
-    expect(new Set(scheduled.map((item) => item.recommendedMonth))).toEqual(new Set([
-      "2027-01",
-      "2027-02",
-      "2027-03",
-      "2027-04",
-      "2027-05",
-      "2027-06"
-    ]));
-    expect(scheduled.every((item) => item.recommendedMonth >= item.eligibleStartMonth
-      && item.recommendedMonth <= item.eligibleEndMonth)).toBe(true);
-    expect(view.monthRows.slice(0, 6).map((row) => row.balancedPersonDays)).toEqual([2, 2, 2, 2, 2, 2]);
+    expect(plan.monthKeys).toEqual(monthKeys("2026-09", 12));
+    expect(scheduled).toHaveLength(18);
+    expect(new Set(scheduled.map((item) => item.recommendedMonth))).toEqual(new Set(
+      monthKeys("2026-09", 9)
+    ));
+    expect(view.monthRows.map((row) => row.balancedPersonDays)).toEqual([
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0
+    ]);
   });
 
-  it("keeps window projects inside their protected range while balancing the global plan", () => {
+  it("uses the recorded rolling defaults when optional parameters are omitted", () => {
+    const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook([
+      { employeeId: "1901", name: "默认参数", tsa: makeDate(2027, 5, 31) }
+    ])), {
+      today: makeDate(2026, 8, 14)
+    });
+
+    expect(plan).toMatchObject({
+      startMonth: "2026-09",
+      horizonMonths: 12,
+      safetyLeadMonths: 2,
+      avoidedMonths: [2, 7, 8]
+    });
+    expect(plan.monthKeys).toEqual(monthKeys("2026-09", 12));
+  });
+
+  it("keeps protected-window projects inside the rule window", () => {
     const people: PersonSeed[] = [
       { employeeId: "2001", name: "应急甲", emergency: makeDate(2027, 6, 30) },
       { employeeId: "2002", name: "应急乙", emergency: makeDate(2027, 6, 30) },
@@ -116,9 +142,12 @@ describe("smart schedule", () => {
       { employeeId: "2004", name: "危险品乙", dangerousGoods: makeDate(2027, 6, 30) }
     ];
     const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook(people)), {
-      year: 2027,
+      startMonth: "2027-01",
+      horizonMonths: 12,
+      safetyLeadMonths: 2,
+      avoidedMonths: [],
       today: makeDate(2027, 1, 1),
-      currentLoadRows: zeroLoadRows(2027)
+      fixedLoadRows: zeroFixedRows("2027-01", 12)
     });
 
     const emergency = plan.items.filter((item) => item.projectName === "应急训练");
@@ -135,36 +164,60 @@ describe("smart schedule", () => {
       && item.recommendedMonth <= "2027-06")).toBe(true);
   });
 
-  it("fills low-load months before adding to an existing monthly peak", () => {
-    const people = Array.from({ length: 12 }, (_, index): PersonSeed => ({
-      employeeId: `25${String(index).padStart(2, "0")}`,
-      name: `填谷任务${index + 1}`,
-      tsa: makeDate(2027, 12, 31)
-    }));
-    const currentLoads = zeroLoadRows(2027);
-    currentLoads[0].personDays = 2;
+  it("separates overdue, in-range, and later-round tasks at the rolling boundary", () => {
+    const people: PersonSeed[] = [
+      { employeeId: "3001", name: "开始前已逾期", tsa: makeDate(2026, 8, 31) },
+      { employeeId: "3002", name: "范围内到期", tsa: makeDate(2027, 2, 28) },
+      { employeeId: "3003", name: "范围外到期", tsa: makeDate(2027, 9, 30) }
+    ];
     const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook(people)), {
-      year: 2027,
-      today: makeDate(2027, 1, 1),
-      currentLoadRows: currentLoads
+      startMonth: "2026-09",
+      horizonMonths: 12,
+      today: makeDate(2026, 8, 14),
+      fixedLoadRows: zeroFixedRows("2026-09", 12)
     });
-    const view = SmartSchedule.buildView(plan);
 
-    expect(plan.items.filter((item) => item.recommendedMonth === "2027-01")).toHaveLength(0);
-    expect(Math.max(...view.monthRows.map((row) => row.balancedPersonDays))).toBe(2);
-    expect(view.monthRows.find((row) => row.monthKey === "2027-01")?.balancedPersonDays).toBe(2);
+    expect(plan.items.find((item) => item.name === "开始前已逾期")).toMatchObject({
+      schedulable: false,
+      recommendedMonth: ""
+    });
+    expect(plan.items.find((item) => item.name === "范围内到期")?.schedulable).toBe(true);
+    expect(plan.items.some((item) => item.name === "范围外到期")).toBe(false);
   });
 
-  it("never worsens the annual peak to improve a lower-priority project peak", () => {
+  it("locks peak load before optimizing the safety target", () => {
+    const result = SmartScheduleOptimizer.optimizeSchedule({
+      monthKeys: ["2027-01", "2027-02", "2027-03", "2027-04"],
+      fixedLoads: new Map(),
+      avoidedMonths: [],
+      groups: [{
+        id: "safety-first",
+        projectName: "TSA",
+        count: 2,
+        personDays: 1,
+        safetyTargetMonth: "2027-02",
+        candidateMonths: ["2027-01", "2027-02", "2027-03", "2027-04"]
+      }]
+    });
+
+    expect(result.status).toBe("optimal");
+    expect(result.peakPersonDays).toBe(1);
+    expect(result.safetyPenalty).toBe(0);
+    expect([...result.assignments.get("safety-first")!.keys()].sort()).toEqual(["2027-01", "2027-02"]);
+  });
+
+  it("never raises the total peak to improve a lower-priority project shape", () => {
     const result = SmartScheduleOptimizer.optimizeSchedule({
       monthKeys: ["2027-01", "2027-02"],
       fixedLoads: new Map(),
+      avoidedMonths: [],
       groups: [
         {
           id: "fixed-project",
           projectName: "固定项目",
           count: 1,
           personDays: 10,
+          safetyTargetMonth: "2027-01",
           candidateMonths: ["2027-01"]
         },
         {
@@ -172,6 +225,7 @@ describe("smart schedule", () => {
           projectName: "可调项目",
           count: 2,
           personDays: 1,
+          safetyTargetMonth: "2027-02",
           candidateMonths: ["2027-01", "2027-02"]
         }
       ]
@@ -182,14 +236,15 @@ describe("smart schedule", () => {
     expect(result.assignments.get("flexible-project")).toEqual(new Map([["2027-02", 2]]));
   });
 
-  it("never worsens annual deviation to improve a lower-priority project shape", () => {
+  it("never worsens global deviation to improve a lower-priority project shape", () => {
     const monthKeys = ["2027-01", "2027-02", "2027-03"];
     const groups = [
       {
-        id: "annual-balance",
+        id: "all-months",
         projectName: "全年可调项目",
         count: 3,
         personDays: 1,
+        safetyTargetMonth: "2027-03",
         candidateMonths: monthKeys
       },
       {
@@ -197,12 +252,14 @@ describe("smart schedule", () => {
         projectName: "前两月项目",
         count: 4,
         personDays: 1,
+        safetyTargetMonth: "2027-02",
         candidateMonths: monthKeys.slice(0, 2)
       }
     ];
     const result = SmartScheduleOptimizer.optimizeSchedule({
       monthKeys,
       fixedLoads: new Map(),
+      avoidedMonths: [],
       groups
     });
     const loads = new Map(monthKeys.map((monthKey) => [monthKey, 0]));
@@ -218,34 +275,122 @@ describe("smart schedule", () => {
     expect([...loads.values()].sort((left, right) => left - right)).toEqual([2, 2, 3]);
   });
 
-  it("does not hide one project peak behind another project's low month", () => {
-    const people: PersonSeed[] = [
-      ...Array.from({ length: 12 }, (_, index): PersonSeed => ({
-        employeeId: `27A${String(index).padStart(2, "0")}`,
-        name: `安保均衡${index + 1}`,
-        security: makeDate(2027, 12, 31)
-      })),
-      ...Array.from({ length: 12 }, (_, index): PersonSeed => ({
-        employeeId: `27T${String(index).padStart(2, "0")}`,
-        name: `TSA均衡${index + 1}`,
-        tsa: makeDate(2027, 12, 31)
-      }))
-    ];
-    const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook(people)), {
-      year: 2027,
-      today: makeDate(2027, 1, 1),
-      currentLoadRows: zeroLoadRows(2027)
+  it("keeps the safety target ahead of a conflicting avoidance preference", () => {
+    const result = SmartScheduleOptimizer.optimizeSchedule({
+      monthKeys: ["2027-01", "2027-02"],
+      fixedLoads: new Map(),
+      avoidedMonths: [1],
+      groups: [{
+        id: "safety-before-avoidance",
+        projectName: "TSA",
+        count: 1,
+        personDays: 1,
+        safetyTargetMonth: "2027-01",
+        candidateMonths: ["2027-01", "2027-02"]
+      }]
     });
-    const security = SmartSchedule.buildView(plan, { projectName: "航空安保" });
-    const tsa = SmartSchedule.buildView(plan, { projectName: "TSA" });
 
-    expect(security.monthRows.map((row) => row.balancedPersonDays)).toEqual(Array(12).fill(1));
-    expect(tsa.monthRows.map((row) => row.balancedPersonDays)).toEqual(Array(12).fill(1));
+    expect(result.status).toBe("optimal");
+    expect(result.safetyPenalty).toBe(0);
+    expect(result.avoidedPersonDays).toBe(1);
+    expect(result.assignments.get("safety-before-avoidance")).toEqual(new Map([["2027-01", 1]]));
+  });
+
+  it("uses the real deadline when the safety target cannot hold all work", () => {
+    const result = SmartScheduleOptimizer.optimizeSchedule({
+      monthKeys: ["2027-01", "2027-02", "2027-03"],
+      fixedLoads: new Map(),
+      avoidedMonths: [],
+      groups: [{
+        id: "deadline-fallback",
+        projectName: "TSA",
+        count: 4,
+        personDays: 1,
+        safetyTargetMonth: "2027-01",
+        candidateMonths: ["2027-01", "2027-02", "2027-03"]
+      }]
+    });
+
+    expect(result.status).toBe("optimal");
+    expect(result.peakPersonDays).toBe(2);
+    expect(result.assignments.get("deadline-fallback")).toEqual(new Map([
+      ["2027-01", 2],
+      ["2027-02", 2]
+    ]));
+  });
+
+  it("avoids selected calendar months only after peak and safety are locked", () => {
+    const result = SmartScheduleOptimizer.optimizeSchedule({
+      monthKeys: ["2027-01", "2027-02", "2027-03"],
+      fixedLoads: new Map(),
+      avoidedMonths: [2],
+      groups: [{
+        id: "avoid-february",
+        projectName: "TSA",
+        count: 2,
+        personDays: 1,
+        safetyTargetMonth: "2027-03",
+        candidateMonths: ["2027-01", "2027-02", "2027-03"]
+      }]
+    });
+
+    expect(result.status).toBe("optimal");
+    expect(result.peakPersonDays).toBe(1);
+    expect(result.safetyPenalty).toBe(0);
+    expect(result.avoidedPersonDays).toBe(0);
+    expect(result.assignments.get("avoid-february")).toEqual(new Map([
+      ["2027-01", 1],
+      ["2027-03", 1]
+    ]));
+  });
+
+  it("still schedules work when its only legal month is selected for avoidance", () => {
+    const result = SmartScheduleOptimizer.optimizeSchedule({
+      monthKeys: ["2027-02"],
+      fixedLoads: new Map(),
+      avoidedMonths: [2],
+      groups: [{
+        id: "must-use-february",
+        projectName: "应急训练",
+        count: 1,
+        personDays: 1,
+        safetyTargetMonth: "2027-02",
+        candidateMonths: ["2027-02"]
+      }]
+    });
+
+    expect(result.status).toBe("optimal");
+    expect(result.assignments.get("must-use-february")).toEqual(new Map([["2027-02", 1]]));
+    expect(result.avoidedPersonDays).toBe(1);
+  });
+
+  it("uses the same one-time workload for original pressure and the balanced plan", () => {
+    const people = Array.from({ length: 12 }, (_, index): PersonSeed => ({
+      employeeId: `40${String(index).padStart(2, "0")}`,
+      name: `一次任务${index + 1}`,
+      tsa: makeDate(2027, 6, 30)
+    }));
+    const view = SmartSchedule.buildView(SmartSchedule.buildPlan(
+      Scanner.analyzeWorkbook(buildWorkbook(people)),
+      {
+        startMonth: "2027-01",
+        horizonMonths: 12,
+        safetyLeadMonths: 0,
+        avoidedMonths: [],
+        today: makeDate(2027, 1, 1),
+        fixedLoadRows: zeroFixedRows("2027-01", 12)
+      }
+    ));
+
+    expect(view.monthRows.find((row) => row.monthKey === "2027-06")?.originalDuePersonDays).toBe(12);
+    expect(view.monthRows.reduce((total, row) => total + row.originalDuePersonDays, 0)).toBe(12);
+    expect(view.monthRows.reduce((total, row) => total + row.balancedPersonDays, 0)).toBe(12);
+    expect(Math.max(...view.monthRows.map((row) => row.balancedPersonDays))).toBe(2);
   });
 
   it("does not let future manual schedule months influence the ideal plan", () => {
     const people = Array.from({ length: 6 }, (_, index): PersonSeed => ({
-      employeeId: `30${index}`,
+      employeeId: `50${index}`,
       name: `独立方案${index + 1}`,
       tsa: makeDate(2027, 6, 30)
     }));
@@ -259,21 +404,22 @@ describe("smart schedule", () => {
       name: person.name,
       start: makeDate(2027, 5, 10)
     }));
-    const marchLoads = zeroLoadRows(2027);
-    marchLoads[2].personDays = people.length;
-    const mayLoads = zeroLoadRows(2027);
-    mayLoads[4].personDays = people.length;
-
-    const marchPlan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook(people, { TSA: marchSchedules })), {
-      year: 2027,
+    const options = {
+      startMonth: "2027-01",
+      horizonMonths: 12,
+      safetyLeadMonths: 0,
+      avoidedMonths: [] as number[],
       today: makeDate(2027, 1, 1),
-      currentLoadRows: marchLoads
-    });
-    const mayPlan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook(people, { TSA: maySchedules })), {
-      year: 2027,
-      today: makeDate(2027, 1, 1),
-      currentLoadRows: mayLoads
-    });
+      fixedLoadRows: zeroFixedRows("2027-01", 12)
+    };
+    const marchPlan = SmartSchedule.buildPlan(
+      Scanner.analyzeWorkbook(buildWorkbook(people, { TSA: marchSchedules })),
+      options
+    );
+    const mayPlan = SmartSchedule.buildPlan(
+      Scanner.analyzeWorkbook(buildWorkbook(people, { TSA: maySchedules })),
+      options
+    );
     const recommendations = (items: typeof marchPlan.items) => items
       .map((item) => [item.employeeId, item.recommendedMonth])
       .sort(([left], [right]) => left.localeCompare(right));
@@ -281,39 +427,16 @@ describe("smart schedule", () => {
     expect(recommendations(marchPlan.items)).toEqual(recommendations(mayPlan.items));
   });
 
-  it("keeps completed history as fixed load without returning it as a recommendation", () => {
-    const people: PersonSeed[] = [
-      { employeeId: "4001", name: "已经完成", tsa: makeDate(2027, 6, 30) },
-      { employeeId: "4002", name: "仍需安排", tsa: makeDate(2027, 6, 30) }
-    ];
-    const currentLoads = zeroLoadRows(2027);
-    currentLoads[0].personDays = 1;
-    const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook(people, {
-      TSA: [{ employeeId: "4001", name: "已经完成", start: makeDate(2027, 1, 5) }]
-    })), {
-      year: 2027,
-      today: makeDate(2027, 2, 1),
-      currentLoadRows: currentLoads
-    });
-    const view = SmartSchedule.buildView(plan);
-
-    expect(plan.items.some((item) => item.name === "已经完成")).toBe(false);
-    expect(plan.items.some((item) => item.name === "仍需安排")).toBe(true);
-    expect(view.monthRows.find((row) => row.monthKey === "2027-01")).toMatchObject({
-      currentPersonDays: 1,
-      balancedPersonDays: 1
-    });
-  });
-
-  it("uses completed history to schedule the next round when it is still due in the planning year", () => {
+  it("uses completed history once to schedule the next current round", () => {
     const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook([
-      { employeeId: "4501", name: "历史顺延后仍到期", tsa: makeDate(2027, 5, 31) }
+      { employeeId: "6001", name: "历史顺延后仍到期", tsa: makeDate(2027, 5, 31) }
     ], {
-      TSA: [{ employeeId: "4501", name: "历史顺延后仍到期", start: makeDate(2026, 6, 10) }]
+      TSA: [{ employeeId: "6001", name: "历史顺延后仍到期", start: makeDate(2026, 6, 10) }]
     })), {
-      year: 2027,
+      startMonth: "2026-09",
+      horizonMonths: 12,
       today: makeDate(2026, 8, 14),
-      currentLoadRows: zeroLoadRows(2027)
+      fixedLoadRows: zeroFixedRows("2026-09", 12)
     });
 
     expect(plan.items).toHaveLength(1);
@@ -324,33 +447,17 @@ describe("smart schedule", () => {
     });
   });
 
-  it("reports work that already has no legal month", () => {
-    const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook([
-      { employeeId: "5001", name: "已经逾期", tsa: makeDate(2027, 1, 5) }
-    ])), {
-      year: 2027,
-      today: makeDate(2027, 1, 10),
-      currentLoadRows: zeroLoadRows(2027)
-    });
-
-    expect(plan.items).toHaveLength(1);
-    expect(plan.items[0]).toMatchObject({
-      name: "已经逾期",
-      schedulable: false,
-      recommendedMonth: ""
-    });
-  });
-
   it("projects a selected project without changing the global recommendations", () => {
     const people: PersonSeed[] = [
-      { employeeId: "6001", name: "应急项目", emergency: makeDate(2027, 6, 30) },
-      { employeeId: "6002", name: "危险品项目", dangerousGoods: makeDate(2027, 6, 30) },
-      { employeeId: "6003", name: "TSA项目", tsa: makeDate(2027, 6, 30) }
+      { employeeId: "7001", name: "应急项目", emergency: makeDate(2027, 6, 30) },
+      { employeeId: "7002", name: "危险品项目", dangerousGoods: makeDate(2027, 6, 30) },
+      { employeeId: "7003", name: "TSA项目", tsa: makeDate(2027, 6, 30) }
     ];
     const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook(people)), {
-      year: 2027,
+      startMonth: "2027-01",
+      horizonMonths: 12,
       today: makeDate(2027, 1, 1),
-      currentLoadRows: zeroLoadRows(2027)
+      fixedLoadRows: zeroFixedRows("2027-01", 12)
     });
     const globalTsaMonth = plan.items.find((item) => item.projectName === "TSA")?.recommendedMonth;
     const tsaView = SmartSchedule.buildView(plan, { projectName: "TSA" });
@@ -361,37 +468,44 @@ describe("smart schedule", () => {
     expect(tsaView.monthRows.reduce((total, row) => total + row.balancedPersonDays, 0)).toBe(1);
   });
 
-  it("estimates person-days from the most common project duration", () => {
-    const people: PersonSeed[] = [
-      { employeeId: "7001", name: "待排人员", emergency: makeDate(2027, 6, 30) }
-    ];
-    const workbook = buildWorkbook(people, {
+  it("adds fixed CRM load only to the all-project projection", () => {
+    const fixedLoadRows = zeroFixedRows("2027-01", 12);
+    fixedLoadRows[0].personDays = 5;
+    const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook([
+      { employeeId: "7501", name: "固定底座", tsa: makeDate(2027, 2, 28) }
+    ])), {
+      startMonth: "2027-01",
+      horizonMonths: 12,
+      safetyLeadMonths: 0,
+      avoidedMonths: [],
+      today: makeDate(2027, 1, 1),
+      fixedLoadRows
+    });
+    const allProjects = SmartSchedule.buildView(plan);
+    const tsaOnly = SmartSchedule.buildView(plan, { projectName: "TSA" });
+
+    expect(allProjects.monthRows.reduce((total, row) => total + row.originalDuePersonDays, 0)).toBe(6);
+    expect(allProjects.monthRows.reduce((total, row) => total + row.balancedPersonDays, 0)).toBe(6);
+    expect(tsaOnly.monthRows.reduce((total, row) => total + row.originalDuePersonDays, 0)).toBe(1);
+    expect(tsaOnly.monthRows.reduce((total, row) => total + row.balancedPersonDays, 0)).toBe(1);
+  });
+
+  it("estimates person-days from the most common active project duration", () => {
+    const workbook = buildWorkbook([
+      { employeeId: "8001", name: "待排人员", emergency: makeDate(2027, 6, 30) }
+    ], {
       "应急训练": [
-        { employeeId: "7901", name: "两天样本甲", start: makeDate(2026, 4, 1), end: makeDate(2026, 4, 2) },
-        { employeeId: "7902", name: "两天样本乙", start: makeDate(2026, 5, 1), end: makeDate(2026, 5, 2) }
+        { employeeId: "8901", name: "两天样本甲", start: makeDate(2026, 4, 1), end: makeDate(2026, 4, 2) },
+        { employeeId: "8902", name: "两天样本乙", start: makeDate(2026, 5, 1), end: makeDate(2026, 5, 2) }
       ]
     });
     const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(workbook), {
-      year: 2027,
+      startMonth: "2027-01",
+      horizonMonths: 12,
       today: makeDate(2027, 1, 1),
-      currentLoadRows: zeroLoadRows(2027)
+      fixedLoadRows: zeroFixedRows("2027-01", 12)
     });
 
     expect(plan.items.find((item) => item.projectName === "应急训练")?.personDays).toBe(2);
-  });
-
-  it("exposes one annual average reference for the displayed plan", () => {
-    const people = Array.from({ length: 24 }, (_, index): PersonSeed => ({
-      employeeId: `80${String(index).padStart(2, "0")}`,
-      name: `全年任务${index + 1}`,
-      tsa: makeDate(2027, 12, 31)
-    }));
-    const view = SmartSchedule.buildView(SmartSchedule.buildPlan(
-      Scanner.analyzeWorkbook(buildWorkbook(people)),
-      { year: 2027, today: makeDate(2027, 1, 1), currentLoadRows: zeroLoadRows(2027) }
-    ));
-
-    expect(view.monthRows.map((row) => row.balancedPersonDays)).toEqual(Array(12).fill(2));
-    expect(view.monthRows.map((row) => row.averagePersonDays)).toEqual(Array(12).fill(2));
   });
 });

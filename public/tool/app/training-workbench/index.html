@@ -384,13 +384,21 @@
                 <div class="section-head">
                     <div>
                         <h2 class="section-title" id="smartScheduleTitle">智能排班方案</h2>
-                        <p class="section-intro">资质不过期是硬约束，系统独立生成全年月度培训人天尽量接近的排班底稿。</p>
+                        <p class="section-intro">连续查看未来到期压力，并在资质不过期的前提下均衡月度培训人天。</p>
                     </div>
                 </div>
                 <div class="smart-schedule-controls">
                     <div class="field">
-                        <label for="smartScheduleYearInput">排班年份</label>
-                        <input id="smartScheduleYearInput" type="number" min="2000" max="2100" step="1" disabled>
+                        <label for="smartScheduleStartMonthInput">排班起始月份</label>
+                        <input id="smartScheduleStartMonthInput" type="month" disabled>
+                    </div>
+                    <div class="field">
+                        <label for="smartScheduleHorizonInput">观察月数</label>
+                        <input id="smartScheduleHorizonInput" type="number" min="12" max="60" step="1" value="12" disabled>
+                    </div>
+                    <div class="field">
+                        <label for="smartScheduleSafetyLeadInput">安全提前量（月）</label>
+                        <input id="smartScheduleSafetyLeadInput" type="number" min="0" max="12" step="1" value="2" disabled>
                     </div>
                     <div class="field">
                         <label for="smartScheduleProjectSelect">资质项目</label>
@@ -398,9 +406,26 @@
                             <option value="">全部资质项目</option>
                         </select>
                     </div>
+                    <fieldset class="field smart-schedule-avoid-field" id="smartScheduleAvoidMonthsGroup" disabled>
+                        <legend>避让月份（软偏好）</legend>
+                        <div class="smart-schedule-month-grid">
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="1">1月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="2" checked>2月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="3">3月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="4">4月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="5">5月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="6">6月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="7" checked>7月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="8" checked>8月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="9">9月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="10">10月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="11">11月</label>
+                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="12">12月</label>
+                        </div>
+                    </fieldset>
                 </div>
                 <div class="chart-panel smart-schedule-chart-panel">
-                    <div class="chart-title">当前排班与均衡方案（人天）</div>
+                    <div class="chart-title">原始到期压力与均衡方案（人天）</div>
                     <div class="chart-box" id="smartScheduleChart"></div>
                 </div>
                 <div class="smart-schedule-detail-panel" id="smartScheduleDetailPanel" hidden>
