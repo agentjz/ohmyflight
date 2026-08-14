@@ -1,8 +1,12 @@
 import type {
+  TrainingExtraProjectRow,
   TrainingToolAnalysis,
   TrainingToolProjectAnalysis
 } from "./models";
-import { TrainingToolQualificationPressure } from "./qualification-pressure";
+import {
+  TrainingToolQualificationPressure,
+  type QualificationPressureCoverageStatus
+} from "./qualification-pressure";
 import { TrainingToolRuleEngine } from "./rule-engine";
 import {
   TrainingToolSmartScheduleOptimizer,
@@ -24,12 +28,21 @@ const MAX_HORIZON_MONTHS = 60;
 const MAX_MONTH_RANGE = 120;
 const EMPTY_KEY_SEPARATOR = String.fromCharCode(0);
 
+export type SmartScheduleManualStatus =
+  | "已排班"
+  | "未排班"
+  | "已排未覆盖"
+  | "晚于截止日";
+
 export interface SmartScheduleItem {
   employeeId: string;
   name: string;
   projectName: string;
   ruleType: string;
   dueDate: string;
+  manualStatus: SmartScheduleManualStatus;
+  scheduledDate: string;
+  manualPlanMonth: string;
   safetyTargetMonth: string;
   recommendedMonth: string;
   eligibleStartMonth: string;
@@ -42,6 +55,7 @@ export interface SmartScheduleItem {
 export interface SmartScheduleMonthRow {
   monthKey: string;
   originalDuePersonDays: number;
+  manualPlanPersonDays: number;
   balancedPersonDays: number;
   averagePersonDays: number;
 }
@@ -63,6 +77,7 @@ export interface SmartSchedulePlan {
   items: SmartScheduleItem[];
   fixedLoadRows: Array<{ monthKey: string; personDays: number }>;
   originalDueRows: SmartScheduleProjectMonthLoad[];
+  manualPlanRows: SmartScheduleProjectMonthLoad[];
   recommendedRows: SmartScheduleProjectMonthLoad[];
   peakPersonDays: number;
   averagePersonDays: number;
@@ -88,6 +103,7 @@ export interface SmartSchedulePlanOptions {
   avoidedMonths?: number[];
   today?: Date;
   fixedLoadRows?: Array<{ monthKey: string; personDays: number }>;
+  extraProjectRows?: TrainingExtraProjectRow[];
 }
 
 export interface SmartScheduleViewOptions {
@@ -95,9 +111,6 @@ export interface SmartScheduleViewOptions {
 }
 
 interface ScheduleDraft extends SmartScheduleItem {
-  currentDate: string;
-  currentMonth: string;
-  currentDueMonth: string;
   candidateMonths: string[];
 }
 
@@ -247,6 +260,57 @@ function reasonForRule(ruleType: string, safetyTargetMonth: string): string {
   return "在保护窗口内安排，原到期锚点不变。";
 }
 
+function manualStatus(
+  coverageStatus: QualificationPressureCoverageStatus,
+  pastCovered: boolean
+): SmartScheduleManualStatus {
+  if (pastCovered || coverageStatus === "未安排") return "未排班";
+  if (coverageStatus === "已覆盖") return "已排班";
+  return coverageStatus;
+}
+
+function manualProjection(
+  status: SmartScheduleManualStatus,
+  scheduledDate: string,
+  scheduledMonth: string,
+  dueMonth: string,
+  planningMonthKeys: string[]
+): { scheduledDate: string; manualPlanMonth: string; reasonSuffix: string } {
+  if (status === "已排班" && planningMonthKeys.includes(scheduledMonth)) {
+    return {
+      scheduledDate,
+      manualPlanMonth: scheduledMonth,
+      reasonSuffix: `当前轮次已排在 ${scheduledDate}。`
+    };
+  }
+  if (status === "已排班") {
+    return {
+      scheduledDate,
+      manualPlanMonth: dueMonth,
+      reasonSuffix: `当前轮次已排在 ${scheduledDate}，实际月份不在观察范围，我的方案暂按最晚完成月计入。`
+    };
+  }
+  if (status === "已排未覆盖") {
+    return {
+      scheduledDate,
+      manualPlanMonth: dueMonth,
+      reasonSuffix: "已排日期未覆盖当前轮次，我的方案暂按最晚完成月计入。"
+    };
+  }
+  if (status === "晚于截止日") {
+    return {
+      scheduledDate,
+      manualPlanMonth: dueMonth,
+      reasonSuffix: "已排日期晚于截止日，我的方案暂按最晚完成月计入。"
+    };
+  }
+  return {
+    scheduledDate: "",
+    manualPlanMonth: dueMonth,
+    reasonSuffix: "当前轮次未排班，我的方案暂按最晚完成月计入。"
+  };
+}
+
 function buildDrafts(
   analysis: TrainingToolAnalysis,
   options: {
@@ -254,11 +318,13 @@ function buildDrafts(
     endMonth: string;
     safetyLeadMonths: number;
     today: Date;
+    extraProjectRows: TrainingExtraProjectRow[];
   }
 ): ScheduleDraft[] {
   const pressure = QualificationPressure.buildPressure(analysis, {
     startMonth: options.startMonth,
-    horizonMonths: MAX_HORIZON_MONTHS
+    horizonMonths: MAX_HORIZON_MONTHS,
+    extraProjectRows: options.extraProjectRows
   });
   const projectPersonDays = new Map(
     analysis.projects.map((project) => [
@@ -270,12 +336,12 @@ function buildDrafts(
 
   return pressure.items.flatMap((item): ScheduleDraft[] => {
     const project = analysis.projectMap.get(item.projectName);
-    const currentDateValue = Utils.parseDate(item.scheduledDate);
-    const currentDate = Utils.formatDate(currentDateValue);
-    const currentMonth = Utils.toMonthKey(currentDateValue);
+    const scheduledDateValue = Utils.parseDate(item.scheduledDate);
+    const sourceScheduledDate = Utils.formatDate(scheduledDateValue);
+    const sourceScheduledMonth = Utils.toMonthKey(scheduledDateValue);
     const pastCovered = Boolean(
-      currentDateValue
-      && currentDateValue < options.today
+      scheduledDateValue
+      && scheduledDateValue < options.today
       && item.coverageStatus === "已覆盖"
     );
     const currentExpiry = Utils.parseDate(
@@ -286,6 +352,14 @@ function buildDrafts(
     );
     if (!project || !currentExpiry || !dueDate) return [];
     const dueMonth = Utils.toMonthKey(dueDate);
+    const status = manualStatus(item.coverageStatus, pastCovered);
+    const manual = manualProjection(
+      status,
+      pastCovered ? "" : sourceScheduledDate,
+      pastCovered ? "" : sourceScheduledMonth,
+      dueMonth,
+      planningMonthKeys
+    );
     if (!planningMonthKeys.includes(dueMonth) && dueMonth < options.startMonth) {
       return [{
         employeeId: item.employeeId,
@@ -293,16 +367,16 @@ function buildDrafts(
         projectName: item.projectName,
         ruleType: project.rule.ruleType,
         dueDate: Utils.formatDate(dueDate),
+        manualStatus: status,
+        scheduledDate: manual.scheduledDate,
+        manualPlanMonth: manual.manualPlanMonth,
         safetyTargetMonth: shiftMonth(dueMonth, -options.safetyLeadMonths),
         recommendedMonth: "",
         eligibleStartMonth: "",
         eligibleEndMonth: "",
         personDays: projectPersonDays.get(item.projectName) || 1,
         schedulable: false,
-        reason: "当前轮次已早于滚动范围，没有不晚于截止日的合法月份。",
-        currentDate,
-        currentMonth,
-        currentDueMonth: dueMonth,
+        reason: `当前轮次已早于滚动范围，没有不晚于截止日的合法月份。${manual.reasonSuffix}`,
         candidateMonths: []
       }];
     }
@@ -326,6 +400,9 @@ function buildDrafts(
       projectName: item.projectName,
       ruleType: project.rule.ruleType,
       dueDate: Utils.formatDate(dueDate),
+      manualStatus: status,
+      scheduledDate: manual.scheduledDate,
+      manualPlanMonth: manual.manualPlanMonth,
       safetyTargetMonth,
       recommendedMonth: "",
       eligibleStartMonth: candidateMonths[0] || "",
@@ -333,11 +410,8 @@ function buildDrafts(
       personDays: projectPersonDays.get(item.projectName) || 1,
       schedulable,
       reason: schedulable
-        ? reasonForRule(project.rule.ruleType, safetyTargetMonth)
-        : "当前轮次已没有不晚于截止日的合法月份。",
-      currentDate,
-      currentMonth,
-      currentDueMonth: dueMonth,
+        ? `${manual.reasonSuffix}${reasonForRule(project.rule.ruleType, safetyTargetMonth)}`
+        : `当前轮次已没有不晚于截止日的合法月份。${manual.reasonSuffix}`,
       candidateMonths
     }];
   });
@@ -422,9 +496,6 @@ function assignRecommendations(
 
 function toPublicItem(draft: ScheduleDraft): SmartScheduleItem {
   const {
-    currentDate: _currentDate,
-    currentMonth: _currentMonth,
-    currentDueMonth: _currentDueMonth,
     candidateMonths: _candidateMonths,
     ...item
   } = draft;
@@ -444,6 +515,29 @@ function recommendedRows(items: SmartScheduleItem[]): SmartScheduleProjectMonthL
       ? [{
         projectName: item.projectName,
         monthKey: item.recommendedMonth,
+        personDays: item.personDays
+      }]
+      : []
+  ));
+  return [...sumProjectMonthRows(rows).entries()].map(([key, personDays]) => {
+    const separatorIndex = key.indexOf(EMPTY_KEY_SEPARATOR);
+    return {
+      projectName: key.slice(0, separatorIndex),
+      monthKey: key.slice(separatorIndex + 1),
+      personDays
+    };
+  });
+}
+
+function manualPlanRows(
+  items: SmartScheduleItem[],
+  monthKeys: string[]
+): SmartScheduleProjectMonthLoad[] {
+  const rows = items.flatMap((item): SmartScheduleProjectMonthLoad[] => (
+    item.schedulable && monthKeys.includes(item.manualPlanMonth)
+      ? [{
+        projectName: item.projectName,
+        monthKey: item.manualPlanMonth,
         personDays: item.personDays
       }]
       : []
@@ -497,7 +591,8 @@ function buildPlan(
     startMonth,
     endMonth,
     safetyLeadMonths,
-    today
+    today,
+    extraProjectRows: options.extraProjectRows || []
   });
   const groups = groupDrafts(drafts);
   const optimization = TrainingToolSmartScheduleOptimizer.optimizeSchedule({
@@ -546,6 +641,7 @@ function buildPlan(
     items: publicItems,
     fixedLoadRows,
     originalDueRows: originalDueRows(publicItems, monthKeys),
+    manualPlanRows: manualPlanRows(publicItems, monthKeys),
     recommendedRows: recommendedRows(publicItems),
     peakPersonDays: optimization.peakPersonDays,
     averagePersonDays: optimization.averagePersonDays,
@@ -575,9 +671,14 @@ function buildView(
   projectRows(plan.recommendedRows, selectedProject).forEach((row) => {
     balancedLoads.set(row.monthKey, (balancedLoads.get(row.monthKey) || 0) + row.personDays);
   });
+  const manualLoads = new Map<string, number>();
+  projectRows(plan.manualPlanRows, selectedProject).forEach((row) => {
+    manualLoads.set(row.monthKey, (manualLoads.get(row.monthKey) || 0) + row.personDays);
+  });
   if (!selectedProject) {
     plan.fixedLoadRows.forEach((row) => {
       originalLoads.set(row.monthKey, (originalLoads.get(row.monthKey) || 0) + row.personDays);
+      manualLoads.set(row.monthKey, (manualLoads.get(row.monthKey) || 0) + row.personDays);
       balancedLoads.set(row.monthKey, (balancedLoads.get(row.monthKey) || 0) + row.personDays);
     });
   }
@@ -589,6 +690,7 @@ function buildView(
   const monthRows = plan.monthKeys.map((monthKey) => ({
     monthKey,
     originalDuePersonDays: originalLoads.get(monthKey) || 0,
+    manualPlanPersonDays: manualLoads.get(monthKey) || 0,
     balancedPersonDays: balancedLoads.get(monthKey) || 0,
     averagePersonDays
   }));

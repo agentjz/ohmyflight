@@ -111,7 +111,17 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
   }
 
   function smartScheduleRows(result: TrainingSmartScheduleResult, selectedMonth: string) {
-    return result.items.filter((item) => item.recommendedMonth === selectedMonth);
+    return result.items.filter((item) => (
+      item.dueDate.slice(0, 7) === selectedMonth
+      || item.manualPlanMonth === selectedMonth
+      || item.recommendedMonth === selectedMonth
+    ));
+  }
+
+  function smartScheduleStatusTone(status: string): string {
+    if (status === "已排班") return "ok";
+    if (status === "未排班") return "warn";
+    return "danger";
   }
 
   function smartScheduleMonthKeys(startMonth: string, horizonMonths: number): string[] {
@@ -157,8 +167,8 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
   function renderSmartScheduleDetails(result: TrainingSmartScheduleResult | null, selectedMonth: string): void {
     if (!result) {
       elements.smartScheduleDetailPanel.hidden = true;
-      elements.smartScheduleDetailTitle.textContent = "智能推荐明细";
-      elements.smartScheduleDetailBody.innerHTML = '<tr><td class="empty-block" colspan="7">点击图中的月份查看智能推荐人员项目。</td></tr>';
+      elements.smartScheduleDetailTitle.textContent = "方案对比明细";
+      elements.smartScheduleDetailBody.innerHTML = '<tr><td class="empty-block" colspan="10">点击图中的月份查看两套方案明细。</td></tr>';
       return;
     }
     const rows = selectedMonth
@@ -166,13 +176,13 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
       : result.items.filter((item) => !item.schedulable);
     if (!selectedMonth && !rows.length) {
       elements.smartScheduleDetailPanel.hidden = true;
-      elements.smartScheduleDetailTitle.textContent = "智能推荐明细";
-      elements.smartScheduleDetailBody.innerHTML = '<tr><td class="empty-block" colspan="7">点击图中的月份查看智能推荐人员项目。</td></tr>';
+      elements.smartScheduleDetailTitle.textContent = "方案对比明细";
+      elements.smartScheduleDetailBody.innerHTML = '<tr><td class="empty-block" colspan="10">点击图中的月份查看两套方案明细。</td></tr>';
       return;
     }
     elements.smartScheduleDetailPanel.hidden = false;
     elements.smartScheduleDetailTitle.textContent = selectedMonth
-      ? `${selectedMonth} 智能推荐（${rows.length} 人项）`
+      ? `${selectedMonth} 方案对比（${rows.length} 人项）`
       : `无法在资质过期前安排（${rows.length} 人项）`;
     elements.smartScheduleDetailBody.innerHTML = rows.length ? rows.map((row) => {
       return `
@@ -180,13 +190,16 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
           <td>${Utils.escapeHtml(row.projectName)}</td>
           <td class="person-name">${Utils.escapeHtml(row.name || "-")}</td>
           <td>${Utils.escapeHtml(row.employeeId || "-")}</td>
+          <td><span class="badge ${smartScheduleStatusTone(row.manualStatus)}">${Utils.escapeHtml(row.manualStatus)}</span></td>
+          <td>${Utils.escapeHtml(row.scheduledDate || "-")}</td>
+          <td>${Utils.escapeHtml(row.manualPlanMonth || "-")}</td>
           <td>${Utils.escapeHtml(row.recommendedMonth || "-")}</td>
           <td>${Utils.escapeHtml(row.dueDate)}</td>
           <td>${row.personDays}</td>
           <td>${Utils.escapeHtml(row.reason)}</td>
         </tr>
       `;
-    }).join("") : '<tr><td class="empty-block" colspan="7">当前月份没有智能推荐人员项目。</td></tr>';
+    }).join("") : '<tr><td class="empty-block" colspan="10">当前月份没有相关人员项目。</td></tr>';
   }
 
   function renderSmartSchedule(selectedMonth = "", rebuildPlan = false): void {
@@ -212,7 +225,8 @@ export function createTrainingCapacityRenderers(runtime: TrainingToolAppRuntime)
         horizonMonths,
         safetyLeadMonths: Number(elements.smartScheduleSafetyLeadInput.value),
         avoidedMonths: smartScheduleAvoidedMonths(),
-        fixedLoadRows: smartScheduleFixedLoadRows(startMonth, horizonMonths)
+        fixedLoadRows: smartScheduleFixedLoadRows(startMonth, horizonMonths),
+        extraProjectRows: state.simulationRecords || []
       });
     }
     const result = TrainingToolSmartSchedule.buildView(state.smartSchedulePlan, {

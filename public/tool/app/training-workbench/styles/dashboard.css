@@ -673,31 +673,43 @@
 }
 
 .smart-schedule-detail-table :is(th, td):nth-child(1) {
-    width: 12%;
-}
-
-.smart-schedule-detail-table :is(th, td):nth-child(2) {
-    width: 12%;
-}
-
-.smart-schedule-detail-table :is(th, td):nth-child(3) {
-    width: 10%;
-}
-
-.smart-schedule-detail-table :is(th, td):nth-child(4) {
-    width: 12%;
-}
-
-.smart-schedule-detail-table :is(th, td):nth-child(5) {
-    width: 14%;
-}
-
-.smart-schedule-detail-table :is(th, td):nth-child(6) {
     width: 8%;
 }
 
+.smart-schedule-detail-table :is(th, td):nth-child(2) {
+    width: 8%;
+}
+
+.smart-schedule-detail-table :is(th, td):nth-child(3) {
+    width: 8%;
+}
+
+.smart-schedule-detail-table :is(th, td):nth-child(4) {
+    width: 9%;
+}
+
+.smart-schedule-detail-table :is(th, td):nth-child(5) {
+    width: 10%;
+}
+
+.smart-schedule-detail-table :is(th, td):nth-child(6) {
+    width: 9%;
+}
+
 .smart-schedule-detail-table :is(th, td):nth-child(7) {
-    width: 32%;
+    width: 9%;
+}
+
+.smart-schedule-detail-table :is(th, td):nth-child(8) {
+    width: 10%;
+}
+
+.smart-schedule-detail-table :is(th, td):nth-child(9) {
+    width: 6%;
+}
+
+.smart-schedule-detail-table :is(th, td):nth-child(10) {
+    width: 23%;
 }
 
 .pressure-detail-table {

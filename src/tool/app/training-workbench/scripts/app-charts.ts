@@ -271,6 +271,7 @@ const Utils = TrainingToolUtils;
       yAxis: { type: "value", minInterval: 1, name: "人天" },
       series: [
         { name: "原始到期压力", type: "bar", data: monthRows.map((row) => row.originalDuePersonDays) },
+        { name: "我的方案", type: "bar", data: monthRows.map((row) => row.manualPlanPersonDays) },
         { name: "均衡方案", type: "bar", data: monthRows.map((row) => row.balancedPersonDays) },
         {
           name: "月均参考",

@@ -185,6 +185,92 @@ describe("smart schedule", () => {
     expect(plan.items.some((item) => item.name === "范围外到期")).toBe(false);
   });
 
+  it("keeps manual schedule facts as a separate plan projection", () => {
+    const people: PersonSeed[] = [
+      { employeeId: "3101", name: "未来已排", tsa: makeDate(2027, 6, 30) },
+      { employeeId: "3102", name: "尚未排班", tsa: makeDate(2027, 6, 30) },
+      { employeeId: "3103", name: "窗口外安排", tsa: makeDate(2027, 6, 30) },
+      { employeeId: "3104", name: "晚于截止", tsa: makeDate(2027, 6, 30) },
+      { employeeId: "3105", name: "范围前已排", tsa: makeDate(2027, 6, 30) }
+    ];
+    const plan = SmartSchedule.buildPlan(Scanner.analyzeWorkbook(buildWorkbook(people, {
+      TSA: [
+        { employeeId: "3101", name: "未来已排", start: makeDate(2027, 3, 10) },
+        { employeeId: "3103", name: "窗口外安排", start: makeDate(2026, 1, 10) },
+        { employeeId: "3104", name: "晚于截止", start: makeDate(2027, 7, 10) },
+        { employeeId: "3105", name: "范围前已排", start: makeDate(2027, 1, 10) }
+      ]
+    })), {
+      startMonth: "2027-02",
+      horizonMonths: 12,
+      safetyLeadMonths: 0,
+      avoidedMonths: [],
+      today: makeDate(2027, 1, 1),
+      fixedLoadRows: zeroFixedRows("2027-02", 12)
+    });
+    const rows = new Map(plan.items.map((item) => [item.name, item]));
+
+    expect(rows.get("未来已排")).toMatchObject({
+      manualStatus: "已排班",
+      scheduledDate: "2027-03-10",
+      manualPlanMonth: "2027-03"
+    });
+    expect(rows.get("尚未排班")).toMatchObject({
+      manualStatus: "未排班",
+      scheduledDate: "",
+      manualPlanMonth: "2027-06"
+    });
+    expect(rows.get("窗口外安排")).toMatchObject({
+      manualStatus: "已排未覆盖",
+      scheduledDate: "2026-01-10",
+      manualPlanMonth: "2027-06"
+    });
+    expect(rows.get("晚于截止")).toMatchObject({
+      manualStatus: "晚于截止日",
+      scheduledDate: "2027-07-10",
+      manualPlanMonth: "2027-06"
+    });
+    expect(rows.get("范围前已排")).toMatchObject({
+      manualStatus: "已排班",
+      scheduledDate: "2027-01-10",
+      manualPlanMonth: "2027-06"
+    });
+    expect(rows.get("范围前已排")?.reason).toContain("实际月份不在观察范围");
+    const view = SmartSchedule.buildView(plan);
+    expect(view.monthRows.reduce((total, row) => total + row.originalDuePersonDays, 0)).toBe(5);
+    expect(view.monthRows.reduce((total, row) => total + row.manualPlanPersonDays, 0)).toBe(5);
+    expect(view.monthRows.reduce((total, row) => total + row.balancedPersonDays, 0)).toBe(5);
+  });
+
+  it("projects an in-memory manual schedule without changing the ideal task", () => {
+    const analysis = Scanner.analyzeWorkbook(buildWorkbook([
+      { employeeId: "3201", name: "模拟排班", tsa: makeDate(2027, 6, 30) }
+    ]));
+    const plan = SmartSchedule.buildPlan(analysis, {
+      startMonth: "2027-01",
+      horizonMonths: 12,
+      safetyLeadMonths: 0,
+      avoidedMonths: [],
+      today: makeDate(2027, 1, 1),
+      fixedLoadRows: zeroFixedRows("2027-01", 12),
+      extraProjectRows: [{
+        id: "simulation-1",
+        projectName: "TSA",
+        employeeId: "3201",
+        name: "模拟排班",
+        trainingStartDate: "2027-04-10",
+        trainingEndDate: "2027-04-10"
+      }]
+    });
+
+    expect(plan.items[0]).toMatchObject({
+      manualStatus: "已排班",
+      scheduledDate: "2027-04-10",
+      manualPlanMonth: "2027-04",
+      dueDate: "2027-06-30"
+    });
+  });
+
   it("locks peak load before optimizing the safety target", () => {
     const result = SmartScheduleOptimizer.optimizeSchedule({
       monthKeys: ["2027-01", "2027-02", "2027-03", "2027-04"],
@@ -384,6 +470,7 @@ describe("smart schedule", () => {
 
     expect(view.monthRows.find((row) => row.monthKey === "2027-06")?.originalDuePersonDays).toBe(12);
     expect(view.monthRows.reduce((total, row) => total + row.originalDuePersonDays, 0)).toBe(12);
+    expect(view.monthRows.reduce((total, row) => total + row.manualPlanPersonDays, 0)).toBe(12);
     expect(view.monthRows.reduce((total, row) => total + row.balancedPersonDays, 0)).toBe(12);
     expect(Math.max(...view.monthRows.map((row) => row.balancedPersonDays))).toBe(2);
   });
@@ -425,6 +512,8 @@ describe("smart schedule", () => {
       .sort(([left], [right]) => left.localeCompare(right));
 
     expect(recommendations(marchPlan.items)).toEqual(recommendations(mayPlan.items));
+    expect(new Set(marchPlan.items.map((item) => item.manualPlanMonth))).toEqual(new Set(["2027-03"]));
+    expect(new Set(mayPlan.items.map((item) => item.manualPlanMonth))).toEqual(new Set(["2027-05"]));
   });
 
   it("uses completed history once to schedule the next current round", () => {
@@ -443,7 +532,10 @@ describe("smart schedule", () => {
     expect(plan.items[0]).toMatchObject({
       name: "历史顺延后仍到期",
       dueDate: "2027-06-30",
-      schedulable: true
+      schedulable: true,
+      manualStatus: "未排班",
+      scheduledDate: "",
+      manualPlanMonth: "2027-06"
     });
   });
 
@@ -485,8 +577,10 @@ describe("smart schedule", () => {
     const tsaOnly = SmartSchedule.buildView(plan, { projectName: "TSA" });
 
     expect(allProjects.monthRows.reduce((total, row) => total + row.originalDuePersonDays, 0)).toBe(6);
+    expect(allProjects.monthRows.reduce((total, row) => total + row.manualPlanPersonDays, 0)).toBe(6);
     expect(allProjects.monthRows.reduce((total, row) => total + row.balancedPersonDays, 0)).toBe(6);
     expect(tsaOnly.monthRows.reduce((total, row) => total + row.originalDuePersonDays, 0)).toBe(1);
+    expect(tsaOnly.monthRows.reduce((total, row) => total + row.manualPlanPersonDays, 0)).toBe(1);
     expect(tsaOnly.monthRows.reduce((total, row) => total + row.balancedPersonDays, 0)).toBe(1);
   });
 
