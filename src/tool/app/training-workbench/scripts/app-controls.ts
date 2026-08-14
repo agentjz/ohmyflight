@@ -16,20 +16,11 @@ const COPY = runtime.copy;
     return `${monthEnd.getFullYear()}-${String(monthEnd.getMonth() + 1).padStart(2, "0")}-${String(monthEnd.getDate()).padStart(2, "0")}`;
   }
 
-  function nextMonthString(): string {
-    const now = new Date();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    return String(nextMonth.getFullYear())
-      + "-"
-      + String(nextMonth.getMonth() + 1).padStart(2, "0");
-  }
-
   function initializeDefaultDates(): void {
     elements.workbenchStartDateInput.value = todayString();
     elements.workbenchEndDateInput.value = nextMonthEndString();
     elements.qualificationPressureStartMonthInput.value = todayString().slice(0, 7);
     elements.trainingLoadYearInput.value = String(new Date().getFullYear());
-    elements.smartScheduleStartMonthInput.value = nextMonthString();
   }
 
   function setStatus(message: string, isError = false): void {
@@ -93,16 +84,6 @@ const COPY = runtime.copy;
       });
     elements.trainingLoadYearInput.disabled = !state.analysis || state.busy;
     elements.trainingLoadProjectSelect.disabled = !state.analysis || state.busy;
-    elements.smartScheduleStartMonthInput.disabled = !state.analysis || state.busy;
-    elements.smartScheduleHorizonInput.disabled = !state.analysis || state.busy;
-    elements.smartScheduleSafetyLeadInput.disabled = !state.analysis || state.busy;
-    elements.smartScheduleAvoidMonthsGroup.disabled = !state.analysis || state.busy;
-    elements.smartScheduleAvoidMonthsGroup
-      .querySelectorAll<HTMLInputElement>('input[name="smartScheduleAvoidMonth"]')
-      .forEach((input) => {
-        input.disabled = !state.analysis || state.busy;
-      });
-    elements.smartScheduleProjectSelect.disabled = !state.analysis || state.busy;
     elements.scheduleGapBaseDateInput.disabled = !state.analysis || state.busy;
     elements.scheduleGapHorizonGroup.disabled = !state.analysis || state.busy;
     elements.scheduleGapHorizonGroup.querySelectorAll<HTMLInputElement>('input[name="scheduleGapHorizon"]')

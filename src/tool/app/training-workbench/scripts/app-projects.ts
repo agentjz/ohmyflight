@@ -62,7 +62,6 @@ const COPY = runtime.copy;
     renderers.renderResultPlaceholders();
     renderers.renderQualificationPressure();
     renderers.renderTrainingLoad();
-    renderers.renderSmartSchedule();
     renderers.renderCrmAnnual();
     controls.clearPendingExport();
     controls.refreshButtons();

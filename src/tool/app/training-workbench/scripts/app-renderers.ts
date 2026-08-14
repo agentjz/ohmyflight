@@ -21,7 +21,7 @@ const Utils = TrainingToolUtils;
   const summaryView = runtime.summaryView;
   const CrmAnnual = TrainingToolCrmAnnual;
   const Scanner = TrainingToolScanner;
-  const { renderQualificationPressure, renderTrainingLoad, renderSmartSchedule } = createTrainingCapacityRenderers(runtime);
+  const { renderQualificationPressure, renderTrainingLoad } = createTrainingCapacityRenderers(runtime);
 
   type ProjectGroupElements = {
     groupElement: HTMLElement;
@@ -422,7 +422,6 @@ const Utils = TrainingToolUtils;
     renderProjectCards,
     renderQualificationPressure,
     renderTrainingLoad,
-    renderSmartSchedule,
     renderCrmAnnual,
     renderResultPlaceholders,
     renderActionResult

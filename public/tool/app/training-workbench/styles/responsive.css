@@ -3,7 +3,8 @@
     .form-grid-4,
     .chart-grid,
     .overview-grid,
-    .risk-workspace {
+    .risk-workspace,
+    .pressure-detail-layout {
         grid-template-columns: 1fr;
     }
 
@@ -32,8 +33,7 @@
     }
 
     .pressure-controls,
-    .training-load-controls,
-    .smart-schedule-controls {
+    .training-load-controls {
         grid-template-columns: 1fr;
     }
 }

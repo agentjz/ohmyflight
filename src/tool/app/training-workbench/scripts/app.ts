@@ -54,11 +54,6 @@ function init(runtime: TrainingToolAppRuntime): void {
   elements.qualificationPressureModeGroup.addEventListener("change", () => runtime.renderers.renderQualificationPressure());
   elements.trainingLoadYearInput.addEventListener("change", runtime.renderers.renderTrainingLoad);
   elements.trainingLoadProjectSelect.addEventListener("change", runtime.renderers.renderTrainingLoad);
-  elements.smartScheduleStartMonthInput.addEventListener("change", () => runtime.renderers.renderSmartSchedule("", true));
-  elements.smartScheduleHorizonInput.addEventListener("change", () => runtime.renderers.renderSmartSchedule("", true));
-  elements.smartScheduleSafetyLeadInput.addEventListener("change", () => runtime.renderers.renderSmartSchedule("", true));
-  elements.smartScheduleAvoidMonthsGroup.addEventListener("change", () => runtime.renderers.renderSmartSchedule("", true));
-  elements.smartScheduleProjectSelect.addEventListener("change", () => runtime.renderers.renderSmartSchedule());
   elements.crmYearInput.addEventListener("change", runtime.renderers.renderCrmAnnual);
   elements.updateProjectGroup.addEventListener("change", projects.handleUpdateProjectGroupChange);
   elements.updateValidityButton.addEventListener("click", actions.handleUpdatePreview);

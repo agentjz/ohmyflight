@@ -4,7 +4,6 @@ import type {
   TrainingCrmAnnualResult,
   TrainingLoadResult,
   TrainingQualificationPressureResult,
-  TrainingSmartScheduleResult,
   TrainingToolAppRuntime
 } from "./models";
 import { TrainingToolWorkbenchStatus } from "./workbench-status";
@@ -18,8 +17,8 @@ const Utils = TrainingToolUtils;
   let workbenchStatusChart: TrainingChartInstance | null = null;
   let workbenchProjectChart: TrainingChartInstance | null = null;
   let qualificationPressureChart: TrainingChartInstance | null = null;
+  let qualificationPressureBreakdownChart: TrainingChartInstance | null = null;
   let trainingLoadChart: TrainingChartInstance | null = null;
-  let smartScheduleChart: TrainingChartInstance | null = null;
   let crmParticipationChart: TrainingChartInstance | null = null;
   let crmMonthlyChart: TrainingChartInstance | null = null;
   let crmRoleChart: TrainingChartInstance | null = null;
@@ -186,38 +185,121 @@ const Utils = TrainingToolUtils;
       return;
     }
     const monthRows = result?.monthRows || [];
-    const projects = result?.projects || [];
     const useCurrent = mode === "current";
-    const series = projects.map((projectName) => ({
-        name: projectName,
-        type: "bar",
-        stack: "qualification",
-        data: monthRows.map((row) => (useCurrent ? row.currentByProject : row.forecastByProject)[projectName] || 0)
-      }));
+    const lineName = useCurrent ? "当前有效期" : "排班后预测";
+    const values = monthRows.map((row) => useCurrent ? row.currentTotal : row.forecastTotal);
+    const average = monthRows.length
+      ? values.reduce((total, value) => total + value, 0) / monthRows.length
+      : 0;
+    const visibleMonths = Math.min(12, monthRows.length || 12);
+    const visibleStartMonth = monthRows[0]?.monthKey;
+    const visibleEndMonth = monthRows[visibleMonths - 1]?.monthKey;
 
     qualificationPressureChart = getOrCreateChart(elements.qualificationPressureChart, qualificationPressureChart);
     qualificationPressureChart.clear();
     qualificationPressureChart.setOption(withChartTheme({
-      tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-      legend: { top: 0, type: "scroll" },
+      tooltip: { trigger: "axis", axisPointer: { type: "line" } },
+      legend: { top: 0 },
       grid: { top: 50, right: 28, bottom: 58, left: 48, containLabel: true },
       dataZoom: [
-        { type: "slider", xAxisIndex: 0, bottom: 8, height: 18, start: 0, end: Math.min(100, monthRows.length ? 18 / monthRows.length * 100 : 100) },
-        { type: "inside", xAxisIndex: 0 }
+        {
+          type: "slider",
+          xAxisIndex: 0,
+          bottom: 8,
+          height: 18,
+          startValue: visibleStartMonth,
+          endValue: visibleEndMonth,
+          zoomLock: true,
+          moveOnMouseMove: true
+        },
+        {
+          type: "inside",
+          xAxisIndex: 0,
+          startValue: visibleStartMonth,
+          endValue: visibleEndMonth,
+          zoomLock: true,
+          moveOnMouseWheel: true,
+          zoomOnMouseWheel: false,
+          moveOnMouseMove: true
+        }
       ],
       xAxis: {
         type: "category",
         data: monthRows.map((row) => row.monthKey),
-        axisLabel: { interval: 0, fontSize: 11, rotate: 35 }
+        axisLabel: { interval: 0, fontSize: 11 }
       },
       yAxis: { type: "value", minInterval: 1, name: "人项" },
-      series
+      series: [
+        {
+          name: lineName,
+          type: "line",
+          symbol: "circle",
+          symbolSize: 7,
+          data: values
+        },
+        {
+          name: "观察范围月均",
+          type: "line",
+          symbol: "none",
+          lineStyle: { type: "dashed" },
+          data: monthRows.map(() => average)
+        }
+      ]
     }));
     qualificationPressureChart.off("click");
     qualificationPressureChart.on("click", (params) => {
       if (params.name) runtime.renderers.renderQualificationPressure(params.name);
     });
     qualificationPressureChart.resize();
+  }
+
+  function renderQualificationPressureBreakdownChart(
+    result: TrainingQualificationPressureResult | null,
+    mode: string,
+    monthKey: string
+  ): void {
+    const echarts = getEcharts();
+    if (!echarts) {
+      renderChartEmpty(elements.qualificationPressureBreakdownChart, "图表库未加载。");
+      return;
+    }
+    qualificationPressureBreakdownChart = getOrCreateChart(
+      elements.qualificationPressureBreakdownChart,
+      qualificationPressureBreakdownChart
+    );
+    qualificationPressureBreakdownChart.clear();
+    const monthRow = result?.monthRows.find((row) => row.monthKey === monthKey);
+    const values: Record<string, number> = monthRow
+      ? (mode === "current" ? monthRow.currentByProject : monthRow.forecastByProject)
+      : {};
+    const data = result?.projects
+      .map((projectName) => ({ name: projectName, value: values[projectName] || 0 }))
+      .filter((item) => item.value > 0) || [];
+
+    if (!monthRow || !data.length) {
+      qualificationPressureBreakdownChart.setOption(withChartTheme({
+        title: {
+          text: monthKey ? "该月份没有资质压力" : "点击主图月份查看构成",
+          left: "center",
+          top: "middle",
+          textStyle: getChartTheme().mutedTextStyle
+        }
+      }));
+    } else {
+      qualificationPressureBreakdownChart.setOption(withChartTheme({
+        tooltip: { trigger: "item" },
+        legend: { bottom: 0, type: "scroll" },
+        series: [{
+          type: "pie",
+          radius: ["38%", "68%"],
+          center: ["50%", "45%"],
+          avoidLabelOverlap: true,
+          label: { ...getChartTheme().textStyle, formatter: "{b} {d}%" },
+          data
+        }]
+      }));
+    }
+    qualificationPressureBreakdownChart.resize();
   }
 
   function renderTrainingLoadChart(result: TrainingLoadResult | null): void {
@@ -248,45 +330,6 @@ const Utils = TrainingToolUtils;
       ]
     }));
     trainingLoadChart.resize();
-  }
-
-  function renderSmartScheduleChart(result: TrainingSmartScheduleResult | null): void {
-    const echarts = getEcharts();
-    if (!echarts) {
-      renderChartEmpty(elements.smartScheduleChart, "图表库未加载。");
-      return;
-    }
-    const monthRows = result?.monthRows || [];
-    smartScheduleChart = getOrCreateChart(elements.smartScheduleChart, smartScheduleChart);
-    smartScheduleChart.clear();
-    smartScheduleChart.setOption(withChartTheme({
-      tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-      legend: { top: 0 },
-      grid: { top: 44, right: 28, bottom: 38, left: 48, containLabel: true },
-      xAxis: {
-        type: "category",
-        data: monthRows.map((row) => row.monthKey),
-        axisLabel: { hideOverlap: true, fontSize: 11 }
-      },
-      yAxis: { type: "value", minInterval: 1, name: "人天" },
-      series: [
-        { name: "原始到期压力", type: "bar", data: monthRows.map((row) => row.originalDuePersonDays) },
-        { name: "我的方案", type: "bar", data: monthRows.map((row) => row.manualPlanPersonDays) },
-        { name: "均衡方案", type: "bar", data: monthRows.map((row) => row.balancedPersonDays) },
-        {
-          name: "月均参考",
-          type: "line",
-          symbol: "none",
-          lineStyle: { type: "dashed" },
-          data: monthRows.map((row) => row.averagePersonDays)
-        }
-      ]
-    }));
-    smartScheduleChart.off("click");
-    smartScheduleChart.on("click", (params) => {
-      if (params.name) runtime.renderers.renderSmartSchedule(params.name);
-    });
-    smartScheduleChart.resize();
   }
 
   function renderCrmCharts(result: TrainingCrmAnnualResult | null): void {
@@ -423,7 +466,6 @@ const Utils = TrainingToolUtils;
     }
     if (state.qualificationPressure) renderQualificationPressureChart(state.qualificationPressure, getPressureMode());
     if (state.trainingLoad) renderTrainingLoadChart(state.trainingLoad);
-    if (state.smartSchedule) renderSmartScheduleChart(state.smartSchedule);
     if (state.crmAnnualResult) {
       renderCrmCharts(state.crmAnnualResult);
     }
@@ -434,8 +476,8 @@ const Utils = TrainingToolUtils;
       workbenchStatusChart,
       workbenchProjectChart,
       qualificationPressureChart,
+      qualificationPressureBreakdownChart,
       trainingLoadChart,
-      smartScheduleChart,
       crmParticipationChart,
       crmMonthlyChart,
       crmRoleChart
@@ -454,8 +496,8 @@ const Utils = TrainingToolUtils;
   runtime.charts = {
     renderWorkbenchCharts,
     renderQualificationPressureChart,
+    renderQualificationPressureBreakdownChart,
     renderTrainingLoadChart,
-    renderSmartScheduleChart,
     renderCrmCharts,
     refreshRenderedCharts
   };

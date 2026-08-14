@@ -305,8 +305,8 @@
             <section class="qualification-pressure-panel" aria-labelledby="qualificationPressureTitle">
                 <div class="section-head">
                     <div>
-                        <h2 class="section-title" id="qualificationPressureTitle">排班后资质压力</h2>
-                        <p class="section-intro">每个人每项资质的下一次最晚完成日期落在哪个月；合规安排会把压力移到下一轮，未覆盖的仍留在当前到期月。</p>
+                        <h2 class="section-title" id="qualificationPressureTitle">未来资质到期压力</h2>
+                        <p class="section-intro">按当前有效期和已有排班预测未来压力；点击月份查看资质构成和人员明细。</p>
                     </div>
                 </div>
                 <div class="pressure-controls">
@@ -337,22 +337,28 @@
                     </fieldset>
                 </div>
                 <div class="chart-panel qualification-pressure-chart-panel">
-                    <div class="chart-title">未来月份资质压力（人项）</div>
+                    <div class="chart-title">未来月份资质到期压力（人项）</div>
                     <div class="chart-box" id="qualificationPressureChart"></div>
                 </div>
                 <div class="pressure-detail-panel" id="qualificationPressureDetailPanel" hidden>
                     <h3 class="chart-title" id="qualificationPressureDetailTitle">月份明细</h3>
-                    <div class="table-shell pressure-detail-table-shell">
-                        <table class="table table-hover align-middle pressure-detail-table">
-                            <thead>
-                                <tr>
-                                    <th>姓名</th><th>员工号</th><th>项目</th><th>当前最晚完成</th><th>安排日期</th><th>预测最晚完成</th><th>覆盖状态</th><th>提前天数</th><th>判断说明</th>
-                                </tr>
-                            </thead>
-                            <tbody id="qualificationPressureDetailBody">
-                                <tr><td class="empty-block" colspan="9">点击图中的月份查看人员项目。</td></tr>
-                            </tbody>
-                        </table>
+                    <div class="pressure-detail-layout">
+                        <div class="pressure-breakdown-panel">
+                            <div class="chart-title">该月资质构成</div>
+                            <div class="chart-box qualification-pressure-breakdown-chart" id="qualificationPressureBreakdownChart"></div>
+                        </div>
+                        <div class="table-shell pressure-detail-table-shell">
+                            <table class="table table-hover align-middle pressure-detail-table">
+                                <thead>
+                                    <tr>
+                                        <th>姓名</th><th>员工号</th><th>项目</th><th>当前最晚完成</th><th>安排日期</th><th>预测最晚完成</th><th>覆盖状态</th><th>提前天数</th><th>判断说明</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="qualificationPressureDetailBody">
+                                    <tr><td class="empty-block" colspan="9">点击图中的月份查看项目构成和人员明细。</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -378,70 +384,6 @@
                 <div class="chart-panel training-load-chart-panel">
                     <div class="chart-title">月度培训负载</div>
                     <div class="chart-box" id="trainingLoadChart"></div>
-                </div>
-            </section>
-            <section class="smart-schedule-panel" aria-labelledby="smartScheduleTitle">
-                <div class="section-head">
-                    <div>
-                        <h2 class="section-title" id="smartScheduleTitle">智能排班方案</h2>
-                        <p class="section-intro">连续查看未来到期压力，对比当前人工方案与智能均衡方案。</p>
-                    </div>
-                </div>
-                <div class="smart-schedule-controls">
-                    <div class="field">
-                        <label for="smartScheduleStartMonthInput">排班起始月份</label>
-                        <input id="smartScheduleStartMonthInput" type="month" disabled>
-                    </div>
-                    <div class="field">
-                        <label for="smartScheduleHorizonInput">观察月数</label>
-                        <input id="smartScheduleHorizonInput" type="number" min="12" max="60" step="1" value="12" disabled>
-                    </div>
-                    <div class="field">
-                        <label for="smartScheduleSafetyLeadInput">安全提前量（月）</label>
-                        <input id="smartScheduleSafetyLeadInput" type="number" min="0" max="12" step="1" value="2" disabled>
-                    </div>
-                    <div class="field">
-                        <label for="smartScheduleProjectSelect">资质项目</label>
-                        <select id="smartScheduleProjectSelect" disabled>
-                            <option value="">全部资质项目</option>
-                        </select>
-                    </div>
-                    <fieldset class="field smart-schedule-avoid-field" id="smartScheduleAvoidMonthsGroup" disabled>
-                        <legend>避让月份（软偏好）</legend>
-                        <div class="smart-schedule-month-grid">
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="1">1月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="2" checked>2月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="3">3月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="4">4月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="5">5月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="6">6月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="7" checked>7月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="8" checked>8月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="9">9月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="10">10月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="11">11月</label>
-                            <label><input type="checkbox" name="smartScheduleAvoidMonth" value="12">12月</label>
-                        </div>
-                    </fieldset>
-                </div>
-                <div class="chart-panel smart-schedule-chart-panel">
-                    <div class="chart-title">到期压力、我的方案与均衡方案（人天）</div>
-                    <div class="chart-box" id="smartScheduleChart"></div>
-                </div>
-                <div class="smart-schedule-detail-panel" id="smartScheduleDetailPanel" hidden>
-                    <h3 class="chart-title" id="smartScheduleDetailTitle">方案对比明细</h3>
-                    <div class="table-shell selected-person-shell">
-                        <table class="table table-hover align-middle smart-schedule-detail-table">
-                            <thead>
-                                <tr>
-                                    <th>项目</th><th>姓名</th><th>员工号</th><th>排班状态</th><th>已排日期</th><th>我的方案月</th><th>智能月份</th><th>最晚完成</th><th>人天</th><th>说明</th>
-                                </tr>
-                            </thead>
-                            <tbody id="smartScheduleDetailBody">
-                                <tr><td class="empty-block" colspan="10">点击图中的月份查看两套方案明细。</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </section>
             <section class="crm-annual-panel" aria-labelledby="crmAnnualTitle">

@@ -99,6 +99,14 @@ describe("qualification pressure", () => {
     expect(forecastSeptember?.forecastByProject.TSA).toBe(1);
     expect(result.items.filter((row) => row.coverageStatus === "晚于截止日")).toHaveLength(1);
     expect(result.items.filter((row) => row.coverageStatus !== "已覆盖")).toHaveLength(3);
+    for (const monthRow of result.monthRows) {
+      expect(monthRow.currentTotal).toBe(
+        Object.values(monthRow.currentByProject).reduce((total, count) => total + count, 0)
+      );
+      expect(monthRow.forecastTotal).toBe(
+        Object.values(monthRow.forecastByProject).reduce((total, count) => total + count, 0)
+      );
+    }
   });
 
   it("filters items and month totals for a single-project pressure view", () => {
@@ -120,5 +128,13 @@ describe("qualification pressure", () => {
     expect(forecastSeptember?.forecastByProject.TSA).toBe(1);
     expect(result.items).toHaveLength(2);
     expect(result.items.every((item) => item.projectName === "TSA")).toBe(true);
+    for (const monthRow of result.monthRows) {
+      expect(monthRow.currentTotal).toBe(
+        Object.values(monthRow.currentByProject).reduce((total, count) => total + count, 0)
+      );
+      expect(monthRow.forecastTotal).toBe(
+        Object.values(monthRow.forecastByProject).reduce((total, count) => total + count, 0)
+      );
+    }
   });
 });

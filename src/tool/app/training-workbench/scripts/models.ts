@@ -346,8 +346,6 @@ export type TrainingWorkbookHealthResult = import("./workbook-health").WorkbookH
 export type TrainingCrmAnnualResult = import("./crm-annual").CrmAnnualResult;
 export type TrainingQualificationPressureResult = import("./qualification-pressure").QualificationPressureResult;
 export type TrainingLoadResult = import("./training-load").TrainingLoadResult;
-export type TrainingSmartSchedulePlan = import("./smart-schedule").SmartSchedulePlan;
-export type TrainingSmartScheduleResult = import("./smart-schedule").SmartScheduleResult;
 
 export interface TrainingWorkbenchSelection {
   projectName: string;
@@ -383,9 +381,6 @@ export interface TrainingToolAppState {
   qualificationPressure: TrainingQualificationPressureResult | null;
   qualificationPressureSelectedMonth: string;
   trainingLoad: TrainingLoadResult | null;
-  smartSchedulePlan: TrainingSmartSchedulePlan | null;
-  smartSchedule: TrainingSmartScheduleResult | null;
-  smartScheduleSelectedMonth: string;
   crmAnnualResult: TrainingCrmAnnualResult | null;
   trainingCalendarResult: TrainingCalendarResult | null;
   trainingCalendarMonthKey: string;
@@ -432,21 +427,13 @@ export interface TrainingToolAppElements {
   qualificationPressureModeGroup: HTMLFieldSetElement;
   qualificationPressureProjectSelect: HTMLSelectElement;
   qualificationPressureChart: HTMLElement;
+  qualificationPressureBreakdownChart: HTMLElement;
   qualificationPressureDetailPanel: HTMLElement;
   qualificationPressureDetailTitle: HTMLElement;
   qualificationPressureDetailBody: HTMLTableSectionElement;
   trainingLoadYearInput: HTMLInputElement;
   trainingLoadProjectSelect: HTMLSelectElement;
   trainingLoadChart: HTMLElement;
-  smartScheduleStartMonthInput: HTMLInputElement;
-  smartScheduleHorizonInput: HTMLInputElement;
-  smartScheduleSafetyLeadInput: HTMLInputElement;
-  smartScheduleAvoidMonthsGroup: HTMLFieldSetElement;
-  smartScheduleProjectSelect: HTMLSelectElement;
-  smartScheduleChart: HTMLElement;
-  smartScheduleDetailPanel: HTMLElement;
-  smartScheduleDetailTitle: HTMLElement;
-  smartScheduleDetailBody: HTMLTableSectionElement;
   crmYearInput: HTMLInputElement;
   crmSummary: HTMLElement;
   crmStatsGrid: HTMLElement;
@@ -510,8 +497,8 @@ export interface TrainingAppSelection {
 export interface TrainingAppCharts {
   renderWorkbenchCharts(chartData: TrainingChartData | null): void;
   renderQualificationPressureChart(result: TrainingQualificationPressureResult | null, mode: string): void;
+  renderQualificationPressureBreakdownChart(result: TrainingQualificationPressureResult | null, mode: string, monthKey: string): void;
   renderTrainingLoadChart(result: TrainingLoadResult | null): void;
-  renderSmartScheduleChart(result: TrainingSmartScheduleResult | null): void;
   renderCrmCharts(result: TrainingCrmAnnualResult | null): void;
   refreshRenderedCharts(): void;
 }
@@ -540,7 +527,6 @@ export interface TrainingAppRenderers {
   renderProjectCards(): void;
   renderQualificationPressure(selectedMonth?: string): void;
   renderTrainingLoad(): void;
-  renderSmartSchedule(selectedMonth?: string, rebuildPlan?: boolean): void;
   renderCrmAnnual(): void;
   renderResultPlaceholders(): void;
   renderActionResult(kind: "workbench" | "validity", result: TrainingWorkbenchResult | TrainingValidityResult): void;
