@@ -1,4 +1,14 @@
 
+# 项目: watchdog
+# 定位: 本地优先的静态浏览器工具集合
+# 语言: Python + TypeScript
+# 页面: 原生 HTML + CSS + JavaScript
+# 构建: esbuild + tsx
+# 测试: Vitest + Python unittest
+# 数据处理: openpyxl + xlsx-js-style + python-docx
+# 自动化: Playwright
+# 版本控制: Git + GitHub Pages
+
 #   .--,       .--,
 #  ( (  \.---./  ) )
 #   '.__/o   o\__.'
