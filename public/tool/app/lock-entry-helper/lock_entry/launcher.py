@@ -1,6 +1,7 @@
 """Playwright browser startup, login, and portal navigation."""
 
 from dataclasses import dataclass
+from typing import Any, Callable
 
 from playwright.sync_api import sync_playwright
 
@@ -23,7 +24,18 @@ def start_portal_session(
     browser_path: str | None,
     default_timeout: int,
     login_timeout: int | None = None,
+    emit: Callable[[dict[str, Any]], None] | None = None,
+    interactive_fallback: bool = True,
 ) -> PortalSession:
+    notify = emit or (lambda _event: None)
+
+    def status(phase: str, message: str) -> None:
+        notify({"type": "status", "phase": phase, "message": message})
+
+    def log(level: str, message: str) -> None:
+        notify({"type": "log", "level": level, "message": message})
+
+    status("starting", "正在打开浏览器")
     playwright = sync_playwright().start()
     browser = playwright.chromium.launch(headless=False, executable_path=browser_path)
     context = browser.new_context()
@@ -31,23 +43,29 @@ def start_portal_session(
     page = context.new_page()
 
     try:
+        status("starting", "正在打开飞行门户登录页")
         page.goto("https://ieb.csair.com/login")
         page.wait_for_load_state("networkidle")
         page.locator("#scanLogin").wait_for()
         page.locator("#scanLogin").click()
+        status("waiting_login", "请在浏览器中扫码登录")
         print(c_info("请扫码登录..."))
         if login_timeout is None:
             page.wait_for_url("**/index/**")
         else:
             page.wait_for_url("**/index/**", timeout=login_timeout)
         page.wait_for_load_state("networkidle")
+        status("starting", "登录成功，正在进入非生产任务录入页面")
         print(c_ok("登录成功"))
     except Exception as error:
         print(c_err(f"自动登录失败: {error}"))
         print(c_warn("请手动完成登录"))
-        input(c_hint("登录完成后按回车继续..."))
+        log("warning", f"自动登录等待失败，请在浏览器中手动完成登录：{error}")
+        if interactive_fallback:
+            input(c_hint("登录完成后按回车继续..."))
 
     try:
+        status("starting", "正在进入运行管理")
         print(c_info("正在进入非生产任务录入页面..."))
         page.goto("https://ieb.csair.com/index/index")
         page.wait_for_load_state("networkidle")
@@ -60,10 +78,14 @@ def start_portal_session(
         page.locator("#mainContent").wait_for()
         page.locator("#mainContent").click()
         page.wait_for_load_state("networkidle")
+        status("prepared", "非生产任务录入页面已就绪，等待人工操作")
         print(c_ok("已进入非生产任务录入页面"))
     except Exception as error:
         print(c_err(f"自动导航失败: {error}"))
         print(c_warn("请手动进入非生产任务录入页面"))
-        input(c_hint("准备好后按回车继续..."))
+        log("warning", f"自动进入录入页面失败，请在浏览器中手动进入：{error}")
+        status("prepared", "请手动进入非生产任务录入页面，完成后再开始录入")
+        if interactive_fallback:
+            input(c_hint("准备好后按回车继续..."))
 
     return PortalSession(playwright, browser, context, page)

@@ -34,13 +34,15 @@ ORIGINAL_RESULT_HEADERS = [
 ]
 RESULT_HEADERS = ORIGINAL_RESULT_HEADERS
 
-def create_result_excel(label: str) -> str | None:
+def create_result_excel(label: str, output_directory: str | None = None) -> str | None:
     if not HAS_OPENPYXL:
         print(c_warn("未安装openpyxl，跳过结果Excel记录"))
         return None
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_label = re.sub(r'[\\/:*?"<>|]+', "_", label or "lock")
-    output_file = os.path.abspath(f"{safe_label}_结果_{timestamp}.xlsx")
+    directory = os.path.abspath(output_directory or os.curdir)
+    os.makedirs(directory, exist_ok=True)
+    output_file = os.path.join(directory, f"{safe_label}_结果_{timestamp}.xlsx")
     wb = Workbook()
     ws = wb.active
     ws.title = "results"
