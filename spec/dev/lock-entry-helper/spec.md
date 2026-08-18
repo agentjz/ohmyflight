@@ -2,19 +2,18 @@
 
 ## 产品边界
 
-`lock-entry-helper` 是飞行门户非生产任务录入自动化工具，三个 Python 文件均可独立运行和分发：
+`lock-entry-helper` 是飞行门户非生产任务录入自动化工具，提供两个可独立运行和分发的串行入口：
 
-- `app.py` 是稳定串行原始助手，按输入类型和日期原样录入。
-- `smartapp.py` 是稳定串行智能路由助手，支持页面全部已配置锁班类型，只在 `RECU_LVE-健康疗养` 与 `ALV_FD-飞行员公休（订座）` 之间按可休天数自动路由；可选启用冲突旧锁班自动解锁并单次重提。
-- `superapp.py` 是默认 20 页的实验性并发助手，不执行智能路由。
+- `startapp.py` 启动原始串行助手，按输入类型和日期原样录入。
+- `startsmartapp.py` 启动智能串行助手，支持页面全部已配置锁班类型，只在 `RECU_LVE-健康疗养` 与 `ALV_FD-飞行员公休（订座）` 之间按可休天数自动路由；可选启用冲突旧锁班自动解锁并单次重提。
 
-网页只分发脚本和 Excel 模板；三个 APP 的提交动作都会写入内网生产系统。
+网页只分发两个启动入口、模块包和 Excel 模板；两个 APP 的提交动作都会写入内网生产系统。
 
 ## 输入契约
 
-- 串行 APP 支持批量粘贴、手动单条和 Excel 导入；并发 APP 以 Excel 批量为主。
+- 两个串行 APP 均支持批量粘贴、手动单条和 Excel 导入。
 - 每条记录包含员工号、姓名、锁班类型、开始日期和结束日期，可选统一备注。
-- `smartapp.py` 的 Excel 按表头读取，员工号支持“员工号”或“工号”，锁班类型支持“锁班类型”或“请假类型”；列顺序不构成业务契约。
+- `startsmartapp.py` 的 Excel 按表头读取，员工号支持“员工号”或“工号”，锁班类型支持“锁班类型”或“请假类型”；列顺序不构成业务契约。
 - 员工号按六位文本校验；日期统一为 `YYYY-MM-DD` 业务日期；结束日期不得早于开始日期。
 - 健康疗养或飞行员公休的智能路由记录必须在同一自然年内。其他锁班类型不读取年度配额，可按原始 APP 规则处理跨年日期。
 - 白名单在提交前过滤，未入白名单的记录不得打开录入动作；输入错误必须保留错误原因。
@@ -42,7 +41,7 @@
 - 用户完成参数设置和人工登录后，APP 进入非生产任务录入页；页面未就绪时不开始读取输入或创建生产结果。
 - 每个实际片段重新填写员工号、锁班类型、起止日期和备注，并触发页面依赖的 input/change/blur 事件。
 - 页面锁班天数必须等于片段计划天数，之后才允许点击“下一步”。
-- 查询结果必须按当前片段的员工、姓名、锁班类型和日期范围精确归属，不能把相邻人员或并发页面结果串写。
+- 查询结果必须按当前片段的员工、姓名、锁班类型和日期范围精确归属，不能把相邻人员或其他页面结果串写。
 - 当前片段成功后回到录入页处理下一片段；未启用冲突回退或回退后仍失败时，停止该原始记录，剩余片段写为“未执行”，批量模式继续下一条原始记录。
 - 首段成功、后段失败属于部分完成，结果中必须同时保留已成功片段和失败片段；不得自动重跑已成功片段。
 
@@ -60,7 +59,7 @@
 
 ## 输出与恢复
 
-- 三个 APP 都新建结果 Excel，每处理一条或一个实际片段立即落盘，不回写输入 Excel。
+- 两个 APP 都新建结果 Excel，每处理一条或一个实际片段立即落盘，不回写输入 Excel。
 - 智能结果表保留原始序号、片段序号、输入类型和日期、实际类型和日期、计划天数、两类预检额度、门户结果、冲突、匹配证据、尝试次数、冲突回退状态和解锁旧行结构化字段。
 - 解锁成功后的重提结果在 Excel“备注”写入“已解锁”以及旧记录的锁班名称、锁班原因、开始日期和结束日期；不把这段摘要写入门户锁班原因。
 - 合计额度不足或预检失败使用片段序号 0 归档，表示未执行生产提交。
@@ -71,10 +70,16 @@
 ## 代码与验证
 
 - 页面：`public/tool/app/lock-entry-helper/index.html`
-- 原始串行 APP：`public/tool/app/lock-entry-helper/app.py`
-- 智能串行 APP：`public/tool/app/lock-entry-helper/smartapp.py`
-- 并发 APP：`public/tool/app/lock-entry-helper/superapp.py`
+- 原始启动入口：`public/tool/app/lock-entry-helper/startapp.py`
+- 智能启动入口：`public/tool/app/lock-entry-helper/startsmartapp.py`
+- 共享模块：`public/tool/app/lock-entry-helper/lock_entry/`
+- 原始运行编排：`lock_entry/original_runner.py`
+- 智能运行编排：`lock_entry/smart_runner.py`
+- 输入解析：`lock_entry/input_data.py`、`lock_entry/smart_input.py`
+- 门户动作：`lock_entry/portal.py`、`lock_entry/smart_portal.py`、`lock_entry/launcher.py`
+- 结果导出：`lock_entry/exporter.py`、`lock_entry/smart_exporter.py`
+- 智能路由：`lock_entry/smart_router.py`
 - 页面壳：`src/tool/app/lock-entry-helper/shell.ts`
-- 测试：`tests/tool/lock-entry-helper/result-matching.test.ts`
+- 测试：`tests/tool/lock-entry-helper/`
 
 测试覆盖输入解析、白名单、配额表按表头映射、目标年份额度、普通类型原样通过、双向路由、零额度、合计不足、智能类型跨年拒绝、Excel 表头和日期、门户结果归属、日期重叠唯一候选、解锁备注、失败后继续下一条和实时结果字段。
