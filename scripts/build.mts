@@ -214,6 +214,18 @@ async function buildPageEntries(): Promise<void> {
   );
 }
 
+async function copyFlightStatsWorkbenchAssets() {
+  const workbenchRoot = path.join(distRoot, "tool", "app", "flight-stats-helper", "web");
+  const libraryRoot = path.join(workbenchRoot, "libs");
+  await fs.mkdir(libraryRoot, { recursive: true });
+  await fs.copyFile(path.join(staticRoot, "theme.js"), path.join(workbenchRoot, "theme.js"));
+  await fs.copyFile(path.join(staticRoot, "theme.css"), path.join(workbenchRoot, "theme.css"));
+  await fs.copyFile(
+    path.join(staticRoot, "libs", "bootstrap.min.css"),
+    path.join(libraryRoot, "bootstrap.min.css")
+  );
+}
+
 async function buildStandaloneApplicationBundles(): Promise<string> {
   const standaloneRoot = path.join(distRoot, ".standalone");
   await fs.rm(standaloneRoot, { recursive: true, force: true });
@@ -421,6 +433,7 @@ async function copySourceAsset(sourceFilePath: string): Promise<string> {
 async function main() {
   await prepareDist();
   await copyStaticFiles();
+  await copyFlightStatsWorkbenchAssets();
 
   const assetFiles = await walkSourceAssetFiles(sourceRoot);
   for (const sourceFilePath of assetFiles) {

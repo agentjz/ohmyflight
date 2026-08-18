@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>飞行经历/左座经历起落数按天统计</title>
+    <title>飞行经历查询</title>
     <script src="../../../theme.js"></script>
     <link rel="stylesheet" href="../../../libs/bootstrap.min.css">
     <style>
@@ -17,44 +17,37 @@
             <div class="card-body text-center position-relative">
                 <a href="../../../index.html" class="position-absolute start-0 top-50 translate-middle-y ms-3 text-decoration-none">返回首页</a>
                 <a href="../../../template/飞行经历起落数查询模板.xlsx" download class="position-absolute end-0 top-50 translate-middle-y me-3 text-decoration-none">下载查询模板</a>
-                <h4 class="card-title mb-1">飞行经历/左座经历起落数按天统计</h4>
-                <p class="text-muted mb-0 small">自动化查询飞行门户飞行经历/左座经历起落数并按天统计</p>
+                <h4 class="card-title mb-1">飞行经历查询</h4>
+                <p class="text-muted mb-0 small">本地页面驱动飞行门户查询，按页面表头保存完整结果</p>
             </div>
         </div>
         
         <div class="card mb-4">
             <div class="card-body">
-                <h5 class="card-title border-bottom pb-2 mb-3">工具介绍</h5>
-                <p>这是一个 Python 脚本工具，用于自动化查询飞行门户的飞行经历/左座经历起落数，并按天进行统计。</p>
-                <p class="mt-2">支持批量查询、Excel导入、白名单过滤等功能。</p>
-                <div class="alert alert-info mt-3 mb-0">
-                    <strong>版本说明：</strong>
-                    <ul class="mb-0 mt-2">
-                        <li><strong>app.py</strong> - 静默版：自动处理，遇到错误不暂停，最后统一输出错误报告</li>
-                    </ul>
-                </div>
+                <h5 class="card-title border-bottom pb-2 mb-3">运行方式</h5>
+                <p>下载独立应用后，在应用目录运行 <code>python start.py</code>。工作台提供四个范围复选项、Excel 和粘贴两种输入，以及进入页面、数据健康检查、开始查询和终止等分步操作；查询结果会逐人显示并即时保存。</p>
             </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title border-bottom pb-2 mb-3">下载</h5>
-                <a href="app.py" download class="btn btn-outline-secondary">下载 app.py</a>
+                <a href="../../../exports/flight-stats-helper.zip" download="flight-stats-helper.zip" class="btn btn-primary">下载独立应用</a>
+                <a href="../../../index.html" class="btn btn-outline-secondary ms-2">返回工具首页</a>
             </div>
         </div>
 
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title border-bottom pb-2 mb-3">使用说明</h5>
+                <h5 class="card-title border-bottom pb-2 mb-3">依赖</h5>
                 <p>使用前请确保已安装以下依赖：</p>
                 <ul>
-                    <li>Python 3.7+</li>
+                    <li>Python 3.10+</li>
                     <li>playwright（浏览器自动化）</li>
                     <li>openpyxl（Excel处理）</li>
-                    <li>colorama（终端颜色）</li>
                 </ul>
                 <p class="mt-3">安装命令：</p>
-                <pre class="bg-light p-2 rounded"><code>pip install playwright openpyxl colorama
+                <pre class="bg-light p-2 rounded"><code>pip install -r requirements.txt
 playwright install chromium</code></pre>
             </div>
         </div>

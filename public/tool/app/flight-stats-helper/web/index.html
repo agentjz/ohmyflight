@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞行经历查询</title>
+    <script src="./theme.js"></script>
+    <link rel="stylesheet" href="./libs/bootstrap.min.css">
+    <link rel="stylesheet" href="./theme.css">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div class="workspace-shell">
+        <header class="workspace-header">
+            <div>
+                <h1>飞行经历查询</h1>
+                <p id="statusMessage">等待启动</p>
+            </div>
+            <div class="header-actions">
+                <span id="statusBadge" class="status-badge is-idle">空闲</span>
+                <button id="themeToggle" type="button" class="btn btn-outline-secondary btn-sm">主题</button>
+            </div>
+        </header>
+
+        <main class="workspace-grid">
+            <section class="work-panel input-panel" aria-labelledby="inputHeading">
+                <div class="panel-heading">
+                    <h2 id="inputHeading">查询输入</h2>
+                </div>
+
+                <div class="scope-switch" role="group" aria-label="查询范围">
+                    <label class="scope-option" for="scopeFlightTime">
+                        <input type="checkbox" name="scope" id="scopeFlightTime" value="flight_time">
+                        <span>1. 飞行时间+起落数</span>
+                    </label>
+                    <label class="scope-option" for="scopeFlightExperience">
+                        <input type="checkbox" name="scope" id="scopeFlightExperience" value="flight_experience">
+                        <span>2. 飞行经历+起落数</span>
+                    </label>
+                    <label class="scope-option" for="scopeLeftSeat">
+                        <input type="checkbox" name="scope" id="scopeLeftSeat" value="left_seat_experience">
+                        <span>3. 左座经历+起落数</span>
+                    </label>
+                    <label class="scope-option" for="scopeAll">
+                        <input type="checkbox" name="scope" id="scopeAll" value="all" checked>
+                        <span>4. 全部数据</span>
+                    </label>
+                </div>
+
+                <div class="mode-switch" role="group" aria-label="输入方式">
+                    <input type="radio" class="btn-check" name="inputMode" id="modeExcel" value="excel" checked>
+                    <label class="btn btn-outline-secondary" for="modeExcel">Excel</label>
+                    <input type="radio" class="btn-check" name="inputMode" id="modePaste" value="paste">
+                    <label class="btn btn-outline-secondary" for="modePaste">粘贴</label>
+                </div>
+
+                <div id="excelPanel" class="input-content">
+                    <label class="form-label" for="excelFile">查询文件</label>
+                    <input id="excelFile" class="form-control" type="file" accept=".xlsx,.xlsm">
+                </div>
+
+                <div id="pastePanel" class="input-content" hidden>
+                    <label class="form-label" for="pastedText">查询数据</label>
+                    <textarea id="pastedText" class="form-control" rows="10" placeholder="员工号 姓名 YYYY/MM/DD YYYY/MM/DD"></textarea>
+                </div>
+
+                <div class="stage-actions" aria-label="查询阶段控制">
+                    <button id="prepareButton" type="button" class="btn btn-primary">进入查询页面</button>
+                    <button id="dataCheckButton" type="button" class="btn btn-outline-secondary" disabled>数据健康检查</button>
+                    <button id="runButton" type="button" class="btn btn-success" disabled>开始查询</button>
+                    <button id="stopButton" type="button" class="btn btn-danger" disabled>终止</button>
+                </div>
+
+                <div class="health-checks" aria-label="数据健康检查结果">
+                    <div class="health-check" id="dataCheckResult"><span>数据健康检查</span><strong>尚未检查</strong></div>
+                </div>
+            </section>
+
+            <section class="work-panel status-panel" aria-labelledby="statusHeading">
+                <div class="panel-heading">
+                    <h2 id="statusHeading">运行状态</h2>
+                    <span id="progressText">0 / 0</span>
+                </div>
+
+                <div class="progress" role="progressbar" aria-label="查询进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+                </div>
+
+                <dl class="run-summary">
+                    <div><dt>总数</dt><dd id="totalCount">0</dd></div>
+                    <div><dt>已完成</dt><dd id="completedCount">0</dd></div>
+                    <div><dt>成功</dt><dd id="successCount">0</dd></div>
+                    <div><dt>失败</dt><dd id="failedCount">0</dd></div>
+                </dl>
+
+                <div class="current-record">
+                    <span>当前人员</span>
+                    <strong id="currentRecord">-</strong>
+                </div>
+
+                <div class="download-row" aria-label="查询结果下载">
+                    <a id="originalDownload" class="btn btn-outline-secondary disabled" aria-disabled="true">下载原版</a>
+                    <a id="strippedDownload" class="btn btn-outline-secondary disabled" aria-disabled="true">下载去分钟版</a>
+                </div>
+            </section>
+
+            <section class="work-panel results-panel" aria-labelledby="resultsHeading">
+                <div class="panel-heading">
+                    <h2 id="resultsHeading">逐人查询结果</h2>
+                    <span id="resultsCount">0 条</span>
+                </div>
+                <div id="resultsViewport" class="result-viewport">
+                    <div id="resultsEmpty" class="results-empty">尚无已返回结果</div>
+                    <table id="resultsTable" class="result-table" hidden>
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="work-panel log-panel" aria-labelledby="logHeading">
+                <div class="panel-heading">
+                    <h2 id="logHeading">活动日志</h2>
+                </div>
+                <ol id="logList" class="log-list" aria-live="polite">
+                    <li class="is-muted">尚无运行记录</li>
+                </ol>
+            </section>
+        </main>
+    </div>
+    <script type="module" src="./app.mjs"></script>
+</body>
+</html>
