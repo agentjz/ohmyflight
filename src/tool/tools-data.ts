@@ -1,7 +1,7 @@
 import type { SiteAnnouncement, ToolItem } from "./models";
 
 export const tools: ToolItem[] = [
-    { name: "菜鸟教程", desc: "新兵蛋子，立正！", entry: "beginner-tutorial", status: "done", category: "light", homepageState: "beta" },
+    { name: "菜鸟教程", desc: "哈哈。好活。置顶。", entry: "beginner-tutorial", status: "done", category: "light", homepageState: "beta" },
     { name: "培训皇帝", desc: "查个人资质、排培训、核覆盖、看年度压力并更新有效期", entry: "training-workbench", status: "done", category: "heavy" },
     { name: "换季学习", desc: "检查换季名单，均衡岗位和美线带队并移动导出实际安排", entry: "seasonal-learning", status: "done", category: "heavy" },
     { name: "审计之王", desc: "从检查项检索手册证据，整理审计依据和 PDF 页面", entry: "audit-king", status: "done", category: "heavy" },
@@ -10,7 +10,7 @@ export const tools: ToolItem[] = [
     { name: "锁班皇帝", desc: "批量录入锁班信息的 Python 工具", entry: "lock-entry-helper", status: "done", category: "automation" },
     { name: "HTTP 锁班皇帝（新）", desc: "使用已登录会话通过纯 HTTP 批量录入锁班信息", entry: "http-lock-entry-helper", status: "done", category: "automation", homepageState: "beta" },
     { name: "飞行经历查询", desc: "批量查询飞行时间+起落数、飞行经历+起落数、左座经历+起落数或全部数据", entry: "flight-stats-helper", status: "done", category: "automation" },
-    { name: "HTTP 飞行经历查询（新）", desc: "使用已登录会话并发查询完整飞行经历和起落数", entry: "http-flight-stats-helper", status: "done", category: "automation", homepageState: "beta" },
+    { name: "HTTP 飞行经历查询（新）", desc: "使用已登录会话串行查询完整飞行经历和起落数", entry: "http-flight-stats-helper", status: "done", category: "automation", homepageState: "beta" },
     { name: "技术等级运行资格查询助手", desc: "按 Excel 员工号逐人查询 IEB 技术等级和运行资格", entry: "qualification-query-helper", status: "done", category: "automation" },
     { name: "珠海皇帝", desc: "核对场次表与账单表姓名人次", entry: "session-bill-check", status: "done", category: "light", homepageState: "cooling" },
     { name: "酒店皇帝", desc: "对比酒店账单与入住登记表", entry: "hotel-bill-check", status: "done", category: "light" },

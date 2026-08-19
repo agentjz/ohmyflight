@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-import threading
 import time
 from datetime import datetime
 from typing import Callable
@@ -104,8 +103,6 @@ class PortalClient:
         self.cookies: dict[str, str] = {}
         self.verified_at = ""
         self._verify_session: requests.Session | None = None
-        self._thread_local = threading.local()
-        self._generation = 0
 
     @staticmethod
     def _configure_session(session: requests.Session, cookies: dict[str, str]) -> None:
@@ -120,11 +117,6 @@ class PortalClient:
         )
         for name, value in cookies.items():
             session.cookies.set(name, value, domain="ieb.csair.com", path="/")
-
-    def _new_session(self) -> requests.Session:
-        session = self.session_factory()
-        self._configure_session(session, self.cookies)
-        return session
 
     def load_credentials(self, source: str) -> dict[str, object]:
         cookies = parse_credentials(source)
@@ -148,28 +140,20 @@ class PortalClient:
         self.cookies = cookies
         self.verified_at = datetime.now().isoformat(timespec="seconds")
         self._verify_session = session
-        self._generation += 1
-        self._thread_local = threading.local()
         return {**credential_summary(cookies), "verifiedAt": self.verified_at}
 
     def require_credentials(self) -> None:
         if not self.cookies:
             raise PortalSessionExpired("请先验证登录凭据")
 
-    def _session_for_thread(self) -> requests.Session:
+    def _query_session(self) -> requests.Session:
         self.require_credentials()
-        session = getattr(self._thread_local, "session", None)
-        generation = getattr(self._thread_local, "generation", -1)
-        if session is None or generation != self._generation:
-            if session is not None:
-                session.close()
-            session = self._new_session()
-            self._thread_local.session = session
-            self._thread_local.generation = self._generation
-        return session
+        if self._verify_session is None:
+            raise PortalSessionExpired("请先验证登录凭据")
+        return self._verify_session
 
     def query(self, record: QueryRecord) -> TableResult:
-        session = self._session_for_thread()
+        session = self._query_session()
         try:
             response = session.get(
                 f"{BASE_URL}{QUERY_PATH}",
@@ -187,12 +171,9 @@ class PortalClient:
     def clear_credentials(self) -> None:
         self.cookies = {}
         self.verified_at = ""
-        self._generation += 1
         if self._verify_session is not None:
             self._verify_session.close()
             self._verify_session = None
-        self._thread_local = threading.local()
 
     def close(self) -> None:
         self.clear_credentials()
-

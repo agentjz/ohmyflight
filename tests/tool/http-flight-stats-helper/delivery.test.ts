@@ -17,6 +17,7 @@ describe("HTTP flight stats delivery", () => {
     expect(workbench).toContain("数据健康检查");
     expect(workbench).toContain("开始查询");
     expect(workbench).toContain("逐人查询结果");
+    expect(workbench).toContain("严格串行");
     expect(workbench).toContain("飞行时间+起落数");
     expect(workbench).toContain("飞行经历+起落数");
     expect(workbench).toContain("左座经历+起落数");

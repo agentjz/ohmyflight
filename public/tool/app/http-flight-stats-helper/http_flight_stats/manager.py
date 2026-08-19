@@ -11,7 +11,7 @@ from .exporter import ResultExporter, describe_scope, normalize_scope
 from .input_data import read_input
 from .models import Event, InputPayload, QueryRecord
 from .portal_client import PortalClient
-from .runner import DEFAULT_MAX_WORKERS, BatchRunner
+from .runner import BatchRunner
 
 
 RunnerFactory = Callable[..., BatchRunner]
@@ -41,7 +41,7 @@ class RunManager:
         return {
             "phase": "waiting_credentials",
             "message": "等待验证登录凭据",
-            "concurrency": DEFAULT_MAX_WORKERS,
+            "queryMode": "严格串行",
             "session": {"verified": False, "verifiedAt": "", "cookieCount": 0},
             "checks": {
                 "data": {
@@ -172,7 +172,6 @@ class RunManager:
     ) -> None:
         runner = self.runner_factory(
             portal=self.client,
-            max_workers=DEFAULT_MAX_WORKERS,
             stop_event=self._stop_event,
             emit=self._handle_event,
         )
@@ -230,14 +229,14 @@ class RunManager:
             self._state.update(
                 {
                     "phase": "running",
-                    "message": f"开始并发查询 {len(records)} 条有效数据",
+                    "message": f"开始严格串行查询 {len(records)} 条有效数据",
                     "runId": run_id,
                     "progress": {
                         "total": len(records),
                         "completed": 0,
                         "success": 0,
                         "failed": 0,
-                        "current": f"并发查询中（{DEFAULT_MAX_WORKERS} 个 worker）",
+                        "current": "正在逐人查询（严格串行）",
                     },
                     "results": [],
                     "logs": [],

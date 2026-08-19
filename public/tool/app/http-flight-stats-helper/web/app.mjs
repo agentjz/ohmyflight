@@ -7,7 +7,7 @@ const elements = {
   sessionStatus: document.querySelector("#sessionStatus"),
   sessionVerified: document.querySelector("#sessionVerified"),
   sessionVerifiedAt: document.querySelector("#sessionVerifiedAt"),
-  concurrencyCount: document.querySelector("#concurrencyCount"),
+  queryMode: document.querySelector("#queryMode"),
   excelPanel: document.querySelector("#excelPanel"),
   pastePanel: document.querySelector("#pastePanel"),
   excelFile: document.querySelector("#excelFile"),
@@ -261,7 +261,7 @@ function renderState(state) {
   elements.sessionStatus.textContent = session.verified ? "已验证" : "尚未验证";
   elements.sessionVerified.textContent = session.verified ? "有效" : "未验证";
   elements.sessionVerifiedAt.textContent = session.verifiedAt || "-";
-  elements.concurrencyCount.textContent = String(state.concurrency || 4);
+  elements.queryMode.textContent = state.queryMode || "严格串行";
   elements.verifyButton.disabled = !state.canVerify;
   elements.dataCheckButton.disabled = !state.canCheckData;
   elements.runButton.disabled = !state.canRun;
@@ -314,4 +314,3 @@ elements.resultsViewport.addEventListener("scroll", () => { followResults = isNe
 updateScopeSelection(document.querySelector("#scopeAll"));
 pollStatus();
 window.setInterval(pollStatus, 800);
-

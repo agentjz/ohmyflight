@@ -1,6 +1,6 @@
 ---
 name: ieb-http-flight-stats
-description: 开发、探测或维护 IEB 飞行经历与起落数的纯 HTTP 查询客户端和本地工作台。用户提到手工导入 Cookie/cURL、不使用 Playwright、并发飞行时间/经历/左座经历/起落数查询、原版与去分钟版 Excel 时使用；门户 DOM 自动化仍使用 flight-portal-probe。
+description: 开发、探测或维护 IEB 飞行经历与起落数的纯 HTTP 查询客户端和本地工作台。用户提到手工导入 Cookie/cURL、不使用 Playwright、串行飞行时间/经历/左座经历/起落数查询、原版与去分钟版 Excel 时使用；门户 DOM 自动化仍使用 flight-portal-probe。
 ---
 
 # IEB HTTP 飞行经历查询
@@ -27,19 +27,19 @@ description: 开发、探测或维护 IEB 飞行经历与起落数的纯 HTTP �
 - 查询完成事件可逐人展示，向上滚动应暂停自动置底；最终 Excel 必须按原输入索引归位。
 - 所有请求结束或终止后一次性生成原版和去分钟版。去分钟版只处理飞行时间、飞行经历和左座经历的 `H:MM`。
 
-## 并发边界
+## 串行边界
 
-- 当前真实模板已验证 4-worker 并发。除非重新实测，不提高默认并发数，也不把“HTTP 查询”理解为无限并发。
-- 每个 worker 使用独立 `requests.Session`，复制同一组只读 Cookie；禁止多个线程共享一个 Session。
+- 所有人员严格按输入顺序逐个查询，页面没有并发数、并发开关或 worker 池入口。
+- 所有查询复用凭据验证成功后保留的单个 `requests.Session`；不创建线程本地 Session，也不在线程间复制会话。
 - 响应必须按动态表头解析，并精确匹配当前员工号；输入姓名非空时同时校验姓名。HTTP 200、有表格或有一行都不能单独代表成功。
-- 登录失效后停止派发新任务。已在途请求在请求边界结束，未查询人员写明原因；不要无限重试。
+- 登录失效后停止后续查询，未查询人员写明原因；不要无限重试。
 
 ## 维护顺序
 
 1. 先用有效会话 GET 查询页，证明未跳回 `/login` 且 form 存在。
 2. 用 1 条脱敏或授权真实输入确认一次查询的动态表头和身份归属。
 3. 接口变化时先更新脱敏 fixture 和失败测试，再改 `portal_client.py`。
-4. 并发变化先做少量受控实测，分别核对员工号、姓名、表头和结果行数，再扩大批次。
+4. 查询策略变化先做少量受控实测，分别核对员工号、姓名、表头和结果行数；当前产品固定串行。
 5. 用 owner 原始 Excel 回放时只输出汇总、耗时、字段和一致性，不打印人员数据。
 6. 最后运行新工具局部测试以及仓库 build、typecheck、test、verify；检查结果目录、zip、敏感信息和 UTF-8 BOM。
 
@@ -47,10 +47,9 @@ description: 开发、探测或维护 IEB 飞行经历与起落数的纯 HTTP �
 
 - `credentials.py`：只解析目标 Cookie。
 - `input_data.py`：Excel/粘贴边界归一。
-- `portal_client.py`：凭据验证、查询参数、线程独立 Session、登录失效和动态表格归属。
+- `portal_client.py`：凭据验证、查询参数、单个 Session、登录失效和动态表格归属。
 - `exporter.py`：范围筛选及最终双文件。
-- `runner.py`：有界并发、中断、事件和原顺序归位。
+- `runner.py`：串行循环、中断、事件和原顺序结果。
 - `manager.py`：内存 Session、阶段、批次线程和下载状态。
 - `server.py`：loopback API 和静态资源。
 - `web/`：人工工作台。
-
