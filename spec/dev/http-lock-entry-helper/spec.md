@@ -1,10 +1,10 @@
-# HTTP 锁班皇帝（新）开发规格
+# 锁班皇帝（新）开发规格
 
 ## 1. 定位
 
 `http-lock-entry-helper` 是与 `lock-entry-helper` 并列的独立本地 Python APP。旧工具继续使用 Playwright；新工具只使用用户自行提供的 IEB 已登录会话，通过 `requests.Session` 串行调用非生产任务 HTTP 接口，不实现登录、不启动浏览器，也不从旧工具目录导入运行时代码。
 
-页面名称为“HTTP 锁班皇帝（新）”，技术目录使用 `http-` 前缀。原始入口为 `startapp.py`，智能入口为 `startsmartapp.py`，两者都只监听 `127.0.0.1` 的随机端口。
+页面名称为“锁班皇帝（新）”，技术目录使用 `http-` 前缀。原始入口为 `startapp.py`，智能入口为 `startsmartapp.py`，两者都只监听 `127.0.0.1` 的随机端口。
 
 ## 2. 会话凭据
 

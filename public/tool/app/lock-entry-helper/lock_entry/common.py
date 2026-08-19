@@ -1,4 +1,4 @@
-# 锁班皇帝 - 智能路由助手
+# 锁班乞丐 - 智能路由助手
 
 import re
 import platform

@@ -5,7 +5,7 @@ description: 开发、探测或维护 IEB 非生产任务锁班的纯 HTTP 客�
 
 # IEB HTTP 锁班
 
-用于在用户自行维护 IEB 登录态的前提下，以本地 Python HTTP 客户端替代浏览器逐条渲染和点击。旧版 `lock-entry-helper` 保持不动；纯 HTTP 新 APP 使用 `http-` 技术前缀，本项目对应目录名为 `http-lock-entry-helper`，页面名为“HTTP 锁班皇帝（新）”。
+用于在用户自行维护 IEB 登录态的前提下，以本地 Python HTTP 客户端替代浏览器逐条渲染和点击。旧版 `lock-entry-helper` 保持不动；纯 HTTP 新 APP 使用 `http-` 技术前缀，本项目对应目录名为 `http-lock-entry-helper`，页面名为“锁班皇帝（新）”。
 
 ## 当前已验证边界
 

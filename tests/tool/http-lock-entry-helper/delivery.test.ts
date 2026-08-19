@@ -14,6 +14,8 @@ describe("HTTP lock entry delivery", () => {
     const pythonEntries = readdirSync(root).filter((name) => name.endsWith(".py")).sort();
 
     expect(pythonEntries).toEqual(["startapp.py", "startsmartapp.py"]);
+    expect(landing).toContain("锁班皇帝（新）");
+    expect(workbench).toContain("锁班皇帝（新）");
     expect(readFileSync(`${root}/startapp.py`, "utf8")).toContain('create_server(app_directory, "original"');
     expect(readFileSync(`${root}/startsmartapp.py`, "utf8")).toContain('create_server(app_directory, "smart"');
     expect(landing).toContain('href="../../../exports/http-lock-entry-helper.zip"');

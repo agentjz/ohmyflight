@@ -12,6 +12,8 @@ describe("HTTP flight stats delivery", () => {
     const pythonEntries = readdirSync(root).filter((name) => name.endsWith(".py")).sort();
 
     expect(pythonEntries).toEqual(["start.py"]);
+    expect(landing).toContain("飞行经历查询（皇帝版）");
+    expect(workbench).toContain("飞行经历查询（皇帝版）");
     expect(landing).toContain('href="../../../exports/http-flight-stats-helper.zip"');
     expect(workbench).toContain("验证凭据");
     expect(workbench).toContain("数据健康检查");

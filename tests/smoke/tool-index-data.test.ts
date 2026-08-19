@@ -19,6 +19,29 @@ describe("tool index data", () => {
     });
   });
 
+  it("keeps the README tool table synchronized with the tool list", () => {
+    const tools = loadToolsData() || [];
+    const readme = fs.readFileSync(resolveFromRoot("README.md"), "utf8");
+    const startMarker = "<!-- tools-table:start -->";
+    const endMarker = "<!-- tools-table:end -->";
+    const start = readme.indexOf(startMarker);
+    const end = readme.indexOf(endMarker);
+
+    expect(start).toBeGreaterThanOrEqual(0);
+    expect(end).toBeGreaterThan(start);
+
+    const rows = readme.slice(start + startMarker.length, end)
+      .split(/\r?\n/)
+      .filter((line) => /^\| .+ \| (?:✅|🧪|🧊) \|/.test(line));
+    const expectedRows = tools.map((tool) => {
+      const state = tool.homepageState || "enabled";
+      const icon = state === "beta" ? "🧪" : state === "cooling" ? "🧊" : "✅";
+      return `| ${tool.name} | ${icon} | ${tool.desc} |`;
+    });
+
+    expect(rows).toEqual(expectedRows);
+  });
+
   it("publishes four category views and defaults to all tools", () => {
     const homepage = fs.readFileSync(resolveFromRoot("public", "tool", "index.html"), "utf8");
     const categories = [...homepage.matchAll(/data-category="([a-z]+)"/g)].map((match) => match[1]);

@@ -13,6 +13,8 @@ describe("lock entry delivery entries", () => {
     const workbench = readFileSync(`${root}/web/index.html`, "utf8");
 
     expect(pythonEntries).toEqual(["startapp.py", "startsmartapp.py"]);
+    expect(html).toContain("锁班乞丐");
+    expect(workbench).toContain("锁班乞丐");
     expect(html).toContain('href="../../../exports/lock-entry-helper.zip"');
     expect(originalEntry).toContain('create_server(app_directory, "original"');
     expect(smartEntry).toContain('create_server(app_directory, "smart"');

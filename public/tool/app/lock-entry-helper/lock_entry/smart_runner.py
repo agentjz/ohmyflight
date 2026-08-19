@@ -475,7 +475,7 @@ def process_record_list(page, records, result_file, common_reason, conflict_reco
 
 
 def main():
-    print(c_info("锁班皇帝 - 智能路由助手"))
+    print(c_info("锁班乞丐 - 智能路由助手"))
     print(c_info("支持全部锁班类型；健康疗养与飞行员公休（订座）按可休天数自动分配"))
     if not HAS_OPENPYXL:
         print(c_err("缺少openpyxl，无法生成实时结果文件。请先运行: pip install -r requirements.txt"))

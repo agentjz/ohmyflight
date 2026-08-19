@@ -260,7 +260,7 @@ def excel_mode(page, whitelist, common_reason):
 
 
 def main():
-    print(c_info("锁班皇帝"))
+    print(c_info("锁班乞丐"))
     # 浏览器路径
     browser_path = input(c_hint("浏览器路径(回车用默认): ")).strip() or None
     if browser_path:

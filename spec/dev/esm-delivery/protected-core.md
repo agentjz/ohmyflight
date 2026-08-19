@@ -21,8 +21,8 @@
 | PDF 工具 | PDF 拆分、合并、转图片、图片转 PDF 的页序、尺寸和文件输出 | 第三方适配器启动测试 |
 | PDF 加水印 | 页尺寸与水印位置换算、规则校验、页面渲染和导出 PDF | `tests/tool/pdf-stamp/logic.test.ts` |
 | Word 模板填充器 | 配置字段解析、模板/循环/日期/批量填充、独立 HTML 生成与打包结构 | `tests/tool/word-template-filler/generated-batch.test.ts` |
-| 锁班皇帝 | 下载页面、命令复制和 Python APP 文件边界；Python 业务实现不在重构范围 | 静态资源测试与 Python 测试 |
-| 飞行经历/左座经历起落数按天统计 | 下载页面、命令复制和 Python APP 文件边界；Python 业务实现不在重构范围 | 静态资源测试与 Python 测试 |
+| 锁班乞丐 | 下载页面、命令复制和 Python APP 文件边界；Python 业务实现不在重构范围 | 静态资源测试与 Python 测试 |
+| 飞行经历查询（乞丐版） | 下载页面、命令复制和 Python APP 文件边界；Python 业务实现不在重构范围 | 静态资源测试与 Python 测试 |
 | 技术等级运行资格查询助手 | 下载页面和 Python APP 文件边界；查询与 Excel 写回业务实现不在重构范围 | `tests/python/test_qualification_query_helper.py` |
 | 自动点 OA 助手 | 下载页面、命令复制和 Python APP 文件边界；Python 业务实现不在重构范围 | 静态资源测试 |
 

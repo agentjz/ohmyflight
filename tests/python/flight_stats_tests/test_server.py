@@ -25,7 +25,7 @@ class FlightStatsServerTest(unittest.TestCase):
                 self.assertEqual(host, "127.0.0.1")
                 with urllib.request.urlopen(f"http://127.0.0.1:{port}/", timeout=5) as response:
                     self.assertEqual(response.status, 200)
-                    self.assertIn("飞行经历查询".encode("utf-8"), response.read())
+                    self.assertIn("飞行经历查询（乞丐版）".encode("utf-8"), response.read())
                 with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/status", timeout=5) as response:
                     self.assertEqual(response.status, 200)
                     self.assertIn(b'"phase": "idle"', response.read())

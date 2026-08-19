@@ -34,7 +34,7 @@ class LockEntryServerTest(unittest.TestCase):
                 self.assertEqual(host, "127.0.0.1")
                 with urllib.request.urlopen(f"http://127.0.0.1:{port}/", timeout=5) as response:
                     self.assertEqual(response.status, 200)
-                    self.assertIn("锁班皇帝".encode("utf-8"), response.read())
+                    self.assertIn("锁班乞丐".encode("utf-8"), response.read())
                 with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/status", timeout=5) as response:
                     state = json.loads(response.read().decode("utf-8"))
                     self.assertEqual(state["mode"], "smart")
