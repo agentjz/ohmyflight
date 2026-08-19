@@ -26,6 +26,6 @@ export const tools: ToolItem[] = [
 ];
 
 export const announcement: SiteAnnouncement = {
-    message: "🎉🎉🎉都变成了温和的野兽派！",
+    message: "🎉🎉🎉从乞丐到皇帝的升级。哈哈。置顶。",
     href: "../sponsor/index.html"
 };
