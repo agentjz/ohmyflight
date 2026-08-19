@@ -45,8 +45,6 @@
 | 人员结构统计 | ✅ | 按报告口径统计人员结构并生成报告 |
 <!-- tools-table:end -->
 
-工具清单只维护 `src/tool/tools-data.ts`。修改名称、说明或状态后运行 `npm.cmd run sync:readme` 同步本表；`npm.cmd run check:readme` 可检查是否一致，构建和 CI 验证也会自动检查。
-
 ## 开源协议与贡献
 
 本项目遵循 [MIT License](./LICENSE) 开源协议。
