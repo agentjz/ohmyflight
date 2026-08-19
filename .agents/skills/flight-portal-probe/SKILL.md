@@ -9,7 +9,7 @@ description: IEB/飞行门户专用 Playwright 探测和批量自动化流程，
 
 ## 先看现有实现
 
-- 技术等级/运行资格：`public/tool/app/qualification-query-helper/app.py`
+- 技术等级/运行资格：`public/tool/app/qualification-query-helper/qualification_query/portal.py`
 - 飞行经历查询循环：`public/tool/app/flight-stats-helper/app.py`
 - 其他浏览器接管模式：`public/tool/app/lock-entry-helper/app.py`、`public/tool/app/oa-read-helper/app.py`
 - 技术资料 DOM 和表格详情：`references/technical-materials.md`
@@ -53,6 +53,8 @@ page.get_by_role("textbox", name="员工号或姓名简拼").wait_for(state="vis
 6. 点击 `.pilotInfo-dialog-close` 关闭弹窗，确认回到列表页，再查询下一人。
 
 不要每人重新进入首页；不要只 `fill(emp_id)` 而省略清空；不要用非精确员工链接；不要在弹窗未关闭时开始下一人。
+
+`qualification-query-helper` 当前是本地前后端分离的 Playwright 工作台。用户粘贴 Cookie 后，“进入查询页面”只负责启动可见浏览器、向 browser context 注入 Cookie 并进入资料管理；“开始查询”才执行逐人循环。完成后浏览器保持打开并复用同一页面，只有停止接口或本地服务退出才关闭。Cookie 只保存在进程内存，不写日志、状态、Excel、测试或 Git；agent 全链路使用 `/api/start`。
 
 ## 表格解析
 

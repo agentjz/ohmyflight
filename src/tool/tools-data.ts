@@ -11,7 +11,7 @@ export const tools: ToolItem[] = [
     { name: "锁班皇帝（新）", desc: "好活，直接调用接口锁班，极速。", entry: "http-lock-entry-helper", status: "done", category: "automation", homepageState: "beta" },
     { name: "飞行经历查询（乞丐版）", desc: "playwright批量查询飞行时间+起落数、飞行经历+起落数、左座经历+起落数或全部数据", entry: "flight-stats-helper", status: "done", category: "automation" },
     { name: "飞行经历查询（皇帝版）", desc: "好活，直接调用接口查完整飞行经历和起落数，极速。", entry: "http-flight-stats-helper", status: "done", category: "automation", homepageState: "beta" },
-    { name: "技术等级运行资格查询助手", desc: "按 Excel 员工号逐人查询 IEB 技术等级和运行资格", entry: "qualification-query-helper", status: "done", category: "automation" },
+    { name: "技术等级运行资格查询助手（乞丐版）", desc: "playwright 批量查询 IEB 技术等级和运行资格", entry: "qualification-query-helper", status: "done", category: "automation" },
     { name: "珠海皇帝", desc: "核对场次表与账单表姓名人次", entry: "session-bill-check", status: "done", category: "light", homepageState: "cooling" },
     { name: "酒店皇帝", desc: "对比酒店账单与入住登记表", entry: "hotel-bill-check", status: "done", category: "light" },
     { name: "重点人员标注", desc: "在审班表中标注重点人员", entry: "focus-crew", status: "done", category: "light" },

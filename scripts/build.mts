@@ -217,7 +217,7 @@ async function buildPageEntries(): Promise<void> {
 }
 
 async function copyPythonWorkbenchAssets() {
-  for (const toolEntry of ["flight-stats-helper", "http-flight-stats-helper", "lock-entry-helper", "http-lock-entry-helper"]) {
+  for (const toolEntry of ["flight-stats-helper", "http-flight-stats-helper", "lock-entry-helper", "http-lock-entry-helper", "qualification-query-helper"]) {
     const workbenchRoot = path.join(distRoot, "tool", "app", toolEntry, "web");
     const libraryRoot = path.join(workbenchRoot, "libs");
     await fs.mkdir(libraryRoot, { recursive: true });
