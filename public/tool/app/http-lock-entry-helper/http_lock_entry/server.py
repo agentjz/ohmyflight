@@ -28,6 +28,7 @@ def payload_from_json(payload: dict[str, object]) -> InputPayload:
         whitelist_text=str(payload.get("whitelistText", "") or ""),
         common_reason=str(payload.get("commonReason", "") or ""),
         conflict_recovery=bool(payload.get("conflictRecovery", False)),
+        approve_after_submit=bool(payload.get("approveAfterSubmit", False)),
     )
 
 

@@ -151,14 +151,59 @@ class HttpPortalClientTest(unittest.TestCase):
             </div>
             """
 
-        session = FakeSession(post_responses=[
-            FakeResponse(query_html("record-a", "<a onclick=\"changePage(2)\">2</a>")),
-            FakeResponse(query_html("record-b")),
-        ])
+        session = FakeSession(
+            post_responses=[
+                FakeResponse(query_html("record-a", "<a href=\"javascript:goPageTwo('x','y','z','2');\">最后一页</a>")),
+            ],
+            get_responses=[FakeResponse(query_html("record-b"))],
+        )
         rows = self.make_client(session).query_records("900001", "已锁")
         self.assertEqual([row["记录ID"] for row in rows], ["record-a", "record-b"])
         self.assertEqual(session.calls[0][2]["data"]["lockStatus"], "1")
-        self.assertEqual(session.calls[1][2]["data"]["page"], "2")
+        self.assertEqual(session.calls[1][0], "GET")
+        self.assertEqual(session.calls[1][2]["params"]["page"], "2")
+
+    def test_query_preserves_blank_selection_header_alignment(self):
+        html = """
+        <div class="flexigrid"><div class="hDiv"><table><tr>
+          <th></th><th>序号</th><th>状态</th><th>员工号</th><th>姓名</th>
+          <th>开始日期</th><th>结束日期</th><th>锁班类型</th>
+        </tr></table></div><div class="bDiv"><table><tbody class="list"><tr>
+          <td><input type="checkbox" value="record-approve"></td><td>123</td><td>待审批</td>
+          <td>900001</td><td>测试甲</td><td>2026-10-01 08:59:00</td>
+          <td>2026-10-01 19:59:00</td><td>BS_STUDY</td>
+        </tr></tbody></table></div><div class="footer"><a href="javascript:goPageTwo('x','y','z','1');">最后一页</a></div></div>
+        """
+        rows, pages = self.make_client().parse_query_result(html)
+        self.assertEqual(pages, 1)
+        self.assertEqual(rows[0]["状态"], "待审批")
+        self.assertEqual(rows[0]["员工号"], "900001")
+        self.assertEqual(rows[0]["记录ID"], "record-approve")
+
+    def test_approve_records_requires_locked_and_pending_recheck(self):
+        row = {
+            "记录ID": "record-approve", "状态": "待审批", "员工号": "900001", "姓名": "测试甲",
+            "开始日期": "2026-10-01 08:59:00", "结束日期": "2026-10-01 19:59:00",
+            "锁班类型": "BS_STUDY", "录入时间": "2026-08-19",
+        }
+        client = self.make_client()
+        calls = []
+        client.perform_state_action = lambda action, rows, reason: calls.append((action, rows, reason)) or "通过成功"
+        client.query_records = lambda employee_id, status: [{**row, "状态": "已锁"}] if status == "已锁" else []
+        self.assertEqual(client.approve_records([row], "by agent"), "通过成功")
+        self.assertEqual(calls[0][0], "approve")
+
+    def test_approve_state_action_posts_repeated_ids_and_query_fields(self):
+        session = FakeSession(post_responses=[FakeResponse(json_value={"success": "true", "successMsg": "通过成功"})])
+        client = self.make_client(session)
+        rows = [{"记录ID": "record-a", "员工号": "900001"}, {"记录ID": "record-b", "员工号": "900001"}]
+        self.assertEqual(client.perform_state_action("approve", rows, "by agent"), "通过成功")
+        method, url, kwargs = session.calls[0]
+        self.assertTrue(url.endswith("/newieb/nonproductionTask/importNonproductionTaskLockListToSoc"))
+        body = kwargs["data"]
+        self.assertEqual([value for key, value in body if key == "ids"], ["record-a", "record-b"])
+        self.assertIn(("approveRemark", "by agent"), body)
+        self.assertIn(("lockStatus", ""), body)
 
 
 if __name__ == "__main__":

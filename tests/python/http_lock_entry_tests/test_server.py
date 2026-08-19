@@ -8,7 +8,7 @@ import urllib.request
 from pathlib import Path
 
 from .common import APP_DIR  # noqa: F401
-from http_lock_entry.server import create_server
+from http_lock_entry.server import create_server, payload_from_json
 
 
 class RecordingManager:
@@ -46,6 +46,14 @@ class RecordingManager:
 
 
 class HttpLockEntryServerTest(unittest.TestCase):
+    def test_payload_carries_direct_approval_option(self):
+        payload = payload_from_json({
+            "inputMode": "paste",
+            "pastedText": "900001\t测试甲\tBS_STUDY\t2026-10-08\t2026-10-08",
+            "approveAfterSubmit": True,
+        })
+        self.assertTrue(payload.approve_after_submit)
+
     def test_loopback_server_exposes_manual_steps_and_agent_start(self):
         manager = RecordingManager()
         server = create_server(APP_DIR, "smart", 0, manager)

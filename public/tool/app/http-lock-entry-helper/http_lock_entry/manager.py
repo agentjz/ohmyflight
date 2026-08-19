@@ -197,7 +197,7 @@ class RunManager:
         payload: InputPayload,
         store: ResultStore,
     ) -> None:
-        runner = self.runner_factory(
+        runner_args = [
             self.client,
             store,
             self.mode,
@@ -205,6 +205,11 @@ class RunManager:
             payload.common_reason,
             self._stop_event,
             self._handle_event,
+        ]
+        if payload.approve_after_submit:
+            runner_args.append(True)
+        runner = self.runner_factory(
+            *runner_args,
         )
         try:
             summary = runner.run(records)

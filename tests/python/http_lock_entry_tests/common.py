@@ -35,7 +35,7 @@ SUCCESS_HTML = """
     <th>结束日期</th><th>锁班天数</th><th>锁班类型</th><th>锁班原因</th>
   </tr></thead>
   <tbody class="list"><tr>
-    <td>待审批</td><td>900001</td><td>测试甲</td><td>测试部门</td>
+    <td><input type="checkbox" value="record-submit">待审批</td><td>900001</td><td>测试甲</td><td>测试部门</td>
     <td>2026-10-08 08:17:00</td><td>2026-10-08 18:43:00</td><td>1</td>
     <td>业务学习(占值勤期类别)</td><td>批量测试</td>
   </tr></tbody></table>

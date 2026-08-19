@@ -103,12 +103,15 @@ lockEndHourAndMinute=HH:mm
 | 提交 | `POST /newieb/nonproductionTask/showNonproductionTaskImportResultPage` |
 | 查询 | `POST /newieb/nonproductionTask/showLockListPage` |
 | 解锁 | `POST /newieb/nonproductionTask/unlockNonproductionTaskLock` |
+| 通过 | `POST /newieb/nonproductionTask/importNonproductionTaskLockListToSoc` |
 
 员工校验字段使用门户现状的 `staffNum`，其他接口使用 `staffnum`。JSON 中的 `permissionFlag` 和 `success` 按字符串布尔值解析。
 
 提交响应同时解析普通结果区与冲突结果区。普通结果必须按员工号、门户姓名、实际类型和完整日期时分精确归属；模式 2 的每个日号必须分别唯一归属。HTTP 200、响应第一行或单独提示文字都不作为业务成功依据。
 
-查询按表头解析并遍历全部页。checkbox `value` 只在业务字段唯一匹配后作为记录 ID 使用。
+查询按表头解析并遍历全部页。门户第一页使用 POST，后续页按页面脚本使用 GET；页脚“共 N 条记录”是记录数，不是页数，最后一页链接才是分页上限。空白选择列表头必须保留，不能让字段错位。checkbox `value` 只在业务字段唯一匹配后作为记录 ID 使用。
+
+状态动作统一使用重复 `ids`、`approveRemark` 和当前查询字段。通过接口成功后必须重新查询“已锁”和“待审批”，确认同一目标已锁且不再待审批。
 
 ## 7. 原始与智能模式
 
@@ -128,7 +131,7 @@ lockEndHourAndMinute=HH:mm
 6. 原提交 Body 只重放一次。
 7. 重提仍冲突或失败时停止当前原始记录，不解锁第二条。
 
-正常新提交不会被自动通过、撤销或否决。
+正常新提交默认不会被自动通过、撤销或否决。工作台可勾选“提交成功后直接通过并锁班”：每个片段仍串行先提交、保存待审批结果，再调用通过接口并复查状态；未勾选时保持原有待审批行为。通过失败时明确报告“待审批记录已生成，但通过并锁班失败”，不吞掉第一步结果。
 
 ## 9. 状态、结果与 API
 

@@ -24,6 +24,7 @@ describe("HTTP lock entry delivery", () => {
     expect(workbench).toContain("开始录入");
     expect(workbench).toContain("逐条录入结果");
     expect(workbench).toContain('id="conflictRecovery" type="checkbox"');
+    expect(workbench).toContain('id="approveAfterSubmit" type="checkbox"');
     expect(requirements).toContain("requests");
     expect(requirements).not.toContain("playwright");
     expect(buildScript).toContain('"http-lock-entry-helper"');

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import random
 import re
+import time
 from datetime import date, datetime
 from typing import Iterable
 
@@ -77,10 +78,12 @@ def _align_values(headers: list[str], values: list[str]) -> list[str]:
 def _table_headers(root: Tag) -> list[str]:
     selectors = ("thead th", ".hDiv th", "tr th")
     for selector in selectors:
-        values = [normalize_text(cell.get_text(" ", strip=True)) for cell in root.select(selector)]
-        values = [value for value in values if value]
-        if values:
-            return values
+        raw_values = [normalize_text(cell.get_text(" ", strip=True)) for cell in root.select(selector)]
+        if raw_values and any(raw_values):
+            return [
+                value or ("选择" if index == 0 else f"列{index + 1}")
+                for index, value in enumerate(raw_values)
+            ]
     return []
 
 
@@ -442,7 +445,7 @@ class PortalClient:
             "lockStatus": status_code,
             "startDt": "",
             "endDt": "",
-            "orderByType": "",
+            "orderByType": "0",
             "entryStaffnum": "",
             "page": str(page),
             "random": _random_value(),
@@ -455,22 +458,45 @@ class PortalClient:
         if not headers:
             raise PortalError("锁班查询响应缺少表头")
         rows = _table_rows(root, headers)
-        page_candidates = [1]
-        for pattern in (
-            r"(?:page=|changePage\s*\(\s*['\"]?)(\d+)",
-            r"(?:共|总页数\s*[:：]?)\s*(\d+)\s*页?",
-        ):
-            page_candidates.extend(int(value) for value in re.findall(pattern, html, re.I))
-        return rows, max(page_candidates)
+        page_count = 1
+        for link in soup.select("a"):
+            if normalize_text(link.get_text(" ", strip=True)) != "最后一页":
+                continue
+            href = normalize_text(link.get("href"))
+            matches = re.findall(r"goPageTwo\([^)]*,\s*['\"]?(\d+)['\"]?\s*\)\s*;?", href)
+            if matches:
+                page_count = int(matches[-1])
+                break
+        if page_count == 1:
+            for pattern in (
+                r"(?:page=|changePage\s*\(\s*['\"]?)(\d+)",
+                r"goPageTwo\([^)]*,\s*['\"]?(\d+)['\"]?\s*\)",
+            ):
+                values = [int(value) for value in re.findall(pattern, html, re.I)]
+                if values:
+                    page_count = max(page_count, *values)
+        return rows, page_count
 
     def query_records(self, employee_id: str, status: str) -> list[dict[str, str]]:
         first = self._post(QUERY_PATH, data=self._query_body(employee_id, status, 1))
         rows, page_count = self.parse_query_result(str(first.text or ""))
         for page in range(2, page_count + 1):
-            response = self._post(QUERY_PATH, data=self._query_body(employee_id, status, page))
+            params = self._query_body(employee_id, status, page)
+            params.pop("random", None)
+            params["currentStr"] = str(int(time.time() * 1000))
+            response = self._get(QUERY_PATH, params=params)
             page_rows, _ = self.parse_query_result(str(response.text or ""))
             rows.extend(page_rows)
-        return rows
+        unique: list[dict[str, str]] = []
+        seen: set[str] = set()
+        for row in rows:
+            identity = normalize_text(row.get("记录ID"))
+            if identity:
+                if identity in seen:
+                    continue
+                seen.add(identity)
+            unique.append(row)
+        return unique
 
     @staticmethod
     def _same_query_identity(left: dict[str, str], right: dict[str, str]) -> bool:
@@ -517,4 +543,27 @@ class PortalClient:
         unlocked_rows = self.query_records(employee_id, "已解锁")
         if not any(self._same_query_identity(candidate, row) for candidate in unlocked_rows):
             raise PortalError("解锁后未在已解锁列表中精确找到目标记录")
+        return message
+
+    def approve_records(self, rows: list[dict[str, str]], reason: str) -> str:
+        if not rows:
+            raise PortalError("通过动作缺少目标记录")
+        employee_id = normalize_text(rows[0].get("员工号"))
+        if not employee_id or any(normalize_text(row.get("员工号")) != employee_id for row in rows):
+            raise PortalError("通过动作的目标记录必须属于同一员工")
+        message = self.perform_state_action("approve", rows, reason)
+        locked_rows = self.query_records(employee_id, "已锁")
+        missing = [
+            row for row in rows
+            if not any(self._same_query_identity(candidate, row) for candidate in locked_rows)
+        ]
+        if missing:
+            raise PortalError("门户提示通过成功，但目标未在已锁列表中精确找到")
+        pending_rows = self.query_records(employee_id, "待审批")
+        remaining = [
+            row for row in rows
+            if any(self._same_query_identity(candidate, row) for candidate in pending_rows)
+        ]
+        if remaining:
+            raise PortalError("通过后目标仍出现在待审批列表")
         return message

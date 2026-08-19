@@ -18,6 +18,7 @@ const elements = {
   commonReason: document.querySelector("#commonReason"),
   smartOptions: document.querySelector("#smartOptions"),
   conflictRecovery: document.querySelector("#conflictRecovery"),
+  approveAfterSubmit: document.querySelector("#approveAfterSubmit"),
   dataCheckButton: document.querySelector("#dataCheckButton"),
   runButton: document.querySelector("#runButton"),
   stopButton: document.querySelector("#stopButton"),
@@ -143,6 +144,7 @@ async function inputPayload() {
     whitelistText: elements.whitelistText.value.trim(),
     commonReason: elements.commonReason.value.trim(),
     conflictRecovery: currentMode === "smart" && elements.conflictRecovery.checked,
+    approveAfterSubmit: elements.approveAfterSubmit.checked,
   };
   if (inputMode === "excel") {
     const file = elements.excelFile.files[0];
@@ -210,7 +212,7 @@ function render(state) {
   elements.stopButton.disabled = !state.canStop;
   const inputDisabled = Boolean(state.canStop);
   document.querySelectorAll(
-    'input[name="inputMode"], #excelFile, #pastedText, #whitelistText, #commonReason, #conflictRecovery',
+    'input[name="inputMode"], #excelFile, #pastedText, #whitelistText, #commonReason, #conflictRecovery, #approveAfterSubmit',
   ).forEach((input) => {
     input.disabled = inputDisabled;
   });

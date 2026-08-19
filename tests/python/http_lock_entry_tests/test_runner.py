@@ -67,6 +67,10 @@ class RecoveryClient:
         self.calls.append(("unlock", row["记录ID"], reason))
         return "解锁成功"
 
+    def approve_records(self, rows, reason):
+        self.calls.append(("approve", [row["记录ID"] for row in rows], reason))
+        return "通过成功"
+
 
 class HttpLockEntryRunnerTest(unittest.TestCase):
     def record(self):
@@ -127,6 +131,25 @@ class HttpLockEntryRunnerTest(unittest.TestCase):
         validated = [call[1] for call in client.calls if call[0] == "validate"]
         self.assertEqual(validated, ["900001", "900002", "900003"])
         self.assertEqual(summary["success"], 3)
+
+    def test_approve_after_submit_runs_serial_approval_and_reports_locked(self):
+        client = RecoveryClient()
+        client.responses = [client.parser.parse_submit_result(SUCCESS_HTML)]
+        store = RecordingStore()
+        runner = BatchRunner(
+            client,
+            store,
+            "original",
+            False,
+            "",
+            threading.Event(),
+            lambda _event: None,
+            True,
+        )
+        summary = runner.run([self.record()])
+        self.assertEqual(summary["success"], 1)
+        self.assertEqual([call[0] for call in client.calls], ["validate", "submit", "approve"])
+        self.assertEqual(store.rows[-1]["status"], "已通过并锁班")
 
 
 

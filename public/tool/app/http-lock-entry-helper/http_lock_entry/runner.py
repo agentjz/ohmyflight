@@ -25,12 +25,14 @@ class BatchRunner:
         common_reason: str,
         stop_event: threading.Event,
         emit: EventCallback | None = None,
+        approve_after_submit: bool = False,
     ):
         self.client = client
         self.store = store
         self.mode = mode
         self.conflict_recovery = bool(conflict_recovery)
         self.common_reason = common_reason
+        self.approve_after_submit = bool(approve_after_submit)
         self.stop_event = stop_event
         self.emit = emit or (lambda _event: None)
 
@@ -132,6 +134,69 @@ class BatchRunner:
             )
             self._persist_and_emit(event)
 
+    def _complete_success(
+        self,
+        index: int,
+        segment_index: int,
+        source: dict[str, object],
+        segment: dict[str, object],
+        identity_name: str,
+        rows: list[dict[str, str]],
+        attempt: int,
+        recovery: str,
+        reason: str,
+    ) -> bool:
+        self._successful_rows(
+            index,
+            segment_index,
+            source,
+            segment,
+            identity_name,
+            rows,
+            attempt,
+            recovery,
+            reason,
+        )
+        if not self.approve_after_submit:
+            return True
+        try:
+            message = self.client.approve_records(rows, reason)
+        except Exception as error:
+            failed = self._result_row(
+                index,
+                segment_index,
+                source,
+                segment,
+                identity_name,
+                "通过失败",
+                portal_row=rows[0],
+                attempt=attempt,
+                recovery=recovery,
+                remark=reason,
+                message=f"待审批记录已生成，但通过并锁班失败：{error}",
+            )
+            self._persist_and_emit(failed)
+            return False
+        for row in rows:
+            locked_row = dict(row)
+            locked_row["锁班状态"] = "已锁"
+            locked_row["状态"] = "已锁"
+            approved = self._result_row(
+                index,
+                segment_index,
+                source,
+                segment,
+                identity_name,
+                "已通过并锁班",
+                portal_row=locked_row,
+                attempt=attempt,
+                recovery=recovery,
+                remark=reason,
+                message=message,
+            )
+            self._persist_and_emit(approved)
+        return True
+
     def _submit_segment(
         self,
         index: int,
@@ -149,10 +214,9 @@ class BatchRunner:
         result = self.client.submit(body)
         rows, problem = self.client.attribute_submit_result(result, segment, identity)
         if rows:
-            self._successful_rows(
+            return self._complete_success(
                 index, segment_index, source, segment, identity.name, rows, 1, "", reason
             )
-            return True
 
         if not result.conflict_rows:
             event = self._result_row(
@@ -223,7 +287,7 @@ class BatchRunner:
         retry_result = self.client.submit(body)
         retry_rows, retry_problem = self.client.attribute_submit_result(retry_result, segment, identity)
         if retry_rows:
-            self._successful_rows(
+            return self._complete_success(
                 index,
                 segment_index,
                 source,
@@ -234,7 +298,6 @@ class BatchRunner:
                 "旧记录已解锁并重提一次",
                 reason,
             )
-            return True
         message = retry_problem
         if retry_result.conflict_rows:
             message = "重提后仍冲突，未继续解锁其他记录"

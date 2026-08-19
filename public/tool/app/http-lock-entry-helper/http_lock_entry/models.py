@@ -52,6 +52,7 @@ class InputPayload:
     whitelist_text: str = ""
     common_reason: str = ""
     conflict_recovery: bool = False
+    approve_after_submit: bool = False
 
 
 @dataclass(frozen=True)
