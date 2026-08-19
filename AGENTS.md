@@ -33,6 +33,7 @@
 - 涉及 Excel 读取、导出、表头映射、日期解析或 openpyxl/SheetJS 时，看 `.agents/skills/excel-dev/SKILL.md`。
 - 涉及 IEB/飞行门户、Playwright 页面探测、员工号查询、技术等级/运行资格抓取或 Excel 批量写回时，看 `.agents/skills/flight-portal-probe/SKILL.md`。
 - 涉及 IEB 非生产任务的 Cookie/cURL 凭据导入、纯 HTTP 批量锁班、动态类型、按月份提交、查询、撤销、解锁或冲突重提时，看 `.agents/skills/ieb-http-lock-entry/SKILL.md`。
+- 涉及 IEB 飞行经历与起落数的 Cookie/cURL 凭据导入、纯 HTTP 查询、多人并发、原版与去分钟版 Excel 时，看 `.agents/skills/ieb-http-flight-stats/SKILL.md`。
 - 涉及两本 Word/PDF 手册的新增、删除和修改比对时，看 `.agents/skills/compare-manuals/SKILL.md`。
 - 涉及《飞行人员训练大纲》的训练课程、课时、检查、资格保持恢复或版本复核时，看 `.agents/skills/read-flight-training-program/SKILL.md`。
 - 涉及《飞行技术管理手册》的技术等级、资格、聘任、检查、档案或版本复核时，看 `.agents/skills/read-flight-technical-management-manual/SKILL.md`。

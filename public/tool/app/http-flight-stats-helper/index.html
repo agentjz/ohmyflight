@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP 飞行经历查询（新）</title>
+    <script src="../../../theme.js"></script>
+    <link rel="stylesheet" href="../../../libs/bootstrap.min.css">
+    <style>body { background: transparent; padding: 20px; }</style>
+    <link rel="stylesheet" href="../../../theme.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card mb-4">
+            <div class="card-body text-center position-relative">
+                <a href="../../../index.html" class="position-absolute start-0 top-50 translate-middle-y ms-3 text-decoration-none">返回首页</a>
+                <a href="../../../template/飞行经历起落数查询模板.xlsx" download class="position-absolute end-0 top-50 translate-middle-y me-3 text-decoration-none">下载查询模板</a>
+                <h4 class="card-title mb-1">HTTP 飞行经历查询（新）</h4>
+                <p class="text-muted mb-0 small">复用已登录会话，并发查询完整飞行经历数据</p>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title border-bottom pb-2 mb-3">运行方式</h5>
+                <p>下载独立应用，在应用目录安装依赖后运行 <code>python start.py</code>。工作台通过已登录门户的 cURL 或 Cookie Header 查询，不启动 Playwright。</p>
+                <pre class="bg-light p-2 rounded"><code>pip install -r requirements.txt
+python start.py</code></pre>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title border-bottom pb-2 mb-3">下载</h5>
+                <a href="../../../exports/http-flight-stats-helper.zip" download="http-flight-stats-helper.zip" class="btn btn-primary">下载独立应用</a>
+                <a href="../../../index.html" class="btn btn-outline-secondary ms-2">返回工具首页</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title border-bottom pb-2 mb-3">依赖</h5>
+                <ul class="mb-0">
+                    <li>Python 3.10+</li>
+                    <li>requests、beautifulsoup4、openpyxl</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
+

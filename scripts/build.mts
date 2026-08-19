@@ -51,6 +51,7 @@ const pageEntries = [
   { source: "src/tool/app/crew-flight-stats/main.ts", output: "tool/app/crew-flight-stats/app", page: "tool/app/crew-flight-stats/index.html" },
   { source: "src/tool/app/crew-match-name-id/main.ts", output: "tool/app/crew-match-name-id/app", page: "tool/app/crew-match-name-id/index.html" },
   { source: "src/tool/app/flight-stats-helper/shell.ts", output: "tool/app/flight-stats-helper/app", page: "tool/app/flight-stats-helper/index.html" },
+  { source: "src/tool/app/http-flight-stats-helper/shell.ts", output: "tool/app/http-flight-stats-helper/app", page: "tool/app/http-flight-stats-helper/index.html" },
   { source: "src/tool/app/focus-crew/main.ts", output: "tool/app/focus-crew/app", page: "tool/app/focus-crew/index.html" },
   { source: "src/tool/app/hotel-bill-check/main.ts", output: "tool/app/hotel-bill-check/app", page: "tool/app/hotel-bill-check/index.html" },
   { source: "src/tool/app/image-tool/main.ts", output: "tool/app/image-tool/app", page: "tool/app/image-tool/index.html" },
@@ -216,7 +217,7 @@ async function buildPageEntries(): Promise<void> {
 }
 
 async function copyPythonWorkbenchAssets() {
-  for (const toolEntry of ["flight-stats-helper", "lock-entry-helper", "http-lock-entry-helper"]) {
+  for (const toolEntry of ["flight-stats-helper", "http-flight-stats-helper", "lock-entry-helper", "http-lock-entry-helper"]) {
     const workbenchRoot = path.join(distRoot, "tool", "app", toolEntry, "web");
     const libraryRoot = path.join(workbenchRoot, "libs");
     await fs.mkdir(libraryRoot, { recursive: true });
