@@ -59,10 +59,12 @@ async function buildToolExport(options: ToolExportOptions, definition: ToolExpor
   const pageFiles = await listFiles(pageDirectory, (filePath) => {
     const relativePath = path.relative(pageDirectory, filePath).replace(/\\/g, "/");
     const pathParts = relativePath.split("/");
+    const isWorkbenchThemeScript = relativePath === "web/theme.js";
     return !relativePath.endsWith(".html")
-      && !relativePath.endsWith(".js")
+      && (!relativePath.endsWith(".js") || isWorkbenchThemeScript)
       && !relativePath.endsWith(".map")
       && !pathParts.includes("__pycache__")
+      && !pathParts.includes("results")
       && !relativePath.endsWith(".pyc");
   });
   for (const pageFile of pageFiles) {

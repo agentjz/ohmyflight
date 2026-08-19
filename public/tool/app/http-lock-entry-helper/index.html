@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP 锁班皇帝（新）</title>
+    <script src="../../../theme.js"></script>
+    <link rel="stylesheet" href="../../../libs/bootstrap.min.css">
+    <style>
+        body { background: transparent; padding: 20px; }
+    </style>
+    <link rel="stylesheet" href="../../../theme.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card mb-4">
+            <div class="card-body text-center position-relative">
+                <a href="../../../index.html" class="position-absolute start-0 top-50 translate-middle-y ms-3 text-decoration-none">返回首页</a>
+                <a href="../../../template/通用批量锁班模板.xlsx" download class="position-absolute end-0 top-50 translate-middle-y me-3 text-decoration-none">下载录入模板</a>
+                <h4 class="card-title mb-1">HTTP 锁班皇帝（新）</h4>
+                <p class="text-muted mb-0 small">使用已登录会话，通过本地 HTTP 工作台串行录入非生产任务</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title border-bottom pb-2 mb-3">运行方式</h5>
+                <p>下载独立应用后，在应用目录运行 <code>python startsmartapp.py</code> 或 <code>python startapp.py</code>。从已登录飞行门户的浏览器 Network 面板复制请求为 cURL，粘贴到本地工作台验证后即可继续使用原有 Excel 或粘贴数据。</p>
+                <p class="mb-0">智能入口保留健康疗养与飞行员公休额度互换及可选冲突回退；原始入口按每行类型原样录入。批次结束后登录 Session 保留，可直接更换下一份数据。</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title border-bottom pb-2 mb-3">下载</h5>
+                <a href="../../../exports/http-lock-entry-helper.zip" download="http-lock-entry-helper.zip" class="btn btn-primary">下载独立应用</a>
+                <a href="../../../index.html" class="btn btn-outline-secondary ms-2">返回工具首页</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title border-bottom pb-2 mb-3">依赖</h5>
+                <pre class="bg-light p-2 rounded"><code>pip install -r requirements.txt</code></pre>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
