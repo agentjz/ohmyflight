@@ -1,4 +1,0 @@
-interface:
-  display_name: "SOC 随机"
-  short_description: "探测和复用 SOC 飞行人员随机置位申请 HTTP 请求"
-  default_prompt: "使用 $soc-positioning 探测 SOC 随机置位申请，并依据真实动态航班与 POST 契约执行授权操作。"

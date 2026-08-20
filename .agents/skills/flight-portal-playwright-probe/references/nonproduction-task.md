@@ -1,6 +1,6 @@
 # IEB 非生产任务页面事实
 
-本文件记录 Playwright 观察到的非生产任务录入、锁班查询和状态动作 DOM。若目标是直接构造 HTTP 请求，读取 `flight-portal-http-probe` 的锁班 reference。
+本文件记录 Playwright 观察到的非生产任务录入、锁班查询和状态动作 DOM。
 
 ## 页面入口
 

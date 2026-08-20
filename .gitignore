@@ -30,20 +30,8 @@ __pycache__/
 # 飞行经历查询工作台运行结果，禁止进入版本库
 /public/tool/app/flight-stats-helper/results/
 
-# 飞行经历查询（皇帝版）运行结果，禁止进入版本库
-/public/tool/app/http-flight-stats-helper/results/
-
 # 锁班皇帝工作台运行结果，禁止进入版本库
 /public/tool/app/lock-entry-helper/results/
-
-# 锁班皇帝（新）运行结果，禁止进入版本库
-/public/tool/app/http-lock-entry-helper/results/
-
-# 已下线旧版飞行人员信息查询运行结果，禁止进入版本库
-/public/tool/app/qualification-query-helper/results/
-
-# 飞行人员信息查询（皇帝版）运行结果，禁止进入版本库
-/public/tool/app/http-qualification-query-helper/results/
 
 /REF
 

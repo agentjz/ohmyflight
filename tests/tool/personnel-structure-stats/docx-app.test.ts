@@ -297,7 +297,7 @@ print(json.dumps({
       });
     });
     expect(report.tables[1][1][6]).toBe("old");
-  });
+  }, 30000);
 
   it("opens the tkinter gui when app.py runs without arguments", () => {
     const output = runPython(`

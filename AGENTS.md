@@ -32,9 +32,6 @@
 - 涉及页面 UI、表格、卡片、筛选区、结果区、统计摘要或用户指出页面混乱难看时，看 `.agents/skills/ui-clarity/SKILL.md`。
 - 涉及 Excel 读取、导出、表头映射、日期解析或 openpyxl/SheetJS 时，看 `.agents/skills/excel-dev/SKILL.md`。
 - 涉及 IEB/飞行门户的 Playwright 页面探测、菜单与 DOM、frame、技术等级/运行资格页面、非生产任务页面或浏览器自动化时，看 `.agents/skills/flight-portal-playwright-probe/SKILL.md`。
-- 涉及 IEB/飞行门户的 Cookie/cURL 凭据导入、Network 请求分析、纯 HTTP 查询或状态动作、飞行经历接口、锁班接口及 HTTP 前缀工作台时，看 `.agents/skills/flight-portal-http-probe/SKILL.md`。
-- 涉及 SOC 运行信息网的随机置位申请、`KkTvlApply`、动态航班号、人员校验、Cookie/cURL 或 HTTP 提交时，看 `.agents/skills/soc-positioning/SKILL.md`；SOC 与 IEB 不得混用 skill 或接口事实。
-- 涉及 API 文档目录、页面、本地执行器、Cookie 生命周期、真实调试或 Markdown 导出时，看 `.agents/skills/api-docs-dev/SKILL.md`。
 - 涉及两本 Word/PDF 手册的新增、删除和修改比对时，看 `.agents/skills/compare-manuals/SKILL.md`。
 - 涉及《飞行人员训练大纲》的训练课程、课时、检查、资格保持恢复或版本复核时，看 `.agents/skills/read-flight-training-program/SKILL.md`。
 - 涉及《飞行技术管理手册》的技术等级、资格、聘任、检查、档案或版本复核时，看 `.agents/skills/read-flight-technical-management-manual/SKILL.md`。

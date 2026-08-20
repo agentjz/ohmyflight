@@ -1,6 +1,6 @@
 ---
 name: flight-portal-playwright-probe
-description: 使用 Playwright 探测或维护 IEB 飞行门户的页面、菜单、DOM、frame、表格和浏览器自动化。用户提到飞行门户页面录制、可见浏览器、元素定位、技术等级/运行资格 DOM、锁班页面、点击流程或页面证据时使用；纯 HTTP 接口复用使用 flight-portal-http-probe。
+description: 使用 Playwright 探测或维护 IEB 飞行门户的页面、菜单、DOM、frame、表格和浏览器自动化。用户提到飞行门户页面录制、可见浏览器、元素定位、技术等级/运行资格 DOM、锁班页面、点击流程或页面证据时使用。
 ---
 
 # 飞行门户 Playwright 探针
@@ -11,7 +11,6 @@ description: 使用 Playwright 探测或维护 IEB 飞行门户的页面、菜�
 
 - 探测技术等级、运行资格、资料管理、合并单元格或技术资料批量查询时，完整读取 [技术资料页面事实](references/technical-materials.md)。
 - 探测非生产任务录入、锁班查询、额度表、冲突、解锁或通过按钮时，完整读取 [非生产任务页面事实](references/nonproduction-task.md)。
-- 目标是绕开浏览器直接构造请求时，改用 `flight-portal-http-probe`；只有需要先观察页面或录制 Network 时才同时使用两个 skill。
 - 涉及 Excel 输入或写回时同时使用 `excel-dev`；正式修改工具时同时使用 `watchdog-dev`，涉及工作台页面时再使用 `ui-clarity`。
 
 ## 探测顺序
