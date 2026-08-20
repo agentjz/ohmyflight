@@ -214,7 +214,8 @@ GET /newieb/nonproductionTask/showNonproductionTaskPage?random=<decimal>
 列表：
 
 ```text
-POST /newieb/nonproductionTask/showLockListPage
+POST /newieb/nonproductionTask/showLockListPage  # 第一页
+GET  /newieb/nonproductionTask/showLockListPage  # 后续页
 ```
 
 `#queryFormId` 的 Body：
@@ -244,7 +245,9 @@ random
 | `6` | 已撤销 |
 | `7` | 已否决 |
 
-结果按表头解析，当前字段包括选择、序号、状态、员工号、姓名、运行基地、注册基地、部门、开始日期、结束日期、锁班天数、锁班类型、锁班名称、日志、锁班原因、冲突、录入人、录入时间和积分休假。分页页码来自结果 Footer；查询或冲突定位必须遍历全部页。
+结果按表头解析，当前字段包括选择、序号、状态、员工号、姓名、运行基地、注册基地、部门、开始日期、结束日期、锁班天数、锁班类型、锁班名称、日志、锁班原因、冲突、录入人、录入时间和积分休假。第一列表头可为空，必须保留为“选择”，不能过滤后让其他字段整体左移。
+
+分页上限取 Footer 的“最后一页”链接；“共 N 条记录”是记录数，不是页数。第一页由查询按钮发 POST，后续页由 `goPageTwo` 发 GET，并携带 `page` 与 `currentStr`。查询或冲突定位必须遍历全部页，并按记录 ID 去除重复响应。
 
 表格 checkbox 的 `value` 是后续状态动作的记录 ID，但只能在按业务字段唯一定位目标行之后读取。不要用固定行号、录制时 ID、checkbox accessible name 或序号先猜目标。
 
@@ -268,7 +271,7 @@ approveRemark=<动作原因>
 random=<decimal>
 ```
 
-响应为 JSON，`success` 是字符串 `"true"`/`"false"`；同时读取 `successMsg` 或 `errorMsg`。接口返回成功后必须重新调用列表接口确认状态，不能只相信提示文字。
+响应为 JSON，`success` 是字符串 `"true"`/`"false"`；同时读取 `successMsg` 或 `errorMsg`。接口返回成功后必须重新调用列表接口确认状态，不能只相信提示文字。通过动作需要确认同一记录进入“已锁”且不再出现在“待审批”；解锁、撤销和否决同样复查目标状态。
 
 真实会话已验证：待审批记录可通过为已锁，已锁记录可解锁并在状态 5 查询中出现，多个待审批记录可一次撤销并在状态 6 查询中出现。
 

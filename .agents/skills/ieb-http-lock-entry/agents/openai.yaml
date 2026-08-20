@@ -1,4 +1,0 @@
-interface:
-  display_name: "IEB HTTP 锁班"
-  short_description: "开发和探测纯 HTTP 批量锁班工作台"
-  default_prompt: "使用 $ieb-http-lock-entry 实现或排查不依赖 Playwright 的 IEB 批量锁班流程。"

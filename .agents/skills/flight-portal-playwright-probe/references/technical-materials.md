@@ -2,6 +2,32 @@
 
 本文件只记录已验证页面事实和已确认案例规则。页面可能变化，每次批量前仍须小样本探测。
 
+## 入口与单人查询闭环
+
+已验证菜单路径：
+
+```python
+page.goto("https://ieb.csair.com/index/index")
+page.get_by_text("资质管理").nth(1).click()
+page.get_by_text("飞行训练").nth(1).click()
+page.get_by_role("link", name="技术资料").click()
+page.get_by_role("link", name="资料管理").click()
+page.get_by_role("textbox", name="员工号或姓名简拼").wait_for(state="visible")
+```
+
+录制脚本可能出现同名菜单或重复点击。先按当前页面验证可见候选，不在目标搜索框出现前假定导航成功。
+
+每名员工按以下顺序查询：
+
+1. 搜索框执行 `click()`、`fill("")`，再以六位员工号 `type(..., delay=20)`。
+2. 点击“查询”，等待 `name=员工号, exact=True` 的链接出现。
+3. 在结果同行读取页面姓名，点击精确员工号链接。
+4. 读取技术等级和运行资格两个标签；容器慢加载时等待并重试一次。
+5. 校验结果员工号属于当前查询人；输入姓名只做一致性核对，不替代员工号主键。
+6. 用 `.pilotInfo-dialog-close` 关闭个人弹窗并确认返回列表页，再查询下一人。
+
+不要每人重新进入首页，不要省略清空搜索框，不使用非精确员工链接，也不要在上一个个人弹窗未关闭时查询下一人。
+
 ## 页面结构
 
 资料管理搜索框：role `textbox`，name `员工号或姓名简拼`。
@@ -81,3 +107,7 @@ container
 - 同名文本报告：便于不打开 Excel 查看本次运行结果。
 
 当前工作台通过 Cookie 注入可见 Playwright context；进入资料管理和开始逐人查询是两个独立动作。一批完成后保留浏览器，下一批复用同一页面，停止时才关闭。
+
+输入至少包含“员工号”或“工号”，姓名可选。员工号按文本校验，重复员工只处理第一次并记录输入错误。页面就绪后才创建结果 workbook；每人无论成功失败都追加处理报告并保存，结果保存失败必须暴露。Excel/WPS 占用导致 `PermissionError` 时提示用户关闭文件，不覆盖原输入。
+
+每人查询放在独立 `try/finally` 中，失败也尝试关闭个人弹窗。遇到 `Target page, context or browser has been closed` 立即停止后续查询，不把同一错误批量写给剩余人员；`KeyboardInterrupt` 保留已经写入的结果并标记中断。

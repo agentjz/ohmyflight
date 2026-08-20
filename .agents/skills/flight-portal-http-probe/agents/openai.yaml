@@ -1,0 +1,4 @@
+interface:
+  display_name: "飞行门户 HTTP 接口探针"
+  short_description: "探测和维护 IEB 纯 HTTP 接口与本地工作台"
+  default_prompt: "使用 $flight-portal-http-probe 探测 IEB 飞行门户接口，并基于真实请求维护纯 HTTP 查询或锁班流程。"

@@ -1,4 +1,0 @@
-interface:
-  display_name: "飞行门户探针"
-  short_description: "IEB飞行门户探测、锁班冲突处理与Excel安全写回"
-  default_prompt: "Use $flight-portal-probe to inspect the IEB flight portal, validate a small sample, and build a resilient Playwright workflow for queries or non-production-task lock operations."

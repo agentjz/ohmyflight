@@ -1,0 +1,4 @@
+interface:
+  display_name: "飞行门户 Playwright 探针"
+  short_description: "探测 IEB 页面、DOM、frame 与浏览器自动化流程"
+  default_prompt: "使用 $flight-portal-playwright-probe 探测 IEB 飞行门户页面，并基于真实 DOM 和小样本稳定 Playwright 流程。"
