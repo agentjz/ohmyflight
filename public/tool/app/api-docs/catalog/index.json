@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "modules": [
+    {
+      "id": "flight-stats",
+      "name": "飞行经历查询接口",
+      "description": "单次查询飞行经历与起落数，保留完整门户请求事实",
+      "source": "./flight-stats.json"
+    },
+    {
+      "id": "lock-entry",
+      "name": "飞行人员锁班接口",
+      "description": "单次提交非生产任务，保留完整门户内部请求链路",
+      "source": "./lock-entry.json"
+    }
+  ]
+}

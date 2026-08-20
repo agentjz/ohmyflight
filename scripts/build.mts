@@ -52,6 +52,7 @@ const pageEntries = [
   { source: "src/tool/app/crew-match-name-id/main.ts", output: "tool/app/crew-match-name-id/app", page: "tool/app/crew-match-name-id/index.html" },
   { source: "src/tool/app/flight-stats-helper/shell.ts", output: "tool/app/flight-stats-helper/app", page: "tool/app/flight-stats-helper/index.html" },
   { source: "src/tool/app/http-flight-stats-helper/shell.ts", output: "tool/app/http-flight-stats-helper/app", page: "tool/app/http-flight-stats-helper/index.html" },
+  { source: "src/tool/app/api-docs/main.ts", output: "tool/app/api-docs/app", page: "tool/app/api-docs/index.html" },
   { source: "src/tool/app/focus-crew/main.ts", output: "tool/app/focus-crew/app", page: "tool/app/focus-crew/index.html" },
   { source: "src/tool/app/hotel-bill-check/main.ts", output: "tool/app/hotel-bill-check/app", page: "tool/app/hotel-bill-check/index.html" },
   { source: "src/tool/app/image-tool/main.ts", output: "tool/app/image-tool/app", page: "tool/app/image-tool/index.html" },

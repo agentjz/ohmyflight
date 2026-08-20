@@ -2,12 +2,12 @@ import type { SiteAnnouncement, ToolItem } from "./models";
 
 export const tools: ToolItem[] = [
     { name: "菜鸟教程", desc: "哈哈。好活。置顶。", entry: "beginner-tutorial", status: "done", category: "light", homepageState: "beta" },
-    { name: "培训皇帝", desc: "查个人资质、排培训、核覆盖、看年度压力并更新有效期", entry: "training-workbench", status: "done", category: "heavy" },
+    { name: "培训皇帝", desc: "查个人资质、排培训、核对覆盖率、年度负载均衡、更新有效期", entry: "training-workbench", status: "done", category: "heavy" },
     { name: "换季学习", desc: "换季学习负载均衡", entry: "seasonal-learning", status: "done", category: "heavy" },
     { name: "审计之王", desc: "从检查项检索手册证据，整理审计依据和 PDF 页面", entry: "audit-king", status: "done", category: "heavy" },
     { name: "校对之王", desc: "比对同一本手册新旧版，增删改情况。", entry: "proof-king", status: "done", category: "heavy", homepageState: "beta" },
     { name: "姓名匹配员工号", desc: "识别姓名并匹配员工号", entry: "crew-match-name-id", status: "done", category: "light" },
-    { name: "锁班乞丐", desc: "乞丐版，用playwright自动化模拟锁班，慢。", entry: "lock-entry-helper", status: "done", category: "automation" },
+    { name: "锁班乞丐", desc: "乞丐版，用playwright自动化模拟锁班。", entry: "lock-entry-helper", status: "done", category: "automation" },
     { name: "锁班皇帝（新）", desc: "好活，直接调用接口锁班，极速。", entry: "http-lock-entry-helper", status: "done", category: "automation", homepageState: "beta" },
     { name: "飞行经历查询（乞丐版）", desc: "playwright批量查询飞行时间+起落数、飞行经历+起落数、左座经历+起落数或全部数据", entry: "flight-stats-helper", status: "done", category: "automation" },
     { name: "飞行经历查询（皇帝版）", desc: "好活，直接调用接口查完整飞行经历和起落数，极速。", entry: "http-flight-stats-helper", status: "done", category: "automation", homepageState: "beta" },

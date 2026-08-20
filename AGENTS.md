@@ -33,6 +33,7 @@
 - 涉及 Excel 读取、导出、表头映射、日期解析或 openpyxl/SheetJS 时，看 `.agents/skills/excel-dev/SKILL.md`。
 - 涉及 IEB/飞行门户的 Playwright 页面探测、菜单与 DOM、frame、技术等级/运行资格页面、非生产任务页面或浏览器自动化时，看 `.agents/skills/flight-portal-playwright-probe/SKILL.md`。
 - 涉及 IEB/飞行门户的 Cookie/cURL 凭据导入、Network 请求分析、纯 HTTP 查询或状态动作、飞行经历接口、锁班接口及 HTTP 前缀工作台时，看 `.agents/skills/flight-portal-http-probe/SKILL.md`。
+- 涉及 API 文档目录、页面、本地执行器、Cookie 生命周期、真实调试或 Markdown 导出时，看 `.agents/skills/api-docs-dev/SKILL.md`。
 - 涉及两本 Word/PDF 手册的新增、删除和修改比对时，看 `.agents/skills/compare-manuals/SKILL.md`。
 - 涉及《飞行人员训练大纲》的训练课程、课时、检查、资格保持恢复或版本复核时，看 `.agents/skills/read-flight-training-program/SKILL.md`。
 - 涉及《飞行技术管理手册》的技术等级、资格、聘任、检查、档案或版本复核时，看 `.agents/skills/read-flight-technical-management-manual/SKILL.md`。
@@ -73,7 +74,7 @@
 ## 运行证据
 
 - 用户给了原始输入时，优先用原始输入复现。
-- `start_index.py` 由 owner 手动启动；agent 不得将其作为后台常驻服务。确需验证时只允许临时使用 `--no-open` 启动，并在验证结束后立即终止本次启动的进程、确认监听端口已释放。
+- `start.py`、`startapp.py`、`start_index.py` 及其他本地 HTTP 入口是否长期运行由 owner 决定。agent 可以为验证临时启动；入口支持时使用不自动打开浏览器的参数，验证结束后必须终止本次启动的进程并确认监听端口已释放，不得把服务留到最终回复后，也不得把“本地服务已启动”作为交付状态。
 - 表格、文本解析、日期和姓名问题，要查看中间值，不只看最终现象。
 - 浏览器自动化问题要分清输入解析、DOM 选中值、页面显示值、实际提交值。
 - 内网系统无法访问时，以用户提供的 HTML、截图、日志和本地代码为事实来源。

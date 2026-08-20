@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 文档</title>
+    <script src="../../../theme.js"></script>
+    <link rel="stylesheet" href="../../../theme.css">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <header class="api-header">
+        <a class="brand" href="../../index.html" aria-label="返回工具首页"><strong>API 文档</strong></a>
+        <div class="header-tools">
+            <label class="api-search">
+                <span class="visually-hidden">搜索接口</span>
+                <input id="endpointSearch" type="search" placeholder="搜索接口名称或地址" autocomplete="off">
+            </label>
+            <button class="header-action" id="exportMarkdownButton" type="button" title="导出供人和语言模型阅读的单文件 Markdown" disabled>导出 Markdown</button>
+            <button class="icon-button" id="themeToggle" type="button" aria-label="切换主题" title="切换主题">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="api-layout">
+        <aside class="endpoint-sidebar" aria-label="接口目录">
+            <nav>
+                <button id="cookieNav" class="utility-nav" type="button">
+                    <span class="nav-symbol" aria-hidden="true">@</span>
+                    <span>Cookie 管理</span>
+                </button>
+                <div class="sidebar-divider"></div>
+                <details id="systemDisclosure" class="system-disclosure" open>
+                    <summary><span>飞行门户</span></summary>
+                    <div id="systemEndpointList" class="system-endpoint-list"></div>
+                </details>
+            </nav>
+        </aside>
+
+        <article class="endpoint-document" id="endpointDocument" aria-live="polite">
+            <div class="document-loading">正在读取接口目录</div>
+        </article>
+
+        <aside class="request-console" aria-label="本地单次调试">
+            <section id="sessionPanel" class="console-panel credential-section">
+                <div class="console-heading">
+                    <div><span class="console-kicker">飞行门户</span><h2>Cookie 管理</h2></div>
+                    <button id="clearSessionButton" class="text-button" type="button" disabled>清除</button>
+                </div>
+                <label class="field-label" for="credentialInput">Cookie Header 或 Copy as cURL</label>
+                <textarea id="credentialInput" rows="8" autocomplete="off" spellcheck="false" placeholder="粘贴完整 Cookie Header 或 Copy as cURL" disabled></textarea>
+                <button id="loadSessionButton" class="primary-button full-button" type="button" disabled>验证 Cookie</button>
+                <div id="credentialStatus" class="credential-status" data-state="idle">
+                    <strong id="credentialStatusText">Cookie 未验证</strong>
+                    <span id="credentialStatusDetail">验证后每 1-60 秒自动检查一次</span>
+                </div>
+                <div id="savedCredentialPanel" class="saved-credential-panel" hidden>
+                    <div class="saved-credential-heading">
+                        <label class="field-label" for="savedCredentialText">当前页 Cookie</label>
+                        <button id="copyCredentialButton" class="text-button" type="button">复制</button>
+                    </div>
+                    <textarea id="savedCredentialText" class="saved-credential-text" rows="4" readonly spellcheck="false"></textarea>
+                    <span class="saved-credential-note">刷新页面或清除 Cookie 后立即删除</span>
+                </div>
+            </section>
+
+            <div id="endpointConsole" hidden>
+                <div class="session-strip">
+                    <div>
+                        <span class="session-label">飞行门户会话</span>
+                        <strong id="sessionState">Cookie 未验证</strong>
+                        <span id="sessionDetail" class="session-detail">验证后自动保持登录状态</span>
+                    </div>
+                    <button id="manageSessionButton" class="text-button" type="button">管理 Cookie</button>
+                </div>
+
+                <section class="console-panel request-panel">
+                    <div class="console-heading"><h2>单次调试参数</h2></div>
+                    <form id="parameterForm" class="parameter-form"></form>
+                    <button id="sendRequestButton" class="send-button full-button" type="button" disabled>发送真实请求</button>
+                </section>
+
+                <section id="responseSection" class="console-panel response-section">
+                    <div class="console-heading">
+                        <h2>响应</h2>
+                        <span id="responseMeta" class="response-meta">-</span>
+                    </div>
+                    <div class="response-tabs" role="tablist" aria-label="响应视图">
+                        <button class="response-tab is-active" type="button" data-response-view="table" role="tab" aria-selected="true">表格</button>
+                        <button class="response-tab" type="button" data-response-view="json" role="tab" aria-selected="false">结构化 JSON</button>
+                        <button class="response-tab" type="button" data-response-view="raw" role="tab" aria-selected="false">原始响应</button>
+                        <button class="response-tab" type="button" data-response-view="headers" role="tab" aria-selected="false">Headers</button>
+                    </div>
+                    <div id="responseTable" class="response-panel" data-response-panel="table"></div>
+                    <pre id="responseJson" class="response-panel response-code" data-response-panel="json" hidden>尚无响应</pre>
+                    <pre id="responseRaw" class="response-panel response-code" data-response-panel="raw" hidden>尚无响应</pre>
+                    <pre id="responseHeaders" class="response-panel response-code" data-response-panel="headers" hidden>尚无响应</pre>
+                </section>
+            </div>
+        </aside>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+    <script type="module" src="./app.js"></script>
+</body>
+</html>

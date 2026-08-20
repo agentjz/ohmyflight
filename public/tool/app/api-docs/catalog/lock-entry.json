@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "id": "lock-entry",
+  "systemId": "flight-portal",
+  "name": "飞行人员锁班接口",
+  "description": "按门户当前动态类型和员工身份事实提交一条非生产任务。",
+  "baseUrl": "https://ieb.csair.com",
+  "navigationUrl": "https://ieb.csair.com/newieb/nonproductionTask/showNonproductionTaskImportPage",
+  "cookies": [
+    { "name": "JSESSIONID", "required": true, "description": "门户 Session Cookie，HttpOnly" },
+    { "name": "iebJSid", "required": true, "description": "IEB 会话 Cookie，HttpOnly" }
+  ],
+  "commonHeaders": [
+    { "name": "Content-Type", "value": "application/x-www-form-urlencoded; charset=UTF-8", "description": "门户表单编码" },
+    { "name": "Origin", "value": "https://ieb.csair.com", "description": "门户来源" },
+    { "name": "Referer", "value": "https://ieb.csair.com/index/index", "description": "已验证请求来源" },
+    { "name": "X-Requested-With", "value": "XMLHttpRequest", "description": "门户 XHR 标记" }
+  ],
+  "groups": [
+    { "id": "business", "name": "飞行门户" }
+  ],
+  "endpoints": [
+    {
+      "id": "submit",
+      "groupId": "business",
+      "name": "飞行人员锁班接口",
+      "summary": "单次调用会读取当前类型元数据、校验员工身份并提交完整锁班表单；不执行批量、智能类型互换、冲突解锁或自动通过。",
+      "risk": "write",
+      "method": "POST",
+      "path": "/newieb/nonproductionTask/showNonproductionTaskImportResultPage",
+      "parameters": [
+        { "name": "staffnum", "in": "form", "label": "员工号", "type": "text", "required": true, "placeholder": "六位员工号", "description": "目标员工号；门户校验仍使用字段 staffNum" },
+        { "name": "lockType", "in": "form", "label": "锁班类型", "type": "select", "required": true, "optionSource": "lock-types", "description": "进入本接口后从当前录入页动态加载" },
+        { "name": "lockTimeType", "in": "form", "label": "时间模式", "type": "select", "required": true, "default": "1", "options": [{ "value": "1", "label": "按连续时间段" }, { "value": "2", "label": "按月份选择日期" }], "description": "类型限制标记可能只允许按连续时间段" },
+        { "name": "startDt", "in": "form", "label": "开始日期时间", "type": "datetime-local", "requiredWhen": { "lockTimeType": "1" }, "description": "模式 1，分钟粒度" },
+        { "name": "endDt", "in": "form", "label": "结束日期时间", "type": "datetime-local", "requiredWhen": { "lockTimeType": "1" }, "description": "模式 1，分钟粒度" },
+        { "name": "lockYearAndMonth", "in": "form", "label": "锁班月份", "type": "month", "requiredWhen": { "lockTimeType": "2" }, "description": "模式 2，YYYY-MM" },
+        { "name": "lockDaysNum", "in": "form", "label": "月份内日期", "type": "text", "repeatable": true, "requiredWhen": { "lockTimeType": "2" }, "placeholder": "例如 3, 8, 12", "description": "模式 2；以重复同名字段发送" },
+        { "name": "lockStartHourAndMinute", "in": "form", "label": "每日开始时间", "type": "time", "requiredWhen": { "lockTimeType": "2" }, "description": "模式 2，HH:mm" },
+        { "name": "lockEndHourAndMinute", "in": "form", "label": "每日结束时间", "type": "time", "requiredWhen": { "lockTimeType": "2" }, "description": "模式 2，HH:mm" },
+        { "name": "lockRemark", "in": "form", "label": "锁班原因", "type": "text", "required": true, "maxlength": 60, "placeholder": "最多 60 个字符", "description": "自定义备注会原样提交" },
+        { "name": "dateSplitFlag", "in": "form", "label": "日期拆分标记", "type": "text", "fixed": true, "derivedFrom": { "parameter": "lockType", "field": "dateSplitFlag" }, "description": "来自当前类型 option.id" },
+        { "name": "lockDays", "in": "form", "label": "锁班天数", "type": "number", "fixed": true, "derived": true, "description": "模式 1 为连续自然日数；模式 2 为所选日数量" },
+        { "name": "lockTypeDesc", "in": "form", "label": "锁班类型名称", "type": "text", "fixed": true, "derivedFrom": { "parameter": "lockType", "field": "label" }, "description": "来自当前动态类型可见名称" },
+        { "name": "chnName", "in": "form", "label": "门户姓名", "type": "text", "fixed": true, "derived": true, "description": "来自员工校验响应 nameInfo" },
+        { "name": "orgUnitName", "in": "form", "label": "门户部门", "type": "text", "fixed": true, "derived": true, "description": "来自员工校验响应 deptInfo" },
+        { "name": "random", "in": "form", "label": "防缓存参数", "type": "text", "fixed": true, "auto": "random", "description": "执行时生成；当前不是签名" }
+      ],
+      "response": {
+        "format": "HTML sections",
+        "statuses": [
+          { "code": 200, "description": "普通结果与冲突结果 HTML；HTTP 200 不等于锁班成功" }
+        ],
+        "fields": [
+          { "name": "普通结果", "type": "table", "description": "锁班状态、员工号、姓名、部门、日期、天数、类型和原因" },
+          { "name": "冲突结果", "type": "table", "description": "锁班结果、身份、日期、类型、原因和冲突说明" }
+        ],
+        "example": "{\"summary\":{\"resultCount\":1,\"conflictCount\":0,\"outcome\":\"已返回锁班结果\"},\"tables\":[{\"id\":\"results\",\"rows\":[{\"锁班状态\":\"待审批\"}]}]}"
+      }
+    }
+  ],
+  "internalRequests": [
+    {
+      "id": "entry-page",
+      "name": "录入页与动态类型",
+      "purpose": "验证锁班页面并读取当前类型、时间限制和日期拆分标记",
+      "method": "GET",
+      "path": "/newieb/nonproductionTask/showNonproductionTaskImportPage",
+      "parameters": ["random"],
+      "response": "HTML；必须存在 #nonproductionTaskImportForm 和 #lockType。option.value 为类型代码，文本为名称，class 为限制标记，id 为 dateSplitFlag。"
+    },
+    {
+      "id": "employee-validation",
+      "name": "员工校验",
+      "purpose": "取得可信姓名与部门并确认当前账号可操作该员工",
+      "method": "POST",
+      "path": "/newieb/nonproductionTask/vaildStaffNum",
+      "parameters": ["staffNum", "operationType=1", "random", "flagType=nonproductionTask"],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json, text/javascript, */*; q=0.01",
+          "description": "员工校验 JSON 响应"
+        }
+      ],
+      "response": "JSON；permissionFlag 是字符串 true/false，通过后读取 nameInfo 和 deptInfo。端点拼写 vaild 与字段大写 N 均为门户现状。"
+    },
+    {
+      "id": "quota",
+      "name": "休假额度与规则",
+      "purpose": "供独立智能锁班 APP 读取年度额度；单次文档调用不自动互换类型",
+      "method": "POST",
+      "path": "/newieb/nonproductionTask/showNonproductionHolidayRulesTips",
+      "parameters": ["staffnum", "holidayType", "holidayTypeDesc", "random"],
+      "response": "HTML table；字段为休假类型、年份、休假天数、锁班天数、解锁天数、可休天数。RECU_LVE 与 ALV_FD 的智能互换属于独立 APP。"
+    },
+    {
+      "id": "submit",
+      "name": "提交非生产任务",
+      "purpose": "提交完整锁班表单",
+      "method": "POST",
+      "path": "/newieb/nonproductionTask/showNonproductionTaskImportResultPage",
+      "parameters": ["staffnum", "lockType", "dateSplitFlag", "lockRemark", "startDt", "endDt", "lockDays", "lockTimeType", "lockYearAndMonth", "lockDaysNum(可重复)", "lockStartHourAndMinute", "lockEndHourAndMinute", "lockTypeDesc", "chnName", "orgUnitName", "random"],
+      "response": "HTML；#showNonproductionTaskImportResultPage1 为普通结果，#showNonproductionTaskImportResultPage2 为冲突结果，必须按员工、类型和日期时间判断业务归属。"
+    },
+    {
+      "id": "query-page",
+      "name": "锁班查询页",
+      "purpose": "读取 #queryFormId 与当前筛选项",
+      "method": "GET",
+      "path": "/newieb/nonproductionTask/showNonproductionTaskPage",
+      "parameters": ["random"],
+      "response": "HTML；有效响应包含 #queryFormId。"
+    },
+    {
+      "id": "query-first-page",
+      "name": "锁班列表第一页",
+      "purpose": "按人员、状态和日期查询第一页",
+      "method": "POST",
+      "path": "/newieb/nonproductionTask/showLockListPage",
+      "parameters": ["staffnum", "base", "primBase", "fleetCd", "lockType", "lockStatus", "startDt", "endDt", "orderByType", "entryStaffnum", "page", "random"],
+      "response": "HTML table；checkbox.value 是记录 ID，只能在业务字段唯一定位目标行后使用。"
+    },
+    {
+      "id": "query-next-page",
+      "name": "锁班列表后续页",
+      "purpose": "读取指定后续页",
+      "method": "GET",
+      "path": "/newieb/nonproductionTask/showLockListPage",
+      "parameters": ["staffnum", "base", "primBase", "fleetCd", "lockType", "lockStatus", "startDt", "endDt", "orderByType", "entryStaffnum", "page", "currentStr"],
+      "response": "HTML table；分页上限来自 Footer 最后一页，共 N 条记录不是页数。"
+    },
+    {
+      "id": "approve",
+      "name": "通过待审批记录",
+      "purpose": "待审批变为已锁",
+      "method": "POST",
+      "path": "/newieb/nonproductionTask/importNonproductionTaskLockListToSoc",
+      "parameters": ["ids(可重复)", "approveRemark", "staffnum", "base", "primBase", "fleetCd", "lockType", "lockStatus", "startDt", "endDt", "orderByType", "entryStaffnum", "page", "random"],
+      "response": "JSON；success 为字符串 true/false，同时读取 successMsg/errorMsg，并重新查询确认已锁。"
+    },
+    {
+      "id": "withdraw",
+      "name": "撤销待审批记录",
+      "purpose": "待审批变为已撤销",
+      "method": "POST",
+      "path": "/newieb/nonproductionTask/deleteNonproductionTaskLock",
+      "parameters": ["ids(可重复)", "approveRemark", "staffnum", "base", "primBase", "fleetCd", "lockType", "lockStatus", "startDt", "endDt", "orderByType", "entryStaffnum", "page", "random"],
+      "response": "JSON；success 为字符串 true/false，动作后重新查询状态 6。"
+    },
+    {
+      "id": "unlock",
+      "name": "解锁已锁记录",
+      "purpose": "已锁变为已解锁",
+      "method": "POST",
+      "path": "/newieb/nonproductionTask/unlockNonproductionTaskLock",
+      "parameters": ["ids(可重复)", "approveRemark", "staffnum", "base", "primBase", "fleetCd", "lockType", "lockStatus", "startDt", "endDt", "orderByType", "entryStaffnum", "page", "random"],
+      "response": "JSON；success 为字符串 true/false，动作后重新查询状态 5。"
+    },
+    {
+      "id": "reject",
+      "name": "否决待审批记录",
+      "purpose": "待审批变为已否决",
+      "method": "POST",
+      "path": "/newieb/nonproductionTask/rejectNonproductionTaskLock",
+      "parameters": ["ids(可重复)", "approveRemark", "staffnum", "base", "primBase", "fleetCd", "lockType", "lockStatus", "startDt", "endDt", "orderByType", "entryStaffnum", "page", "random"],
+      "response": "JSON；success 为字符串 true/false，动作后重新查询状态 7。"
+    }
+  ],
+  "technicalNotes": [
+    "当前未观察到 CSRF Header、CSRF Body、__VIEWSTATE 或其他动态签名；random 是防缓存值。",
+    "class=1 的类型、ALV_FD 和 CRM 只允许时间模式 1；CRM 页面默认时间为 08:30 至 16:30，其他类型默认 08:59 至 19:59。",
+    "门户只有小时和分钟控件，不支持自定义秒；结果中的秒显示为 00。",
+    "模式 1 使用连续 startDt/endDt；模式 2 使用月份、重复 lockDaysNum 和每日起止时间。",
+    "HTTP 200 不是成功依据；普通结果必须能唯一归属且冲突结果为空。",
+    "冲突自动解锁重提、额度智能互换、批量提交和自动通过属于独立锁班皇帝 APP，不属于本单次接口调试器。"
+  ]
+}
