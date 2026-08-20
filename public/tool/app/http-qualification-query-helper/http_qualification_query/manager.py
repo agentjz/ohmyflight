@@ -55,7 +55,7 @@ class RunManager:
             "progress": {"total": 0, "completed": 0, "success": 0, "failed": 0, "current": ""},
             "logs": [],
             "results": [],
-            "downloads": {"excel": False, "report": False},
+            "downloads": {"excel": False, "report": False, "json": False},
         }
 
     def _is_running(self) -> bool:
@@ -162,8 +162,13 @@ class RunManager:
                 self._paths = {
                     "excel": Path(str(event.get("excel", ""))),
                     "report": Path(str(event.get("report", ""))),
+                    "json": Path(str(event.get("json", ""))),
                 }
-                self._state["downloads"] = {"excel": bool(event.get("excel")), "report": False}
+                self._state["downloads"] = {
+                    "excel": bool(event.get("excel")),
+                    "report": False,
+                    "json": bool(event.get("json")),
+                }
 
     def _worker(self, records: list[QueryRecord], issues: list[InputIssue], payload: InputPayload, run_id: str) -> None:
         exporter = self.exporter_factory(self.app_directory / "results" / run_id, run_id)
@@ -184,8 +189,8 @@ class RunManager:
                 input_source=payload.excel_name or "粘贴输入",
             )
             with self._lock:
-                self._paths = {"excel": paths.excel, "report": paths.report}
-                self._state["downloads"] = {"excel": True, "report": True}
+                self._paths = {"excel": paths.excel, "report": paths.report, "json": paths.json}
+                self._state["downloads"] = {"excel": True, "report": True, "json": True}
                 self._state["progress"].update(  # type: ignore[union-attr]
                     {"success": result.success, "failed": result.failed, "current": ""}
                 )
@@ -231,7 +236,7 @@ class RunManager:
                     "progress": {"total": len(records), "completed": 0, "success": 0, "failed": 0, "current": ""},
                     "results": [],
                     "logs": [],
-                    "downloads": {"excel": False, "report": False},
+                    "downloads": {"excel": False, "report": False, "json": False},
                     "checks": {
                         "data": {
                             "checked": True,

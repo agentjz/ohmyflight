@@ -58,7 +58,7 @@ body {
 
 .result-viewport { min-height: 72px; max-height: 360px; overflow: auto; border: 1px solid var(--watchdog-divider); background: var(--watchdog-surface-soft); }
 .results-empty { padding: 24px 14px; color: var(--watchdog-text-muted); font-size: 13px; text-align: center; }
-.result-table { width: 100%; min-width: 900px; margin: 0; border-collapse: collapse; font-size: 13px; }
+.result-table { width: 100%; min-width: 1180px; margin: 0; border-collapse: collapse; font-size: 13px; }
 .result-table th, .result-table td { padding: 9px 10px; border-right: 1px solid var(--watchdog-divider); border-bottom: 1px solid var(--watchdog-divider); vertical-align: top; white-space: nowrap; }
 .result-table th:last-child, .result-table td:last-child { border-right: 0; }
 .result-table th { position: sticky; top: 0; z-index: 1; background: var(--watchdog-surface-muted); color: var(--watchdog-text-muted); text-align: left; }

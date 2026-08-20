@@ -39,10 +39,10 @@ __pycache__/
 # 锁班皇帝（新）运行结果，禁止进入版本库
 /public/tool/app/http-lock-entry-helper/results/
 
-# 技术等级运行资格查询助手（乞丐版）运行结果，禁止进入版本库
+# 已下线旧版飞行人员信息查询运行结果，禁止进入版本库
 /public/tool/app/qualification-query-helper/results/
 
-# 技术等级运行资格查询助手（皇帝版）运行结果，禁止进入版本库
+# 飞行人员信息查询（皇帝版）运行结果，禁止进入版本库
 /public/tool/app/http-qualification-query-helper/results/
 
 /REF

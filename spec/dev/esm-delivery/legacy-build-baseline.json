@@ -1010,20 +1010,6 @@
       "applicationGzipBytes": 29013
     },
     {
-      "page": "tool/app/qualification-query-helper/index.html",
-      "scripts": [
-        {
-          "source": "../../../theme.js",
-          "kind": "site-runtime",
-          "bytes": 1997,
-          "gzipBytes": 599
-        }
-      ],
-      "applicationScriptCount": 0,
-      "applicationBytes": 0,
-      "applicationGzipBytes": 0
-    },
-    {
       "page": "tool/app/seasonal-learning/index.html",
       "scripts": [
         {

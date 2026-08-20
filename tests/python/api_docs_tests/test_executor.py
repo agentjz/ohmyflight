@@ -6,7 +6,7 @@ import unittest
 from collections import deque
 
 from .common import CATALOG_ROOT
-from api_docs.catalog import ApiCatalog, CatalogError
+from api_docs.catalog import ApiCatalog
 from api_docs.executor import ApiExecutor
 from api_docs.systems.flight_portal import random_keepalive_interval
 
@@ -42,6 +42,21 @@ LOCK_RESULT_HTML = """
 <div id="showNonproductionTaskImportResultPage2">
   <div class="hDiv"><table><thead><tr><th>锁班结果</th><th>冲突说明</th></tr></thead></table></div>
   <div class="bDiv"><table><tbody class="list"><tr><td colspan="2">没有相关信息</td></tr></tbody></table></div>
+</div>
+"""
+
+BASIC_INFO_JSON = json.dumps({
+    "empDto": {"birthDate": "2000-01-01", "position": "飞行员"},
+    "eduList": [{"school": "样例院校", "education": "本科"}],
+    "workList": [],
+    "titleList": [],
+    "relationList": [],
+}, ensure_ascii=False)
+
+TECHNICAL_RESULT_HTML = """
+<div id="qualList">
+  <table><tr><th>#</th><th>技术等级代码</th><th>技术等级</th></tr></table>
+  <table><tbody><tr><td>1</td><td>CAP</td><td>机长</td></tr></tbody></table>
 </div>
 """
 
@@ -184,11 +199,25 @@ class ExecutorTests(unittest.TestCase):
             self.catalog.get_internal_request("lock-entry.employee-validation").url,
         )
 
-    def test_only_two_business_endpoint_ids_can_execute(self) -> None:
-        executor, _session = self.create_executor([FakeResponse(QUERY_PAGE_HTML)])
+    def test_personnel_info_executes_multipart_json_and_html_table_requests(self) -> None:
+        executor, session = self.create_executor([
+            FakeResponse(QUERY_PAGE_HTML),
+            FakeResponse(BASIC_INFO_JSON, content_type="application/json"),
+            FakeResponse(TECHNICAL_RESULT_HTML),
+        ])
         executor.load_credentials("JSESSIONID=session-value; iebJSid=browser-value")
-        with self.assertRaisesRegex(CatalogError, "接口不存在"):
-            executor.execute("lock-entry.employee-validation", {"staffNum": "900001"})
+
+        basic = executor.execute("personnel-info.basic", {"staffNum": "900001"})
+        self.assertEqual([table["id"] for table in basic["data"]["tables"]], [
+            "empDto", "eduList", "workList", "titleList", "relationList",
+        ])
+        self.assertEqual(session.requests[-1]["files"], {"staffNum": (None, "900001")})
+        self.assertIsNone(session.requests[-1]["data"])
+
+        technical = executor.execute("personnel-info.technical", {"staffNum": "900001"})
+        self.assertEqual(technical["data"]["summary"]["recordCount"], 1)
+        self.assertEqual(technical["data"]["tables"][0]["rows"][0]["技术等级"], "机长")
+        self.assertIn(("staffNum", "900001"), session.requests[-1]["data"])
 
     def test_verified_cookie_is_kept_alive_with_read_only_query_page(self) -> None:
         request_event = threading.Event()

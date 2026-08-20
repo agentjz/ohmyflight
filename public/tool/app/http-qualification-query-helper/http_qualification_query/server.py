@@ -99,11 +99,10 @@ def create_server(
                     self.send_error(HTTPStatus.NOT_FOUND)
                     return
                 content = result_path.read_bytes()
-                content_type = (
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    if result_path.suffix.lower() == ".xlsx"
-                    else "text/plain; charset=utf-8"
-                )
+                content_type = {
+                    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    ".json": "application/json; charset=utf-8",
+                }.get(result_path.suffix.lower(), "text/plain; charset=utf-8")
                 self.send_response(HTTPStatus.OK)
                 self.send_header("Content-Type", content_type)
                 self.send_header("Content-Disposition", f"attachment; filename*=UTF-8''{quote(result_path.name)}")
@@ -153,4 +152,3 @@ def create_server(
     server = WorkbenchServer(("127.0.0.1", port), Handler)
     server.run_manager = run_manager  # type: ignore[attr-defined]
     return server
-

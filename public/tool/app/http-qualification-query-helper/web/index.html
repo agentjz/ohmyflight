@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>技术等级运行资格查询助手（皇帝版）</title>
+    <title>飞行人员信息查询（皇帝版）</title>
     <script src="./theme.js"></script>
     <link rel="stylesheet" href="./libs/bootstrap.min.css">
     <link rel="stylesheet" href="./theme.css">
@@ -13,7 +13,7 @@
     <div class="workspace-shell">
         <header class="workspace-header">
             <div>
-                <h1>技术等级运行资格查询助手（皇帝版）</h1>
+                <h1>飞行人员信息查询（皇帝版）</h1>
                 <p id="statusMessage">等待验证登录 Cookie</p>
             </div>
             <div class="header-actions">
@@ -85,6 +85,7 @@
                 <div class="current-record"><span>当前人员</span><strong id="currentRecord">-</strong></div>
                 <div class="download-row">
                     <a id="excelDownload" class="btn btn-outline-secondary disabled" aria-disabled="true">下载结果 Excel</a>
+                    <a id="jsonDownload" class="btn btn-outline-secondary disabled" aria-disabled="true">下载结构化 JSON</a>
                     <a id="reportDownload" class="btn btn-outline-secondary disabled" aria-disabled="true">下载文本报告</a>
                 </div>
             </section>
@@ -94,7 +95,7 @@
                 <div id="resultsViewport" class="result-viewport">
                     <div id="resultsEmpty" class="results-empty">尚无已返回结果</div>
                     <table id="resultsTable" class="result-table" hidden>
-                        <thead><tr><th>员工号</th><th>输入姓名</th><th>页面姓名</th><th>技术等级</th><th>运行资格</th><th>状态</th><th>错误说明</th></tr></thead>
+                        <thead><tr><th>员工号</th><th>输入姓名</th><th>页面姓名</th><th>基础信息</th><th>技术等级</th><th>运行资格</th><th>培训记录</th><th>训练经历</th><th>状态</th><th>错误说明</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>

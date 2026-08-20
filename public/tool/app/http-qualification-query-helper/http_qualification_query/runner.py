@@ -32,6 +32,7 @@ class BatchRunner:
                 "type": "result",
                 "excel": str(self.exporter.paths.excel),
                 "report": str(self.exporter.paths.report),
+                "json": str(self.exporter.paths.json),
             }
         )
 
@@ -59,14 +60,18 @@ class BatchRunner:
                     "employeeId": record.employee_id,
                     "inputName": record.name,
                     "pageName": result.page_name,
+                    "basicCount": result.basic_count,
                     "technicalCount": len(result.technical_rows),
                     "operationCount": len(result.operation_rows),
+                    "trainingRecordCount": len(result.training_record_rows),
+                    "trainingExperienceCount": len(result.training_experience_rows),
                     "status": "成功",
                     "error": "",
                 }
                 message = (
-                    f"第{index + 1}条查询成功：技术等级 {len(result.technical_rows)} 条，"
-                    f"运行资格 {len(result.operation_rows)} 条"
+                    f"第{index + 1}条查询成功：基础信息 {result.basic_count} 条，"
+                    f"技术等级 {len(result.technical_rows)} 条，运行资格 {len(result.operation_rows)} 条，"
+                    f"培训记录 {len(result.training_record_rows)} 条，训练经历 {len(result.training_experience_rows)} 条"
                 )
                 level = "success"
             except PortalSessionExpired as error:
@@ -112,8 +117,11 @@ class BatchRunner:
             "employeeId": record.employee_id,
             "inputName": record.name,
             "pageName": "",
+            "basicCount": 0,
             "technicalCount": 0,
             "operationCount": 0,
+            "trainingRecordCount": 0,
+            "trainingExperienceCount": 0,
             "status": "失败",
             "error": error,
         }

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import os
 import re
 import uuid
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 
@@ -38,13 +40,20 @@ REPORT_HEADERS = (
     "页面姓名",
     "员工号匹配",
     "姓名匹配",
+    "基础信息条数",
     "技术等级条数",
     "运行资格条数",
+    "培训记录条数",
+    "训练经历条数",
     "抓取状态",
     "说明",
     "查询时间",
 )
 SUMMARY_HEADERS = ("项目", "值")
+TECHNICAL_HEADERS = ("#", "技术等级代码", "技术等级", "水平等级", "机型", "生效时间", "失效时间", "对应检查记录", "数据来源")
+OPERATION_HEADERS = ("类型", "运行资格代码", "运行资格", "水平等级", "机型", "生效时间", "失效时间", "备注")
+TRAINING_RECORD_HEADERS = ("选择", "培训科目", "培训机型", "培训课时", "培训地点", "经办人", "教员", "培训时间", "培训結束时间", "训练结果", "考试成绩", "上传")
+TRAINING_EXPERIENCE_HEADERS = ("全选", "序号", "训练日期", "训练机型", "训练科目", "类型", "检查单", "结论", "上传", "审批过程", "证书下载")
 HEADER_FILL = PatternFill("solid", fgColor="1F4E78")
 HEADER_FONT = Font(color="FFFFFF", bold=True)
 
@@ -85,20 +94,33 @@ class ResultExporter:
         output_directory.mkdir(parents=True, exist_ok=True)
         name = _safe_run_name(run_id)
         self.paths = OutputPaths(
-            excel=output_directory / f"技术等级运行资格查询_{name}.xlsx",
-            report=output_directory / f"技术等级运行资格查询_{name}.txt",
+            excel=output_directory / f"飞行人员信息查询_{name}.xlsx",
+            report=output_directory / f"飞行人员信息查询_{name}.txt",
+            json=output_directory / f"飞行人员信息查询_{name}.json",
         )
+        self._json_people: list[dict[str, object]] = []
+        self._json_summary: dict[str, object] = {}
 
     def initialize(self, records: list[QueryRecord], input_issues: list[InputIssue]) -> None:
         workbook = Workbook()
         report_sheet = workbook.active
         report_sheet.title = "处理报告"
         detail_sheet = workbook.create_sheet("技术资料明细")
+        basic_sheet = workbook.create_sheet("基础信息")
+        technical_sheet = workbook.create_sheet("技术等级")
+        operation_sheet = workbook.create_sheet("运行资格")
+        training_sheet = workbook.create_sheet("培训记录")
+        experience_sheet = workbook.create_sheet("训练经历")
         summary_sheet = workbook.create_sheet("汇总")
         report_sheet.append(list(REPORT_HEADERS))
         detail_sheet.append(list(DETAIL_HEADERS))
+        basic_sheet.append(["员工号", "姓名", "分区", "记录序号", "字段", "值"])
+        technical_sheet.append(["员工号", "姓名", *TECHNICAL_HEADERS])
+        operation_sheet.append(["员工号", "姓名", *OPERATION_HEADERS])
+        training_sheet.append(["员工号", "姓名", *TRAINING_RECORD_HEADERS, "来源页码"])
+        experience_sheet.append(["员工号", "姓名", *TRAINING_EXPERIENCE_HEADERS, "来源页码"])
         summary_sheet.append(list(SUMMARY_HEADERS))
-        for worksheet in (report_sheet, detail_sheet, summary_sheet):
+        for worksheet in (report_sheet, detail_sheet, basic_sheet, technical_sheet, operation_sheet, training_sheet, experience_sheet, summary_sheet):
             _style_header(worksheet)
 
         for column, width in {
@@ -125,12 +147,26 @@ class ResultExporter:
                 "未查询",
                 0,
                 0,
+                0,
+                0,
+                0,
                 "输入错误",
                 issue.message,
                 now_text(),
             ])
         _save_atomic(workbook, self.paths.excel)
         workbook.close()
+        self._write_json()
+
+    def _write_json(self) -> None:
+        payload = {
+            "format": "flight-personnel-info-v1",
+            "summary": self._json_summary,
+            "people": self._json_people,
+        }
+        temporary = self.paths.json.with_suffix(".tmp.json")
+        temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        os.replace(temporary, self.paths.json)
 
     @staticmethod
     def _detail_rows(record: QueryRecord, result: QueryResult) -> list[list[str]]:
@@ -151,6 +187,10 @@ class ResultExporter:
                 row.get("生效时间", ""), row.get("失效时间", ""), "", "",
                 row.get("备注", ""), "成功", "", captured_at,
             ])
+        for index, row in enumerate(result.training_record_rows, start=1):
+            rows.append([record.employee_id, name, "培训记录", row.get("来源页码", str(index)), "", "", row.get("培训科目", ""), "", row.get("培训机型", ""), row.get("培训时间", ""), row.get("培训結束时间", ""), "", "", "", "成功", "", captured_at])
+        for index, row in enumerate(result.training_experience_rows, start=1):
+            rows.append([record.employee_id, name, "训练经历", row.get("来源页码", str(index)), row.get("类型", ""), "", row.get("训练科目", ""), "", row.get("训练机型", ""), row.get("训练日期", ""), "", row.get("检查单", ""), "", row.get("结论", ""), "成功", "", captured_at])
         return rows
 
     def write_success(self, index: int, record: QueryRecord, result: QueryResult) -> None:
@@ -159,6 +199,20 @@ class ResultExporter:
         try:
             for row in self._detail_rows(record, result):
                 workbook["技术资料明细"].append(row)
+            for key, value in result.basic_info.items():
+                workbook["基础信息"].append([record.employee_id, result.page_name, "基本信息", 1, key, value])
+            for section, section_rows in (("教育经历", result.education_rows), ("工作经历", result.work_rows), ("职称信息", result.title_rows), ("家庭信息", result.family_rows)):
+                for row_index, row in enumerate(section_rows, start=1):
+                    for key, value in row.items():
+                        workbook["基础信息"].append([record.employee_id, result.page_name, section, row_index, key, value])
+            for row in result.technical_rows:
+                workbook["技术等级"].append([record.employee_id, result.page_name, *[row.get(header, "") for header in TECHNICAL_HEADERS]])
+            for row in result.operation_rows:
+                workbook["运行资格"].append([record.employee_id, result.page_name, *[row.get(header, "") for header in OPERATION_HEADERS]])
+            for row in result.training_record_rows:
+                workbook["培训记录"].append([record.employee_id, result.page_name, *[row.get(header, "") for header in TRAINING_RECORD_HEADERS], row.get("来源页码", "")])
+            for row in result.training_experience_rows:
+                workbook["训练经历"].append([record.employee_id, result.page_name, *[row.get(header, "") for header in TRAINING_EXPERIENCE_HEADERS], row.get("来源页码", "")])
             name_match = "未提供" if not record.name else (
                 "是" if normalize_name(record.name) == normalize_name(result.page_name) else "否"
             )
@@ -169,8 +223,11 @@ class ResultExporter:
                 result.page_name,
                 "是",
                 name_match,
+                result.basic_count,
                 len(result.technical_rows),
                 len(result.operation_rows),
+                len(result.training_record_rows),
+                len(result.training_experience_rows),
                 "成功",
                 "",
                 now_text(),
@@ -178,6 +235,13 @@ class ResultExporter:
             _save_atomic(workbook, self.paths.excel)
         finally:
             workbook.close()
+        self._json_people.append({
+            "employeeId": record.employee_id,
+            "inputName": record.name,
+            "status": "成功",
+            "data": asdict(result),
+        })
+        self._write_json()
 
     def write_failure(self, index: int, record: QueryRecord, reason: str) -> None:
         del index
@@ -192,6 +256,9 @@ class ResultExporter:
                 "未查询",
                 0,
                 0,
+                0,
+                0,
+                0,
                 "失败",
                 str(reason),
                 now_text(),
@@ -199,6 +266,8 @@ class ResultExporter:
             _save_atomic(workbook, self.paths.excel)
         finally:
             workbook.close()
+        self._json_people.append({"employeeId": record.employee_id, "inputName": record.name, "status": "失败", "error": str(reason)})
+        self._write_json()
 
     def finalize(
         self,
@@ -230,7 +299,17 @@ class ResultExporter:
         finally:
             workbook.close()
 
-        lines = ["技术等级运行资格查询报告", "=" * 48]
+        self._json_summary = {
+            "inputSource": input_source or "粘贴输入",
+            "queriedAt": now_text(),
+            "total": total,
+            "success": success,
+            "failed": failed,
+            "inputErrors": input_errors,
+            "interrupted": interrupted,
+        }
+        lines = ["飞行人员信息查询报告", "=" * 48]
         lines.extend(f"{key}: {value}" for key, value in summary_rows)
         self.paths.report.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        self._write_json()
         return self.paths

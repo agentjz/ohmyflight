@@ -12,8 +12,8 @@ describe("HTTP qualification query delivery", () => {
     const pythonEntries = readdirSync(root).filter((name) => name.endsWith(".py")).sort();
 
     expect(pythonEntries).toEqual(["start.py"]);
-    expect(landing).toContain("技术等级运行资格查询助手（皇帝版）");
-    expect(workbench).toContain("技术等级运行资格查询助手（皇帝版）");
+    expect(landing).toContain("飞行人员信息查询（皇帝版）");
+    expect(workbench).toContain("飞行人员信息查询（皇帝版）");
     expect(landing).toContain('href="../../../exports/http-qualification-query-helper.zip"');
     expect(workbench).toContain("验证 Cookie");
     expect(workbench).toContain("数据健康检查");

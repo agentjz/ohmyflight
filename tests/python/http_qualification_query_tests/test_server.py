@@ -50,7 +50,7 @@ class ServerTests(unittest.TestCase):
         try:
             self.assertEqual(host, "127.0.0.1")
             with urllib.request.urlopen(f"http://{host}:{port}/", timeout=5) as response:
-                self.assertIn("技术等级运行资格查询助手（皇帝版）".encode("utf-8"), response.read())
+                self.assertIn("飞行人员信息查询（皇帝版）".encode("utf-8"), response.read())
             payload = {"credentials": "Cookie: fake", "inputMode": "paste", "pastedText": "900001 测试甲"}
             self._post(host, port, "/api/session/verify", payload)
             self._post(host, port, "/api/check-data", payload)

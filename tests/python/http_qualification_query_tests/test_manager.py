@@ -33,7 +33,15 @@ class FakePortalClient:
         time.sleep(0.01)
         if record.employee_id == "900001":
             raise RuntimeError("样例查询失败")
-        return QueryResult(record.name, [{"#": "1", "技术等级": "机长"}], [{"类型": "航线"}])
+        return QueryResult(
+            record.name,
+            [{"#": "1", "技术等级": "机长"}],
+            [{"类型": "航线"}],
+            basic_info={"出生日期": "2000-01-01"},
+            education_rows=[{"学校": "样例院校"}],
+            training_record_rows=[{"培训科目": "样例培训", "来源页码": "1"}],
+            training_experience_rows=[{"训练科目": "样例训练", "来源页码": "1"}],
+        )
 
     def clear_credentials(self) -> None:
         self.verified = False
@@ -74,8 +82,28 @@ class ManagerTests(unittest.TestCase):
             self.assertEqual(finished["progress"]["success"], 1)
             self.assertEqual(finished["progress"]["failed"], 1)
             self.assertEqual([item["status"] for item in finished["results"]], ["失败", "成功"])
+            self.assertEqual(
+                {
+                    key: finished["results"][1][key]
+                    for key in (
+                        "basicCount",
+                        "technicalCount",
+                        "operationCount",
+                        "trainingRecordCount",
+                        "trainingExperienceCount",
+                    )
+                },
+                {
+                    "basicCount": 2,
+                    "technicalCount": 1,
+                    "operationCount": 1,
+                    "trainingRecordCount": 1,
+                    "trainingExperienceCount": 1,
+                },
+            )
             self.assertTrue(finished["downloads"]["excel"])
             self.assertTrue(finished["downloads"]["report"])
+            self.assertTrue(finished["downloads"]["json"])
             self.assertTrue(finished["session"]["verified"])
             manager.shutdown()
             self.assertTrue(client.closed)
@@ -93,4 +121,3 @@ class ManagerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

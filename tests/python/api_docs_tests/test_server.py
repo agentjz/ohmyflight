@@ -73,7 +73,10 @@ class ServerTests(unittest.TestCase):
         health = self.request("/api/health")
         self.assertTrue(health["available"])
         catalog = self.request("/api/catalog")
-        self.assertEqual([module["id"] for module in catalog["modules"]], ["flight-stats", "lock-entry"])
+        self.assertEqual(
+            [module["id"] for module in catalog["modules"]],
+            ["flight-stats", "lock-entry", "personnel-info"],
+        )
         session = self.request("/api/session", "POST", {"credentials": "secret-cookie-text"})
         self.assertTrue(session["ready"])
         self.assertNotIn("secret-cookie-text", json.dumps(session))

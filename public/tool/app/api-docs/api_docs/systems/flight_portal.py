@@ -17,6 +17,8 @@ from .flight_portal_parsers import (
     parse_flight_result,
     parse_lock_result,
     parse_lock_types,
+    parse_personnel_basic,
+    parse_personnel_html,
     validate_query_page,
 )
 from .session_keepalive import SessionKeepAlive
@@ -124,6 +126,21 @@ class FlightPortalAdapter:
         elif record.full_id == "lock-entry.submit":
             response = self._execute_lock_submit(record, supplied)
             parser = lambda: parse_lock_result(str(response.text or ""))
+        elif record.full_id == "personnel-info.basic":
+            response = self._execute_personnel_basic(record, supplied)
+            parser = lambda: parse_personnel_basic(str(response.text or ""))
+        elif record.full_id == "personnel-info.technical":
+            response = self._execute_personnel_form(record, supplied, "staffNum")
+            parser = lambda: parse_personnel_html(str(response.text or ""), "#qualList", "technical", "技术等级")
+        elif record.full_id == "personnel-info.operation":
+            response = self._execute_personnel_form(record, supplied, "empid")
+            parser = lambda: parse_personnel_html(str(response.text or ""), "#showSingleEmpOperQualList", "operation", "运行资格")
+        elif record.full_id == "personnel-info.training-records":
+            response = self._execute_personnel_form(record, supplied, "staffId")
+            parser = lambda: parse_personnel_html(str(response.text or ""), "#showTrainingRecordListDiv", "training-records", "培训记录")
+        elif record.full_id == "personnel-info.training-experiences":
+            response = self._execute_personnel_form(record, supplied, "staffNum")
+            parser = lambda: parse_personnel_html(str(response.text or ""), "#trainResultList, #empProfile_trainResultList", "training-experiences", "训练经历")
         else:
             raise ExecutionError("当前系统不支持该业务接口")
 
@@ -170,6 +187,33 @@ class FlightPortalAdapter:
             str(record.endpoint["method"]),
             record.url,
             data=form,
+            headers=self._record_headers(record),
+        )
+
+    def _execute_personnel_basic(self, record: EndpointRecord, supplied: dict[str, object]) -> requests.Response:
+        staff_number = required(supplied, "staffNum", "员工号")
+        headers = self._record_headers(record)
+        headers.pop("Content-Type", None)
+        return self._request(
+            str(record.endpoint["method"]),
+            record.url,
+            files={"staffNum": (None, staff_number)},
+            headers=headers,
+        )
+
+    def _execute_personnel_form(
+        self,
+        record: EndpointRecord,
+        supplied: dict[str, object],
+        staff_field: str,
+    ) -> requests.Response:
+        values = self._build_catalog_parameters(record, supplied)
+        if not any(name == staff_field and value for name, value in values):
+            values = [(staff_field, required(supplied, staff_field, "员工号")), *values]
+        return self._request(
+            str(record.endpoint["method"]),
+            record.url,
+            data=values,
             headers=self._record_headers(record),
         )
 
@@ -221,6 +265,7 @@ class FlightPortalAdapter:
         *,
         params: list[tuple[str, str]] | None = None,
         data: list[tuple[str, str]] | None = None,
+        files: dict[str, tuple[None, str]] | None = None,
         headers: dict[str, str] | None = None,
     ) -> requests.Response:
         with self.request_lock:
@@ -232,6 +277,7 @@ class FlightPortalAdapter:
                     url=url,
                     params=params,
                     data=data,
+                    files=files,
                     headers=headers or {},
                     timeout=self.timeout_seconds,
                     allow_redirects=True,

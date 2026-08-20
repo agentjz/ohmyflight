@@ -5,11 +5,14 @@ import unittest
 from .common import APP_ROOT  # noqa: F401
 from http_qualification_query.models import QueryRecord
 from http_qualification_query.portal_client import (
+    BASIC_INFO_FIELDS,
     PortalClient,
     PortalSessionExpired,
     build_employee_query_params,
+    parse_basic_payload,
     parse_detail_table,
     parse_employee_identity,
+    parse_training_record_pages,
 )
 
 
@@ -39,6 +42,33 @@ OPERATION_HTML = """
   </tbody></table>
 </div>
 """
+TRAINING_HEADERS = [
+    "选择", "培训科目", "培训机型", "培训课时", "培训地点", "经办人",
+    "教员", "培训时间", "培训結束时间", "训练结果", "考试成绩", "上传",
+]
+
+
+def training_html(page: int, count: int, last_page: int, headers: list[str] | None = None) -> str:
+    values = headers or TRAINING_HEADERS
+    header = "".join(f"<th>{value}</th>" for value in values)
+    rows = "".join(
+        "<tr>" + "".join(f"<td>{page}-{index}-{column}</td>" for column in range(len(values))) + "</tr>"
+        for index in range(count)
+    )
+    links = "".join(
+        f"<a href=\"javascript:goPageTwo('a','b','trainingRecordList','{number}',true);\">{number}</a>"
+        for number in range(1, last_page + 1)
+    )
+    return f"<div id='showTrainingRecordListDiv'><table><tr>{header}</tr>{rows}</table>{links}</div>"
+
+
+BASIC_PAYLOAD = {
+    "empDto": {field: f"值-{field}" for _label, field in BASIC_INFO_FIELDS},
+    "eduList": [{"school": "测试院校", "beginDate": "2020-01", "endDate": "2022-01", "education": "本科", "major": "专业", "studymode": "全日制"}],
+    "workList": [{"workDept": "测试部门", "beginDate": "2022-01", "endDate": "", "workPost": "测试岗位"}],
+    "titleList": [],
+    "relationList": [{"memName": "家属甲", "memRelation": "亲属", "memBirthday": "", "politics": "", "memCorp": "", "memJob": ""}],
+}
 
 
 class FakeResponse:
@@ -50,6 +80,9 @@ class FakeResponse:
     def raise_for_status(self) -> None:
         if self.status_code >= 400:
             raise RuntimeError(f"HTTP {self.status_code}")
+
+    def json(self) -> object:
+        return __import__("json").loads(self.text)
 
 
 class FakeCookies:
@@ -105,10 +138,43 @@ class PortalClientTests(unittest.TestCase):
         self.assertEqual(operation[1]["类型"], "航线")
         self.assertEqual(operation[1]["运行资格代码"], "R2")
 
-    def test_query_uses_verified_session_and_three_real_endpoints(self) -> None:
+    def test_parses_basic_sections_and_keeps_empty_title_list(self) -> None:
+        basic = parse_basic_payload(BASIC_PAYLOAD)
+
+        self.assertEqual(basic["基本信息"]["出生日期"], "值-birthDate")
+        self.assertEqual(basic["教育经历"][0]["学校"], "测试院校")
+        self.assertEqual(basic["工作经历"][0]["岗位"], "测试岗位")
+        self.assertEqual(basic["职称信息"], [])
+        self.assertEqual(basic["家庭信息"][0]["与本人关系"], "亲属")
+
+    def test_training_record_pages_follow_reported_last_page_and_keep_source_page(self) -> None:
+        pages = [training_html(1, 12, 2), training_html(2, 2, 2)]
+        calls: list[int] = []
+
+        def fetch(page: int) -> str:
+            calls.append(page)
+            return pages[page - 1]
+
+        rows = parse_training_record_pages(fetch)
+
+        self.assertEqual(calls, [1, 2])
+        self.assertEqual(len(rows), 14)
+        self.assertEqual(rows[0]["来源页码"], "1")
+        self.assertEqual(rows[-1]["来源页码"], "2")
+
+    def test_query_uses_verified_session_and_all_real_endpoints(self) -> None:
         session = FakeSession(
             get_responses=[FakeResponse(SESSION_HTML), FakeResponse(EMPLOYEE_HTML)],
-            post_responses=[FakeResponse(TECHNICAL_HTML), FakeResponse(OPERATION_HTML)],
+            post_responses=[
+                FakeResponse(__import__("json").dumps(BASIC_PAYLOAD, ensure_ascii=False)),
+                FakeResponse(TECHNICAL_HTML),
+                FakeResponse(OPERATION_HTML),
+                FakeResponse(training_html(1, 2, 1)),
+                FakeResponse(training_html(1, 3, 1, [
+                    "全选", "序号", "训练日期", "训练机型", "训练科目", "类型", "检查单",
+                    "结论", "上传", "审批过程", "证书下载",
+                ]).replace("showTrainingRecordListDiv", "trainResultList")),
+            ],
         )
         client = PortalClient(session=session)
         summary = client.load_credentials("JSESSIONID=a; iebJSid=b")
@@ -117,14 +183,18 @@ class PortalClientTests(unittest.TestCase):
         self.assertTrue(summary["verifiedAt"])
         self.assertEqual(result.page_name, "测试甲")
         self.assertEqual((len(result.technical_rows), len(result.operation_rows)), (1, 2))
+        self.assertEqual((len(result.training_record_rows), len(result.training_experience_rows)), (2, 3))
+        self.assertEqual(len(result.education_rows), 1)
         employee_call = session.calls[1]
         self.assertEqual(employee_call[0], "GET")
         statuses = [value for key, value in employee_call[2]["params"] if key == "activeStatusArray"]
         self.assertEqual(statuses, ["ZAIZHI", "WAIBU"])
-        self.assertTrue(session.calls[2][1].endswith("/newieb/basics/qualList"))
-        self.assertEqual(session.calls[2][2]["data"]["staffNum"], "900001")
-        self.assertTrue(session.calls[3][1].endswith("/newieb/basics/showSingleEmpOperQualListByempIdNew"))
-        self.assertEqual(session.calls[3][2]["data"]["empid"], "900001")
+        self.assertTrue(session.calls[2][1].endswith("/newieb/hrInfo/showEmpInfo"))
+        self.assertEqual(session.calls[2][2]["files"]["staffNum"], (None, "900001"))
+        self.assertTrue(session.calls[3][1].endswith("/newieb/basics/qualList"))
+        self.assertTrue(session.calls[4][1].endswith("/newieb/basics/showSingleEmpOperQualListByempIdNew"))
+        self.assertTrue(session.calls[5][1].endswith("/newieb/basics/trainingRecordList"))
+        self.assertTrue(session.calls[6][1].endswith("/newieb/basics/trainResultList"))
 
     def test_rejects_login_response(self) -> None:
         session = FakeSession(get_responses=[FakeResponse("<div id='scanLogin'></div>", "https://ieb.csair.com/login")])

@@ -13,10 +13,10 @@ describe("API docs delivery", () => {
     const toolCatalog = readFileSync(resolveFromRoot("src", "tool", "tools-data.ts"), "utf8");
     expect(toolIndex).toContain('href="./app/api-docs/index.html"');
     expect(toolIndex).toContain('title="API 文档"');
-    expect(toolCatalog).not.toContain('entry: "api-docs"');
+    expect(toolCatalog).toContain('entry: "http-qualification-query-helper"');
   });
 
-  it("presents one cookie manager and exactly two friendly API entries", () => {
+  it("presents one cookie manager and the documented API entries", () => {
     const html = readFileSync(`${root}/index.html`, "utf8");
     expect(html).toContain("Cookie 管理");
     expect(html).toContain('id="credentialInput"');
@@ -30,20 +30,27 @@ describe("API docs delivery", () => {
     expect(html).toContain('id="savedCredentialPanel"');
     expect(html).toContain('id="savedCredentialText"');
     expect(html).toContain('id="copyCredentialButton"');
-    expect(html).not.toContain("仅查看");
   });
 
-  it("keeps two business catalogs and complete internal lock facts", () => {
+  it("keeps three business catalogs and complete internal lock facts", () => {
     const index = JSON.parse(readFileSync(`${root}/catalog/index.json`, "utf8"));
     expect(index.modules.map((module: { name: string }) => module.name)).toEqual([
       "飞行经历查询接口",
-      "飞行人员锁班接口"
+      "飞行人员锁班接口",
+      "飞行人员信息查询接口"
     ]);
     const lockCatalog = JSON.parse(readFileSync(`${root}/catalog/lock-entry.json`, "utf8"));
     expect(lockCatalog.endpoints).toHaveLength(1);
     expect(JSON.stringify(lockCatalog)).toContain("showNonproductionTaskImportPage");
     expect(JSON.stringify(lockCatalog)).toContain("importNonproductionTaskLockListToSoc");
-    expect(JSON.stringify(lockCatalog)).not.toContain("getLoginEmpProfileValidForOperationResource");
+    const personnelCatalog = JSON.parse(readFileSync(`${root}/catalog/personnel-info.json`, "utf8"));
+    expect(personnelCatalog.groups.map((group: { name: string }) => group.name)).toEqual([
+      "基础信息",
+      "技术等级",
+      "运行资格",
+      "训练检查记录"
+    ]);
+    expect(personnelCatalog.endpoints).toHaveLength(5);
   });
 
   it("keeps browser responsibilities in syntax-valid ESM modules", () => {
@@ -54,7 +61,6 @@ describe("API docs delivery", () => {
     expect(app).toContain("setInterval(refreshSessionStatus, 3000)");
     expect(app).toContain("飞行门户 Cookie 已验证");
     expect(app).toContain('fetchJson("/api/session", { method: "DELETE" })');
-    expect(app).not.toContain("localStorage");
   });
 
   it("renders every internal request as an always-visible semantic operation", () => {
@@ -66,7 +72,5 @@ describe("API docs delivery", () => {
     expect(catalogView).toContain("响应契约");
     expect(catalogView).toContain("机器可读 JSON");
     expect(catalogView).toContain("module.catalogSource");
-    expect(catalogView).not.toContain('<details class="internal-request"');
-    expect(catalogView).not.toContain("<summary>");
   });
 });

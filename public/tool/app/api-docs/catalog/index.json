@@ -12,6 +12,12 @@
       "name": "飞行人员锁班接口",
       "description": "单次提交非生产任务，保留完整门户内部请求链路",
       "source": "./lock-entry.json"
+    },
+    {
+      "id": "personnel-info",
+      "name": "飞行人员信息查询接口",
+      "description": "基础信息、技术等级、运行资格和训练检查记录的只读请求事实",
+      "source": "./personnel-info.json"
     }
   ]
 }

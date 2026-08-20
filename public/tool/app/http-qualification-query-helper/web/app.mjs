@@ -26,6 +26,7 @@ const elements = {
   failedCount: document.querySelector("#failedCount"),
   currentRecord: document.querySelector("#currentRecord"),
   excelDownload: document.querySelector("#excelDownload"),
+  jsonDownload: document.querySelector("#jsonDownload"),
   reportDownload: document.querySelector("#reportDownload"),
   resultsCount: document.querySelector("#resultsCount"),
   resultsViewport: document.querySelector("#resultsViewport"),
@@ -189,14 +190,17 @@ function renderResults(results = []) {
       result.employeeId,
       result.inputName,
       result.pageName,
+      result.basicCount,
       result.technicalCount,
       result.operationCount,
+      result.trainingRecordCount,
+      result.trainingExperienceCount,
       result.status,
       result.error,
     ].forEach((value, index) => {
       const cell = document.createElement("td");
       cell.textContent = String(value ?? "");
-      if (index === 5) cell.className = result.status === "成功" ? "is-success" : "is-failed";
+      if (index === 8) cell.className = result.status === "成功" ? "is-success" : "is-failed";
       row.append(cell);
     });
     return row;
@@ -245,6 +249,7 @@ function renderState(state) {
   renderLogs(state.logs || []);
   renderResults(state.results || []);
   setDownload(elements.excelDownload, Boolean(state.downloads?.excel), "excel");
+  setDownload(elements.jsonDownload, Boolean(state.downloads?.json), "json");
   setDownload(elements.reportDownload, Boolean(state.downloads?.report), "report");
 }
 

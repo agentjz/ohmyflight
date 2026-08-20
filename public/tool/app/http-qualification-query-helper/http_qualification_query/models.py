@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -30,6 +30,17 @@ class QueryResult:
     page_name: str
     technical_rows: list[dict[str, str]]
     operation_rows: list[dict[str, str]]
+    basic_info: dict[str, str] = field(default_factory=dict)
+    education_rows: list[dict[str, str]] = field(default_factory=list)
+    work_rows: list[dict[str, str]] = field(default_factory=list)
+    title_rows: list[dict[str, str]] = field(default_factory=list)
+    family_rows: list[dict[str, str]] = field(default_factory=list)
+    training_record_rows: list[dict[str, str]] = field(default_factory=list)
+    training_experience_rows: list[dict[str, str]] = field(default_factory=list)
+
+    @property
+    def basic_count(self) -> int:
+        return int(bool(self.basic_info)) + len(self.education_rows) + len(self.work_rows) + len(self.title_rows) + len(self.family_rows)
 
 
 @dataclass(frozen=True)
@@ -53,7 +64,7 @@ class InputPayload:
 class OutputPaths:
     excel: Path
     report: Path
+    json: Path
 
 
 Event = dict[str, Any]
-
