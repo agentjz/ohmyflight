@@ -42,6 +42,9 @@ __pycache__/
 # 技术等级运行资格查询助手（乞丐版）运行结果，禁止进入版本库
 /public/tool/app/qualification-query-helper/results/
 
+# 技术等级运行资格查询助手（皇帝版）运行结果，禁止进入版本库
+/public/tool/app/http-qualification-query-helper/results/
+
 /REF
 
 /南货航2026年培训表.xlsx
