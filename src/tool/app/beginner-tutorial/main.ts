@@ -1,10 +1,21 @@
 import "../../support-shell";
-import type { BeginnerTutorialData, TutorialModule, TutorialRecord } from "./types";
+import type {
+    BeginnerTutorialData,
+    TutorialModule,
+    TutorialNavigationOrigin,
+    TutorialRecord
+} from "./types";
 import { isBeginnerTutorialData } from "./data-validation";
 import {
     buildBeginnerTutorialMarkdown,
     downloadBeginnerTutorialMarkdown
 } from "./markdown-export";
+import {
+    createTutorialNavigationTransition,
+    encodeTutorialHash,
+    readTutorialOrigin,
+    resolveTutorialHash
+} from "./navigation";
 import {
     recordSearchText,
     renderModule,
@@ -34,9 +45,14 @@ async function initialize(): Promise<void> {
         if (!isBeginnerTutorialData(data)) throw new Error("菜鸟教程数据格式无效。");
         tutorialData = data;
         if (exportMarkdownButton instanceof HTMLButtonElement) exportMarkdownButton.disabled = false;
-        const initial = resolveHash(data);
+        const initial = resolveTutorialHash(data, location.hash);
         activeModuleId = initial.moduleId;
-        renderActiveModule(initial.recordId);
+        history.replaceState(
+            { moduleId: initial.moduleId, recordId: initial.recordId },
+            "",
+            encodeTutorialHash(initial.moduleId, initial.recordId)
+        );
+        renderActiveModule(initial.recordId, readTutorialOrigin(history.state));
         bindInteractions();
     } catch (error: unknown) {
         content.innerHTML = `<div class="tutorial-empty">${escapeHtml(error instanceof Error ? error.message : String(error))}</div>`;
@@ -53,11 +69,25 @@ function bindInteractions(): void {
     });
 
     content?.addEventListener("click", (event) => {
+        const backTarget = event.target instanceof Element
+            ? event.target.closest<HTMLButtonElement>("[data-history-back]")
+            : null;
+        if (backTarget) {
+            history.back();
+            return;
+        }
         const target = event.target instanceof Element
             ? event.target.closest<HTMLButtonElement>("[data-target-module][data-target-record]")
             : null;
         if (!target) return;
-        navigateTo(target.dataset.targetModule || activeModuleId, target.dataset.targetRecord);
+        const origin = target.dataset.originModule && target.dataset.originRecord && target.dataset.originTitle
+            ? {
+                moduleId: target.dataset.originModule,
+                recordId: target.dataset.originRecord,
+                title: target.dataset.originTitle
+            }
+            : undefined;
+        navigateTo(target.dataset.targetModule || activeModuleId, target.dataset.targetRecord, origin);
     });
 
     searchInput?.addEventListener("input", () => {
@@ -84,18 +114,27 @@ function bindInteractions(): void {
         downloadBeginnerTutorialMarkdown(markdown);
         updateSearchStatus("Markdown 已导出");
     });
+
+    window.addEventListener("popstate", () => {
+        if (!tutorialData) return;
+        const target = resolveTutorialHash(tutorialData, location.hash);
+        activeModuleId = target.moduleId;
+        renderActiveModule(target.recordId, readTutorialOrigin(history.state));
+    });
 }
 
-function navigateTo(moduleId: string, recordId?: string): void {
+function navigateTo(moduleId: string, recordId?: string, origin?: TutorialNavigationOrigin): void {
     if (!tutorialData) return;
     if (!tutorialData.modules.some((module) => module.id === moduleId)) return;
     activeModuleId = moduleId;
     if (searchInput instanceof HTMLInputElement) searchInput.value = "";
-    history.replaceState(null, "", encodeHash(moduleId, recordId));
-    renderActiveModule(recordId);
+    const transition = createTutorialNavigationTransition(moduleId, recordId, origin);
+    if (transition.source) history.replaceState(transition.source.state, "", transition.source.hash);
+    history.pushState(transition.target.state, "", transition.target.hash);
+    renderActiveModule(recordId, origin);
 }
 
-function renderActiveModule(recordId?: string): void {
+function renderActiveModule(recordId?: string, origin?: TutorialNavigationOrigin): void {
     if (!(content instanceof HTMLElement) || !(navigation instanceof HTMLElement) || !tutorialData) return;
     const module = tutorialData.modules.find((candidate) => candidate.id === activeModuleId) || tutorialData.modules[0];
     if (!module) {
@@ -105,7 +144,7 @@ function renderActiveModule(recordId?: string): void {
 
     activeModuleId = module.id;
     navigation.innerHTML = renderNavigation(tutorialData, activeModuleId);
-    content.innerHTML = renderModule(module);
+    content.innerHTML = renderModule(module, origin);
     updateSearchStatus("");
     if (recordId) revealRecord(recordId);
 }
@@ -119,18 +158,6 @@ function revealRecord(recordId: string): void {
         target.classList.add("is-targeted");
         window.setTimeout(() => target.classList.remove("is-targeted"), 1600);
     });
-}
-
-function resolveHash(data: BeginnerTutorialData): { moduleId: string; recordId?: string } {
-    const [moduleId, recordId] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
-    return data.modules.some((module) => module.id === moduleId)
-        ? { moduleId, ...(recordId ? { recordId } : {}) }
-        : { moduleId: data.modules[0]?.id || "" };
-}
-
-function encodeHash(moduleId: string, recordId?: string): string {
-    const value = recordId ? `${moduleId}/${recordId}` : moduleId;
-    return `#${encodeURIComponent(value)}`;
 }
 
 function updateSearchStatus(value: string): void {

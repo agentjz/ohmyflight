@@ -3,7 +3,10 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { loadBeginnerTutorialData } from "../../scripts/beginner-tutorial-content.mjs";
-import { buildBeginnerTutorialMarkdown } from "../../src/tool/app/beginner-tutorial/markdown-export";
+import {
+  beginnerTutorialRecordAnchor,
+  buildBeginnerTutorialMarkdown
+} from "../../src/tool/app/beginner-tutorial/markdown-export";
 import { resolveFromPublic, resolveFromRoot } from "../helpers/paths";
 
 const contentRoot = resolveFromRoot("src", "tool", "app", "beginner-tutorial", "content");
@@ -37,17 +40,18 @@ describe("菜鸟教程 Markdown 导出", () => {
         expect(markdown).toContain(`记录 ID：\`${record.id}\``);
         expect(markdown).toContain(record.action);
         expect(markdown).toContain(record.lifecycle);
-        for (const embedded of record.embeddedRecords || []) {
-          expect(markdown).toContain(`来源模块：\`${embedded.moduleId}\``);
-          expect(markdown).toContain(`记录 ID：\`${embedded.id}\``);
-          expect(markdown).toContain(embedded.lifecycle);
-        }
-        for (const related of record.relatedRecords || []) {
-          expect(markdown).toContain(`\`${related.moduleId}/${related.targetId}\``);
+        const anchor = beginnerTutorialRecordAnchor(module.id, record.id);
+        expect(markdown.match(new RegExp(`<a id="${anchor}"></a>`, "g"))).toHaveLength(1);
+        for (const recoveryRule of record.recoveryRecords || []) {
+          expect(markdown).toContain(`](#${beginnerTutorialRecordAnchor(recoveryRule.moduleId, recoveryRule.targetId)})`);
         }
       }
     }
 
+    expect(markdown).not.toContain('"embeddedRecords"');
+    expect(markdown).not.toContain("引用本规则的内容");
+    expect(markdown).not.toContain("相关规则与路径");
+    expect(markdown).toContain("同一条恢复规则只在其权威模块出现一次");
     expect(markdown).toContain("````json");
     expect(markdown).toContain(JSON.stringify(data, null, 2));
     expect(markdown.endsWith("\n")).toBe(true);

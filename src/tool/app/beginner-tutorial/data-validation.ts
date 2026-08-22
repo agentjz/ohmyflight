@@ -1,6 +1,5 @@
 import type {
     BeginnerTutorialData,
-    TutorialEmbeddedRecord,
     TutorialModule,
     TutorialRecord,
     TutorialRecordBase,
@@ -49,13 +48,7 @@ function isRecord(value: unknown): value is TutorialRecord {
         && Array.isArray(record.sources)
         && record.sources.every(isSourceRef)
         && (record.sections === undefined || record.sections.every(isSection))
-        && (record.embeddedRecords === undefined || record.embeddedRecords.every(isEmbeddedRecord))
-        && (record.relatedRecords === undefined || record.relatedRecords.every(isRecordLink));
-}
-
-function isEmbeddedRecord(value: unknown): value is TutorialEmbeddedRecord {
-    return isRecord(value)
-        && typeof (value as TutorialEmbeddedRecord).moduleId === "string";
+        && (record.recoveryRecords === undefined || record.recoveryRecords.every(isRecordLink));
 }
 
 function isRecordLink(value: unknown): value is TutorialRecordLink {
@@ -63,7 +56,8 @@ function isRecordLink(value: unknown): value is TutorialRecordLink {
     const link = value as Partial<TutorialRecordLink>;
     return typeof link.moduleId === "string"
         && typeof link.targetId === "string"
-        && typeof link.title === "string";
+        && typeof link.title === "string"
+        && typeof link.summary === "string";
 }
 
 function isSection(value: unknown): value is TutorialSection {

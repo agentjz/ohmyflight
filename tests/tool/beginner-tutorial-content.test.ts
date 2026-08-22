@@ -16,7 +16,7 @@ afterEach(async () => {
 });
 
 describe("菜鸟教程知识装配", () => {
-  it("装配转机型主链和可复用的资格恢复分支", async () => {
+  it("装配转机型主链和直接适用的资格恢复入口", async () => {
     const data = await loadBeginnerTutorialData(contentRoot);
     const copilotPath = findRecord(data, "copilot-type-transition-path");
     const a1 = findRecord(data, "fo-a1");
@@ -43,13 +43,16 @@ describe("菜鸟教程知识装配", () => {
     expect(english.lifecycle).toContain("存在2分项时不能通过国际航线英语通信检查");
     expect(english.lifecycle).toContain("存在3分项时不能通过通信检查员检查");
 
-    expect(a1.embeddedRecords?.map((record) => record.id)).toEqual([
+    expect(copilotPath.recoveryRecords?.map((record) => record.targetId)).toEqual([
+      "recovery-120-100"
+    ]);
+    expect(a1.recoveryRecords?.map((record) => record.targetId)).toEqual([
       "recovery-recency",
       "recovery-overdue",
       "recovery-proficiency-failure-copilot",
       "recovery-120-100"
     ]);
-    expect(sectionText(a1.embeddedRecords?.[0], "触发条件")).toContain("18分钟");
+    expect(sectionText(findRecord(data, "recovery-recency"), "触发条件")).toContain("18分钟");
 
     const finalBranch = sectionText(captainFailure, "两次补充训练仍不合格");
     expect(finalBranch).toContain("D类副驾驶");
@@ -150,6 +153,25 @@ describe("菜鸟教程知识装配", () => {
     expect(specialModule?.body).toContain("按照D类副驾驶技术等级参与运行及搭组");
   });
 
+  it("只用单向恢复入口引用权威规则", async () => {
+    const data = await loadBeginnerTutorialData(contentRoot);
+    const records = data.modules.flatMap((module) => module.records || []);
+    const captainB = findRecord(data, "captain-b");
+    const captainFailure = findRecord(data, "recovery-proficiency-failure-captain");
+
+    expect(JSON.stringify(data)).not.toContain('"embeddedRecords"');
+    expect(records).toHaveLength(74);
+    expect(captainB.recoveryRecords).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        targetId: "recovery-proficiency-failure-captain",
+        summary: expect.stringContaining("当日立即失去资格")
+      })
+    ]));
+    expect(sectionText(captainFailure, "立即后果")).toContain("不得依据本次机长熟练检查结论签注PC-CP");
+    expect(sectionText(captainFailure, "先恢复副驾驶检查签注")).toContain("补充6小时副驾驶训练，训练中包含检查");
+    expect(sectionText(captainFailure, "先恢复副驾驶检查签注")).toContain("副驾驶检查合格后方可签注PC-CP");
+  });
+
   it("拒绝无法解析的记录引用", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "watchdog-tutorial-test-"));
     temporaryRoots.push(root);
@@ -176,11 +198,56 @@ describe("菜鸟教程知识装配", () => {
         summary: "Test",
         action: "Test",
         lifecycle: "Test",
-        reuseRecordIds: ["missing-record"]
+        recoveryRecordIds: ["missing-record"]
       }]
     }));
 
     await expect(loadBeginnerTutorialData(root)).rejects.toThrow("missing-record");
+  });
+
+  it("拒绝把普通内容伪装成恢复规则", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "watchdog-tutorial-test-"));
+    temporaryRoots.push(root);
+    await fs.mkdir(path.join(root, "modules"));
+    await fs.writeFile(path.join(root, "manifest.json"), JSON.stringify({
+      schemaVersion: 1,
+      title: "Test",
+      description: "Test",
+      sourceFile: "sources.json",
+      moduleFiles: ["modules/example.json"]
+    }));
+    await fs.writeFile(path.join(root, "sources.json"), "[]");
+    await fs.writeFile(path.join(root, "modules", "example.json"), JSON.stringify({
+      id: "example",
+      title: "Example",
+      kind: "records",
+      summary: "Example",
+      records: [
+        {
+          id: "source",
+          title: "Source",
+          status: "confirmed",
+          category: "Test",
+          audience: "Test",
+          summary: "Test",
+          action: "Test",
+          lifecycle: "Test",
+          recoveryRecordIds: ["ordinary-target"]
+        },
+        {
+          id: "ordinary-target",
+          title: "Ordinary target",
+          status: "confirmed",
+          category: "Test",
+          audience: "Test",
+          summary: "Test",
+          action: "Test",
+          lifecycle: "Test"
+        }
+      ]
+    }));
+
+    await expect(loadBeginnerTutorialData(root)).rejects.toThrow("恢复链接必须指向恢复模块");
   });
 });
 

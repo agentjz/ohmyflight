@@ -128,11 +128,7 @@
           ]
         }
       ],
-      "track": "失效与恢复",
-      "relatedRecordIds": [
-        "recovery-practical-failure-copilot",
-        "recovery-practical-failure-captain"
-      ]
+      "track": "失效与恢复"
     },
     {
       "id": "recovery-practical-failure-captain",
@@ -261,10 +257,7 @@
           ]
         }
       ],
-      "track": "失效与恢复",
-      "relatedRecordIds": [
-        "recovery-overdue"
-      ]
+      "track": "失效与恢复"
     },
     {
       "id": "recovery-proficiency-failure-copilot",
@@ -308,10 +301,7 @@
           ]
         }
       ],
-      "track": "失效与恢复",
-      "relatedRecordIds": [
-        "recovery-overdue"
-      ]
+      "track": "失效与恢复"
     },
     {
       "id": "recovery-annual-line-check",
@@ -393,11 +383,7 @@
           ]
         }
       ],
-      "track": "失效与恢复",
-      "relatedRecordIds": [
-        "recovery-proficiency-failure-copilot",
-        "recovery-proficiency-failure-captain"
-      ]
+      "track": "失效与恢复"
     },
     {
       "id": "recovery-qualification-capability-special-check",

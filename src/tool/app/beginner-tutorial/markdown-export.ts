@@ -1,6 +1,5 @@
 import type {
     BeginnerTutorialData,
-    TutorialEmbeddedRecord,
     TutorialModule,
     TutorialRecord,
     TutorialSourceRef,
@@ -47,7 +46,7 @@ function appendStep(lines: string[], step: TutorialStep, index: number): void {
 
 function appendRecordFields(
     lines: string[],
-    record: TutorialRecord | TutorialEmbeddedRecord,
+    record: TutorialRecord,
     headingLevel: number
 ): void {
     const heading = "#".repeat(headingLevel);
@@ -75,26 +74,13 @@ function appendRecordFields(
     }
 }
 
-function appendEmbeddedRecord(lines: string[], record: TutorialEmbeddedRecord, index: number): void {
-    lines.push(
-        `##### ${index + 1}. ${record.title}`,
-        "",
-        `- 记录 ID：${inlineCode(record.id)}`,
-        `- 来源模块：${inlineCode(record.moduleId)}`,
-        `- 核对状态：${inlineCode(record.status)}`,
-        `- 适用对象：${record.audience}`,
-        `- 类别：${record.category}`,
-        ...(record.track ? [`- 路径：${record.track}`] : []),
-        "",
-        record.summary,
-        ""
-    );
-    appendRecordFields(lines, record, 6);
-    appendSources(lines, record.sources, 6);
+export function beginnerTutorialRecordAnchor(moduleId: string, recordId: string): string {
+    return `record-${moduleId}-${recordId}`.replace(/[^a-zA-Z0-9_-]+/g, "-");
 }
 
-function appendRecord(lines: string[], record: TutorialRecord, index: number): void {
+function appendRecord(lines: string[], record: TutorialRecord, moduleId: string, index: number): void {
     lines.push(
+        `<a id="${beginnerTutorialRecordAnchor(moduleId, record.id)}"></a>`,
         `### ${index + 1}. ${record.title}`,
         "",
         `- 记录 ID：${inlineCode(record.id)}`,
@@ -108,17 +94,12 @@ function appendRecord(lines: string[], record: TutorialRecord, index: number): v
     );
     appendRecordFields(lines, record, 4);
 
-    if (record.embeddedRecords?.length) {
-        lines.push("#### 复用的完整恢复规则", "");
-        record.embeddedRecords.forEach((embedded, embeddedIndex) => {
-            appendEmbeddedRecord(lines, embedded, embeddedIndex);
-        });
-    }
-
-    if (record.relatedRecords?.length) {
-        lines.push("#### 关联内容", "");
-        for (const related of record.relatedRecords) {
-            lines.push(`- ${related.title}：${inlineCode(`${related.moduleId}/${related.targetId}`)}`);
+    if (record.recoveryRecords?.length) {
+        lines.push("#### 恢复规则", "");
+        for (const recoveryRule of record.recoveryRecords) {
+            lines.push(
+                `- [${recoveryRule.title}](#${beginnerTutorialRecordAnchor(recoveryRule.moduleId, recoveryRule.targetId)})：${recoveryRule.summary}`
+            );
         }
         lines.push("");
     }
@@ -142,7 +123,7 @@ function appendModule(lines: string[], module: TutorialModule, index: number): v
         lines.push("### 模块正文", "", module.body.trim(), "");
     }
     module.steps?.forEach((step, stepIndex) => appendStep(lines, step, stepIndex));
-    module.records?.forEach((record, recordIndex) => appendRecord(lines, record, recordIndex));
+    module.records?.forEach((record, recordIndex) => appendRecord(lines, record, module.id, recordIndex));
     if (module.sources?.length) appendSources(lines, module.sources);
 }
 
@@ -165,6 +146,7 @@ export function buildBeginnerTutorialMarkdown(data: BeginnerTutorialData): strin
         "- 内容仅来自页面标注版本的《飞行人员训练大纲》和《飞行技术管理手册》。",
         "- 航段、飞行次数、起落、PF/PM、昼间/夜间、训练、检查、签注、聘任和资质发布按原条目分别表达，不能互相替代。",
         "- 标记为部分确认的条目存在手册边界，办理具体业务时仍须核对当期批准文件和个人记录。",
+        "- 同一条恢复规则只在其权威模块出现一次；其他条目只保留直接适用的恢复规则链接。",
         "- 导出不包含搜索词、展开状态或其他临时页面状态。",
         "",
         "## 来源索引",
@@ -183,7 +165,7 @@ export function buildBeginnerTutorialMarkdown(data: BeginnerTutorialData): strin
     lines.push(
         "## 附录：机器可读原始教程",
         "",
-        "以下 JSON 与页面加载的数据完全同源，用于无损保留模块、记录、结构化分段、复用规则、关联项和来源。",
+        "以下 JSON 与页面加载的数据完全同源，用于无损保留模块、记录、结构化分段、恢复规则链接和来源。",
         "",
         "````json",
         JSON.stringify(data, null, 2),

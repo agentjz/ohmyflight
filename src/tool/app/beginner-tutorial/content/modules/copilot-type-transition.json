@@ -81,9 +81,7 @@
         "technical-6",
         "technical-H"
       ],
-      "relatedRecordIds": [
-        "fo-a1",
-        "fo-a2",
+      "recoveryRecordIds": [
         "recovery-120-100"
       ]
     }

@@ -92,10 +92,8 @@
         "technical-7",
         "technical-H"
       ],
-      "relatedRecordIds": [
-        "captain-b",
-        "recovery-120-100",
-        "recovery-annual-line-check"
+      "recoveryRecordIds": [
+        "recovery-120-100"
       ]
     }
   ]

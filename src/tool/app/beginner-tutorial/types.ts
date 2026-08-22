@@ -22,6 +22,12 @@ export interface TutorialSection {
     items: string[];
 }
 
+export interface TutorialNavigationOrigin {
+    moduleId: string;
+    recordId: string;
+    title: string;
+}
+
 export interface TutorialRecordBase {
     id: string;
     title: string;
@@ -39,18 +45,13 @@ export interface TutorialRecordLink {
     moduleId: string;
     targetId: string;
     title: string;
-}
-
-export interface TutorialEmbeddedRecord extends TutorialRecordBase {
-    moduleId: string;
-    sources: TutorialSourceRef[];
+    summary: string;
 }
 
 export interface TutorialRecord extends TutorialRecordBase {
     sourceIds?: string[];
     sources: TutorialSourceRef[];
-    embeddedRecords?: TutorialEmbeddedRecord[];
-    relatedRecords?: TutorialRecordLink[];
+    recoveryRecords?: TutorialRecordLink[];
 }
 
 export interface TutorialModule {
@@ -77,8 +78,7 @@ export interface BeginnerTutorialData {
 
 export interface TutorialSourceRecord extends TutorialRecordBase {
     sourceIds?: string[];
-    reuseRecordIds?: string[];
-    relatedRecordIds?: string[];
+    recoveryRecordIds?: string[];
 }
 
 export interface TutorialSourceModule extends Omit<TutorialModule, "body" | "records" | "sources"> {

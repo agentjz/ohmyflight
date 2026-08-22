@@ -1,7 +1,7 @@
 import type {
     BeginnerTutorialData,
-    TutorialEmbeddedRecord,
     TutorialModule,
+    TutorialNavigationOrigin,
     TutorialRecord,
     TutorialRecordBase,
     TutorialRecordLink,
@@ -25,13 +25,17 @@ export function renderNavigation(data: BeginnerTutorialData, activeModuleId: str
     `).join("");
 }
 
-export function renderModule(module: TutorialModule): string {
+export function renderModule(module: TutorialModule, origin?: TutorialNavigationOrigin): string {
+    const originNavigation = origin
+        ? `<button class="tutorial-back-link" type="button" data-history-back="true">返回：${escapeHtml(origin.title)}</button>`
+        : "";
     const body = module.body
         ? `<article class="tutorial-markdown">${marked.parse(module.body)}</article>${renderSources(module.sources || [])}`
         : "";
     const records = renderModuleRecords(module);
     return `
         <section class="tutorial-module" aria-labelledby="moduleTitle">
+            ${originNavigation}
             <header class="module-heading">
                 <h1 id="moduleTitle">${escapeHtml(module.title)}</h1>
                 <p>${escapeHtml(module.summary)}</p>
@@ -67,13 +71,7 @@ export function renderSearchResults(
 export function recordSearchText(module: TutorialModule, record: TutorialRecord): string {
     const sources = record.sources.flatMap((source) => [source.manual, source.chapter, source.section]);
     const sections = flattenSections(record.sections);
-    const embedded = (record.embeddedRecords || []).flatMap((item) => [
-        item.title,
-        item.summary,
-        item.action,
-        item.lifecycle,
-        ...flattenSections(item.sections)
-    ]);
+    const recoveryRules = (record.recoveryRecords || []).flatMap((item) => [item.title, item.summary]);
     return [
         module.title,
         module.summary,
@@ -84,7 +82,7 @@ export function recordSearchText(module: TutorialModule, record: TutorialRecord)
         record.action,
         record.lifecycle,
         ...sections,
-        ...embedded,
+        ...recoveryRules,
         ...sources
     ].join(" ").toLocaleLowerCase("zh-CN");
 }
@@ -134,8 +132,7 @@ function renderRecord(record: TutorialRecord, open: boolean, moduleId: string): 
                     <div><dt>业务类别</dt><dd>${escapeHtml(record.category)}</dd></div>
                 </dl>
                 ${renderPrimaryContent(record)}
-                ${renderEmbeddedRecords(record.embeddedRecords || [])}
-                ${renderRelatedRecords(record.relatedRecords || [], moduleId)}
+                ${renderRecoveryRecords(record.recoveryRecords || [], moduleId, record.id, record.title)}
                 ${renderSources(record.sources)}
             </div>
         </details>
@@ -166,30 +163,6 @@ function renderActionAndLifecycle(record: TutorialRecordBase): string {
     `;
 }
 
-function renderEmbeddedRecords(records: TutorialEmbeddedRecord[]): string {
-    if (!records.length) return "";
-    return `
-        <section class="embedded-rules">
-            <header>
-                <h3>保持、失效与恢复</h3>
-                <p>以下规则已按当前等级就地展开；各项资格分别有效，不会因恢复其中一项而自动恢复其他项目。</p>
-            </header>
-            ${records.map((record) => `
-                <article class="embedded-rule">
-                    <h4>${escapeHtml(record.title)}</h4>
-                    <p>${escapeHtml(record.summary)}</p>
-                    ${record.sections?.length
-                        ? renderSections(record.sections, "embedded-sections")
-                        : renderActionAndLifecycle(record)}
-                    <button class="record-link" type="button" data-target-module="${escapeHtml(record.moduleId)}" data-target-record="${escapeHtml(record.id)}">
-                        查看“${escapeHtml(record.title)}”完整条目
-                    </button>
-                </article>
-            `).join("")}
-        </section>
-    `;
-}
-
 function renderSections(sections: TutorialSection[], className: string): string {
     return `<div class="${className}">${sections.map((section) => `
         <section class="record-block">
@@ -199,19 +172,39 @@ function renderSections(sections: TutorialSection[], className: string): string 
     `).join("")}</div>`;
 }
 
-function renderRelatedRecords(records: TutorialRecordLink[], currentModuleId: string): string {
+function renderRecoveryRecords(
+    records: TutorialRecordLink[],
+    currentModuleId: string,
+    currentRecordId: string,
+    currentRecordTitle: string
+): string {
     if (!records.length) return "";
     return `
-        <nav class="related-records" aria-label="关联内容">
-            <strong>关联内容</strong>
+        <nav class="recovery-links" aria-label="恢复规则">
+            <strong>恢复规则</strong>
             <div>
-                ${records.map((record) => `
-                    <button class="record-link" type="button" data-target-module="${escapeHtml(record.moduleId || currentModuleId)}" data-target-record="${escapeHtml(record.targetId)}">
-                        ${escapeHtml(record.title)}
-                    </button>
-                `).join("")}
+                ${records.map((record) => renderRecordLink(record, currentModuleId, currentRecordId, currentRecordTitle)).join("")}
             </div>
         </nav>
+    `;
+}
+
+function renderRecordLink(
+    record: TutorialRecordLink,
+    currentModuleId: string,
+    currentRecordId: string,
+    currentRecordTitle: string
+): string {
+    return `
+        <button class="record-link" type="button"
+            data-target-module="${escapeHtml(record.moduleId)}"
+            data-target-record="${escapeHtml(record.targetId)}"
+            data-origin-module="${escapeHtml(currentModuleId)}"
+            data-origin-record="${escapeHtml(currentRecordId)}"
+            data-origin-title="${escapeHtml(currentRecordTitle)}">
+            <span class="record-link-label">${escapeHtml(record.title)}</span>
+            <span class="record-link-summary">${escapeHtml(record.summary)}</span>
+        </button>
     `;
 }
 

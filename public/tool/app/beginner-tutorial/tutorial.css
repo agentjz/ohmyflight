@@ -349,78 +349,59 @@
     line-height: 1.58;
 }
 
-.embedded-rules {
+.tutorial-back-link {
+    display: block;
+    min-height: 32px;
+    margin: 0 0 14px;
+    padding: 5px 9px;
+    border: 2px solid var(--soft-border);
+    border-radius: 0;
+    background: var(--soft-surface);
+    box-shadow: var(--hard-shadow-small);
+    color: var(--soft-ink);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.tutorial-back-link:hover,
+.tutorial-back-link:focus-visible {
+    background: var(--soft-sky);
+    box-shadow: none;
+    color: var(--soft-on-pastel);
+    outline: 2px solid var(--soft-focus);
+    outline-offset: 2px;
+    transform: translate(2px, 2px);
+}
+
+.recovery-links {
     margin: 15px 0 0;
     border: 2px solid var(--soft-border);
     background: var(--soft-surface-muted);
 }
 
-.embedded-rules > header {
+.recovery-links > strong {
+    display: block;
     padding: 13px 14px;
     border-bottom: 2px solid var(--soft-border);
-}
-
-.embedded-rules > header h3 {
-    margin: 0 0 5px;
     color: var(--soft-ink);
     font-size: 15px;
     font-weight: 800;
 }
 
-.embedded-rules > header p {
-    margin: 0;
-    color: var(--soft-muted);
-    font-size: 12px;
-    line-height: 1.55;
-}
-
-.embedded-rule {
-    padding: 14px;
-    background: var(--soft-surface);
-}
-
-.embedded-rule + .embedded-rule {
-    border-top: 2px solid var(--soft-border);
-}
-
-.embedded-rule > h4 {
-    margin: 0 0 5px;
-    color: var(--soft-ink);
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.embedded-rule > p {
-    margin: 0 0 10px;
-    color: var(--soft-muted);
-    font-size: 12px;
-    line-height: 1.55;
-}
-
-.related-records {
-    display: grid;
-    gap: 8px;
-    margin-top: 14px;
-    padding: 12px;
-    border: 1px solid var(--soft-border);
-    background: var(--soft-surface-muted);
-}
-
-.related-records > strong {
-    color: var(--soft-muted);
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.related-records > div {
+.recovery-links > div {
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
     gap: 8px;
+    padding: 10px;
 }
 
 .record-link {
+    display: grid;
+    width: 100%;
     min-height: 34px;
-    margin-top: 10px;
+    gap: 3px;
+    margin-top: 0;
     padding: 6px 9px;
     border: 2px solid var(--soft-border);
     border-radius: 0;
@@ -432,8 +413,16 @@
     text-align: left;
 }
 
-.related-records .record-link {
-    margin-top: 0;
+.record-link-label {
+    color: var(--soft-ink);
+    font-weight: 800;
+}
+
+.record-link-summary {
+    color: var(--soft-muted);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.45;
 }
 
 .record-link:hover,
@@ -444,6 +433,13 @@
     outline: 2px solid var(--soft-focus);
     outline-offset: 2px;
     transform: translate(2px, 2px);
+}
+
+.record-link:hover .record-link-label,
+.record-link:focus-visible .record-link-label,
+.record-link:hover .record-link-summary,
+.record-link:focus-visible .record-link-summary {
+    color: var(--soft-on-pastel);
 }
 
 .knowledge-record.is-targeted {

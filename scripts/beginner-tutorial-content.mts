@@ -4,7 +4,6 @@ import path from "node:path";
 import type {
   BeginnerTutorialData,
   BeginnerTutorialManifest,
-  TutorialEmbeddedRecord,
   TutorialModule,
   TutorialRecord,
   TutorialRecordBase,
@@ -45,23 +44,17 @@ export async function loadBeginnerTutorialData(contentRoot: string): Promise<Beg
       return source;
     });
 
-  const resolveEmbeddedRecord = (id: string, owner: string): TutorialEmbeddedRecord => {
+  const resolveRecoveryLink = (id: string, owner: string): TutorialRecordLink => {
     const indexed = recordIndex.get(id);
-    if (!indexed) throw new Error(`菜鸟教程知识项 ${owner} 引用了不存在的复用记录 ${id}。`);
-    return {
-      ...toRecordBase(indexed.record),
-      moduleId: indexed.moduleId,
-      sources: resolveSources(indexed.record.sourceIds, indexed.record.id)
-    };
-  };
-
-  const resolveLink = (id: string, owner: string): TutorialRecordLink => {
-    const indexed = recordIndex.get(id);
-    if (!indexed) throw new Error(`菜鸟教程知识项 ${owner} 引用了不存在的关联记录 ${id}。`);
+    if (!indexed) throw new Error(`菜鸟教程知识项 ${owner} 引用了不存在的恢复记录 ${id}。`);
+    if (indexed.moduleId !== "recovery") {
+      throw new Error(`菜鸟教程知识项 ${owner} 的恢复链接必须指向恢复模块：${id}。`);
+    }
     return {
       moduleId: indexed.moduleId,
       targetId: indexed.record.id,
-      title: indexed.record.title
+      title: indexed.record.title,
+      summary: indexed.record.summary
     };
   };
 
@@ -75,8 +68,7 @@ export async function loadBeginnerTutorialData(contentRoot: string): Promise<Beg
       ...toRecordBase(record),
       sourceIds: record.sourceIds,
       sources: resolveSources(record.sourceIds, record.id),
-      embeddedRecords: record.reuseRecordIds?.map((id) => resolveEmbeddedRecord(id, record.id)),
-      relatedRecords: record.relatedRecordIds?.map((id) => resolveLink(id, record.id))
+      recoveryRecords: record.recoveryRecordIds?.map((id) => resolveRecoveryLink(id, record.id))
     }));
     const steps = sourceModule.steps?.map((step) => ({
       ...step,
@@ -104,8 +96,7 @@ export async function loadBeginnerTutorialData(contentRoot: string): Promise<Beg
 function toRecordBase(record: TutorialSourceRecord): TutorialRecordBase {
   const {
     sourceIds: _sourceIds,
-    reuseRecordIds: _reuseRecordIds,
-    relatedRecordIds: _relatedRecordIds,
+    recoveryRecordIds: _recoveryRecordIds,
     ...base
   } = record;
   return base;
