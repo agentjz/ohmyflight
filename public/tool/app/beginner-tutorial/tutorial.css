@@ -8,7 +8,7 @@
 
 .tutorial-toolbar {
     display: grid;
-    grid-template-columns: auto minmax(220px, 520px) minmax(90px, 1fr);
+    grid-template-columns: auto minmax(220px, 520px) minmax(90px, 1fr) auto;
     gap: 12px;
     align-items: center;
     margin-bottom: 22px;
@@ -43,6 +43,49 @@
 .tutorial-toolbar > span {
     color: var(--soft-muted);
     font-size: 12px;
+}
+
+.tutorial-export-button {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 2px solid var(--soft-border);
+    border-radius: 0;
+    background: var(--soft-surface);
+    box-shadow: var(--hard-shadow-small);
+    color: var(--soft-ink);
+    font-size: 12px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.tutorial-export-button svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.tutorial-export-button:not(:disabled):hover,
+.tutorial-export-button:not(:disabled):focus-visible {
+    background: var(--soft-mint);
+    box-shadow: none;
+    color: var(--soft-on-pastel);
+    outline: 2px solid var(--soft-focus);
+    outline-offset: 2px;
+    transform: translate(2px, 2px);
+}
+
+.tutorial-export-button:disabled {
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .tutorial-layout {
@@ -545,6 +588,10 @@
 
     .tutorial-toolbar label {
         display: none;
+    }
+
+    .tutorial-export-button {
+        width: 100%;
     }
 
     .record-meta {

@@ -2,6 +2,10 @@ import "../../support-shell";
 import type { BeginnerTutorialData, TutorialModule, TutorialRecord } from "./types";
 import { isBeginnerTutorialData } from "./data-validation";
 import {
+    buildBeginnerTutorialMarkdown,
+    downloadBeginnerTutorialMarkdown
+} from "./markdown-export";
+import {
     recordSearchText,
     renderModule,
     renderNavigation,
@@ -13,6 +17,7 @@ const navigation = document.getElementById("tutorialNavigation");
 const content = document.getElementById("tutorialContent");
 const searchInput = document.getElementById("tutorialSearch");
 const searchStatus = document.getElementById("tutorialSearchStatus");
+const exportMarkdownButton = document.getElementById("exportMarkdownButton");
 
 let tutorialData: BeginnerTutorialData | null = null;
 let activeModuleId = "";
@@ -28,6 +33,7 @@ async function initialize(): Promise<void> {
         const data = await response.json() as unknown;
         if (!isBeginnerTutorialData(data)) throw new Error("菜鸟教程数据格式无效。");
         tutorialData = data;
+        if (exportMarkdownButton instanceof HTMLButtonElement) exportMarkdownButton.disabled = false;
         const initial = resolveHash(data);
         activeModuleId = initial.moduleId;
         renderActiveModule(initial.recordId);
@@ -70,6 +76,13 @@ function bindInteractions(): void {
         }
         updateSearchStatus(`找到 ${matches.length} 项`);
         content.innerHTML = renderSearchResults(query, matches);
+    });
+
+    exportMarkdownButton?.addEventListener("click", () => {
+        if (!tutorialData) return;
+        const markdown = buildBeginnerTutorialMarkdown(tutorialData);
+        downloadBeginnerTutorialMarkdown(markdown);
+        updateSearchStatus("Markdown 已导出");
     });
 }
 
