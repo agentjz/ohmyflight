@@ -239,6 +239,23 @@ const Utils = TrainingToolUtils;
     }
   }
 
+  function handleExportCrmDuplicate(): void {
+    if (!state.crmAnnualResult || !state.crmAnnualResult.duplicateRows || !state.crmAnnualResult.duplicateRows.length) {
+      controls.setStatus("当前年份没有可导出的 CRM 重复人员。", true);
+      return;
+    }
+
+    try {
+      writeWorkbook(
+        CrmExport.buildDuplicateWorkbook(state.crmAnnualResult),
+        Utils.buildOutputFileName(state.sourceFileName, `CRM_${state.crmAnnualResult.year}_重复人员`),
+        "CRM重复人员"
+      );
+    } catch (error) {
+      controls.setStatus(Utils.errorMessage(error, "导出 CRM 重复人员失败。"), true);
+    }
+  }
+
   function handleExportCrmMissing() {
     if (!state.crmAnnualResult || !state.crmAnnualResult.missingPeople || !state.crmAnnualResult.missingPeople.length) {
       controls.setStatus("当前年份没有可导出的 CRM 未参加人员。", true);
@@ -263,6 +280,7 @@ const Utils = TrainingToolUtils;
     handleExport,
     handleExportWorkbenchView,
     handleExportWorkbenchSelection,
+    handleExportCrmDuplicate,
     handleExportCrmMissing
   };
 }

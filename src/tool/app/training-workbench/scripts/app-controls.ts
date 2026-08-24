@@ -38,6 +38,12 @@ const COPY = runtime.copy;
     const canWorkbench = Boolean(state.analysis) && !state.busy;
     const canExportWorkbenchView = Boolean(state.workbenchView && state.workbenchView.detailRows && state.workbenchView.detailRows.length) && !state.busy;
     const canExportWorkbenchSelection = Boolean(state.workbenchSelection && state.workbenchSelection.rows && state.workbenchSelection.rows.length) && !state.busy;
+    const canExportCrmDuplicate = Boolean(
+      state.crmAnnualResult
+      && state.crmAnnualResult.hasCrmSheet
+      && state.crmAnnualResult.duplicateRows
+      && state.crmAnnualResult.duplicateRows.length
+    ) && !state.busy;
     const canExportCrmMissing = Boolean(
       state.crmAnnualResult
       && state.crmAnnualResult.hasCrmSheet
@@ -49,6 +55,7 @@ const COPY = runtime.copy;
     elements.workbenchButton.disabled = !canWorkbench;
     elements.exportWorkbenchViewButton.disabled = !canExportWorkbenchView;
     elements.exportWorkbenchSelectionButton.disabled = !canExportWorkbenchSelection;
+    elements.exportCrmDuplicateButton.disabled = !canExportCrmDuplicate;
     elements.exportCrmMissingButton.disabled = !canExportCrmMissing;
     elements.workbenchProjectSelect.disabled = !state.workbenchResult || state.busy;
     elements.workbenchStatusSelect.disabled = !state.workbenchResult || state.busy;

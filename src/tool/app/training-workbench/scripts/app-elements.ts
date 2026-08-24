@@ -61,6 +61,7 @@ function requireElement<T extends Element>(id: string, Type: { new(): T }): T {
     crmRoleChart: requireElement("crmRoleChart", HTMLElement),
     crmDuplicateSummary: requireElement("crmDuplicateSummary", HTMLElement),
     crmDuplicateBody: requireElement("crmDuplicateBody", HTMLTableSectionElement),
+    exportCrmDuplicateButton: requireElement("exportCrmDuplicateButton", HTMLButtonElement),
     crmMissingBody: requireElement("crmMissingBody", HTMLTableSectionElement),
     exportCrmMissingButton: requireElement("exportCrmMissingButton", HTMLButtonElement),
     exportWorkbenchSelectionButton: requireElement("exportWorkbenchSelectionButton", HTMLButtonElement),

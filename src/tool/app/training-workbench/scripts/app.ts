@@ -57,6 +57,7 @@ function init(runtime: TrainingToolAppRuntime): void {
   elements.workbenchButton.addEventListener("click", actions.handleWorkbenchPreview);
   elements.exportWorkbenchSelectionButton.addEventListener("click", actions.handleExportWorkbenchSelection);
   elements.exportWorkbenchViewButton.addEventListener("click", actions.handleExportWorkbenchView);
+  elements.exportCrmDuplicateButton.addEventListener("click", actions.handleExportCrmDuplicate);
   elements.exportCrmMissingButton.addEventListener("click", actions.handleExportCrmMissing);
   elements.exportButton.addEventListener("click", actions.handleExport);
 

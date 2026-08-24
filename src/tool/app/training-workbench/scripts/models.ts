@@ -412,6 +412,7 @@ export interface TrainingToolAppElements {
   crmRoleChart: HTMLElement;
   crmDuplicateSummary: HTMLElement;
   crmDuplicateBody: HTMLTableSectionElement;
+  exportCrmDuplicateButton: HTMLButtonElement;
   crmMissingBody: HTMLTableSectionElement;
   exportCrmMissingButton: HTMLButtonElement;
   exportWorkbenchSelectionButton: HTMLButtonElement;
@@ -534,6 +535,7 @@ export interface TrainingAppActions {
   handleExport(): void;
   handleExportWorkbenchView(): void;
   handleExportWorkbenchSelection(): void;
+  handleExportCrmDuplicate(): void;
   handleExportCrmMissing(): void;
 }
 
