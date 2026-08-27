@@ -1,5 +1,4 @@
-.developer-main,
-.manual-main {
+.developer-main {
     width: min(1160px, 100%);
 }
 
@@ -349,24 +348,6 @@
     text-align: center;
 }
 
-.manual-toolbar {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 20px;
-}
-
-.download-manuals {
-    cursor: pointer;
-}
-
-.download-manuals:disabled {
-    background: var(--soft-surface-muted);
-    box-shadow: none;
-    color: var(--soft-quiet);
-    cursor: not-allowed;
-    transform: translate(2px, 2px);
-}
-
 .toast {
     border: 2px solid var(--soft-border) !important;
     background: var(--soft-surface) !important;
@@ -409,9 +390,5 @@
     .skill-body {
         padding-right: 0;
         padding-left: 0;
-    }
-
-    .manual-toolbar .download-manuals {
-        width: 100%;
     }
 }

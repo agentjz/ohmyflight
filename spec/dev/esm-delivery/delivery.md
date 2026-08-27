@@ -15,7 +15,7 @@
 - 页面应用包和 source map；
 - `tool/app/proof-king/comparison-worker.js`；
 - Python APP 资产；
-- `tool/skills-data.json`、`tool/manuals-data.json` 与 `tool/beginner-tutorial-data.json`；
+- `tool/skills-data.json` 与 `tool/beginner-tutorial-data.json`；
 - `build-manifest.json`，记录页面源码、页面路径、输出文件和 SHA-256；
 - `version.json`，只记录提交事实，不写本地分支或构建时间。
 

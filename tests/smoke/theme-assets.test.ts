@@ -9,7 +9,6 @@ describe("shared theme assets", () => {
   const toolAppHtmlFiles = walkFiles(resolveFromDist("tool", "app"), [".html"]);
   const supportPageHtmlFiles = [
     resolveFromDist("tool", "developer.html"),
-    resolveFromDist("tool", "manuals.html"),
     resolveFromDist("memo", "index.html")
   ];
 

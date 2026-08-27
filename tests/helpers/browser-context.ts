@@ -9,7 +9,6 @@ type BrowserSandbox = Record<string, unknown> & {
   globalThis?: BrowserSandbox;
   __tools?: ToolItem[];
   __skills?: SkillItem[];
-  __manuals?: ManualItem[];
 };
 
 function createBaseSandbox(overrides: Record<string, unknown> = {}): BrowserSandbox {
@@ -67,8 +66,4 @@ export function loadToolsData() {
 
 export function loadSkillsData() {
   return JSON.parse(fs.readFileSync(resolveFromDist("tool", "skills-data.json"), "utf8")) as SkillItem[];
-}
-
-export function loadManualsData() {
-  return JSON.parse(fs.readFileSync(resolveFromDist("tool", "manuals-data.json"), "utf8")) as ManualItem[];
 }

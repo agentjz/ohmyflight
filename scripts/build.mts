@@ -18,7 +18,6 @@ const sourceRoot = path.join(projectRoot, "src");
 const staticRoot = path.join(projectRoot, "public");
 const distRoot = resolveDistRoot();
 const skillsRoot = path.join(projectRoot, ".agents", "skills");
-const userManualsRoot = path.join(projectRoot, "spec", "user");
 const beginnerTutorialContentRoot = path.join(sourceRoot, "tool", "app", "beginner-tutorial", "content");
 const execFileAsync = promisify(execFile);
 
@@ -42,7 +41,6 @@ function resolveDistRoot(): string {
 
 const pageEntries = [
   { source: "src/tool/tools-render.ts", output: "tool/app", page: "tool/index.html" },
-  { source: "src/tool/manuals.ts", output: "tool/manuals-app", page: "tool/manuals.html" },
   { source: "src/tool/developer.ts", output: "tool/developer-app", page: "tool/developer.html" },
   { source: "src/tool/app/beginner-tutorial/main.ts", output: "tool/app/beginner-tutorial/app", page: "tool/app/beginner-tutorial/index.html" },
   { source: "src/memo/site.ts", output: "memo/app", page: "memo/index.html" },
@@ -393,29 +391,6 @@ async function readToolCatalog(): Promise<Array<{ name: string; description: str
   return catalog;
 }
 
-function stripFrontmatter(source: string): string {
-  return source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "");
-}
-
-async function generateManualsDataFile() {
-  const manuals: Array<{ name: string; description: string; source: string; path: string }> = [];
-
-  for (const tool of await readToolCatalog()) {
-    const relativePath = `spec/user/${tool.entry}/manual.md`;
-    const source = await fs.readFile(path.join(projectRoot, relativePath), "utf8");
-    manuals.push({
-      name: tool.name,
-      description: tool.description,
-      source: source.trim(),
-      path: relativePath
-    });
-  }
-
-  const outputPath = path.join(distRoot, "tool", "manuals-data.json");
-  await fs.mkdir(path.dirname(outputPath), { recursive: true });
-  await fs.writeFile(outputPath, `${JSON.stringify(manuals)}\n`, "utf8");
-}
-
 async function generateBeginnerTutorialDataFile() {
   const tutorials = await loadBeginnerTutorialData(beginnerTutorialContentRoot);
   const outputPath = path.join(distRoot, "tool", "beginner-tutorial-data.json");
@@ -441,7 +416,6 @@ async function main() {
   }
 
   await generateSkillsDataFile();
-  await generateManualsDataFile();
   await generateBeginnerTutorialDataFile();
   await buildPageEntries();
   const standaloneRoot = await buildStandaloneApplicationBundles();

@@ -18,10 +18,3 @@ export interface SkillItem {
   source: string;
   path: string;
 }
-
-export interface ManualItem {
-  name: string;
-  description: string;
-  source: string;
-  path: string;
-}
