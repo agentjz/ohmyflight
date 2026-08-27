@@ -1,6 +1,6 @@
 <div align="center">
 
-# 看门狗🐕
+# 可见的和不可见的🐕
 
 [项目主页](https://luckymaomi.github.io/watchdog/) · [备忘录](https://luckymaomi.github.io/watchdog/memo/) · [GitHub](https://github.com/luckymaomi/watchdog)
 
