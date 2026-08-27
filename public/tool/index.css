@@ -499,11 +499,30 @@ button {
 
 .cooling-unlock {
     flex: 0 0 40px;
+    position: relative;
     width: 40px;
     height: 40px;
 }
 
+.cooling-unlock-flower {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--watchdog-accent-amber);
+    font-family: "Segoe UI Symbol", "Microsoft YaHei UI", sans-serif;
+    font-size: 18px;
+    line-height: 1;
+    pointer-events: none;
+    transform: translateY(-1px);
+    text-shadow: 1px 1px 0 color-mix(in srgb, var(--watchdog-accent-amber) 45%, var(--watchdog-surface));
+}
+
 .cooling-unlock input {
+    position: relative;
+    z-index: 1;
     width: 100%;
     height: 100%;
     padding: 0;
