@@ -2,7 +2,7 @@ import fs from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { loadSiteVisibility, loadSkillsData, loadToolsData } from "../helpers/browser-context";
+import { loadSkillsData, loadToolsData } from "../helpers/browser-context";
 import { resolveFromRoot } from "../helpers/paths";
 
 describe("tool index data", () => {
@@ -17,6 +17,23 @@ describe("tool index data", () => {
       expect(tool.status === "done" || tool.status === "wip").toBe(true);
       expect(["heavy", "light", "automation"]).toContain(tool.category);
     });
+  });
+
+  it("keeps the requested tools in the separate hidden area", () => {
+    const tools = loadToolsData() || [];
+    const hiddenEntries = tools
+      .filter((tool) => tool.homepageVisibility === "hidden" || tool.homepageState === "cooling")
+      .map((tool) => tool.entry);
+
+    expect(hiddenEntries).toEqual([
+      "beginner-tutorial",
+      "crew-match-name-id",
+      "personnel-structure-stats",
+      "lock-entry-helper",
+      "flight-stats-helper",
+      "session-bill-check",
+      "oa-read-helper"
+    ]);
   });
 
   it("keeps the README tool table synchronized with the tool list", () => {
@@ -50,16 +67,6 @@ describe("tool index data", () => {
     expect(homepage).toContain('data-default-category="all"');
   });
 
-  it("keeps only non-tool page switches in site visibility", () => {
-    const visibility = loadSiteVisibility();
-
-    expect(visibility.homepage).toMatchObject({
-      announcement: expect.any(Boolean),
-      sponsorEntry: expect.any(Boolean)
-    });
-    expect(visibility.sponsorPage).toMatchObject({ contributors: expect.any(Boolean) });
-  });
-
   it("keeps the top bar and searchable tool directory wiring", () => {
     const homepage = fs.readFileSync(resolveFromRoot("public", "tool", "index.html"), "utf8");
     const renderer = fs.readFileSync(resolveFromRoot("src", "tool", "tools-render.ts"), "utf8");
@@ -75,10 +82,11 @@ describe("tool index data", () => {
     expect(renderer).toContain('class="tool-status-switch"');
     expect(renderer).toContain("getVisibleToolRows");
     expect(renderer).toContain("coolingGateLogic.matches");
-    expect(renderer).toContain("coolingGateLogic.isToolVisible");
+    expect(renderer).toContain("coolingGateLogic.isHomepageToolHidden");
     expect(renderer).toContain("coolingGateLogic.registerClick");
-    expect(homepage).toContain('id="coolingUnlockForm"');
+    expect(homepage).toContain('id="coolingUnlockArea"');
     expect(homepage).toContain('id="coolingUnlockInput"');
+    expect(homepage).toContain('id="hiddenToolsView"');
   });
 
   it("publishes the current repository skills", () => {

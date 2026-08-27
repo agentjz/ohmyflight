@@ -4,15 +4,18 @@ export const RAPID_CLICK_WINDOW_MS = 700;
 export interface CoolingClickState {
     buttonKey: string;
     count: number;
-    firstClickedAt: number;
+    lastClickedAt: number;
 }
 
 export function matchesCoolingAccessKey(input: string): boolean {
     return input.trim().toLowerCase() === COOLING_ACCESS_KEY;
 }
 
-export function isCoolingToolVisible(homepageState: string | undefined, unlocked: boolean): boolean {
-    return unlocked || homepageState !== "cooling";
+export function isHomepageToolHidden(
+    homepageState: string | undefined,
+    homepageVisibility: string | undefined
+): boolean {
+    return homepageVisibility === "hidden" || homepageState === "cooling";
 }
 
 export function registerCoolingClick(
@@ -22,12 +25,12 @@ export function registerCoolingClick(
     windowMs = RAPID_CLICK_WINDOW_MS
 ): { state: CoolingClickState; matched: boolean } {
     const sameButton = state.buttonKey === buttonKey;
-    const withinWindow = timestamp >= state.firstClickedAt
-        && timestamp - state.firstClickedAt <= windowMs;
+    const withinWindow = timestamp >= state.lastClickedAt
+        && timestamp - state.lastClickedAt <= windowMs;
     const nextState: CoolingClickState = {
         buttonKey,
         count: sameButton && withinWindow ? state.count + 1 : 1,
-        firstClickedAt: sameButton && withinWindow ? state.firstClickedAt : timestamp
+        lastClickedAt: timestamp
     };
     return {
         state: nextState,
@@ -37,6 +40,6 @@ export function registerCoolingClick(
 
 export const coolingGateLogic = {
     matches: matchesCoolingAccessKey,
-    isToolVisible: isCoolingToolVisible,
+    isHomepageToolHidden,
     registerClick: registerCoolingClick
 };

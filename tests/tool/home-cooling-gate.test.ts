@@ -13,18 +13,18 @@ describe("home cooling gate", () => {
     expect(coolingGateLogic.matches("")).toBe(false);
   });
 
-  it("hides cooling tools until the gate is unlocked", () => {
-    expect(coolingGateLogic.isToolVisible("cooling", false)).toBe(false);
-    expect(coolingGateLogic.isToolVisible("cooling", true)).toBe(true);
-    expect(coolingGateLogic.isToolVisible("beta", false)).toBe(true);
-    expect(coolingGateLogic.isToolVisible(undefined, false)).toBe(true);
+  it("assigns cooling and explicitly hidden tools to the hidden area", () => {
+    expect(coolingGateLogic.isHomepageToolHidden("cooling", undefined)).toBe(true);
+    expect(coolingGateLogic.isHomepageToolHidden("beta", "hidden")).toBe(true);
+    expect(coolingGateLogic.isHomepageToolHidden("enabled", "hidden")).toBe(true);
+    expect(coolingGateLogic.isHomepageToolHidden("enabled", undefined)).toBe(false);
   });
 
   it("requires three rapid clicks on the same button", () => {
-    const initial = { buttonKey: "", count: 0, firstClickedAt: Number.NEGATIVE_INFINITY };
+    const initial = { buttonKey: "", count: 0, lastClickedAt: Number.NEGATIVE_INFINITY };
     const first = coolingGateLogic.registerClick(initial, "category-all", 1000);
-    const second = coolingGateLogic.registerClick(first.state, "category-all", 1200);
-    const third = coolingGateLogic.registerClick(second.state, "category-all", 1400);
+    const second = coolingGateLogic.registerClick(first.state, "category-all", 1600);
+    const third = coolingGateLogic.registerClick(second.state, "category-all", 2200);
 
     expect(first.matched).toBe(false);
     expect(second.matched).toBe(false);
@@ -32,10 +32,10 @@ describe("home cooling gate", () => {
   });
 
   it("resets the sequence when the button or timing changes", () => {
-    const initial = { buttonKey: "", count: 0, firstClickedAt: Number.NEGATIVE_INFINITY };
+    const initial = { buttonKey: "", count: 0, lastClickedAt: Number.NEGATIVE_INFINITY };
     const first = coolingGateLogic.registerClick(initial, "category-all", 1000);
     const differentButton = coolingGateLogic.registerClick(first.state, "category-heavy", 1100);
-    const delayed = coolingGateLogic.registerClick(differentButton.state, "category-heavy", 1900);
+    const delayed = coolingGateLogic.registerClick(differentButton.state, "category-heavy", 1801);
 
     expect(differentButton.state.count).toBe(1);
     expect(delayed.state.count).toBe(1);

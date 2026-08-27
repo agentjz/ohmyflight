@@ -1,6 +1,7 @@
 type ToolStatus = "done" | "wip";
 type ToolCategory = "heavy" | "light" | "automation";
 type ToolHomepageState = "enabled" | "beta" | "cooling";
+type ToolHomepageVisibility = "hidden";
 
 interface ToolItem {
   name: string;
@@ -9,11 +10,7 @@ interface ToolItem {
   status: ToolStatus;
   category: ToolCategory;
   homepageState?: ToolHomepageState;
-}
-
-interface SiteAnnouncement {
-  message: string;
-  href?: string;
+  homepageVisibility?: ToolHomepageVisibility;
 }
 
 interface SkillItem {

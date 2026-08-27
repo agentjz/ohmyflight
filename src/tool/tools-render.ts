@@ -1,7 +1,6 @@
-import { siteVisibility } from "../site-visibility";
 import { coolingGateLogic, type CoolingClickState } from "./cooling-gate-logic";
 import type { ToolCategory, ToolHomepageState, ToolItem } from "./models";
-import { announcement, tools } from "./tools-data";
+import { tools } from "./tools-data";
 
 const allToolRows: ToolItem[] = tools;
 const categoryLabels: Record<ToolCategory, string> = {
@@ -17,15 +16,13 @@ const homepageStateLabels: Record<ToolHomepageState, string> = {
 
 const searchInput = document.getElementById("searchInput");
 const toolList = document.getElementById("toolList");
+const hiddenToolsView = document.getElementById("hiddenToolsView");
+const hiddenToolList = document.getElementById("hiddenToolList");
 const emptyState = document.getElementById("emptyState");
 const resultToolCount = document.getElementById("resultToolCount");
 const categorySwitch = document.getElementById("categorySwitch");
-const announcementBanner = document.getElementById("announcementBanner");
-const announcementMessage = document.getElementById("announcementMessage");
-const announcementLink = document.getElementById("announcementLink");
-const announcementCta = document.getElementById("announcementCta");
 const homeThemeToggle = document.getElementById("homeThemeToggle");
-const coolingUnlockForm = document.getElementById("coolingUnlockForm");
+const coolingUnlockArea = document.getElementById("coolingUnlockArea");
 const coolingUnlockInput = document.getElementById("coolingUnlockInput");
 const coolingUnlockStatus = document.getElementById("coolingUnlockStatus");
 type HomepageCategory = ToolCategory | "all";
@@ -34,7 +31,7 @@ let coolingKeyAccepted = false;
 let coolingClickState: CoolingClickState = {
     buttonKey: "",
     count: 0,
-    firstClickedAt: Number.NEGATIVE_INFINITY
+    lastClickedAt: Number.NEGATIVE_INFINITY
 };
 
 const configuredDefaultCategory = categorySwitch instanceof HTMLElement
@@ -44,12 +41,12 @@ let activeCategory: HomepageCategory = isHomepageCategory(configuredDefaultCateg
     ? configuredDefaultCategory
     : "all";
 
-renderAnnouncement();
 bindHomeThemeToggle();
 
 if (
     searchInput instanceof HTMLInputElement
     && toolList instanceof HTMLElement
+    && hiddenToolList instanceof HTMLElement
     && emptyState instanceof HTMLElement
 ) {
     renderCategoryCounts();
@@ -62,32 +59,6 @@ if (
 
 function bindSearch(input: HTMLInputElement): void {
     input.addEventListener("input", applyFilters);
-}
-
-function renderAnnouncement(): void {
-    if (
-        !(announcementBanner instanceof HTMLElement)
-        || !(announcementMessage instanceof HTMLElement)
-        || typeof announcement !== "object"
-        || siteVisibility.homepage.announcement !== true
-    ) return;
-
-    announcementMessage.textContent = announcement.message;
-    const sponsorLinkEnabled = siteVisibility.homepage.sponsorEntry === true && Boolean(announcement.href);
-    if (announcementLink instanceof HTMLAnchorElement) {
-        announcementLink.classList.toggle("is-clickable", sponsorLinkEnabled);
-        if (sponsorLinkEnabled && announcement.href) {
-            announcementLink.href = announcement.href;
-            announcementLink.target = "_blank";
-            announcementLink.rel = "noopener noreferrer";
-        } else {
-            announcementLink.removeAttribute("href");
-            announcementLink.removeAttribute("target");
-            announcementLink.removeAttribute("rel");
-        }
-    }
-    if (announcementCta instanceof HTMLElement) announcementCta.hidden = !sponsorLinkEnabled;
-    announcementBanner.hidden = false;
 }
 
 function bindHomeThemeToggle(): void {
@@ -109,14 +80,17 @@ function bindHomeThemeToggle(): void {
 }
 
 function renderToolList(rows: ToolItem[]): void {
-    if (!(toolList instanceof HTMLElement) || !(emptyState instanceof HTMLElement)) return;
+    if (!(toolList instanceof HTMLElement)) return;
 
     toolList.innerHTML = rows
         .map((item) => renderToolListItem(item))
         .join("");
+}
 
-    emptyState.hidden = rows.length > 0;
-    if (resultToolCount instanceof HTMLElement) resultToolCount.textContent = `${rows.length} 项`;
+function renderHiddenToolList(rows: ToolItem[]): void {
+    if (!(hiddenToolsView instanceof HTMLElement) || !(hiddenToolList instanceof HTMLElement)) return;
+    hiddenToolList.innerHTML = rows.map((item) => renderToolListItem(item)).join("");
+    hiddenToolsView.hidden = !coolingToolsUnlocked || rows.length === 0;
 }
 
 function renderToolListItem(item: ToolItem): string {
@@ -165,38 +139,56 @@ function renderCurrentView(): void {
     ) return;
 
     syncCategoryButtons();
+    const rows = filterToolRows(getVisibleToolRows());
+    const hiddenRows = coolingToolsUnlocked ? filterToolRows(getHiddenToolRows()) : [];
+    renderHiddenToolList(hiddenRows);
+    const allRenderedRows = [...rows, ...hiddenRows];
+    renderToolList(rows);
+    if (emptyState instanceof HTMLElement) emptyState.hidden = allRenderedRows.length > 0;
+    if (resultToolCount instanceof HTMLElement) resultToolCount.textContent = `${allRenderedRows.length} 项`;
+}
+
+function filterToolRows(sourceRows: ToolItem[]): ToolItem[] {
+    if (!(searchInput instanceof HTMLInputElement)) return [];
     const query = searchInput.value.trim().toLowerCase();
-    const rows = getVisibleToolRows().filter((item) => {
+    return sourceRows.filter((item) => {
         const categoryMatches = activeCategory === "all" || item.category === activeCategory;
         const queryMatches = !query
             || `${item.name} ${item.desc} ${categoryLabels[item.category]}`.toLowerCase().includes(query);
         return categoryMatches && queryMatches;
     });
-    renderToolList(rows);
 }
 
 function renderCategoryCounts(): void {
-    const visibleToolRows = getVisibleToolRows();
+    const countedToolRows = coolingToolsUnlocked ? allToolRows : getVisibleToolRows();
     document.querySelectorAll<HTMLElement>("[data-category-count]").forEach((element) => {
         const category = element.dataset.categoryCount as ToolCategory | "all" | undefined;
         element.textContent = String(category === "all"
-            ? visibleToolRows.length
-            : visibleToolRows.filter((item) => item.category === category).length);
+            ? countedToolRows.length
+            : countedToolRows.filter((item) => item.category === category).length);
     });
 }
 
 function getVisibleToolRows(): ToolItem[] {
-    return allToolRows.filter((item) => coolingGateLogic.isToolVisible(
-        item.homepageState,
-        coolingToolsUnlocked
-    ));
+    return allToolRows.filter((item) => !isHiddenTool(item));
+}
+
+function getHiddenToolRows(): ToolItem[] {
+    return allToolRows.filter((item) => isHiddenTool(item));
+}
+
+function isHiddenTool(item: ToolItem): boolean {
+    return coolingGateLogic.isHomepageToolHidden(item.homepageState, item.homepageVisibility);
 }
 
 function bindCoolingUnlock(): void {
     if (
-        !(coolingUnlockForm instanceof HTMLFormElement)
+        !(coolingUnlockArea instanceof HTMLElement)
         || !(coolingUnlockInput instanceof HTMLInputElement)
+        || !(categorySwitch instanceof HTMLElement)
     ) return;
+    const allCategoryButton = categorySwitch.querySelector<HTMLButtonElement>('[data-category="all"]');
+    if (!allCategoryButton) return;
 
     coolingUnlockInput.addEventListener("input", () => {
         const accepted = coolingGateLogic.matches(coolingUnlockInput.value);
@@ -206,33 +198,14 @@ function bindCoolingUnlock(): void {
         showCoolingUnlockStatus(accepted ? "口令已接收" : "");
     });
 
-    coolingUnlockForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        if (!coolingGateLogic.matches(coolingUnlockInput.value)) {
-            showCoolingUnlockStatus("未通过");
-            coolingUnlockInput.value = "";
-            coolingKeyAccepted = false;
-            resetCoolingClicks();
-            coolingUnlockInput.classList.add("is-error");
-            window.setTimeout(() => coolingUnlockInput.classList.remove("is-error"), 420);
+    allCategoryButton.addEventListener("click", () => {
+        if (!coolingKeyAccepted || !coolingGateLogic.matches(coolingUnlockInput.value)) {
             return;
         }
 
-        coolingKeyAccepted = true;
-        resetCoolingClicks();
-        showCoolingUnlockStatus("口令已接收");
-    });
-
-    document.addEventListener("click", (event) => {
-        if (!coolingKeyAccepted || coolingToolsUnlocked) return;
-        const target = event.target;
-        if (!(target instanceof Element)) return;
-        const button = target.closest<HTMLButtonElement>("button");
-        if (!button) return;
-
         const result = coolingGateLogic.registerClick(
             coolingClickState,
-            getCoolingButtonKey(button),
+            "category-all",
             Date.now()
         );
         coolingClickState = result.state;
@@ -241,6 +214,7 @@ function bindCoolingUnlock(): void {
         coolingToolsUnlocked = true;
         coolingKeyAccepted = false;
         coolingUnlockInput.classList.add("is-unlocked");
+        coolingUnlockArea.hidden = true;
         showCoolingUnlockStatus("已显示隐藏工具");
         renderCategoryCounts();
         renderCurrentView();
@@ -251,15 +225,8 @@ function resetCoolingClicks(): void {
     coolingClickState = {
         buttonKey: "",
         count: 0,
-        firstClickedAt: Number.NEGATIVE_INFINITY
+        lastClickedAt: Number.NEGATIVE_INFINITY
     };
-}
-
-function getCoolingButtonKey(button: HTMLButtonElement): string {
-    return button.id
-        || button.dataset.category
-        || button.getAttribute("aria-label")
-        || button.className;
 }
 
 function showCoolingUnlockStatus(message: string): void {

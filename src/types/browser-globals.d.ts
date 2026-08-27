@@ -6,18 +6,9 @@ interface SiteConfig {
   bgVideo: string;
 }
 
-interface HomePatternGateLogic {
-  enabled: boolean;
-  pattern: number[];
-  appendNode(sequence: number[], node: number): number[];
-  matches(sequence: number[]): boolean;
-}
-
 interface Window {
   tools: ToolItem[];
-  announcement: SiteAnnouncement;
   skills: SkillItem[];
-  HomePatternGateLogic: HomePatternGateLogic;
   XLSX: XlsxGlobal;
   WatchdogTheme?: {
     getTheme(): "light" | "dark";
@@ -28,7 +19,6 @@ interface Window {
 }
 
 declare var tools: ToolItem[];
-declare var announcement: SiteAnnouncement;
 declare var skills: SkillItem[];
 
 declare const CONFIG: SiteConfig;

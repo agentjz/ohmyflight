@@ -9,11 +9,7 @@ export interface ToolItem {
   status: ToolStatus;
   category: ToolCategory;
   homepageState?: ToolHomepageState;
-}
-
-export interface SiteAnnouncement {
-  message: string;
-  href?: string;
+  homepageVisibility?: "hidden";
 }
 
 export interface SkillItem {

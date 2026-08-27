@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import vm from "node:vm";
 
-import { siteVisibility } from "../../src/site-visibility";
 import { tools } from "../../src/tool/tools-data";
 import { resolveFromDist } from "./paths";
 
@@ -9,7 +8,6 @@ type BrowserSandbox = Record<string, unknown> & {
   window?: BrowserSandbox;
   globalThis?: BrowserSandbox;
   __tools?: ToolItem[];
-  __siteVisibility?: SiteVisibilityConfig;
   __skills?: SkillItem[];
   __manuals?: ManualItem[];
 };
@@ -65,10 +63,6 @@ export function loadBrowserVendor(relativePath: string, overrides: Record<string
 
 export function loadToolsData() {
   return tools;
-}
-
-export function loadSiteVisibility(): SiteVisibilityConfig {
-  return siteVisibility;
 }
 
 export function loadSkillsData() {
