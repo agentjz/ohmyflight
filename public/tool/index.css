@@ -222,6 +222,12 @@ button {
     transform: translateY(-50%);
 }
 
+.category-controls {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    gap: 10px;
+}
+
 .category-switch {
     display: grid;
     grid-template-columns: repeat(4, minmax(max-content, 1fr));
@@ -244,15 +250,15 @@ button {
     transition: box-shadow 150ms ease-out, transform 150ms ease-out, background 150ms ease-out, color 150ms ease-out;
 }
 
-.category-button:nth-child(2) {
+.category-button[data-category="heavy"] {
     --category-accent: var(--soft-pink);
 }
 
-.category-button:nth-child(3) {
+.category-button[data-category="light"] {
     --category-accent: var(--soft-mint);
 }
 
-.category-button:nth-child(4) {
+.category-button[data-category="automation"] {
     --category-accent: var(--soft-amber);
 }
 
@@ -479,86 +485,30 @@ button {
     text-align: left;
 }
 
-.hidden-tools-view {
-    margin-top: 36px;
-    padding-top: 22px;
-    border-top: 2px solid var(--soft-border);
-}
-
-.hidden-tools-view[hidden],
-.cooling-unlock[hidden] {
-    display: none;
-}
-
-.hidden-tools-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-}
-
-.hidden-tools-heading h2 {
-    margin: 0;
-    color: var(--soft-muted);
-    font-family: "Cascadia Mono", Consolas, "Microsoft YaHei UI", monospace;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0;
-}
-
-.hidden-tools-view .is-cooling .tool-card-title,
-.hidden-tools-view .is-cooling .tool-state-label,
-.hidden-tools-view .is-cooling .tool-desc {
-    text-decoration-line: underline line-through;
-    text-decoration-thickness: 1px;
-}
-
 .cooling-unlock {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    margin-top: 24px;
-    opacity: .55;
-    transition: opacity 150ms ease-out;
-}
-
-.cooling-unlock:hover,
-.cooling-unlock:focus-within {
-    opacity: 1;
+    min-width: 0;
+    height: 44px;
 }
 
 .cooling-unlock input {
-    width: 104px;
-    height: 32px;
-    padding: 0 9px;
-    border: 1px solid var(--soft-border);
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
     outline: 0;
     background: transparent;
     box-shadow: none;
-    color: var(--soft-muted);
-    font: 11px/1 Consolas, monospace;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    caret-color: transparent;
+    font: 1px/1 Consolas, monospace;
     letter-spacing: 0;
-    transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+    cursor: text;
 }
 
-.cooling-unlock input::placeholder {
-    color: var(--soft-quiet);
-    opacity: 1;
-}
-
-.cooling-unlock input:focus {
-    border-color: var(--soft-focus);
-    box-shadow: var(--hard-shadow-focus);
-    outline: 1px solid var(--soft-focus);
-    outline-offset: 2px;
-}
-
-.cooling-unlock input.is-error {
-    border-color: var(--soft-danger);
-}
-
-.cooling-unlock input.is-unlocked {
-    border-color: var(--soft-success);
+.cooling-unlock input::selection {
+    background: transparent;
+    color: transparent;
 }
 
 @media (max-width: 1180px) {

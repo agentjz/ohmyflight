@@ -52,11 +52,25 @@
                 <div class="category-area">
                     <h2 id="toolIndexTitle" class="visually-hidden">工具索引</h2>
                     <span id="resultToolCount" class="visually-hidden" aria-live="polite">0 项</span>
-                    <div class="category-switch" id="categorySwitch" data-default-category="all" role="group" aria-label="工具分类">
-                        <button type="button" class="category-button" data-category="all" aria-pressed="false">全部 <span data-category-count="all">0</span></button>
-                        <button type="button" class="category-button" data-category="heavy" aria-pressed="false">重型 <span data-category-count="heavy">0</span></button>
-                        <button type="button" class="category-button" data-category="light" aria-pressed="false">轻型 <span data-category-count="light">0</span></button>
-                        <button type="button" class="category-button" data-category="automation" aria-pressed="false">自动化 <span data-category-count="automation">0</span></button>
+                    <div class="category-controls">
+                        <div class="cooling-unlock" id="coolingUnlockArea">
+                            <label class="visually-hidden" for="coolingUnlockInput">隐藏工具解锁输入</label>
+                            <input
+                                id="coolingUnlockInput"
+                                type="text"
+                                autocomplete="off"
+                                autocapitalize="off"
+                                spellcheck="false"
+                                aria-describedby="coolingUnlockStatus"
+                            >
+                            <span id="coolingUnlockStatus" class="visually-hidden" aria-live="polite"></span>
+                        </div>
+                        <div class="category-switch" id="categorySwitch" data-default-category="all" role="group" aria-label="工具分类">
+                            <button type="button" class="category-button" data-category="all" aria-pressed="false">全部 <span data-category-count="all">0</span></button>
+                            <button type="button" class="category-button" data-category="heavy" aria-pressed="false">重型 <span data-category-count="heavy">0</span></button>
+                            <button type="button" class="category-button" data-category="light" aria-pressed="false">轻型 <span data-category-count="light">0</span></button>
+                            <button type="button" class="category-button" data-category="automation" aria-pressed="false">自动化 <span data-category-count="automation">0</span></button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -65,28 +79,7 @@
                 <div class="tool-list" id="toolList"></div>
             </section>
 
-            <section class="hidden-tools-view" id="hiddenToolsView" aria-labelledby="hiddenToolsTitle" hidden>
-                <div class="hidden-tools-heading">
-                    <h2 id="hiddenToolsTitle">隐藏区</h2>
-                </div>
-                <div class="tool-list" id="hiddenToolList"></div>
-            </section>
-
             <div id="emptyState" class="empty-state" hidden>没找到。换个词再搜一次。</div>
-
-            <div class="cooling-unlock" id="coolingUnlockArea">
-                <label class="visually-hidden" for="coolingUnlockInput">隐藏区口令</label>
-                <input
-                    id="coolingUnlockInput"
-                    type="text"
-                    placeholder="口令"
-                    autocomplete="off"
-                    autocapitalize="off"
-                    spellcheck="false"
-                    aria-describedby="coolingUnlockStatus"
-                >
-                <span id="coolingUnlockStatus" class="visually-hidden" aria-live="polite"></span>
-            </div>
         </main>
     </div>
 

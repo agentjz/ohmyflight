@@ -19,7 +19,7 @@ describe("tool index data", () => {
     });
   });
 
-  it("keeps the requested tools in the separate hidden area", () => {
+  it("keeps the requested tools hidden until the easter egg is unlocked", () => {
     const tools = loadToolsData() || [];
     const hiddenEntries = tools
       .filter((tool) => tool.homepageVisibility === "hidden" || tool.homepageState === "cooling")
@@ -86,7 +86,7 @@ describe("tool index data", () => {
     expect(renderer).toContain("coolingGateLogic.registerClick");
     expect(homepage).toContain('id="coolingUnlockArea"');
     expect(homepage).toContain('id="coolingUnlockInput"');
-    expect(homepage).toContain('id="hiddenToolsView"');
+    expect(homepage.indexOf('id="coolingUnlockInput"')).toBeLessThan(homepage.indexOf('data-category="all"'));
   });
 
   it("publishes the current repository skills", () => {

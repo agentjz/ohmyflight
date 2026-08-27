@@ -16,8 +16,6 @@ const homepageStateLabels: Record<ToolHomepageState, string> = {
 
 const searchInput = document.getElementById("searchInput");
 const toolList = document.getElementById("toolList");
-const hiddenToolsView = document.getElementById("hiddenToolsView");
-const hiddenToolList = document.getElementById("hiddenToolList");
 const emptyState = document.getElementById("emptyState");
 const resultToolCount = document.getElementById("resultToolCount");
 const categorySwitch = document.getElementById("categorySwitch");
@@ -46,7 +44,6 @@ bindHomeThemeToggle();
 if (
     searchInput instanceof HTMLInputElement
     && toolList instanceof HTMLElement
-    && hiddenToolList instanceof HTMLElement
     && emptyState instanceof HTMLElement
 ) {
     renderCategoryCounts();
@@ -85,12 +82,6 @@ function renderToolList(rows: ToolItem[]): void {
     toolList.innerHTML = rows
         .map((item) => renderToolListItem(item))
         .join("");
-}
-
-function renderHiddenToolList(rows: ToolItem[]): void {
-    if (!(hiddenToolsView instanceof HTMLElement) || !(hiddenToolList instanceof HTMLElement)) return;
-    hiddenToolList.innerHTML = rows.map((item) => renderToolListItem(item)).join("");
-    hiddenToolsView.hidden = !coolingToolsUnlocked || rows.length === 0;
 }
 
 function renderToolListItem(item: ToolItem): string {
@@ -140,12 +131,9 @@ function renderCurrentView(): void {
 
     syncCategoryButtons();
     const rows = filterToolRows(getVisibleToolRows());
-    const hiddenRows = coolingToolsUnlocked ? filterToolRows(getHiddenToolRows()) : [];
-    renderHiddenToolList(hiddenRows);
-    const allRenderedRows = [...rows, ...hiddenRows];
     renderToolList(rows);
-    if (emptyState instanceof HTMLElement) emptyState.hidden = allRenderedRows.length > 0;
-    if (resultToolCount instanceof HTMLElement) resultToolCount.textContent = `${allRenderedRows.length} 项`;
+    if (emptyState instanceof HTMLElement) emptyState.hidden = rows.length > 0;
+    if (resultToolCount instanceof HTMLElement) resultToolCount.textContent = `${rows.length} 项`;
 }
 
 function filterToolRows(sourceRows: ToolItem[]): ToolItem[] {
@@ -160,7 +148,7 @@ function filterToolRows(sourceRows: ToolItem[]): ToolItem[] {
 }
 
 function renderCategoryCounts(): void {
-    const countedToolRows = coolingToolsUnlocked ? allToolRows : getVisibleToolRows();
+    const countedToolRows = getVisibleToolRows();
     document.querySelectorAll<HTMLElement>("[data-category-count]").forEach((element) => {
         const category = element.dataset.categoryCount as ToolCategory | "all" | undefined;
         element.textContent = String(category === "all"
@@ -170,11 +158,9 @@ function renderCategoryCounts(): void {
 }
 
 function getVisibleToolRows(): ToolItem[] {
-    return allToolRows.filter((item) => !isHiddenTool(item));
-}
-
-function getHiddenToolRows(): ToolItem[] {
-    return allToolRows.filter((item) => isHiddenTool(item));
+    return coolingToolsUnlocked
+        ? allToolRows
+        : allToolRows.filter((item) => !isHiddenTool(item));
 }
 
 function isHiddenTool(item: ToolItem): boolean {
@@ -213,8 +199,8 @@ function bindCoolingUnlock(): void {
 
         coolingToolsUnlocked = true;
         coolingKeyAccepted = false;
-        coolingUnlockInput.classList.add("is-unlocked");
-        coolingUnlockArea.hidden = true;
+        coolingUnlockInput.value = "";
+        coolingUnlockInput.blur();
         showCoolingUnlockStatus("已显示隐藏工具");
         renderCategoryCounts();
         renderCurrentView();
