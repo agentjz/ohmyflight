@@ -1,6 +1,5 @@
 export interface SiteVisibilityConfig {
     homepage: {
-        patternGate: boolean;
         announcement: boolean;
         sponsorEntry: boolean;
     };
@@ -11,7 +10,6 @@ export interface SiteVisibilityConfig {
 
 export const siteVisibility: SiteVisibilityConfig = {
     homepage: {
-        patternGate: false,
         announcement: true,
         sponsorEntry: true
     },

@@ -54,19 +54,17 @@ describe("tool index data", () => {
     const visibility = loadSiteVisibility();
 
     expect(visibility.homepage).toMatchObject({
-      patternGate: false,
       announcement: expect.any(Boolean),
       sponsorEntry: expect.any(Boolean)
     });
     expect(visibility.sponsorPage).toMatchObject({ contributors: expect.any(Boolean) });
   });
 
-  it("keeps the top bar, pattern gate and searchable tool directory wiring", () => {
+  it("keeps the top bar and searchable tool directory wiring", () => {
     const homepage = fs.readFileSync(resolveFromRoot("public", "tool", "index.html"), "utf8");
     const renderer = fs.readFileSync(resolveFromRoot("src", "tool", "tools-render.ts"), "utf8");
 
     expect(homepage).toContain('class="command-bar"');
-    expect(homepage).toContain('id="homePatternGate"');
     expect(homepage).toContain('data-default-theme="light"');
     expect(homepage).toContain('id="homeThemeToggle"');
     expect(homepage).toContain('src="../theme.js"');
@@ -75,7 +73,12 @@ describe("tool index data", () => {
     expect(renderer).toContain('class="tool-card');
     expect(renderer).toContain('class="tool-card-surface"');
     expect(renderer).toContain('class="tool-status-switch"');
-    expect(renderer).toContain('aria-disabled="true"');
+    expect(renderer).toContain("getVisibleToolRows");
+    expect(renderer).toContain("coolingGateLogic.matches");
+    expect(renderer).toContain("coolingGateLogic.isToolVisible");
+    expect(renderer).toContain("coolingGateLogic.registerClick");
+    expect(homepage).toContain('id="coolingUnlockForm"');
+    expect(homepage).toContain('id="coolingUnlockInput"');
   });
 
   it("publishes the current repository skills", () => {

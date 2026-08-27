@@ -1,6 +1,5 @@
 interface SiteVisibilityConfig {
   homepage: {
-    patternGate: boolean;
     announcement: boolean;
     sponsorEntry: boolean;
   };

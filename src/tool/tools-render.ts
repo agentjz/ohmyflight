@@ -1,5 +1,5 @@
 import { siteVisibility } from "../site-visibility";
-import "./home-pattern-gate";
+import { coolingGateLogic, type CoolingClickState } from "./cooling-gate-logic";
 import type { ToolCategory, ToolHomepageState, ToolItem } from "./models";
 import { announcement, tools } from "./tools-data";
 
@@ -25,7 +25,17 @@ const announcementMessage = document.getElementById("announcementMessage");
 const announcementLink = document.getElementById("announcementLink");
 const announcementCta = document.getElementById("announcementCta");
 const homeThemeToggle = document.getElementById("homeThemeToggle");
+const coolingUnlockForm = document.getElementById("coolingUnlockForm");
+const coolingUnlockInput = document.getElementById("coolingUnlockInput");
+const coolingUnlockStatus = document.getElementById("coolingUnlockStatus");
 type HomepageCategory = ToolCategory | "all";
+let coolingToolsUnlocked = false;
+let coolingKeyAccepted = false;
+let coolingClickState: CoolingClickState = {
+    buttonKey: "",
+    count: 0,
+    firstClickedAt: Number.NEGATIVE_INFINITY
+};
 
 const configuredDefaultCategory = categorySwitch instanceof HTMLElement
     ? categorySwitch.dataset.defaultCategory
@@ -47,6 +57,7 @@ if (
     bindSearch(searchInput);
     bindCategorySwitch();
     bindSearchShortcut(searchInput);
+    bindCoolingUnlock();
 }
 
 function bindSearch(input: HTMLInputElement): void {
@@ -110,7 +121,6 @@ function renderToolList(rows: ToolItem[]): void {
 
 function renderToolListItem(item: ToolItem): string {
     const state = item.homepageState || "enabled";
-    const enabled = state === "enabled" || state === "beta";
     const stateLabel = homepageStateLabels[state];
     const content = `
         <div class="tool-card-heading">
@@ -125,10 +135,8 @@ function renderToolListItem(item: ToolItem): string {
         <p class="tool-desc">${escapeHtml(item.desc)}</p>
     `;
     return `
-        <article class="tool-card is-${escapeHtml(state)} ${enabled ? "is-enabled" : "is-inactive"}">
-            ${enabled
-                ? `<a class="tool-card-surface" href="${escapeHtml(resolveToolUrl(item))}" target="_blank" rel="noopener noreferrer">${content}</a>`
-                : `<div class="tool-card-surface" aria-disabled="true">${content}</div>`}
+        <article class="tool-card is-${escapeHtml(state)} is-enabled">
+            <a class="tool-card-surface" href="${escapeHtml(resolveToolUrl(item))}" target="_blank" rel="noopener noreferrer">${content}</a>
             <a
                 class="tool-card-download"
                 href="${escapeHtml(resolveToolExportUrl(item))}"
@@ -158,7 +166,7 @@ function renderCurrentView(): void {
 
     syncCategoryButtons();
     const query = searchInput.value.trim().toLowerCase();
-    const rows = allToolRows.filter((item) => {
+    const rows = getVisibleToolRows().filter((item) => {
         const categoryMatches = activeCategory === "all" || item.category === activeCategory;
         const queryMatches = !query
             || `${item.name} ${item.desc} ${categoryLabels[item.category]}`.toLowerCase().includes(query);
@@ -168,12 +176,94 @@ function renderCurrentView(): void {
 }
 
 function renderCategoryCounts(): void {
+    const visibleToolRows = getVisibleToolRows();
     document.querySelectorAll<HTMLElement>("[data-category-count]").forEach((element) => {
         const category = element.dataset.categoryCount as ToolCategory | "all" | undefined;
         element.textContent = String(category === "all"
-            ? allToolRows.length
-            : allToolRows.filter((item) => item.category === category).length);
+            ? visibleToolRows.length
+            : visibleToolRows.filter((item) => item.category === category).length);
     });
+}
+
+function getVisibleToolRows(): ToolItem[] {
+    return allToolRows.filter((item) => coolingGateLogic.isToolVisible(
+        item.homepageState,
+        coolingToolsUnlocked
+    ));
+}
+
+function bindCoolingUnlock(): void {
+    if (
+        !(coolingUnlockForm instanceof HTMLFormElement)
+        || !(coolingUnlockInput instanceof HTMLInputElement)
+    ) return;
+
+    coolingUnlockInput.addEventListener("input", () => {
+        const accepted = coolingGateLogic.matches(coolingUnlockInput.value);
+        if (accepted === coolingKeyAccepted) return;
+        coolingKeyAccepted = accepted;
+        resetCoolingClicks();
+        showCoolingUnlockStatus(accepted ? "口令已接收" : "");
+    });
+
+    coolingUnlockForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (!coolingGateLogic.matches(coolingUnlockInput.value)) {
+            showCoolingUnlockStatus("未通过");
+            coolingUnlockInput.value = "";
+            coolingKeyAccepted = false;
+            resetCoolingClicks();
+            coolingUnlockInput.classList.add("is-error");
+            window.setTimeout(() => coolingUnlockInput.classList.remove("is-error"), 420);
+            return;
+        }
+
+        coolingKeyAccepted = true;
+        resetCoolingClicks();
+        showCoolingUnlockStatus("口令已接收");
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!coolingKeyAccepted || coolingToolsUnlocked) return;
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const button = target.closest<HTMLButtonElement>("button");
+        if (!button) return;
+
+        const result = coolingGateLogic.registerClick(
+            coolingClickState,
+            getCoolingButtonKey(button),
+            Date.now()
+        );
+        coolingClickState = result.state;
+        if (!result.matched) return;
+
+        coolingToolsUnlocked = true;
+        coolingKeyAccepted = false;
+        coolingUnlockInput.classList.add("is-unlocked");
+        showCoolingUnlockStatus("已显示隐藏工具");
+        renderCategoryCounts();
+        renderCurrentView();
+    });
+}
+
+function resetCoolingClicks(): void {
+    coolingClickState = {
+        buttonKey: "",
+        count: 0,
+        firstClickedAt: Number.NEGATIVE_INFINITY
+    };
+}
+
+function getCoolingButtonKey(button: HTMLButtonElement): string {
+    return button.id
+        || button.dataset.category
+        || button.getAttribute("aria-label")
+        || button.className;
+}
+
+function showCoolingUnlockStatus(message: string): void {
+    if (coolingUnlockStatus instanceof HTMLElement) coolingUnlockStatus.textContent = message;
 }
 
 function bindCategorySwitch(): void {

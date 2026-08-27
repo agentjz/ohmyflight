@@ -32,10 +32,6 @@ button {
     border: 0;
 }
 
-body.is-gated {
-    overflow: hidden;
-}
-
 .visually-hidden {
     position: absolute !important;
     width: 1px !important;
@@ -46,137 +42,6 @@ body.is-gated {
     clip: rect(0, 0, 0, 0) !important;
     white-space: nowrap !important;
     border: 0 !important;
-}
-
-.pattern-gate {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: grid;
-    min-width: 320px;
-    place-items: center;
-    background: var(--soft-bg);
-    color: var(--soft-ink);
-    transition: opacity 180ms ease-out;
-}
-
-.pattern-gate[hidden] {
-    display: none;
-}
-
-.pattern-gate.is-unlocking {
-    opacity: 0;
-}
-
-.pattern-gate-inner {
-    width: min(100% - 40px, 340px);
-    padding: 26px;
-    border: 2px solid var(--soft-border);
-    background: var(--soft-surface);
-    box-shadow: var(--hard-shadow-large);
-    transition: opacity 180ms ease-out, transform 180ms ease-out;
-}
-
-.pattern-gate.is-unlocking .pattern-gate-inner {
-    opacity: 0;
-    transform: translate(3px, 3px);
-}
-
-.pattern-board {
-    position: relative;
-    display: grid;
-    width: min(66vw, 252px);
-    aspect-ratio: 1;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    align-items: center;
-    justify-items: center;
-    margin: 0 auto;
-    cursor: crosshair;
-    touch-action: none;
-    user-select: none;
-}
-
-.pattern-lines {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    pointer-events: none;
-}
-
-.pattern-lines polyline,
-.pattern-lines line {
-    fill: none;
-    stroke: var(--soft-sky);
-    stroke-linecap: square;
-    stroke-linejoin: miter;
-    stroke-width: 5;
-}
-
-.pattern-dot {
-    position: relative;
-    z-index: 2;
-    width: 52px;
-    height: 52px;
-    padding: 0;
-    border: 2px solid var(--soft-border);
-    background: var(--soft-surface);
-    box-shadow: var(--hard-shadow-medium);
-    cursor: pointer;
-    transition: box-shadow 150ms ease-out, transform 150ms ease-out, background 150ms ease-out;
-}
-
-.pattern-dot::after {
-    position: absolute;
-    inset: 18px;
-    background: var(--soft-quiet);
-    content: "";
-}
-
-.pattern-dot:hover,
-.pattern-dot:focus-visible {
-    box-shadow: none;
-    outline: 2px solid var(--soft-focus);
-    outline-offset: 3px;
-    transform: translate(2px, 2px);
-}
-
-.pattern-dot.is-selected {
-    background: var(--soft-sky);
-    box-shadow: none;
-    transform: translate(3px, 3px);
-}
-
-.pattern-dot.is-selected::after {
-    background: var(--soft-on-pastel);
-}
-
-.pattern-gate.is-error .pattern-lines polyline,
-.pattern-gate.is-error .pattern-lines line {
-    stroke: var(--soft-danger);
-}
-
-.pattern-gate.is-error .pattern-dot.is-selected {
-    background: color-mix(in srgb, var(--soft-danger) 72%, var(--soft-surface));
-}
-
-.pattern-gate.is-error .pattern-dot.is-selected::after {
-    background: var(--soft-on-pastel);
-}
-
-.pattern-gate.is-success .pattern-lines polyline,
-.pattern-gate.is-success .pattern-lines line {
-    stroke: var(--soft-success);
-}
-
-.pattern-gate.is-success .pattern-dot.is-selected {
-    background: var(--soft-mint);
-}
-
-.pattern-gate.is-success .pattern-dot.is-selected::after {
-    background: var(--soft-on-pastel);
 }
 
 .announcement-banner {
@@ -540,10 +405,6 @@ body.is-gated {
     outline-offset: 3px;
 }
 
-.is-inactive .tool-card-download {
-    color: var(--soft-quiet);
-}
-
 .tool-download-icon {
     width: 18px;
     height: 18px;
@@ -568,13 +429,6 @@ body.is-gated {
     box-shadow: var(--hard-shadow-focus);
     outline: 2px solid var(--soft-focus);
     outline-offset: 3px;
-}
-
-.is-inactive .tool-card-surface {
-    background: var(--soft-surface-muted);
-    box-shadow: var(--hard-shadow-small);
-    color: var(--soft-quiet);
-    cursor: not-allowed;
 }
 
 .tool-card-heading {
@@ -663,11 +517,6 @@ body.is-gated {
     color: var(--soft-on-pastel);
 }
 
-.is-inactive .tool-card-title,
-.is-inactive .tool-desc {
-    color: var(--soft-cooling);
-}
-
 .empty-state {
     padding: 46px 24px;
     border: 2px solid var(--soft-border);
@@ -677,6 +526,52 @@ body.is-gated {
     font-family: "Cascadia Mono", Consolas, "Microsoft YaHei UI", monospace;
     font-size: 13px;
     text-align: left;
+}
+
+.cooling-unlock {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.cooling-unlock input {
+    width: 72px;
+    height: 24px;
+    padding: 0 7px;
+    border: 1px solid var(--soft-border);
+    outline: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--soft-muted);
+    font: 10px/1 Consolas, monospace;
+    letter-spacing: 1px;
+    opacity: .45;
+    transition: border-color 150ms ease-out, box-shadow 150ms ease-out, opacity 150ms ease-out;
+}
+
+.cooling-unlock input::placeholder {
+    color: var(--soft-quiet);
+    opacity: 1;
+}
+
+.cooling-unlock input:hover,
+.cooling-unlock input:focus {
+    opacity: 1;
+}
+
+.cooling-unlock input:focus {
+    border-color: var(--soft-focus);
+    box-shadow: var(--hard-shadow-focus);
+    outline: 1px solid var(--soft-focus);
+    outline-offset: 2px;
+}
+
+.cooling-unlock input.is-error {
+    border-color: var(--soft-danger);
+}
+
+.cooling-unlock input.is-unlocked {
+    border-color: var(--soft-success);
 }
 
 @media (max-width: 1180px) {
@@ -740,11 +635,6 @@ body.is-gated {
 }
 
 @media (max-width: 520px) {
-    .pattern-gate-inner {
-        width: calc(100% - 32px);
-        padding: 18px;
-    }
-
     .external-actions {
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;

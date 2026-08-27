@@ -8,36 +8,15 @@
     <link rel="stylesheet" href="../theme.css">
     <link rel="stylesheet" href="./index.css">
 </head>
-<body class="is-gated">
-    <div class="pattern-gate" id="homePatternGate" role="dialog" aria-modal="true" aria-label="首页图案验证">
-        <div class="pattern-gate-inner">
-            <div class="pattern-board" id="homePatternBoard" aria-label="访问图案">
-                <svg class="pattern-lines" aria-hidden="true">
-                    <polyline id="homePatternPath" points=""></polyline>
-                    <line id="homePatternTrail" hidden></line>
-                </svg>
-                <button type="button" class="pattern-dot" data-pattern-node="1" aria-label="图案点 1"></button>
-                <button type="button" class="pattern-dot" data-pattern-node="2" aria-label="图案点 2"></button>
-                <button type="button" class="pattern-dot" data-pattern-node="3" aria-label="图案点 3"></button>
-                <button type="button" class="pattern-dot" data-pattern-node="4" aria-label="图案点 4"></button>
-                <button type="button" class="pattern-dot" data-pattern-node="5" aria-label="图案点 5"></button>
-                <button type="button" class="pattern-dot" data-pattern-node="6" aria-label="图案点 6"></button>
-                <button type="button" class="pattern-dot" data-pattern-node="7" aria-label="图案点 7"></button>
-                <button type="button" class="pattern-dot" data-pattern-node="8" aria-label="图案点 8"></button>
-                <button type="button" class="pattern-dot" data-pattern-node="9" aria-label="图案点 9"></button>
-            </div>
-            <p class="visually-hidden" id="homePatternStatus" aria-live="polite"></p>
-        </div>
-    </div>
-
-    <aside class="announcement-banner" id="announcementBanner" aria-label="首页公告" hidden inert>
+<body>
+    <aside class="announcement-banner" id="announcementBanner" aria-label="首页公告" hidden>
         <a class="announcement-link" id="announcementLink">
             <span id="announcementMessage"></span>
             <span class="announcement-cta" id="announcementCta" hidden>参与项目 👉</span>
         </a>
     </aside>
 
-    <div class="page-shell" inert>
+    <div class="page-shell">
         <header class="command-bar">
             <a class="brand-lockup" href="./index.html" aria-label="看门狗首页">
                 <span class="brand-copy">
@@ -94,6 +73,20 @@
             </section>
 
             <div id="emptyState" class="empty-state" hidden>没找到。换个词再搜一次。</div>
+
+            <form class="cooling-unlock" id="coolingUnlockForm">
+                <label class="visually-hidden" for="coolingUnlockInput">隐藏工具入口</label>
+                <input
+                    id="coolingUnlockInput"
+                    type="password"
+                    placeholder="•••"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    aria-describedby="coolingUnlockStatus"
+                >
+                <span id="coolingUnlockStatus" class="visually-hidden" aria-live="polite"></span>
+            </form>
         </main>
     </div>
 
