@@ -116,6 +116,10 @@ button {
     font-weight: 700;
 }
 
+.header-link[hidden] {
+    display: none;
+}
+
 .header-symbol {
     color: var(--soft-quiet);
     font-family: Consolas, "Microsoft YaHei UI", monospace;
@@ -164,6 +168,7 @@ button {
 }
 
 .tool-controls {
+    --home-control-height: 44px;
     display: grid;
     grid-template-columns: minmax(300px, 1fr) minmax(470px, auto);
     gap: 36px;
@@ -183,7 +188,7 @@ button {
 
 .search-field input {
     width: 100%;
-    height: 56px;
+    height: var(--home-control-height);
     padding: 0 56px 0 18px;
     border: 2px solid var(--soft-border);
     outline: 0;
@@ -222,12 +227,6 @@ button {
     transform: translateY(-50%);
 }
 
-.category-controls {
-    display: grid;
-    grid-template-columns: 20px minmax(0, 1fr);
-    gap: 10px;
-}
-
 .category-switch {
     display: grid;
     grid-template-columns: repeat(4, minmax(max-content, 1fr));
@@ -236,7 +235,7 @@ button {
 
 .category-button {
     min-width: 0;
-    height: 44px;
+    height: var(--home-control-height);
     padding: 0 13px;
     border: 2px solid var(--soft-border);
     background: var(--soft-surface);
@@ -427,6 +426,19 @@ button {
     --card-accent: var(--soft-surface-muted);
 }
 
+.is-cooling .tool-card-surface,
+.is-cooling .tool-card-surface:hover {
+    background: var(--soft-surface-muted);
+}
+
+.is-cooling .tool-card-surface:hover .tool-card-title {
+    color: var(--soft-ink);
+}
+
+.is-cooling .tool-card-surface:hover .tool-desc {
+    color: var(--soft-muted);
+}
+
 .is-cooling .tool-state-label {
     color: var(--soft-cooling);
 }
@@ -486,17 +498,18 @@ button {
 }
 
 .cooling-unlock {
-    min-width: 0;
-    height: 44px;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
 }
 
 .cooling-unlock input {
     width: 100%;
     height: 100%;
     padding: 0;
-    border: 0;
+    border: 2px solid var(--soft-border);
     outline: 0;
-    background: transparent;
+    background: var(--soft-surface);
     box-shadow: none;
     color: transparent;
     -webkit-text-fill-color: transparent;

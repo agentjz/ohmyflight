@@ -27,6 +27,8 @@ describe("tool index data", () => {
 
     expect(hiddenEntries).toEqual([
       "beginner-tutorial",
+      "training-workbench",
+      "seasonal-learning",
       "crew-match-name-id",
       "personnel-structure-stats",
       "lock-entry-helper",
@@ -74,19 +76,25 @@ describe("tool index data", () => {
     expect(homepage).toContain('class="command-bar"');
     expect(homepage).toContain('data-default-theme="light"');
     expect(homepage).toContain('id="homeThemeToggle"');
+    expect(homepage).toContain('id="csn2apiLink"');
+    expect(homepage).toContain('href="https://luckymaomi.github.io/csn2api"');
+    expect(homepage).toMatch(/id="csn2apiLink"[^>]*\shidden(?:\s|>)/);
+    expect(homepage).not.toContain('aria-label="GitHub"');
     expect(homepage).toContain('src="../theme.js"');
     expect(homepage).toContain('id="searchInput"');
     expect(homepage).toContain('id="resultToolCount"');
     expect(renderer).toContain('class="tool-card');
     expect(renderer).toContain('class="tool-card-surface"');
     expect(renderer).toContain('class="tool-status-switch"');
+    expect(renderer).toContain('cooling: "已弃用"');
     expect(renderer).toContain("getVisibleToolRows");
     expect(renderer).toContain("coolingGateLogic.matches");
     expect(renderer).toContain("coolingGateLogic.isHomepageToolHidden");
     expect(renderer).toContain("coolingGateLogic.registerClick");
+    expect(renderer).toContain("csn2apiLink.hidden = false");
     expect(homepage).toContain('id="coolingUnlockArea"');
     expect(homepage).toContain('id="coolingUnlockInput"');
-    expect(homepage.indexOf('id="coolingUnlockInput"')).toBeLessThan(homepage.indexOf('data-category="all"'));
+    expect(homepage.indexOf('id="coolingUnlockInput"')).toBeLessThan(homepage.indexOf('href="../memo/index.html"'));
   });
 
   it("publishes the current repository skills", () => {

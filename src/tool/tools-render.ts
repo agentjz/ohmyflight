@@ -11,7 +11,7 @@ const categoryLabels: Record<ToolCategory, string> = {
 const homepageStateLabels: Record<ToolHomepageState, string> = {
     enabled: "已启用",
     beta: "Beta 测试",
-    cooling: "冷却中"
+    cooling: "已弃用"
 };
 
 const searchInput = document.getElementById("searchInput");
@@ -20,6 +20,7 @@ const emptyState = document.getElementById("emptyState");
 const resultToolCount = document.getElementById("resultToolCount");
 const categorySwitch = document.getElementById("categorySwitch");
 const homeThemeToggle = document.getElementById("homeThemeToggle");
+const csn2apiLink = document.getElementById("csn2apiLink");
 const coolingUnlockArea = document.getElementById("coolingUnlockArea");
 const coolingUnlockInput = document.getElementById("coolingUnlockInput");
 const coolingUnlockStatus = document.getElementById("coolingUnlockStatus");
@@ -201,6 +202,7 @@ function bindCoolingUnlock(): void {
         coolingKeyAccepted = false;
         coolingUnlockInput.value = "";
         coolingUnlockInput.blur();
+        if (csn2apiLink instanceof HTMLAnchorElement) csn2apiLink.hidden = false;
         showCoolingUnlockStatus("已显示隐藏工具");
         renderCategoryCounts();
         renderCurrentView();
