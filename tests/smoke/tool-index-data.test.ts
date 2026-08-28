@@ -31,8 +31,10 @@ describe("tool index data", () => {
       "seasonal-learning",
       "audit-king",
       "crew-match-name-id",
+      "word-template-filler",
       "pdf-tool",
       "image-tool",
+      "text-joiner",
       "personnel-structure-stats",
       "lock-entry-helper",
       "flight-stats-helper",
@@ -91,6 +93,8 @@ describe("tool index data", () => {
     expect(renderer).toContain('class="tool-status-switch"');
     expect(renderer).toContain('cooling: "已弃用"');
     expect(renderer).toContain("getVisibleToolRows");
+    expect(renderer).toContain("renderToolGrid(publicRows)");
+    expect(renderer).toContain("renderToolGrid(hiddenRows)");
     expect(renderer).toContain("coolingGateLogic.matches");
     expect(renderer).toContain("coolingGateLogic.isHomepageToolHidden");
     expect(renderer).toContain("coolingGateLogic.registerClick");

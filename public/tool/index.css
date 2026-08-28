@@ -294,6 +294,11 @@ button {
 
 .tool-list {
     display: grid;
+    gap: 32px;
+}
+
+.tool-grid {
+    display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 20px;
 }
@@ -553,13 +558,13 @@ button {
         width: 100%;
     }
 
-    .tool-list {
+    .tool-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 920px) {
-    .tool-list {
+    .tool-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
@@ -593,7 +598,7 @@ button {
         display: none;
     }
 
-    .tool-list {
+    .tool-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
@@ -608,7 +613,7 @@ button {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .tool-list {
+    .tool-grid {
         grid-template-columns: 1fr;
     }
 

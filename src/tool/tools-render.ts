@@ -80,9 +80,20 @@ function bindHomeThemeToggle(): void {
 function renderToolList(rows: ToolItem[]): void {
     if (!(toolList instanceof HTMLElement)) return;
 
-    toolList.innerHTML = rows
-        .map((item) => renderToolListItem(item))
-        .join("");
+    const publicRows = rows.filter((item) => !isHiddenTool(item));
+    const hiddenRows = coolingToolsUnlocked
+        ? rows.filter((item) => isHiddenTool(item))
+        : [];
+
+    toolList.innerHTML = [
+        renderToolGrid(publicRows),
+        renderToolGrid(hiddenRows)
+    ].filter(Boolean).join("");
+}
+
+function renderToolGrid(rows: ToolItem[]): string {
+    if (!rows.length) return "";
+    return `<div class="tool-grid">${rows.map((item) => renderToolListItem(item)).join("")}</div>`;
 }
 
 function renderToolListItem(item: ToolItem): string {
