@@ -16,31 +16,30 @@ afterEach(async () => {
 });
 
 describe("菜鸟教程知识装配", () => {
-  it("装配同型别转入独立路径并阻断转机型经历链误用", async () => {
+  it("装配同型别转入独立路径并区分临时与非临时要求", async () => {
     const data = await loadBeginnerTutorialData(contentRoot);
     const sameType = findRecord(data, "same-type-transfer-path");
 
     expect(sameType.status).toBe("confirmed");
-    expect(sameType.category).toBe("转入人员分流");
-    expect(sameType.audience).toContain("相同组类同一型别");
-    expect(sameType.action).toContain("不安排副驾驶或机长转机型训练");
-    expect(sameType.action).toContain("CCAR-121.465熟练检查");
-    expect(sameType.lifecycle).toContain("训练和检查合格不等于运行权限自动生效");
-    expect(sectionText(sameType, "1. 先确认是否属于转机型")).toContain("不进入副驾驶A1→A2的25小时监视经历链");
-    expect(sectionText(sameType, "3. 非临时同型别转入")).toContain("向局方申请缩减复训课程");
-    expect(sectionText(sameType, "4. 临时转入的边界")).toContain("CCAR-121.415");
-    expect(sectionText(sameType, "5. 原公司运行资质恢复")).toContain("具有B777机型资质");
-    expect(sectionText(sameType, "6. 原资格或近期经历已失效")).toContain("重新获得资格训练模块");
+    expect(sameType.category).toBe("外公司飞行人员转入");
+    expect(sameType.audience).toContain("同型别飞行人员");
+    expect(sameType.summary).toContain("临时转入人员按CCAR-121部第415条");
+    expect(sameType.summary).toContain("非临时同型别转入人员可向局方申请");
+    expect(sectionText(sameType, "1. 适用范围")).toContain("相同组类不同型别飞机");
+    expect(sectionText(sameType, "2. 临时转入人员")).toContain("CCAR-121部第121.439条完整复训要求");
+    expect(sectionText(sameType, "2. 临时转入人员")).toContain("CCAR-121部第121.465条要求的熟练检查");
+    expect(sectionText(sameType, "2. 临时转入人员")).toContain("第457条有关新职位的运行经历要求");
+    expect(sectionText(sameType, "3. 非临时同型别转入")).toContain("向局方申请使用缩减的复训课程");
+    expect(sectionText(sameType, "3. 非临时同型别转入")).toContain("理论课程、模拟机训练和熟练检查");
+    expect(sectionText(sameType, "4. B777机型运行资质恢复")).toContain("具有B777机型资质");
+    expect(sectionText(sameType, "5. 失去近期经历要求或资格")).toContain("重新获得资格训练提纲");
     expect(sameType.sources.map((source) => source.id)).toEqual([
       "training-2",
       "technical-1",
-      "technical-3",
-      "technical-5",
-      "technical-H"
+      "technical-3"
     ]);
     expect(sameType.recoveryRecords?.map((record) => record.targetId)).toEqual([
       "recovery-recency",
-      "recovery-line-flying-interruption",
       "recovery-overdue",
       "recovery-proficiency-failure-copilot",
       "recovery-proficiency-failure-captain"
