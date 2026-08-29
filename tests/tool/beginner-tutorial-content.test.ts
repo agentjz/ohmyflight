@@ -16,6 +16,37 @@ afterEach(async () => {
 });
 
 describe("菜鸟教程知识装配", () => {
+  it("装配同型别转入独立路径并阻断转机型经历链误用", async () => {
+    const data = await loadBeginnerTutorialData(contentRoot);
+    const sameType = findRecord(data, "same-type-transfer-path");
+
+    expect(sameType.status).toBe("confirmed");
+    expect(sameType.category).toBe("转入人员分流");
+    expect(sameType.audience).toContain("相同组类同一型别");
+    expect(sameType.action).toContain("不安排副驾驶或机长转机型训练");
+    expect(sameType.action).toContain("CCAR-121.465熟练检查");
+    expect(sameType.lifecycle).toContain("训练和检查合格不等于运行权限自动生效");
+    expect(sectionText(sameType, "1. 先确认是否属于转机型")).toContain("不进入副驾驶A1→A2的25小时监视经历链");
+    expect(sectionText(sameType, "3. 非临时同型别转入")).toContain("向局方申请缩减复训课程");
+    expect(sectionText(sameType, "4. 临时转入的边界")).toContain("CCAR-121.415");
+    expect(sectionText(sameType, "5. 原公司运行资质恢复")).toContain("具有B777机型资质");
+    expect(sectionText(sameType, "6. 原资格或近期经历已失效")).toContain("重新获得资格训练模块");
+    expect(sameType.sources.map((source) => source.id)).toEqual([
+      "training-2",
+      "technical-1",
+      "technical-3",
+      "technical-5",
+      "technical-H"
+    ]);
+    expect(sameType.recoveryRecords?.map((record) => record.targetId)).toEqual([
+      "recovery-recency",
+      "recovery-line-flying-interruption",
+      "recovery-overdue",
+      "recovery-proficiency-failure-copilot",
+      "recovery-proficiency-failure-captain"
+    ]);
+  });
+
   it("装配转机型主链和直接适用的资格恢复入口", async () => {
     const data = await loadBeginnerTutorialData(contentRoot);
     const copilotPath = findRecord(data, "copilot-type-transition-path");
@@ -160,7 +191,7 @@ describe("菜鸟教程知识装配", () => {
     const captainFailure = findRecord(data, "recovery-proficiency-failure-captain");
 
     expect(JSON.stringify(data)).not.toContain('"embeddedRecords"');
-    expect(records).toHaveLength(74);
+    expect(records).toHaveLength(75);
     expect(captainB.recoveryRecords).toEqual(expect.arrayContaining([
       expect.objectContaining({
         targetId: "recovery-proficiency-failure-captain",
