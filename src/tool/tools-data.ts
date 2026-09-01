@@ -17,6 +17,7 @@ export const tools: ToolItem[] = [
     { name: "文本拼接助手", desc: "清除换行与常见分隔符，按指定字符重新拼接", entry: "text-joiner", status: "done", category: "light", homepageVisibility: "hidden" },
     { name: "人员结构统计", desc: "按报告口径统计人员结构并生成报告", entry: "personnel-structure-stats", status: "done", category: "light", homepageVisibility: "hidden" },
     { name: "运行资质比对", desc: "按员工号核对人员信息与飞行门户运行资质名册", entry: "qualification-roster-compare", status: "done", category: "light" },
+    { name: "国际航班资质反推", desc: "按地区机场和反推日期查找近期国际航班并导出", entry: "international-flight-reverse", status: "done", category: "light" },
     { name: "锁班乞丐", desc: "乞丐版，用playwright自动化模拟锁班。", entry: "lock-entry-helper", status: "done", category: "automation", homepageState: "cooling" },
     { name: "飞行经历查询（乞丐版）", desc: "playwright批量查询飞行时间+起落数、飞行经历+起落数、左座经历+起落数或全部数据", entry: "flight-stats-helper", status: "done", category: "automation", homepageState: "cooling" },
     { name: "珠海皇帝", desc: "核对场次表与账单表姓名人次", entry: "session-bill-check", status: "done", category: "light", homepageState: "cooling" },

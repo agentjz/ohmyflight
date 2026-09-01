@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>国际航班资质反推</title>
+  <script src="../../../theme.js"></script>
+  <link rel="stylesheet" href="../../../libs/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../theme.css">
+  <style>
+    body { background: transparent; padding: 20px; }
+    .page-shell { width: min(1500px, 100%); margin: 0 auto; }
+    .section-card { margin-bottom: 16px; }
+    .upload-grid, .config-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .file-box, .config-box { border: 1px solid var(--watchdog-border); padding: 14px; background: var(--watchdog-surface); }
+    .file-name { color: var(--watchdog-text-muted); font-size: 13px; margin-top: 8px; word-break: break-all; }
+    .status-line, .file-status { margin-top: 10px; padding: 8px 10px; border: 1px solid var(--watchdog-border); color: var(--watchdog-text-muted); }
+    .status-success { border-color: var(--watchdog-success-border); background: var(--watchdog-success-bg); color: var(--watchdog-success-text); }
+    .status-danger { border-color: var(--watchdog-danger-border); background: var(--watchdog-danger-bg); color: var(--watchdog-danger-text); }
+    .status-warning { border-color: var(--watchdog-warning-border); background: var(--watchdog-warning-bg); color: var(--watchdog-warning-text); }
+    .summary-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .summary-item { border: 1px solid var(--watchdog-border); padding: 12px; background: var(--watchdog-surface); }
+    .summary-item span { display: block; color: var(--watchdog-text-muted); font-size: 12px; }
+    .summary-item strong { display: block; font-size: 24px; margin-top: 4px; }
+    .table-shell { overflow: auto; max-height: 460px; border: 1px solid var(--watchdog-border); }
+    table { margin: 0 !important; min-width: 1000px; }
+    .detail-table { min-width: 1180px; }
+    .issue-table { min-width: 760px; }
+    th { position: sticky; top: 0; background: var(--watchdog-surface-muted) !important; white-space: nowrap; z-index: 1; }
+    td, th { padding: 8px 10px !important; vertical-align: middle; }
+    .empty-cell { text-align: center; color: var(--watchdog-text-muted); padding: 24px !important; }
+    .status-tag { display: inline-block; border: 1px solid var(--watchdog-border); padding: 2px 6px; font-size: 12px; white-space: nowrap; }
+    .status-tag.status-success { border-color: var(--watchdog-success-border); background: var(--watchdog-success-bg); color: var(--watchdog-success-text); }
+    .status-tag.status-warning { border-color: var(--watchdog-warning-border); background: var(--watchdog-warning-bg); color: var(--watchdog-warning-text); }
+    .status-tag.status-danger { border-color: var(--watchdog-danger-border); background: var(--watchdog-danger-bg); color: var(--watchdog-danger-text); }
+    .parameter-grid { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 12px; }
+    .check-row { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+    .check-row label { display: inline-flex; align-items: center; gap: 6px; }
+    textarea { min-height: 128px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    @media (max-width: 900px) { .upload-grid, .config-grid, .parameter-grid, .summary-grid { grid-template-columns: 1fr; } body { padding: 12px; } }
+  </style>
+</head>
+<body>
+<main class="page-shell">
+  <div class="card section-card"><div class="card-body text-center position-relative py-2"><a href="../../../index.html" class="position-absolute start-0 top-50 translate-middle-y ms-3 text-decoration-none">返回</a><h5 class="card-title mb-0">国际航班资质反推</h5></div></div>
+
+  <section class="card section-card"><div class="card-body">
+    <h6 class="card-title border-bottom pb-2 mb-3">上传 Excel</h6>
+    <div class="upload-grid">
+      <div class="file-box"><label class="form-label" for="flightFile">航班明细表</label><input id="flightFile" class="form-control" type="file" accept=".xls,.xlsx"><div id="flightFileName" class="file-name">尚未选择</div><div id="flightStatus" class="file-status">尚未选择航班明细文件。</div></div>
+      <div class="file-box"><label class="form-label" for="employeeFile">员工信息表</label><input id="employeeFile" class="form-control" type="file" accept=".xls,.xlsx"><div id="employeeFileName" class="file-name">尚未选择</div><div id="employeeStatus" class="file-status">尚未选择员工信息文件。</div></div>
+    </div>
+  </div></section>
+
+  <section class="card section-card"><div class="card-body">
+    <h6 class="card-title border-bottom pb-2 mb-3">规则参数</h6>
+    <div class="config-grid">
+      <div class="config-box"><label class="form-label" for="airportConfig">地区机场三字码</label><textarea id="airportConfig" class="form-control" spellcheck="false"></textarea><div class="form-text">每行一个地区，格式：地区=LAX,JFK,ORD</div></div>
+      <div class="config-box"><div class="parameter-grid">
+        <div><label class="form-label" for="recentLimit">近期航班数</label><input id="recentLimit" class="form-control" type="number" min="1" max="1000" step="1"></div>
+        <div><label class="form-label" for="validityYears">资质年限</label><input id="validityYears" class="form-control" type="number" min="1" max="10" step="1"></div>
+        <div><label class="form-label" for="overlapMonths">重叠月数</label><input id="overlapMonths" class="form-control" type="number" min="0" max="12" step="1"></div>
+        <div><label class="form-label" for="monthEndDay">目标月日期</label><input id="monthEndDay" class="form-control" type="number" min="0" max="31" step="1"><div class="form-text">0=自然月末</div></div>
+      </div><div class="check-row"><label><input id="matchDeparture" type="checkbox" checked> 离场命中</label><label><input id="matchArrival" type="checkbox" checked> 到达命中</label></div></div>
+    </div>
+    <div id="statusLine" class="status-line status-info">请选择两份 Excel 文件。</div>
+    <div class="d-flex gap-2 mt-3"><button id="analyzeButton" class="btn btn-primary" disabled>开始分析</button><button id="exportButton" class="btn btn-outline-primary" disabled>导出 Excel</button></div>
+  </div></section>
+
+  <section id="summarySection" class="card section-card" hidden><div class="card-body"><h6 class="card-title border-bottom pb-2 mb-3">分析摘要</h6><div id="summaryGrid" class="summary-grid mb-3"></div><div class="table-shell"><table class="table table-hover align-middle"><thead><tr><th>员工号</th><th>姓名</th><th>地区</th><th>反推日期</th><th>状态</th><th>最近航班</th><th>建议有效期</th><th>近期数量</th><th>命中机场</th><th>说明</th></tr></thead><tbody id="summaryBody"></tbody></table></div></div></section>
+
+  <section id="detailSection" class="card section-card" hidden><div class="card-body"><h6 class="card-title border-bottom pb-2 mb-3">机场近期航班明细</h6><div class="table-shell"><table class="table table-hover align-middle detail-table"><thead><tr><th>员工号</th><th>姓名</th><th>地区</th><th>机场</th><th>序号</th><th>日期</th><th>航班号</th><th>离场</th><th>到达</th><th>阶段</th><th>命中机场</th><th>来源位置</th></tr></thead><tbody id="detailBody"></tbody></table></div></div></section>
+
+  <section id="issueSection" class="card section-card" hidden><div class="card-body"><h6 class="card-title border-bottom pb-2 mb-3">数据问题</h6><div class="table-shell"><table class="table table-hover align-middle issue-table"><thead><tr><th>来源</th><th>问题类型</th><th>说明</th><th>工作表</th><th>行号</th><th>员工号</th><th>地区</th></tr></thead><tbody id="issueBody"></tbody></table></div></div></section>
+</main>
+<script src="../../../libs/xlsx.full.min.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
