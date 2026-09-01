@@ -16,6 +16,7 @@ describe("international flight reverse export", () => {
     const workbook = buildInternationalFlightExportWorkbook(XLSX, result);
     expect(workbook.SheetNames).toEqual(["最近航班汇总", "近期航班明细", "机场近期航班", "机场配置", "数据问题"]);
     expect(workbook.Sheets["最近航班汇总"].A1.v).toBe("员工号");
+    expect(workbook.Sheets["最近航班汇总"].K1.v).toBe("临期资质表位置");
     expect(workbook.Sheets["近期航班明细"].F2.v).toBe("2026-08-01");
     expect(workbook.Sheets["机场近期航班"].D2.v).toBe("LAX");
     expect(workbook.Sheets["机场配置"].A5.v).toBe("每项近期航班数");

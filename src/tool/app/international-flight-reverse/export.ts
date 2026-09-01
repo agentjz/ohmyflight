@@ -19,7 +19,7 @@ function issueSource(issue: DataIssue): string {
 export function buildInternationalFlightExportWorkbook(XLSXApi: WorkbookApi, result: AnalysisResult): XLSX.WorkBook {
   const workbook = XLSXApi.utils.book_new();
   const summaryRows: Array<Array<string | number>> = [
-    ["员工号", "姓名", "地区", "反推日期", "状态", "最近航班日期", "建议资质有效期", "近期航班数", "命中机场", "说明", "员工表位置"],
+    ["员工号", "姓名", "地区", "反推日期", "状态", "最近航班日期", "建议资质有效期", "近期航班数", "命中机场", "说明", "临期资质表位置"],
     ...result.tasks.map((task) => [
       task.employeeId,
       task.name,

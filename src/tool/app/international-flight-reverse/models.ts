@@ -39,7 +39,7 @@ export type IssueKind =
   | "invalid-config";
 
 export interface DataIssue {
-  source: "员工信息" | "航班明细" | "机场配置" | "分析";
+  source: "临期资质表" | "航班明细" | "机场配置" | "分析";
   kind: IssueKind;
   message: string;
   sheetName?: string;

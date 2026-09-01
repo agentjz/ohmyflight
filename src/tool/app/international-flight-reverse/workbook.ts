@@ -29,6 +29,18 @@ function text(value: CellValue): string {
   return String(value).trim();
 }
 
+const REGION_KEYWORDS: Array<{ keyword: string; region: string }> = [
+  { keyword: "北美", region: "北美" },
+  { keyword: "西亚", region: "西亚" },
+  { keyword: "欧洲", region: "欧洲" },
+  { keyword: "东南亚", region: "东南亚" }
+];
+
+export function normalizeRegionLabel(value: CellValue): string {
+  const raw = text(value);
+  return REGION_KEYWORDS.find((item) => raw.includes(item.keyword))?.region || raw;
+}
+
 export function normalizeEmployeeId(value: CellValue): string {
   if (value === null || value === undefined || value === "") return "";
   let normalized = typeof value === "number" && Number.isInteger(value) ? String(value) : text(value);
@@ -123,7 +135,7 @@ export function parseAirportRegions(XLSXApi: WorkbookApi, workbook: XLSX.WorkBoo
   const byRegion = new Map<string, string[]>();
   for (let index = found.headerIndex + 1; index < found.rows.length; index += 1) {
     const row = found.rows[index] || [];
-    const region = text(row[regionIndex]);
+    const region = normalizeRegionLabel(row[regionIndex]);
     const rawCodes = row[codeIndex];
     if (!region && !text(rawCodes)) continue;
     const parsed = parseAirportCodeList(rawCodes);
@@ -145,7 +157,7 @@ export function parseAirportRegions(XLSXApi: WorkbookApi, workbook: XLSX.WorkBoo
 export function parseEmployeeWorkbook(XLSXApi: WorkbookApi, workbook: XLSX.WorkBook): ParsedEmployees {
   const issues: DataIssue[] = [];
   const found = findHeader(XLSXApi, workbook, [EMPLOYEE_HEADERS, NAME_HEADERS, REGION_HEADERS, DATE_HEADERS]);
-  if (!found) throw new Error("未找到员工信息表：需要包含员工号、姓名、地区和反推日期表头。");
+  if (!found) throw new Error("未找到临期资质表：需要包含员工号、姓名、地区和反推日期表头。");
   const employeeIndex = findColumn(found.headers, EMPLOYEE_HEADERS);
   const nameIndex = findColumn(found.headers, NAME_HEADERS);
   const regionIndex = findColumn(found.headers, REGION_HEADERS);
@@ -158,14 +170,14 @@ export function parseEmployeeWorkbook(XLSXApi: WorkbookApi, workbook: XLSX.WorkB
     const rowNumber = index + 1;
     const employeeId = normalizeEmployeeId(row[employeeIndex]);
     const name = text(row[nameIndex]);
-    const region = text(row[regionIndex]);
+    const region = normalizeRegionLabel(row[regionIndex]);
     const reverseDate = normalizeDate(row[dateIndex], XLSXApi);
-    if (!employeeId) issues.push({ source: "员工信息", kind: "invalid-employee-id", message: "员工号为空或不是数字。", sheetName: found.sheetName, rowNumber });
-    if (!reverseDate) issues.push({ source: "员工信息", kind: "invalid-date", message: "反推日期格式无效。", sheetName: found.sheetName, rowNumber, employeeId, region });
+    if (!employeeId) issues.push({ source: "临期资质表", kind: "invalid-employee-id", message: "员工号为空或不是数字。", sheetName: found.sheetName, rowNumber });
+    if (!reverseDate) issues.push({ source: "临期资质表", kind: "invalid-date", message: "反推日期格式无效。", sheetName: found.sheetName, rowNumber, employeeId, region });
     if (!employeeId || !reverseDate) continue;
     const taskKey = `${employeeId}\u0000${region}\u0000${reverseDate}`;
     if (seen.has(taskKey)) {
-      issues.push({ source: "员工信息", kind: "duplicate-task", message: "员工号、地区和反推日期重复。", sheetName: found.sheetName, rowNumber, employeeId, region });
+      issues.push({ source: "临期资质表", kind: "duplicate-task", message: "员工号、地区和反推日期重复。", sheetName: found.sheetName, rowNumber, employeeId, region });
       continue;
     }
     seen.add(taskKey);

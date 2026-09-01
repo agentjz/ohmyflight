@@ -40,7 +40,7 @@ function init(): void {
     flightFileName: "",
     employeeFileName: "",
     flightStatus: "尚未选择航班明细文件。",
-    employeeStatus: "尚未选择员工信息文件。",
+    employeeStatus: "尚未选择临期资质表文件。",
     statusKind: "info",
     statusMessage: "请选择两份 Excel 文件。",
     result: null
@@ -97,7 +97,7 @@ function init(): void {
       state.employeeFileName = "";
       state.employeeStatus = error instanceof Error ? error.message : String(error);
       state.statusKind = "danger";
-      state.statusMessage = "员工信息读取失败。";
+      state.statusMessage = "临期资质表读取失败。";
     }
     update();
   });
