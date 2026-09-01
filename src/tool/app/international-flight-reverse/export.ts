@@ -6,7 +6,17 @@ type WorkbookApi = typeof XLSX;
 
 function appendSheet(XLSXApi: WorkbookApi, workbook: XLSX.WorkBook, name: string, rows: Array<Array<string | number>>, widths: number[]): void {
   const sheet = XLSXApi.utils.aoa_to_sheet(rows);
-  sheet["!autofilter"] = { ref: `A1:${String.fromCharCode(64 + widths.length)}${Math.max(1, rows.length)}` };
+  const columnLetters = (columnNumber: number): string => {
+    let value = columnNumber;
+    let result = "";
+    while (value > 0) {
+      const remainder = (value - 1) % 26;
+      result = String.fromCharCode(65 + remainder) + result;
+      value = Math.floor((value - 1) / 26);
+    }
+    return result;
+  };
+  sheet["!autofilter"] = { ref: `A1:${columnLetters(widths.length)}${Math.max(1, rows.length)}` };
   sheet["!freeze"] = { ySplit: 1 } as never;
   sheet["!cols"] = widths.map((wch) => ({ wch }));
   XLSXApi.utils.book_append_sheet(workbook, sheet, name);
@@ -19,10 +29,11 @@ function issueSource(issue: DataIssue): string {
 export function buildInternationalFlightExportWorkbook(XLSXApi: WorkbookApi, result: AnalysisResult): XLSX.WorkBook {
   const workbook = XLSXApi.utils.book_new();
   const summaryRows: Array<Array<string | number>> = [
-    ["员工号", "姓名", "地区", "反推日期", "状态", "最近航班日期", "建议资质有效期", "近期航班数", "命中机场", "说明", "临期资质表位置"],
+    ["员工号", "姓名", "资质", "地区", "反推日期", "状态", "最近航班日期", "建议资质有效期", "近期航班数", "命中机场", "说明", "临期资质表位置"],
     ...result.tasks.map((task) => [
       task.employeeId,
       task.name,
+      task.qualification || task.region,
       task.region,
       task.reverseDate,
       task.status,
@@ -35,10 +46,11 @@ export function buildInternationalFlightExportWorkbook(XLSXApi: WorkbookApi, res
     ])
   ];
   const detailRows: Array<Array<string | number>> = [
-    ["员工号", "姓名", "地区", "反推日期", "序号", "航班日期", "航班号", "离场", "到达", "命中机场", "飞行阶段", "航班表位置"],
+    ["员工号", "姓名", "资质", "地区", "反推日期", "序号", "航班日期", "航班号", "离场", "到达", "命中机场", "飞行阶段", "航班表位置"],
     ...result.tasks.flatMap((task) => task.recentFlights.map((flight) => [
       task.employeeId,
       task.name,
+      task.qualification || task.region,
       task.region,
       task.reverseDate,
       flight.rank,
@@ -52,10 +64,11 @@ export function buildInternationalFlightExportWorkbook(XLSXApi: WorkbookApi, res
     ]))
   ];
   const airportDetailRows: Array<Array<string | number>> = [
-    ["员工号", "姓名", "地区", "机场", "序号", "航班日期", "航班号", "离场", "到达", "命中机场", "飞行阶段", "航班表位置"],
+    ["员工号", "姓名", "资质", "地区", "机场", "序号", "航班日期", "航班号", "离场", "到达", "命中机场", "飞行阶段", "航班表位置"],
     ...result.tasks.flatMap((task) => task.airportRecentFlights.flatMap((airportGroup) => airportGroup.flights.map((flight) => [
       task.employeeId,
       task.name,
+      task.qualification || task.region,
       task.region,
       airportGroup.airport,
       flight.rank,
@@ -84,9 +97,9 @@ export function buildInternationalFlightExportWorkbook(XLSXApi: WorkbookApi, res
     ["来源", "问题类型", "说明", "工作表", "行号", "员工号", "地区"],
     ...result.issues.map((issue) => [issueSource(issue), issue.kind, issue.message, issue.sheetName || "", issue.rowNumber || "", issue.employeeId || "", issue.region || ""])
   ];
-  appendSheet(XLSXApi, workbook, "最近航班汇总", summaryRows, [12, 12, 10, 13, 12, 13, 16, 12, 16, 36, 20]);
-  appendSheet(XLSXApi, workbook, "近期航班明细", detailRows, [12, 12, 10, 13, 8, 13, 10, 10, 10, 14, 12, 20]);
-  appendSheet(XLSXApi, workbook, "机场近期航班", airportDetailRows, [12, 12, 10, 10, 8, 13, 10, 10, 10, 14, 12, 20]);
+  appendSheet(XLSXApi, workbook, "最近航班汇总", summaryRows, [12, 12, 36, 10, 13, 12, 13, 16, 12, 16, 36, 20]);
+  appendSheet(XLSXApi, workbook, "近期航班明细", detailRows, [12, 12, 36, 10, 13, 8, 13, 10, 10, 10, 14, 12, 20]);
+  appendSheet(XLSXApi, workbook, "机场近期航班", airportDetailRows, [12, 12, 36, 10, 10, 8, 13, 10, 10, 10, 14, 12, 20]);
   appendSheet(XLSXApi, workbook, "机场配置", configRows, [28, 30]);
   appendSheet(XLSXApi, workbook, "数据问题", issueRows, [12, 22, 42, 18, 8, 12, 12]);
   return workbook;

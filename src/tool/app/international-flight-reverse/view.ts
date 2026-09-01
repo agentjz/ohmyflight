@@ -36,13 +36,13 @@ function renderTaskRows(result: AnalysisResult): void {
   body.innerHTML = result.tasks.length ? result.tasks.map((task) => {
     const matched = [...new Set(task.recentFlights.flatMap((flight) => flight.matchedAirports))].join(",");
     const statusClass = task.status === "已找到" ? "status-success" : task.status === "未找到" ? "status-warning" : "status-danger";
-    return `<tr><td>${escapeHtml(task.employeeId)}</td><td>${escapeHtml(task.name)}</td><td>${escapeHtml(task.region)}</td><td>${escapeHtml(task.reverseDate)}</td><td><span class="status-tag ${statusClass}">${task.status}</span></td><td>${escapeHtml(task.latestDate || "-")}</td><td>${escapeHtml(task.suggestedExpiryDate || "-")}</td><td>${task.recentFlights.length}</td><td>${escapeHtml(matched || "-")}</td><td>${escapeHtml(task.message)}</td></tr>`;
-  }).join("") : `<tr><td colspan="10" class="empty-cell">没有可展示的任务</td></tr>`;
+    return `<tr><td>${escapeHtml(task.employeeId)}</td><td>${escapeHtml(task.name)}</td><td>${escapeHtml(task.qualification || task.region)}</td><td>${escapeHtml(task.region)}</td><td>${escapeHtml(task.reverseDate)}</td><td><span class="status-tag ${statusClass}">${task.status}</span></td><td>${escapeHtml(task.latestDate || "-")}</td><td>${escapeHtml(task.suggestedExpiryDate || "-")}</td><td>${task.recentFlights.length}</td><td>${escapeHtml(matched || "-")}</td><td>${escapeHtml(task.message)}</td></tr>`;
+  }).join("") : `<tr><td colspan="11" class="empty-cell">没有可展示的任务</td></tr>`;
 }
 
 function renderFlightRows(result: AnalysisResult): void {
   const rows = result.tasks.flatMap((task) => task.airportRecentFlights.flatMap((group) => group.flights.map((flight) => ({ task, airport: group.airport, flight }))));
-  element<HTMLElement>("detailBody").innerHTML = rows.length ? rows.map(({ task, airport, flight }) => `<tr><td>${escapeHtml(task.employeeId)}</td><td>${escapeHtml(task.name)}</td><td>${escapeHtml(task.region)}</td><td>${escapeHtml(airport)}</td><td>${flight.rank}</td><td>${escapeHtml(flight.date)}</td><td>${escapeHtml(flight.flightNumber || "-")}</td><td>${escapeHtml(flight.departure)}</td><td>${escapeHtml(flight.arrival)}</td><td>${escapeHtml(flight.stage || "-")}</td><td>${escapeHtml(flight.matchedAirports.join(","))}</td><td>${escapeHtml(`${flight.sourceSheet} 第${flight.sourceRow}行`)}</td></tr>`).join("") : `<tr><td colspan="12" class="empty-cell">没有符合条件的近期航班</td></tr>`;
+  element<HTMLElement>("detailBody").innerHTML = rows.length ? rows.map(({ task, airport, flight }) => `<tr><td>${escapeHtml(task.employeeId)}</td><td>${escapeHtml(task.name)}</td><td>${escapeHtml(task.qualification || task.region)}</td><td>${escapeHtml(task.region)}</td><td>${escapeHtml(airport)}</td><td>${flight.rank}</td><td>${escapeHtml(flight.date)}</td><td>${escapeHtml(flight.flightNumber || "-")}</td><td>${escapeHtml(flight.departure)}</td><td>${escapeHtml(flight.arrival)}</td><td>${escapeHtml(flight.stage || "-")}</td><td>${escapeHtml(flight.matchedAirports.join(","))}</td><td>${escapeHtml(`${flight.sourceSheet} 第${flight.sourceRow}行`)}</td></tr>`).join("") : `<tr><td colspan="13" class="empty-cell">没有符合条件的近期航班</td></tr>`;
 }
 
 function renderIssues(result: AnalysisResult): void {

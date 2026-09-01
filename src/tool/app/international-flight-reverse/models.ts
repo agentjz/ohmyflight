@@ -11,6 +11,7 @@ export interface AirportRegion {
 export interface EmployeeTask {
   employeeId: string;
   name: string;
+  qualification: string;
   region: string;
   reverseDate: string;
   sourceSheet: string;
@@ -94,6 +95,7 @@ export type TaskStatus = "已找到" | "未找到" | "地区无配置";
 export interface TaskResult {
   employeeId: string;
   name: string;
+  qualification: string;
   region: string;
   reverseDate: string;
   status: TaskStatus;

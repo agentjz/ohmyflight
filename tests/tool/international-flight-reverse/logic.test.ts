@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { analyzeInternationalFlights, calculateSuggestedExpiry, parseAirportConfigText } from "../../../src/tool/app/international-flight-reverse/logic";
 import type { EmployeeTask, FlightRecord } from "../../../src/tool/app/international-flight-reverse/models";
 
-const task: EmployeeTask = { employeeId: "000001", name: "张三", region: "北美", reverseDate: "2026-09-30", sourceSheet: "临期资质表", sourceRow: 2 };
+const task: EmployeeTask = { employeeId: "000001", name: "张三", qualification: "北美区域英语通信资格", region: "北美", reverseDate: "2026-09-30", sourceSheet: "临期资质表", sourceRow: 2 };
 const flight = (date: string, flightNumber: string, departure: string, arrival: string, sourceRow: number, stage = "起飞"): FlightRecord => ({ employeeId: "000001", name: "张三", date, flightNumber, departure, arrival, stage, sourceSheet: "航班明细", sourceRow });
 
 describe("international flight reverse logic", () => {

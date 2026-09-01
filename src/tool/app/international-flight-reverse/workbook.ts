@@ -15,6 +15,7 @@ import {
 const EMPLOYEE_HEADERS = ["员工号", "工号", "员工编号"];
 const NAME_HEADERS = ["姓名", "员工姓名"];
 const REGION_HEADERS = ["地区", "区域"];
+const QUALIFICATION_HEADERS = ["资质", "地区", "区域"];
 const DATE_HEADERS = ["反推日期", "截止日期", "查询日期"];
 const FLIGHT_DATE_HEADERS = ["日期", "航班日期", "飞行日期"];
 const DEPARTURE_HEADERS = ["离场", "离场机场", "起飞机场"];
@@ -156,11 +157,11 @@ export function parseAirportRegions(XLSXApi: WorkbookApi, workbook: XLSX.WorkBoo
 
 export function parseEmployeeWorkbook(XLSXApi: WorkbookApi, workbook: XLSX.WorkBook): ParsedEmployees {
   const issues: DataIssue[] = [];
-  const found = findHeader(XLSXApi, workbook, [EMPLOYEE_HEADERS, NAME_HEADERS, REGION_HEADERS, DATE_HEADERS]);
-  if (!found) throw new Error("未找到临期资质表：需要包含员工号、姓名、地区和反推日期表头。");
+  const found = findHeader(XLSXApi, workbook, [EMPLOYEE_HEADERS, NAME_HEADERS, QUALIFICATION_HEADERS, DATE_HEADERS]);
+  if (!found) throw new Error("未找到临期资质表：需要包含员工号、姓名、资质和反推日期表头。");
   const employeeIndex = findColumn(found.headers, EMPLOYEE_HEADERS);
   const nameIndex = findColumn(found.headers, NAME_HEADERS);
-  const regionIndex = findColumn(found.headers, REGION_HEADERS);
+  const regionIndex = findColumn(found.headers, QUALIFICATION_HEADERS);
   const dateIndex = findColumn(found.headers, DATE_HEADERS);
   const tasks: EmployeeTask[] = [];
   const seen = new Set<string>();
@@ -170,18 +171,19 @@ export function parseEmployeeWorkbook(XLSXApi: WorkbookApi, workbook: XLSX.WorkB
     const rowNumber = index + 1;
     const employeeId = normalizeEmployeeId(row[employeeIndex]);
     const name = text(row[nameIndex]);
-    const region = normalizeRegionLabel(row[regionIndex]);
+    const qualification = text(row[regionIndex]);
+    const region = normalizeRegionLabel(qualification);
     const reverseDate = normalizeDate(row[dateIndex], XLSXApi);
     if (!employeeId) issues.push({ source: "临期资质表", kind: "invalid-employee-id", message: "员工号为空或不是数字。", sheetName: found.sheetName, rowNumber });
     if (!reverseDate) issues.push({ source: "临期资质表", kind: "invalid-date", message: "反推日期格式无效。", sheetName: found.sheetName, rowNumber, employeeId, region });
     if (!employeeId || !reverseDate) continue;
-    const taskKey = `${employeeId}\u0000${region}\u0000${reverseDate}`;
+    const taskKey = `${employeeId}\u0000${qualification}\u0000${reverseDate}`;
     if (seen.has(taskKey)) {
-      issues.push({ source: "临期资质表", kind: "duplicate-task", message: "员工号、地区和反推日期重复。", sheetName: found.sheetName, rowNumber, employeeId, region });
+      issues.push({ source: "临期资质表", kind: "duplicate-task", message: "员工号、资质和反推日期重复。", sheetName: found.sheetName, rowNumber, employeeId, region });
       continue;
     }
     seen.add(taskKey);
-    tasks.push({ employeeId, name, region, reverseDate, sourceSheet: found.sheetName, sourceRow: rowNumber });
+    tasks.push({ employeeId, name, qualification, region, reverseDate, sourceSheet: found.sheetName, sourceRow: rowNumber });
   }
   const airport = parseAirportRegions(XLSXApi, workbook);
   issues.push(...airport.issues);

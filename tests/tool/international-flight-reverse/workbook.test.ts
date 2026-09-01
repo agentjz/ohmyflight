@@ -36,17 +36,19 @@ describe("international flight reverse workbook parsing", () => {
   it("normalizes qualification descriptions containing supported region keywords", () => {
     const workbook = buildWorkbook({
       临期资质表: [
-        ["员工号", "姓名", "地区", "反推日期"],
+        ["员工号", "姓名", "资质", "反推日期"],
         [208978, "朱嘉俊", "北美区域英语通信资格", "2026-09-30"],
         [212810, "彭程", "除俄罗斯外的欧洲区域英语通信资格", "2026-09-30"],
         [276035, "曾渝浩", "西亚和撒哈拉以北的非洲区域英语通信资格", "2026-09-30"],
         [210239, "罗竣艺", "北美区域英语通信资格", "2026-09-30"],
         [210239, "罗竣艺", "除俄罗斯外的欧洲区域英语通信资格", "2026-09-30"],
+        [210239, "罗竣艺", "西亚区域单飞资格", "2026-09-30"],
         [181737, "颜文彬", "777;东南亚及港澳台区域单飞资格", "2026-09-30"]
       ]
     });
 
     const result = parseEmployeeWorkbook(XLSX, workbook);
-    expect(result.tasks.map((task) => task.region)).toEqual(["北美", "欧洲", "西亚", "北美", "欧洲", "东南亚"]);
+    expect(result.tasks.map((task) => task.region)).toEqual(["北美", "欧洲", "西亚", "北美", "欧洲", "西亚", "东南亚"]);
+    expect(result.tasks[0].qualification).toBe("北美区域英语通信资格");
   });
 });
