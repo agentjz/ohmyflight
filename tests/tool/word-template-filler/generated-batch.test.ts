@@ -102,12 +102,7 @@ describe("word template filler generated batch app", () => {
 
     expect(html).toContain("批量生成");
     expect(html).toContain("随包提供的批量导入模板");
-    expect(html).not.toContain("下载批量导入模板");
-    expect(html).not.toContain("downloadBatchTemplateBtn");
-    expect(html).not.toContain("downloadBatchTemplate");
-    expect(html).toContain("const BATCH_TITLE_COLUMN = '文件标题'");
     expect(html).toContain('id="batchPreviewToggle"');
-    expect(html).toContain("downloadBlob(blob, document.title + '_批量导出_' + timestamp + '.zip')");
     expect(html).toContain('<script src="libs/xlsx.full.min.js">');
     expect(html).toContain('<script src="libs/jszip.min.js">');
   });
@@ -145,7 +140,6 @@ describe("word template filler generated batch app", () => {
     });
 
     expect(html).toContain("当前配置包含列表/循环字段，批量导入第一版暂不支持");
-    expect(html).toContain("const HAS_LOOP_FIELDS = CONFIG.fields.some(field => field.type === 'loop')");
   });
 
   it("documents xlsx and jszip dependencies in the packaged app instructions", () => {

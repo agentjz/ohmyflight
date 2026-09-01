@@ -10,6 +10,7 @@ import {
   type ParsedFlights
 } from "./models";
 import { parseEmployeeWorkbook, parseFlightWorkbook } from "./workbook";
+import { buildInternationalFlightTemplateWorkbook } from "./template";
 import { renderReverseView, type ReverseViewState } from "./view";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -120,6 +121,10 @@ function init(): void {
   element<HTMLButtonElement>("exportButton").addEventListener("click", () => {
     if (!state.result) return;
     XLSXApi.writeFile(buildInternationalFlightExportWorkbook(XLSXApi, state.result), "国际航班资质反推.xlsx");
+  });
+
+  element<HTMLButtonElement>("templateButton").addEventListener("click", () => {
+    XLSXApi.writeFile(buildInternationalFlightTemplateWorkbook(XLSXApi), "国际航班资质反推模板.xlsx");
   });
 
   update();

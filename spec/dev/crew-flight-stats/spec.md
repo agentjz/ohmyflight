@@ -8,7 +8,7 @@
 
 - 排班表支持 `.xlsx`、`.xls`，用户选择一个或多个工作表参与统计。
 - 每个排班工作表第一行为表头；从第二行开始，A 列为航线名称，其余非空单元格为机组文本。
-- 花名册从第二行起读取 B 列姓名。页面可加载默认花名册或由用户选择文件。
+- 花名册从第二行起读取 B 列姓名。页面提供“下载花名册模板”入口，可加载默认花名册或由用户选择文件。
 - 页面另提供文本姓名识别区，按花名册识别粘贴内容，不进入班次统计主结果。
 
 ## 统计规则
@@ -28,7 +28,7 @@
 ## 代码与验证
 
 - 页面：`public/tool/app/crew-flight-stats/index.html`
+- 固定模板：`public/template/机组花名册.xlsx`，页面标题栏提供下载入口。
 - 统计规则：`src/tool/app/crew-flight-stats/logic.ts`
 - 文件与页面接线：`src/tool/app/crew-flight-stats/file-actions.ts`、`main.ts`
 - 测试：`tests/tool/crew-flight-stats/logic.test.ts`
-

@@ -1,14 +1,11 @@
 import fs from "node:fs";
 import vm from "node:vm";
 
-import { tools } from "../../src/tool/tools-data";
 import { resolveFromDist } from "./paths";
 
 type BrowserSandbox = Record<string, unknown> & {
   window?: BrowserSandbox;
   globalThis?: BrowserSandbox;
-  __tools?: ToolItem[];
-  __skills?: SkillItem[];
 };
 
 function createBaseSandbox(overrides: Record<string, unknown> = {}): BrowserSandbox {
@@ -58,12 +55,4 @@ export function loadBrowserVendor(relativePath: string, overrides: Record<string
   const context = createBrowserContext(overrides);
   runBrowserVendor(relativePath, context);
   return context;
-}
-
-export function loadToolsData() {
-  return tools;
-}
-
-export function loadSkillsData() {
-  return JSON.parse(fs.readFileSync(resolveFromDist("tool", "skills-data.json"), "utf8")) as SkillItem[];
 }
